@@ -1,8 +1,8 @@
 # Statewave — Marketing Website
 
-The official product website for [Statewave](https://statewave.dev), the trusted context runtime for AI agents.
+The official product website for [Statewave](https://statewave.ai), the trusted context runtime for AI agents.
 
-> **Live:** [statewave.dev](https://statewave.dev)
+> **Live:** [statewave.ai](https://statewave.ai)
 
 ## What this is
 
@@ -97,7 +97,7 @@ Three modes: `auto` (system), `light`, `dark`. Implemented via:
 
 Auto-deployed to Vercel on push to `main`. SPA routing handled via `vercel.json` rewrites.
 
-Custom domain: `statewave.dev` (configure in Vercel dashboard).
+Custom domain: `statewave.ai` (configure in Vercel dashboard).
 
 ## Ecosystem
 
@@ -114,7 +114,7 @@ Custom domain: `statewave.dev` (configure in Vercel dashboard).
 
 Recommended:
 - **Description:** `Official website for Statewave — trusted context runtime for AI agents`
-- **Website:** `https://statewave.dev`
+- **Website:** `https://statewave.ai`
 - **Topics:** `statewave`, `ai-agents`, `memory`, `context-runtime`, `marketing-site`, `react`, `vite`
 
 ## License

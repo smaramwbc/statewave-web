@@ -8,7 +8,7 @@ interface SEOProps {
 }
 
 const SITE_NAME = 'Statewave'
-const BASE_URL = 'https://statewave.dev'
+const BASE_URL = 'https://statewave.ai'
 const DEFAULT_DESCRIPTION =
   'Trusted context runtime for AI agents — durable memory infrastructure with structured episodes, compiled knowledge, ranked retrieval, and token-efficient context assembly.'
 const OG_IMAGE = `${BASE_URL}/og-image.png`

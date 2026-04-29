@@ -78,8 +78,8 @@
   <line x1="0" y1="590" x2="1200" y2="590" stroke="#1e293b" stroke-width="1"/>
 
   <!-- URL -->
-  <text x="80" y="612" font-family="Inter, -apple-system, sans-serif" font-size="16" font-weight="500" fill="#06b6d4">statewave.dev</text>
+  <text x="80" y="612" font-family="Inter, -apple-system, sans-serif" font-size="16" font-weight="500" fill="#06b6d4">statewave.ai</text>
 
   <!-- Open source label -->
-  <text x="1120" y="612" font-family="Inter, -apple-system, sans-serif" font-size="13" font-weight="500" fill="#64748b" text-anchor="end">Open Source · Apache-2.0</text>
+  <text x="1120" y="612" font-family="Inter, -apple-system, sans-serif" font-size="13" font-weight="500" fill="#64748b" text-anchor="end">Open Source · AGPL-3.0</text>
 </svg>

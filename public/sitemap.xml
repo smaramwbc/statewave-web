@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://statewave.dev/</loc>
+    <loc>https://statewave.ai/</loc>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://statewave.dev/product</loc>
+    <loc>https://statewave.ai/product</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://statewave.dev/why</loc>
+    <loc>https://statewave.ai/why</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://statewave.dev/developers</loc>
+    <loc>https://statewave.ai/developers</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
