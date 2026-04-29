@@ -41,9 +41,28 @@ interface Memory {
   label: string
 }
 
+// TODO: Connect this visualization to the real Statewave API for live data.
+// Replace mock memories/episodes with real-time subject context from
+// GET /v1/memories/search and GET /v1/timeline endpoints.
+// This will serve as a compelling real-time product demo on the marketing site.
+
 const ANIMATION_DURATION = 14
 const MEMORY_COUNT = 14
 const EPISODE_COUNT = 130
+
+// Color spectrum per group (hue-shifted for a beautiful rainbow spread)
+const GROUP_COLORS = [
+  { h: 180, s: 80, name: 'cyan' },    // Support Agent — cyan/teal
+  { h: 260, s: 75, name: 'violet' },   // Coding Assistant — violet
+  { h: 330, s: 75, name: 'rose' },     // Sales Copilot — rose/pink
+  { h: 45, s: 85, name: 'amber' },     // DevOps Agent — amber/gold
+  { h: 145, s: 70, name: 'emerald' },  // Research Assistant — emerald/green
+]
+
+function groupColor(group: number, lightness: number, alpha: number): string {
+  const c = GROUP_COLORS[group % GROUP_COLORS.length]
+  return `hsla(${c.h}, ${c.s}%, ${lightness}%, ${alpha})`
+}
 
 // 5 use-case groups, each with memories + episodes
 // Group 0: Support Agent
@@ -205,7 +224,7 @@ export function HeroBackground() {
   const themeRef = useRef(isDark)
   const startTimeRef = useRef<number>(0)
   const [tooltip, setTooltip] = useState<{ x: number; y: number; text: string; type: string } | null>(null)
-  const hoveredRef = useRef<{ kind: 'memory' | 'episode'; idx: number } | null>(null)
+  const hoveredRef = useRef<{ kind: 'memory' | 'episode' | 'center'; idx: number } | null>(null)
 
   themeRef.current = isDark
 
@@ -226,6 +245,19 @@ export function HeroBackground() {
     }
     const mx = (e.clientX - rect.left) / rect.width
     const my = (e.clientY - rect.top) / rect.height
+
+    // Check center ring (total memories indicator)
+    const cx = 0.5
+    const cy = 0.5
+    const distToCenter = Math.sqrt((mx - cx) ** 2 + (my - cy) ** 2)
+    if (distToCenter < 0.06) {
+      const totalMemories = memoriesRef.current.length
+      const totalEpisodes = episodesRef.current.length
+      setTooltip({ x: e.clientX - rect.left, y: e.clientY - rect.top, text: `${totalMemories} memories · ${totalEpisodes} episodes · 5 subjects`, type: 'Context' })
+      hoveredRef.current = { kind: 'center', idx: 0 }
+      document.body.style.cursor = 'pointer'
+      return
+    }
 
     // Check memories first (larger hit area)
     for (let i = 0; i < memoriesRef.current.length; i++) {
@@ -365,7 +397,7 @@ export function HeroBackground() {
             Math.cos(t * 0.15 + e.phase * 1.5) * 0.003 * progress
     }
 
-    // Draw episode→memory connections (appear as episodes get close)
+    // Draw episode→memory connections (colored per group)
     for (const e of episodes) {
       const mem = memories[e.memoryIdx]
       const ex = e.x * w
@@ -381,9 +413,7 @@ export function HeroBackground() {
         ctx.beginPath()
         ctx.moveTo(ex, ey)
         ctx.lineTo(mx, my)
-        ctx.strokeStyle = dark
-          ? `rgba(129, 140, 248, ${alpha})`
-          : `rgba(99, 102, 241, ${alpha})`
+        ctx.strokeStyle = groupColor(mem.group, dark ? 65 : 50, alpha)
         ctx.lineWidth = strength * 0.8
         ctx.stroke()
       }
@@ -406,30 +436,28 @@ export function HeroBackground() {
           ctx.beginPath()
           ctx.moveTo(mx1, my1)
           ctx.lineTo(mx2, my2)
-          ctx.strokeStyle = dark
-            ? `rgba(165, 180, 252, ${alpha})`
-            : `rgba(79, 70, 229, ${alpha})`
+          ctx.strokeStyle = groupColor(memories[i].group, dark ? 70 : 45, alpha)
           ctx.lineWidth = strength * 2
           ctx.stroke()
         }
       }
     }
 
-    // Draw episodes (small dots)
+    // Draw episodes (small dots — colored per group)
     const hovered = hoveredRef.current
     for (let ei = 0; ei < episodes.length; ei++) {
       const e = episodes[ei]
       const px = e.x * w
       const py = e.y * h
+      const parentGroup = memories[e.memoryIdx].group
       const isHovered = hovered?.kind === 'episode' && hovered.idx === ei
-      const alpha = isHovered ? 1 : (dark ? 0.5 + progress * 0.2 : 0.35 + progress * 0.15)
+      const alpha = isHovered ? 1 : (dark ? 0.5 + progress * 0.2 : 0.4 + progress * 0.15)
       const radius = isHovered ? e.size * 2 : e.size
 
       if (isHovered) {
-        // Highlight ring
         ctx.beginPath()
         ctx.arc(px, py, radius + 4, 0, Math.PI * 2)
-        ctx.strokeStyle = dark ? 'rgba(255, 255, 255, 0.4)' : 'rgba(67, 56, 202, 0.4)'
+        ctx.strokeStyle = groupColor(parentGroup, 70, 0.5)
         ctx.lineWidth = 1.5
         ctx.stroke()
       }
@@ -437,12 +465,12 @@ export function HeroBackground() {
       ctx.beginPath()
       ctx.arc(px, py, radius, 0, Math.PI * 2)
       ctx.fillStyle = isHovered
-        ? (dark ? 'rgba(255, 255, 255, 0.95)' : 'rgba(67, 56, 202, 0.95)')
-        : (dark ? `rgba(129, 140, 248, ${alpha})` : `rgba(99, 102, 241, ${alpha})`)
+        ? groupColor(parentGroup, dark ? 85 : 40, 0.95)
+        : groupColor(parentGroup, dark ? 65 : 45, alpha)
       ctx.fill()
     }
 
-    // Draw memories (larger nodes with glow)
+    // Draw memories (larger nodes with glow — colored per group)
     for (let mi = 0; mi < memories.length; mi++) {
       const m = memories[mi]
       const px = m.x * w
@@ -454,10 +482,8 @@ export function HeroBackground() {
       if (progress > 0.2) {
         const glowR = m.size * (2.5 + progress * 2)
         const gradient = ctx.createRadialGradient(px, py, 0, px, py, glowR)
-        const glowAlpha = progress * (dark ? 0.12 : 0.08)
-        gradient.addColorStop(0, dark
-          ? `rgba(165, 180, 252, ${glowAlpha})`
-          : `rgba(99, 102, 241, ${glowAlpha})`)
+        const glowAlpha = progress * (dark ? 0.15 : 0.1)
+        gradient.addColorStop(0, groupColor(m.group, dark ? 70 : 50, glowAlpha))
         gradient.addColorStop(1, 'rgba(0, 0, 0, 0)')
         ctx.beginPath()
         ctx.arc(px, py, glowR, 0, Math.PI * 2)
@@ -470,30 +496,44 @@ export function HeroBackground() {
       ctx.beginPath()
       ctx.arc(px, py, isHovered ? nodeRadius * 1.3 : nodeRadius, 0, Math.PI * 2)
       ctx.fillStyle = isHovered
-        ? (dark ? 'rgba(255, 255, 255, 0.95)' : 'rgba(49, 46, 129, 0.95)')
-        : (dark ? `rgba(199, 210, 254, ${alpha})` : `rgba(67, 56, 202, ${alpha})`)
+        ? groupColor(m.group, dark ? 90 : 35, 0.95)
+        : groupColor(m.group, dark ? 75 : 45, alpha)
       ctx.fill()
 
       if (isHovered) {
         ctx.beginPath()
         ctx.arc(px, py, nodeRadius * 1.3 + 5, 0, Math.PI * 2)
-        ctx.strokeStyle = dark ? 'rgba(165, 180, 252, 0.6)' : 'rgba(79, 70, 229, 0.5)'
+        ctx.strokeStyle = groupColor(m.group, 65, 0.6)
         ctx.lineWidth = 2
         ctx.stroke()
       }
 
       // Ring around memory nodes (becomes visible when organized)
       if (progress > 0.5) {
-        const ringAlpha = (progress - 0.5) * 2 * (dark ? 0.25 : 0.15)
+        const ringAlpha = (progress - 0.5) * 2 * (dark ? 0.3 : 0.18)
         ctx.beginPath()
         ctx.arc(px, py, m.size * 1.6, 0, Math.PI * 2)
-        ctx.strokeStyle = dark
-          ? `rgba(165, 180, 252, ${ringAlpha})`
-          : `rgba(79, 70, 229, ${ringAlpha})`
+        ctx.strokeStyle = groupColor(m.group, dark ? 70 : 50, ringAlpha)
         ctx.lineWidth = 0.8
         ctx.stroke()
       }
     }
+
+    // Draw center hub ring (total context indicator)
+    const centerX = w * 0.5
+    const centerY = h * 0.5
+    const hubRadius = Math.min(w, h) * 0.035
+    const hubAlpha = progress * (dark ? 0.25 : 0.15)
+    ctx.beginPath()
+    ctx.arc(centerX, centerY, hubRadius, 0, Math.PI * 2)
+    ctx.strokeStyle = dark ? `rgba(255, 255, 255, ${hubAlpha})` : `rgba(30, 30, 60, ${hubAlpha})`
+    ctx.lineWidth = 1.5
+    ctx.stroke()
+    // Inner dot
+    ctx.beginPath()
+    ctx.arc(centerX, centerY, 3, 0, Math.PI * 2)
+    ctx.fillStyle = dark ? `rgba(255, 255, 255, ${hubAlpha * 1.5})` : `rgba(30, 30, 60, ${hubAlpha * 1.5})`
+    ctx.fill()
 
     frameRef.current = requestAnimationFrame(draw)
   }, [])
