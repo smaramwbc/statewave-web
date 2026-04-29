@@ -1,5 +1,6 @@
 import { useRef, useEffect, useCallback, useState } from 'react'
 import { useTheme } from '../lib/theme'
+import { fetchLiveData, type LiveSubjectData } from '../services/statewave-live'
 
 /**
  * "Episodes → Memories" — Progressive Organization
@@ -214,6 +215,70 @@ function createEpisodes(memories: Memory[]): Episode[] {
   return episodes
 }
 
+/**
+ * Build Memory[] and Episode[] from live Statewave API data.
+ * Maps real subjects to groups 0–4 in the same order as DEMO_SUBJECTS.
+ */
+function buildFromLiveData(data: LiveSubjectData[]): { memories: Memory[]; episodes: Episode[] } {
+  const memories: Memory[] = []
+  const episodes: Episode[] = []
+
+  for (let groupIdx = 0; groupIdx < data.length; groupIdx++) {
+    const subjectData = data[groupIdx]
+    const group = groupIdx % 5
+
+    // Create Memory nodes from real memories
+    for (const m of subjectData.memories) {
+      memories.push({
+        startX: Math.random(),
+        startY: Math.random(),
+        targetX: 0, targetY: 0, // will be set by animation loop
+        x: Math.random(), y: Math.random(),
+        size: 5 + Math.random() * 4,
+        phase: Math.random() * Math.PI * 2,
+        group,
+        label: m.content,
+      })
+    }
+
+    // Create Episode particles from real episodes
+    for (const ep of subjectData.episodes) {
+      const memoryIdx = memories.length > 0
+        ? Math.floor(Math.random() * memories.length)
+        : 0
+      const payloadMsg = (ep.payload?.message as string) || `${ep.type} from ${ep.source}`
+      episodes.push({
+        startX: Math.random(),
+        startY: Math.random(),
+        targetX: 0, targetY: 0,
+        x: Math.random(), y: Math.random(),
+        size: 1.5 + Math.random() * 1.5,
+        phase: Math.random() * Math.PI * 2,
+        memoryIdx,
+        label: payloadMsg,
+      })
+    }
+  }
+
+  // Reassign episode memoryIdx to point within valid range per group
+  let memOffset = 0
+  for (let groupIdx = 0; groupIdx < data.length; groupIdx++) {
+    const groupMemCount = data[groupIdx].memories.length
+    const groupEpStart = data.slice(0, groupIdx).reduce((s, d) => s + d.episodes.length, 0)
+    const groupEpCount = data[groupIdx].episodes.length
+
+    for (let i = 0; i < groupEpCount; i++) {
+      const epIdx = groupEpStart + i
+      if (epIdx < episodes.length && groupMemCount > 0) {
+        episodes[epIdx].memoryIdx = memOffset + (i % groupMemCount)
+      }
+    }
+    memOffset += groupMemCount
+  }
+
+  return { memories, episodes }
+}
+
 export function HeroBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const { resolvedTheme } = useTheme()
@@ -232,6 +297,20 @@ export function HeroBackground() {
     memoriesRef.current = createMemories()
     episodesRef.current = createEpisodes(memoriesRef.current)
   }
+
+  // Fetch real data from Statewave backend (replaces mocks when available)
+  const liveLoadedRef = useRef(false)
+  useEffect(() => {
+    if (liveLoadedRef.current) return
+    liveLoadedRef.current = true
+    fetchLiveData().then((data) => {
+      if (!data) return
+      const { memories, episodes } = buildFromLiveData(data)
+      memoriesRef.current = memories
+      episodesRef.current = episodes
+      startTimeRef.current = 0 // restart animation
+    })
+  }, [])
 
   const handleMouseMove = useCallback((e: MouseEvent) => {
     const canvas = canvasRef.current
