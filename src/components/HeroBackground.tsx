@@ -246,7 +246,7 @@ function buildFromLiveData(data: LiveSubjectData[]): { memories: Memory[]; episo
       const memoryIdx = memories.length > 0
         ? Math.floor(Math.random() * memories.length)
         : 0
-      const payloadMsg = (ep.payload?.message as string) || `${ep.type} from ${ep.source}`
+      const payloadMsg = (ep.payload?.content as string) || (ep.payload?.message as string) || (ep.payload?.text as string) || `${ep.type} from ${ep.source}`
       episodes.push({
         startX: Math.random(),
         startY: Math.random(),
@@ -289,6 +289,7 @@ export function HeroBackground() {
   const themeRef = useRef(isDark)
   const startTimeRef = useRef<number>(0)
   const [tooltip, setTooltip] = useState<{ x: number; y: number; text: string; type: string } | null>(null)
+  const [isLive, setIsLive] = useState(false)
   const hoveredRef = useRef<{ kind: 'memory' | 'episode'; idx: number } | null>(null)
 
   themeRef.current = isDark
@@ -309,6 +310,7 @@ export function HeroBackground() {
       memoriesRef.current = memories
       episodesRef.current = episodes
       startTimeRef.current = 0 // restart animation
+      setIsLive(true)
     })
   }, [])
 
@@ -642,7 +644,10 @@ export function HeroBackground() {
             color: isDark ? '#c7d2fe' : '#4338ca',
           }}
         >
-          <span className="opacity-60 block mb-0.5">{tooltip.type}</span>
+          <span className="opacity-60 block mb-0.5">
+            {isLive && <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1.5 animate-pulse" />}
+            {tooltip.type}
+          </span>
           {tooltip.text.includes('\n') ? (
             <div className="space-y-0.5 text-[10px] leading-tight opacity-90">
               {tooltip.text.split('\n').map((line, i) => (
@@ -652,6 +657,18 @@ export function HeroBackground() {
           ) : (
             <span>{tooltip.text}</span>
           )}
+        </div>
+      )}
+      {isLive && (
+        <div
+          className="absolute bottom-4 right-4 flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-medium border border-theme-border/50 backdrop-blur-sm pointer-events-none"
+          style={{
+            backgroundColor: isDark ? 'rgba(30, 27, 75, 0.7)' : 'rgba(255, 255, 255, 0.8)',
+            color: isDark ? '#6ee7b7' : '#059669',
+          }}
+        >
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+          Live from Statewave API
         </div>
       )}
     </div>
