@@ -224,7 +224,7 @@ export function HeroBackground() {
   const themeRef = useRef(isDark)
   const startTimeRef = useRef<number>(0)
   const [tooltip, setTooltip] = useState<{ x: number; y: number; text: string; type: string } | null>(null)
-  const hoveredRef = useRef<{ kind: 'memory' | 'episode' | 'center'; idx: number } | null>(null)
+  const hoveredRef = useRef<{ kind: 'memory' | 'episode'; idx: number } | null>(null)
 
   themeRef.current = isDark
 
@@ -245,19 +245,6 @@ export function HeroBackground() {
     }
     const mx = (e.clientX - rect.left) / rect.width
     const my = (e.clientY - rect.top) / rect.height
-
-    // Check center ring (total memories indicator — shows full story)
-    const cx = 0.5
-    const cy = 0.5
-    const distToCenter = Math.sqrt((mx - cx) ** 2 + (my - cy) ** 2)
-    if (distToCenter < 0.06) {
-      const groupNames = ['Support Agent', 'Coding Assistant', 'Sales Copilot', 'DevOps Agent', 'Research Assistant']
-      const storyLines = memoriesRef.current.map(m => `[${groupNames[m.group]}] ${m.label}`).join('\n')
-      setTooltip({ x: e.clientX - rect.left, y: e.clientY - rect.top, text: storyLines, type: 'All Memories' })
-      hoveredRef.current = { kind: 'center', idx: 0 }
-      document.body.style.cursor = 'pointer'
-      return
-    }
 
     // Check memories first (larger hit area)
     for (let i = 0; i < memoriesRef.current.length; i++) {
@@ -522,21 +509,6 @@ export function HeroBackground() {
       }
     }
 
-    // Draw center hub ring (total context indicator)
-    const centerX = w * 0.5
-    const centerY = h * 0.5
-    const hubRadius = Math.min(w, h) * 0.035
-    const hubAlpha = progress * (dark ? 0.25 : 0.15)
-    ctx.beginPath()
-    ctx.arc(centerX, centerY, hubRadius, 0, Math.PI * 2)
-    ctx.strokeStyle = dark ? `rgba(255, 255, 255, ${hubAlpha})` : `rgba(30, 30, 60, ${hubAlpha})`
-    ctx.lineWidth = 1.5
-    ctx.stroke()
-    // Inner dot
-    ctx.beginPath()
-    ctx.arc(centerX, centerY, 3, 0, Math.PI * 2)
-    ctx.fillStyle = dark ? `rgba(255, 255, 255, ${hubAlpha * 1.5})` : `rgba(30, 30, 60, ${hubAlpha * 1.5})`
-    ctx.fill()
 
     frameRef.current = requestAnimationFrame(draw)
   }, [])
