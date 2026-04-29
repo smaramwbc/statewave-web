@@ -266,7 +266,10 @@ export function HeroBackground() {
       const dy = m.y - my
       const dist = Math.sqrt(dx * dx + dy * dy)
       if (dist < 0.03) {
-        setTooltip({ x: e.clientX - rect.left, y: e.clientY - rect.top, text: m.label, type: 'Memory' })
+        const groupNames = ['Support Agent', 'Coding Assistant', 'Sales Copilot', 'DevOps Agent', 'Research Assistant']
+        const groupMemories = memoriesRef.current.filter(mem => mem.group === m.group)
+        const storyText = groupMemories.map(mem => mem.label).join('\n')
+        setTooltip({ x: e.clientX - rect.left, y: e.clientY - rect.top, text: storyText, type: groupNames[m.group] })
         hoveredRef.current = { kind: 'memory', idx: i }
         document.body.style.cursor = 'pointer'
         return
