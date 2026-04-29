@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <defs>
+    <linearGradient id="layer1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#06b6d4"/>
+      <stop offset="100%" stop-color="#3b82f6"/>
+    </linearGradient>
+    <linearGradient id="layer2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6366f1"/>
+      <stop offset="100%" stop-color="#8b5cf6"/>
+    </linearGradient>
+    <linearGradient id="layer3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7c3aed"/>
+      <stop offset="100%" stop-color="#6d28d9"/>
+    </linearGradient>
+    <linearGradient id="wave" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#22d3ee"/>
+      <stop offset="100%" stop-color="#06b6d4"/>
+    </linearGradient>
+  </defs>
+  <!-- Bottom layer -->
+  <path d="M12 48 C12 48 16 52 32 52 C48 52 52 48 52 48 L52 44 C52 44 48 48 32 48 C16 48 12 44 12 44 Z" fill="url(#layer3)" opacity="0.8"/>
+  <!-- Middle layer -->
+  <path d="M12 40 C12 40 16 44 32 44 C48 44 52 40 52 40 L52 36 C52 36 48 40 32 40 C16 40 12 36 12 36 Z" fill="url(#layer2)" opacity="0.9"/>
+  <!-- Top layer with chevron shape -->
+  <path d="M32 10 L14 22 L14 30 L32 38 L50 30 L50 22 Z" fill="url(#layer1)" opacity="0.95"/>
+  <!-- Heartbeat wave line -->
+  <path d="M18 26 L26 26 L29 20 L32 32 L35 22 L38 26 L46 26" stroke="url(#wave)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <!-- Motion particles -->
+  <rect x="6" y="24" width="4" height="1.5" rx="0.75" fill="#22d3ee" opacity="0.8"/>
+  <rect x="4" y="28" width="6" height="1.5" rx="0.75" fill="#06b6d4" opacity="0.6"/>
+  <rect x="7" y="32" width="3" height="1.5" rx="0.75" fill="#8b5cf6" opacity="0.5"/>
+  <!-- Dots on layers -->
+  <circle cx="32" cy="41" r="1.5" fill="#a5b4fc"/>
+  <circle cx="32" cy="47" r="1.5" fill="#c4b5fd"/>
+</svg>

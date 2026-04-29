@@ -1,0 +1,131 @@
+import { Link, useLocation } from 'react-router-dom'
+import { motion } from 'framer-motion'
+import { useState } from 'react'
+import { ThemeSwitcher } from './ThemeSwitcher'
+import { Logo } from './Logo'
+
+const links = [
+  { to: '/product', label: 'Product' },
+  { to: '/why', label: 'Why Statewave' },
+  { to: '/developers', label: 'Developers' },
+]
+
+export function Navbar() {
+  const location = useLocation()
+  const [mobileOpen, setMobileOpen] = useState(false)
+
+  return (
+    <motion.header
+      initial={{ y: -10, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.4, ease: 'easeOut' }}
+      className="fixed top-0 left-0 right-0 z-50 border-b border-theme-border bg-surface-0/80 backdrop-blur-xl"
+    >
+      <nav className="mx-auto max-w-7xl px-6 h-[60px] flex items-center justify-between">
+        {/* Logo */}
+        <Link to="/" className="flex items-center gap-2.5 shrink-0">
+          <Logo variant="icon" className="h-7 w-7" />
+          <span className="text-[1.05rem] font-semibold tracking-tight">
+            <span className="text-theme-primary">State</span><span className="bg-gradient-to-r from-brand-400 to-accent bg-clip-text text-transparent">wave</span>
+          </span>
+        </Link>
+
+        {/* Desktop nav — centered links */}
+        <div className="hidden md:flex items-center gap-7">
+          {links.map((link) => (
+            <Link
+              key={link.to}
+              to={link.to}
+              className={`text-[13px] font-medium transition-colors duration-150 ${
+                location.pathname === link.to
+                  ? 'text-theme-primary'
+                  : 'text-theme-muted hover:text-theme-primary'
+              }`}
+            >
+              {link.label}
+            </Link>
+          ))}
+          <a
+            href="https://github.com/smaramwbc/statewave"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[13px] font-medium text-theme-muted hover:text-theme-primary transition-colors duration-150"
+          >
+            GitHub
+          </a>
+        </div>
+
+        {/* Desktop right — actions */}
+        <div className="hidden md:flex items-center gap-3">
+          <ThemeSwitcher />
+          <a
+            href="https://statewave-demo.vercel.app"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-4 py-[7px] rounded-lg bg-accent text-white text-[13px] font-medium hover:bg-accent-light transition-all duration-150 shadow-sm shadow-accent/20 hover:shadow-accent/30"
+          >
+            Try Demo
+          </a>
+        </div>
+
+        {/* Mobile toggle */}
+        <button
+          className="md:hidden p-2 -mr-2 text-theme-muted hover:text-theme-primary transition-colors"
+          onClick={() => setMobileOpen(!mobileOpen)}
+          aria-label="Toggle menu"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            {mobileOpen ? (
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
+            ) : (
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 6h16M4 12h16M4 18h16" />
+            )}
+          </svg>
+        </button>
+      </nav>
+
+      {/* Mobile menu */}
+      {mobileOpen && (
+        <motion.div
+          initial={{ opacity: 0, y: -4 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.2 }}
+          className="md:hidden border-t border-theme-border bg-surface-0/98 backdrop-blur-xl"
+        >
+          <div className="px-6 py-5 flex flex-col gap-4">
+            {links.map((link) => (
+              <Link
+                key={link.to}
+                to={link.to}
+                onClick={() => setMobileOpen(false)}
+                className="text-[15px] font-medium text-theme-secondary hover:text-theme-primary transition-colors"
+              >
+                {link.label}
+              </Link>
+            ))}
+            <a
+              href="https://github.com/smaramwbc/statewave"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[15px] font-medium text-theme-secondary hover:text-theme-primary transition-colors"
+            >
+              GitHub
+            </a>
+            <div className="pt-3 border-t border-theme-border flex items-center justify-between">
+              <span className="text-xs text-theme-muted">Theme</span>
+              <ThemeSwitcher />
+            </div>
+            <a
+              href="https://statewave-demo.vercel.app"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-1 flex items-center justify-center px-4 py-2.5 rounded-lg bg-accent text-white text-sm font-medium"
+            >
+              Try Demo
+            </a>
+          </div>
+        </motion.div>
+      )}
+    </motion.header>
+  )
+}
