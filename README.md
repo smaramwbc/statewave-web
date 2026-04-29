@@ -80,7 +80,9 @@ Three modes: `auto` (system), `light`, `dark`. Implemented via:
 - Open Graph + Twitter Card tags (updated on navigation)
 - JSON-LD structured data (SoftwareApplication)
 - `robots.txt` + `sitemap.xml`
-- OG image path: `/og-image.png` (placeholder — add 1200×630 image)
+- `site.webmanifest` for PWA/installability hints
+- OG image: `/og-image.png` (1200×630, dark gradient, brand copy)
+- Source SVG: `/og-image.svg` (editable, re-export with ImageMagick: `magick og-image.svg og-image.png`)
 
 ## Accessibility
 

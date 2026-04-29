@@ -1,0 +1,21 @@
+{
+  "name": "Statewave",
+  "short_name": "Statewave",
+  "description": "Trusted context runtime for AI agents",
+  "start_url": "/",
+  "display": "browser",
+  "background_color": "#030712",
+  "theme_color": "#06b6d4",
+  "icons": [
+    {
+      "src": "/statewave_icon_dark.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/statewave_icon_light.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
