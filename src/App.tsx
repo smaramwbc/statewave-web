@@ -6,7 +6,6 @@ import { HomePage } from './pages/HomePage'
 const ProductPage = lazy(() => import('./pages/ProductPage').then(m => ({ default: m.ProductPage })))
 const WhyPage = lazy(() => import('./pages/WhyPage').then(m => ({ default: m.WhyPage })))
 const DevelopersPage = lazy(() => import('./pages/DevelopersPage').then(m => ({ default: m.DevelopersPage })))
-const AdminDashboardPage = lazy(() => import('./pages/AdminDashboardPage').then(m => ({ default: m.AdminDashboardPage })))
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage').then(m => ({ default: m.NotFoundPage })))
 
 export default function App() {
@@ -20,8 +19,6 @@ export default function App() {
           <Route path="/developers" element={<DevelopersPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>
-        {/* Admin — standalone layout, no marketing chrome */}
-        <Route path="/admin" element={<AdminDashboardPage />} />
       </Routes>
     </Suspense>
   )

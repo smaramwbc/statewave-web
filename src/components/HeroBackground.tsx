@@ -246,14 +246,14 @@ export function HeroBackground() {
     const mx = (e.clientX - rect.left) / rect.width
     const my = (e.clientY - rect.top) / rect.height
 
-    // Check center ring (total memories indicator)
+    // Check center ring (total memories indicator — shows full story)
     const cx = 0.5
     const cy = 0.5
     const distToCenter = Math.sqrt((mx - cx) ** 2 + (my - cy) ** 2)
     if (distToCenter < 0.06) {
-      const totalMemories = memoriesRef.current.length
-      const totalEpisodes = episodesRef.current.length
-      setTooltip({ x: e.clientX - rect.left, y: e.clientY - rect.top, text: `${totalMemories} memories · ${totalEpisodes} episodes · 5 subjects`, type: 'Context' })
+      const groupNames = ['Support Agent', 'Coding Assistant', 'Sales Copilot', 'DevOps Agent', 'Research Assistant']
+      const storyLines = memoriesRef.current.map(m => `[${groupNames[m.group]}] ${m.label}`).join('\n')
+      setTooltip({ x: e.clientX - rect.left, y: e.clientY - rect.top, text: storyLines, type: 'All Memories' })
       hoveredRef.current = { kind: 'center', idx: 0 }
       document.body.style.cursor = 'pointer'
       return
@@ -579,15 +579,25 @@ export function HeroBackground() {
       />
       {tooltip && (
         <div
-          className="absolute pointer-events-none z-50 px-3 py-1.5 rounded-lg text-xs font-medium shadow-lg border border-theme-border backdrop-blur-sm transition-opacity duration-150"
+          className="absolute pointer-events-none z-50 px-3 py-2 rounded-lg text-xs font-medium shadow-lg border border-theme-border backdrop-blur-sm transition-opacity duration-150"
           style={{
-            left: tooltip.x + 12,
+            left: Math.min(tooltip.x + 12, (canvasRef.current?.getBoundingClientRect().width ?? 600) - 320),
             top: tooltip.y - 8,
-            backgroundColor: isDark ? 'rgba(30, 27, 75, 0.9)' : 'rgba(255, 255, 255, 0.95)',
+            maxWidth: tooltip.text.includes('\n') ? 300 : undefined,
+            backgroundColor: isDark ? 'rgba(30, 27, 75, 0.95)' : 'rgba(255, 255, 255, 0.97)',
             color: isDark ? '#c7d2fe' : '#4338ca',
           }}
         >
-          <span className="opacity-60">{tooltip.type}:</span> {tooltip.text}
+          <span className="opacity-60 block mb-0.5">{tooltip.type}</span>
+          {tooltip.text.includes('\n') ? (
+            <div className="space-y-0.5 text-[10px] leading-tight opacity-90">
+              {tooltip.text.split('\n').map((line, i) => (
+                <div key={i}>{line}</div>
+              ))}
+            </div>
+          ) : (
+            <span>{tooltip.text}</span>
+          )}
         </div>
       )}
     </div>
