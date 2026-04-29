@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { ThemeSwitcher } from './ThemeSwitcher'
 import { Logo } from './Logo'
 
@@ -14,6 +14,22 @@ export function Navbar() {
   const location = useLocation()
   const [mobileOpen, setMobileOpen] = useState(false)
 
+  // Close mobile menu on Escape
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && mobileOpen) setMobileOpen(false)
+    }
+    document.addEventListener('keydown', handler)
+    return () => document.removeEventListener('keydown', handler)
+  }, [mobileOpen])
+
+  // Close mobile menu on route change
+  const prevPathname = useRef(location.pathname)
+  if (prevPathname.current !== location.pathname) {
+    prevPathname.current = location.pathname
+    if (mobileOpen) setMobileOpen(false)
+  }
+
   return (
     <motion.header
       initial={{ y: -10, opacity: 0 }}
@@ -21,7 +37,7 @@ export function Navbar() {
       transition={{ duration: 0.4, ease: 'easeOut' }}
       className="fixed top-0 left-0 right-0 z-50 border-b border-theme-border bg-surface-0/80 backdrop-blur-xl"
     >
-      <nav className="mx-auto max-w-7xl px-6 h-[60px] flex items-center justify-between">
+      <nav aria-label="Main navigation" className="mx-auto max-w-7xl px-6 h-[60px] flex items-center justify-between">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2.5 shrink-0">
           <Logo variant="icon" className="h-7 w-7" />

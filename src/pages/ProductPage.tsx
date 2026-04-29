@@ -1,8 +1,10 @@
 import { motion } from 'framer-motion'
 import { Section } from '../components/Section'
 import { Card } from '../components/Card'
+import { usePageSEO } from '../lib/seo'
 
 export function ProductPage() {
+  usePageSEO()
   return (
     <>
       <section className="pt-32 pb-16">

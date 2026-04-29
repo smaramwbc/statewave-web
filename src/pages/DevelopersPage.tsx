@@ -1,8 +1,10 @@
 import { motion } from 'framer-motion'
 import { Section } from '../components/Section'
 import { Button } from '../components/Button'
+import { usePageSEO } from '../lib/seo'
 
 export function DevelopersPage() {
+  usePageSEO()
   return (
     <>
       <section className="pt-32 pb-16">

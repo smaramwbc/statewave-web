@@ -4,8 +4,10 @@ import { Section } from '../components/Section'
 import { Button } from '../components/Button'
 import { Card } from '../components/Card'
 import { HeroBackground } from '../components/HeroBackground'
+import { usePageSEO } from '../lib/seo'
 
 export function HomePage() {
+  usePageSEO()
   return (
     <>
       <HeroSection />
