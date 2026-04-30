@@ -1,5 +1,6 @@
 import { lazy, Suspense } from 'react'
 import { Routes, Route } from 'react-router-dom'
+import { SpeedInsights } from '@vercel/speed-insights/react'
 import { Layout } from './components/Layout'
 import { HomePage } from './pages/HomePage'
 
@@ -20,6 +21,7 @@ export default function App() {
           <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Routes>
+      <SpeedInsights />
     </Suspense>
   )
 }
