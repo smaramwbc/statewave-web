@@ -9,14 +9,14 @@
  * 
  * Desktop (>1024px):
  *   - Floating bottom-right corner widget
- *   - Width: clamp(360px, 30vw, 520px)
+ *   - Width: clamp(560px, 50vw, 800px) — wider for side-by-side comparison
  *   - Height: clamp(520px, 72vh, 760px)
  *   - Inspector: side panel (280px)
  * 
  * Tablet (768-1024px):
  *   - Floating bottom-right with larger presence
- *   - Width: min(92vw, 520px)
- *   - Height: min(78vh, 720px)
+ *   - Width: min(95vw, 720px)
+ *   - Height: min(80vh, 760px)
  *   - Inspector: slide-over panel
  * 
  * Mobile (<768px):
@@ -162,16 +162,16 @@ export function ChatWidget() {
     }
     if (isTablet) {
       return {
-        width: 'min(92vw, 520px)',
-        height: 'min(78vh, 720px)',
-        maxHeight: '720px',
+        width: 'min(95vw, 720px)',
+        height: 'min(80vh, 760px)',
+        maxHeight: '760px',
         bottom: 20,
         right: 20,
       }
     }
-    // Desktop
+    // Desktop - wider for side-by-side comparison
     return {
-      width: 'clamp(380px, 32vw, 540px)',
+      width: 'clamp(560px, 50vw, 800px)',
       height: 'clamp(520px, 72vh, 760px)',
       maxHeight: '760px',
       bottom: 24,
