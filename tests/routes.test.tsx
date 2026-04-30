@@ -3,6 +3,7 @@ import { describe, it, expect, afterEach } from 'vitest'
 import { render, screen, cleanup, waitFor } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { ThemeProvider } from '../src/lib/theme'
+import { ChatWidgetProvider } from '../src/lib/widget-context'
 import App from '../src/App'
 
 afterEach(() => {
@@ -13,7 +14,9 @@ function renderApp(route = '/') {
   return render(
     <MemoryRouter initialEntries={[route]}>
       <ThemeProvider>
-        <App />
+        <ChatWidgetProvider>
+          <App />
+        </ChatWidgetProvider>
       </ThemeProvider>
     </MemoryRouter>,
   )

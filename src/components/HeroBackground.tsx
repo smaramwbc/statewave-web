@@ -1,5 +1,6 @@
 import { useRef, useEffect, useCallback, useState } from 'react'
 import { useTheme } from '../lib/theme'
+import { useChatWidget } from '../lib/widget-context'
 import { fetchLiveData, type LiveSubjectData } from '../services/statewave-live'
 
 /**
@@ -177,6 +178,7 @@ export function HeroBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const { resolvedTheme } = useTheme()
   const isDark = resolvedTheme === 'dark'
+  const { openWidget } = useChatWidget()
   const subjectsRef = useRef<Subject[]>([])
   const memoriesRef = useRef<Memory[]>([])  
   const episodesRef = useRef<Episode[]>([])
@@ -290,7 +292,7 @@ export function HeroBackground() {
     setTooltip(null)
   }, [])
 
-  // Click handler to open modal
+  // Click handler to open modal or chat widget
   const handleClick = useCallback(() => {
     if (hoveredRef.current?.kind === 'episode') {
       const ep = episodesRef.current[hoveredRef.current.idx]
@@ -299,18 +301,19 @@ export function HeroBackground() {
       setModalOpen(true)
     } else if (hoveredRef.current?.kind === 'memory') {
       const mem = memoriesRef.current[hoveredRef.current.idx]
-      setSelectedMemory(mem)
-      setModalOpen(true)
+      // Open chat widget with subject context
+      const subj = subjectsRef.current[mem.subjectIdx]
+      if (subj) {
+        openWidget(subj.subjectId, subj.label)
+      }
     } else if (hoveredRef.current?.kind === 'subject') {
-      // Open modal with the first memory of this subject
-      const subjIdx = hoveredRef.current.idx
-      const firstMem = memoriesRef.current.find(m => m.subjectIdx === subjIdx)
-      if (firstMem) {
-        setSelectedMemory(firstMem)
-        setModalOpen(true)
+      // Open chat widget with this subject
+      const subj = subjectsRef.current[hoveredRef.current.idx]
+      if (subj) {
+        openWidget(subj.subjectId, subj.label)
       }
     }
-  }, [])
+  }, [openWidget])
 
   // Select a random memory (big circle) from any group as hint
   useEffect(() => {
@@ -763,8 +766,11 @@ export function HeroBackground() {
           onClick={() => {
             const idx = hintMemoryIdxRef.current
             if (idx >= 0 && idx < memoriesRef.current.length) {
-              setSelectedMemory(memoriesRef.current[idx])
-              setModalOpen(true)
+              const mem = memoriesRef.current[idx]
+              const subj = subjectsRef.current[mem.subjectIdx]
+              if (subj) {
+                openWidget(subj.subjectId, subj.label)
+              }
               setHintVisible(false)
             }
           }}

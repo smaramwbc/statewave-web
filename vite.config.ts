@@ -16,6 +16,11 @@ export default defineConfig({
         changeOrigin: true,
         timeout: 15000,
       },
+      '/api/widget-chat': {
+        target: 'https://statewave-web.vercel.app',
+        changeOrigin: true,
+        timeout: 30000,
+      },
     },
   },
 })

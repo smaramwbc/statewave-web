@@ -3,6 +3,7 @@ import { Navbar } from './Navbar'
 import { Footer } from './Footer'
 import { ScrollToTop } from './ScrollToTop'
 import { ScrollToTopButton } from './ScrollToTopButton'
+import { ChatWidget } from './ChatWidget'
 
 export function Layout() {
   return (
@@ -20,6 +21,7 @@ export function Layout() {
       </main>
       <Footer />
       <ScrollToTopButton />
+      <ChatWidget />
     </div>
   )
 }
