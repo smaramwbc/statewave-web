@@ -570,6 +570,21 @@ export function HeroBackground() {
       const py = s.y * h
       const alpha = dark ? 0.8 + progress * 0.2 : 0.6 + progress * 0.3
 
+      // Pulsing attention ring (radiates outward)
+      if (progress > 0.5) {
+        const pulseSpeed = 1.2
+        const pulsePhase = (t * pulseSpeed + s.phase) % (Math.PI * 2)
+        const pulseProgress = pulsePhase / (Math.PI * 2)
+        const pulseRadius = s.size * (1.5 + pulseProgress * 2.5)
+        const pulseAlpha = (1 - pulseProgress) * (dark ? 0.35 : 0.25) * (progress - 0.5) * 2
+        
+        ctx.beginPath()
+        ctx.arc(px, py, pulseRadius, 0, Math.PI * 2)
+        ctx.strokeStyle = groupColor(s.group, dark ? 75 : 55, pulseAlpha)
+        ctx.lineWidth = 2 * (1 - pulseProgress * 0.5)
+        ctx.stroke()
+      }
+
       // Large glow
       if (progress > 0.15) {
         const glowR = s.size * (3 + progress * 3)
@@ -584,8 +599,10 @@ export function HeroBackground() {
         ctx.fill()
       }
 
-      // Subject node
-      const nodeRadius = s.size * (0.95 + Math.sin(t * 0.3 + s.phase) * 0.05)
+      // Subject node with enhanced pulse
+      const breathe = Math.sin(t * 0.3 + s.phase) * 0.05
+      const pulse = Math.sin(t * 1.5 + s.phase) * 0.08
+      const nodeRadius = s.size * (0.95 + breathe + pulse * progress)
       ctx.beginPath()
       ctx.arc(px, py, nodeRadius, 0, Math.PI * 2)
       ctx.fillStyle = groupColor(s.group, dark ? 80 : 40, alpha)

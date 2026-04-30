@@ -154,7 +154,6 @@ export function ChatWidgetProvider({ children }: { children: ReactNode }) {
     setIsLoading(true)
 
     try {
-      // Call both in parallel
       const [statelessResp, statewaveResp] = await Promise.all([
         fetch('/api/widget-chat', {
           method: 'POST',
@@ -168,10 +167,24 @@ export function ChatWidgetProvider({ children }: { children: ReactNode }) {
         }),
       ])
 
-      const [statelessData, statewaveData] = await Promise.all([
-        statelessResp.json(),
-        statewaveResp.json(),
-      ])
+      // Parse responses
+      const statelessText = await statelessResp.text()
+      const statewaveText = await statewaveResp.text()
+
+      let statelessData: { reply?: string; error?: string }
+      let statewaveData: { reply?: string; error?: string; context?: ContextBundle }
+
+      try {
+        statelessData = JSON.parse(statelessText)
+      } catch {
+        statelessData = { error: `API error: ${statelessResp.status === 404 ? 'Endpoint not found' : statelessResp.statusText || 'Invalid response'}` }
+      }
+
+      try {
+        statewaveData = JSON.parse(statewaveText)
+      } catch {
+        statewaveData = { error: `API error: ${statewaveResp.status === 404 ? 'Endpoint not found' : statewaveResp.statusText || 'Invalid response'}` }
+      }
 
       setStatelessMessages(prev => [...prev, {
         role: 'assistant',
@@ -189,9 +202,20 @@ export function ChatWidgetProvider({ children }: { children: ReactNode }) {
         setLastContext(statewaveData.context)
       }
     } catch (err) {
-      const errorMsg: ChatMessage = { role: 'assistant', content: `Error: ${(err as Error).message}`, timestamp: Date.now() }
-      setStatelessMessages(prev => [...prev, errorMsg])
-      setStatewaveMessages(prev => [...prev, errorMsg])
+      const errorMsg = err instanceof Error ? err.message : 'Network error'
+      console.error('[widget] API error:', err)
+      
+      setStatelessMessages(prev => [...prev, {
+        role: 'assistant',
+        content: `Error: ${errorMsg}`,
+        timestamp: Date.now(),
+      }])
+
+      setStatewaveMessages(prev => [...prev, {
+        role: 'assistant',
+        content: `Error: ${errorMsg}`,
+        timestamp: Date.now(),
+      }])
     } finally {
       setIsLoading(false)
     }

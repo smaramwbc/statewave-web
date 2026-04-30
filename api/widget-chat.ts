@@ -6,7 +6,7 @@
  * - statewave: fetches context from Fly.io, injects into prompt
  */
 
-import type { VercelRequest, VercelResponse } from '@vercel/node'
+export const config = { runtime: 'edge' }
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY ?? ''
 const STATEWAVE_API_KEY = process.env.STATEWAVE_API_KEY ?? ''
@@ -95,38 +95,48 @@ async function callOpenAI(messages: Message[], systemPrompt: string): Promise<st
   return data.choices?.[0]?.message?.content ?? 'No response'
 }
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
-  // CORS headers
-  res.setHeader('Access-Control-Allow-Origin', '*')
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
+function json(data: unknown, status = 200): Response {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: {
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type',
+    },
+  })
+}
 
+export default async function handler(req: Request): Promise<Response> {
   if (req.method === 'OPTIONS') {
-    return res.status(200).end()
+    return json({}, 200)
   }
 
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' })
+    return json({ error: 'Method not allowed' }, 405)
   }
 
   if (!OPENAI_API_KEY) {
-    return res.status(500).json({ error: 'OPENAI_API_KEY not configured' })
+    return json({ error: 'OPENAI_API_KEY not configured' }, 500)
   }
 
-  const { messages, subjectId, mode } = req.body as {
-    messages: Message[]
-    subjectId: string
-    mode: 'stateless' | 'statewave'
+  let body: { messages: Message[]; subjectId: string; mode: 'stateless' | 'statewave' }
+  try {
+    body = await req.json()
+  } catch {
+    return json({ error: 'Invalid JSON body' }, 400)
   }
+
+  const { messages, subjectId, mode } = body
 
   if (!messages || !Array.isArray(messages) || !subjectId || !mode) {
-    return res.status(400).json({ error: 'messages, subjectId, and mode required' })
+    return json({ error: 'messages, subjectId, and mode required' }, 400)
   }
 
   try {
     if (mode === 'stateless') {
       const reply = await callOpenAI(messages, STATELESS_PROMPT)
-      return res.status(200).json({ reply })
+      return json({ reply })
     }
 
     // Statewave mode: fetch context first
@@ -148,9 +158,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     const reply = await callOpenAI(messages, enrichedPrompt)
-    return res.status(200).json({ reply, context })
+    return json({ reply, context })
   } catch (err) {
     console.error('[widget-chat] Error:', err)
-    return res.status(500).json({ error: (err as Error).message })
+    return json({ error: (err as Error).message }, 500)
   }
 }
