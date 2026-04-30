@@ -56,16 +56,31 @@ src/
   components/
     Layout.tsx       # Shell: skip-to-content, Navbar, main, Footer
     Navbar.tsx       # Fixed header with mobile menu, theme switcher
-    HeroBackground.tsx  # Canvas 2D "episodes → memories" animation
+    HeroBackground.tsx  # Canvas 2D particle visualization (live data)
     Footer.tsx       # Site footer with nav links
     ...              # Button, Card, Section, Logo, ThemeSwitcher, ScrollToTop
+  services/
+    statewave-live.ts  # Fetch live data from Statewave API via proxy
   pages/
     HomePage.tsx     # Hero + features + proof + CTA
     ProductPage.tsx  # How it works, domain model, scoring
     WhyPage.tsx      # Comparison: prompt stuffing vs RAG vs Statewave
     DevelopersPage.tsx  # SDKs, setup, API overview
     NotFoundPage.tsx # 404
+api/
+  hero-data.ts       # Vercel Edge Function — proxies to Fly.io backend
 ```
+
+## Hero visualization
+
+The hero background is a Canvas 2D particle system that fetches **live data** from the Statewave Fly.io backend (via a Vercel Edge Function proxy at `/api/hero-data`).
+
+It visualizes the 3-tier Statewave data model:
+- **Subjects** — large central nodes (one per `subject_id`)
+- **Memories** — medium nodes orbiting their subject
+- **Episodes** — small particles orbiting their parent memory
+
+All particles are interactive: hover shows tooltips, click opens a detail modal with memory content and related episodes.
 
 ## Theme system
 

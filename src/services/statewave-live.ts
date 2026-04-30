@@ -30,23 +30,6 @@ export interface LiveSubjectData {
   episodes: LiveEpisode[]
 }
 
-/** The 5 demo subjects seeded for the hero visualization. */
-export const DEMO_SUBJECTS = [
-  'demo-support-agent',
-  'demo-coding-assistant',
-  'demo-sales-copilot',
-  'demo-devops-agent',
-  'demo-research-assistant',
-]
-
-export const SUBJECT_LABELS: Record<string, string> = {
-  'demo-support-agent': 'Support Agent',
-  'demo-coding-assistant': 'Coding Assistant',
-  'demo-sales-copilot': 'Sales Copilot',
-  'demo-devops-agent': 'DevOps Agent',
-  'demo-research-assistant': 'Research Assistant',
-}
-
 /**
  * Fetch all demo subjects' data via the /api/hero-data proxy.
  * Returns null if unreachable or no data.
