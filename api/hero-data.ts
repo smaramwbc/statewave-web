@@ -62,7 +62,7 @@ export default async function handler(req: Request): Promise<Response> {
         'Access-Control-Allow-Origin': '*',
       },
     })
-  } catch (err) {
+  } catch {
     return new Response(JSON.stringify({ error: 'Backend unreachable' }), {
       status: 502,
       headers: { 'Content-Type': 'application/json' },

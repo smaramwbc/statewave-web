@@ -4,11 +4,13 @@ The official product website for [Statewave](https://statewave.ai), the trusted 
 
 > **Live:** [statewave.ai](https://statewave.ai)
 
+> **Frontend role:** This is the **public marketing site** — product positioning, features, and developer resources. For the interactive demo, see [statewave-demo](https://github.com/smaramwbc/statewave-demo). For the operator console, see [statewave-admin](https://github.com/smaramwbc/statewave-admin).
+
 ## What this is
 
 This is the public-facing marketing and product site for Statewave. It communicates what the product is, how it works, why it matters, and how developers can get started.
 
-It is **not** the interactive demo (that's [statewave-demo](https://github.com/smaramwbc/statewave-demo)) or the documentation (that's [statewave-docs](https://github.com/smaramwbc/statewave-docs)).
+It is **not** the interactive demo (that's [statewave-demo](https://github.com/smaramwbc/statewave-demo)), the documentation (that's [statewave-docs](https://github.com/smaramwbc/statewave-docs)), or the operator console (that's [statewave-admin](https://github.com/smaramwbc/statewave-admin)).
 
 ## Stack
 

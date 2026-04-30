@@ -4,7 +4,7 @@
  * Fetches real memories and episodes via our own /api/hero-data proxy
  * (which talks to the Statewave Fly.io backend with the API key server-side).
  *
- * Falls back to null if unreachable — HeroBackground uses mock data then.
+ * Returns null if unreachable — HeroBackground shows nothing until data loads.
  */
 
 export interface LiveMemory {
@@ -67,7 +67,7 @@ export async function fetchLiveData(): Promise<LiveSubjectData[] | null> {
 
     return subjects
   } catch (err) {
-    console.info('[statewave-live] Proxy unreachable, using mock data:', err)
+    console.info('[statewave-live] Proxy unreachable:', err)
     return null
   }
 }

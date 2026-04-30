@@ -9,4 +9,13 @@ export default defineConfig({
       '@': '/src',
     },
   },
+  server: {
+    proxy: {
+      '/api/hero-data': {
+        target: 'https://statewave-web.vercel.app',
+        changeOrigin: true,
+        timeout: 15000,
+      },
+    },
+  },
 })
