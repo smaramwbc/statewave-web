@@ -3,6 +3,8 @@
 The official product website for [Statewave](https://statewave.ai), the trusted context runtime for AI agents.
 
 > **Live:** [statewave.ai](https://statewave.ai)
+>
+> 📋 **Issues & feature requests:** [statewave/issues](https://github.com/smaramwbc/statewave/issues) (centralized tracker)
 
 > **Frontend role:** This is the **public marketing site** — product positioning, features, and developer resources. For the interactive demo, see [statewave-demo](https://github.com/smaramwbc/statewave-demo). For the operator console, see [statewave-admin](https://github.com/smaramwbc/statewave-admin).
 
