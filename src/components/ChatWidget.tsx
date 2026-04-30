@@ -81,7 +81,127 @@ export function ChatWidget() {
   const [showSubjectMenu, setShowSubjectMenu] = useState(false)
   // Mobile: tabbed view for comparison (0=both, 1=stateless, 2=statewave)
   const [mobileTab, setMobileTab] = useState<'split' | 'stateless' | 'statewave'>('split')
+  // Track which suggestion round we're on (rotates through available suggestions)
+  const [suggestionRound, setSuggestionRound] = useState(0)
   const chatEndRef = useRef<HTMLDivElement>(null)
+
+  // Multi-round suggestions based on ACTUAL memories in the backend
+  // Each array is a round of follow-up questions that flow naturally
+  const SUGGESTIONS: Record<string, string[][]> = {
+    'demo-support-agent': [
+      // Round 1: Initial contact
+      [
+        "I'm having that login error again on mobile",
+        "What was the AUTH-503 issue about?",
+        "Did my $50 refund go through?",
+      ],
+      // Round 2: Follow-ups
+      [
+        "Can you escalate this to L2 like last time?",
+        "I prefer email — can you send me a summary?",
+        "What's my current account tier?",
+      ],
+      // Round 3: More follow-ups
+      [
+        "Send me another password reset link",
+        "Was my billing discrepancy resolved?",
+        "I'm still getting the same error on my phone",
+      ],
+    ],
+    'demo-coding-assistant': [
+      // Round 1: Current work
+      [
+        "I think there's another memory leak in useEffect",
+        "What was that useDebounce refactor suggestion?",
+        "Did PR #142 get merged?",
+      ],
+      // Round 2: Follow-ups
+      [
+        "Can you check the WebSocket cleanup code?",
+        "What's our current test coverage?",
+        "Is v2.4.0-rc1 still on staging?",
+      ],
+      // Round 3: More context
+      [
+        "Remind me of my coding style preferences",
+        "Help me with a Next.js + Prisma query",
+        "What was the SearchInput issue about?",
+      ],
+    ],
+    'demo-sales-copilot': [
+      // Round 1: Deal status
+      [
+        "What's the status of the Acme Corp deal?",
+        "Did the CTO demo happen Thursday?",
+        "Any news on the legal review?",
+      ],
+      // Round 2: Follow-ups
+      [
+        "What security objections did we address?",
+        "Remind me of the pricing we proposed",
+        "What changes did legal want on data retention?",
+      ],
+      // Round 3: Next steps
+      [
+        "Who's the contact at Acme Corp?",
+        "When should I follow up on the contract?",
+        "What's the total ARR if they sign?",
+      ],
+    ],
+    'demo-devops-agent': [
+      // Round 1: Current alerts
+      [
+        "Any issues with node-7 lately?",
+        "What triggered the last rollback?",
+        "How many replicas are running now?",
+      ],
+      // Round 2: Follow-ups
+      [
+        "What was the root cause in the post-mortem?",
+        "Show me the new runbook procedure",
+        "What's our current uptime against SLA?",
+      ],
+      // Round 3: Infrastructure
+      [
+        "How many GKE clusters do we have?",
+        "Did the HPA scaling work correctly?",
+        "Is v2.3.0 still stable after the rollback?",
+      ],
+    ],
+    'demo-research-assistant': [
+      // Round 1: Recent papers
+      [
+        "Summarize the LoRA paper findings",
+        "How does LoRA compare to full fine-tuning?",
+        "What papers did I save to Notion?",
+      ],
+      // Round 2: Follow-ups
+      [
+        "Show me the comparison table you made",
+        "What's the citation graph for LoRA?",
+        "Explain the Attention Is All You Need paper",
+      ],
+      // Round 3: Preferences
+      [
+        "Find more arxiv papers on this topic",
+        "What parameter-efficient methods did we compare?",
+        "What's the 10x cost reduction about?",
+      ],
+    ],
+  }
+
+  // Get current round suggestions, cycle through rounds
+  const subjectSuggestions = subjectId ? SUGGESTIONS[subjectId] || [] : []
+  const currentRound = suggestionRound % Math.max(subjectSuggestions.length, 1)
+  const suggestions = subjectSuggestions[currentRound] || []
+  
+  // Show suggestions when there are messages OR when empty (always helpful)
+  const showSuggestions = suggestions.length > 0 && !isLoading
+
+  // Reset suggestion round when subject changes
+  useEffect(() => {
+    setSuggestionRound(0)
+  }, [subjectId])
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -379,6 +499,25 @@ export function ChatWidget() {
 
         {/* Input */}
         <form onSubmit={handleSubmit} className="px-3 sm:px-4 py-2.5 sm:py-3 border-t border-theme-border/50 flex-shrink-0">
+          {/* Suggestion chips */}
+          {showSuggestions && (
+            <div className="flex flex-wrap gap-1.5 mb-2.5">
+              {suggestions.map((s, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={async () => {
+                    // Send the suggestion directly and advance to next round
+                    await sendMessage(s)
+                    setSuggestionRound(r => r + 1)
+                  }}
+                  className="text-[10px] sm:text-[11px] px-2.5 py-1.5 rounded-md border border-theme-border/50 text-theme-muted hover:text-accent hover:border-accent/50 hover:bg-accent/5 transition-all"
+                >
+                  {s}
+                </button>
+              ))}
+            </div>
+          )}
           <div className="flex items-center gap-2">
             <input
               type="text"
