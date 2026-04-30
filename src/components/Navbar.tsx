@@ -75,7 +75,7 @@ export function Navbar() {
         <div className="hidden md:flex items-center gap-3">
           <ThemeSwitcher />
           <a
-            href="https://statewave-demo.vercel.app"
+            href="https://demo.statewave.ai"
             target="_blank"
             rel="noopener noreferrer"
             className="px-4 py-[7px] rounded-lg bg-accent text-white text-[13px] font-medium hover:bg-accent-light transition-all duration-150 shadow-sm shadow-accent/20 hover:shadow-accent/30"
@@ -132,7 +132,7 @@ export function Navbar() {
               <ThemeSwitcher />
             </div>
             <a
-              href="https://statewave-demo.vercel.app"
+              href="https://demo.statewave.ai"
               target="_blank"
               rel="noopener noreferrer"
               className="mt-1 flex items-center justify-center px-4 py-2.5 rounded-lg bg-accent text-white text-sm font-medium"

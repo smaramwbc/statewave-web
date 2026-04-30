@@ -24,7 +24,7 @@ export function Footer() {
             <ul className="space-y-2">
               <li><Link to="/product" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">How it works</Link></li>
               <li><Link to="/why" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">Why Statewave</Link></li>
-              <li><a href="https://statewave-demo.vercel.app" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">Live Demo</a></li>
+              <li><a href="https://demo.statewave.ai" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">Live Demo</a></li>
             </ul>
           </div>
 

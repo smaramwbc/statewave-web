@@ -78,7 +78,7 @@ function HeroSection() {
           {/* CTAs */}
           <motion.div variants={fadeUp} className="mt-10 flex flex-wrap items-center gap-4">
             <a
-              href="https://statewave-demo.vercel.app"
+              href="https://demo.statewave.ai"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-accent text-white text-sm font-medium hover:bg-accent-light transition-all duration-150 shadow-lg shadow-accent/20 hover:shadow-accent/30 hover:-translate-y-px"
@@ -566,7 +566,7 @@ function CTASection() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
             </svg>
           </Button>
-          <Button href="https://statewave-demo.vercel.app" variant="secondary" size="lg">
+          <Button href="https://demo.statewave.ai" variant="secondary" size="lg">
             Try Live Demo
           </Button>
           <Button href="https://github.com/smaramwbc/statewave" variant="secondary" size="lg">

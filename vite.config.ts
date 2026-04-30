@@ -12,12 +12,12 @@ export default defineConfig({
   server: {
     proxy: {
       '/api/hero-data': {
-        target: 'https://statewave-web.vercel.app',
+        target: 'https://www.statewave.ai',
         changeOrigin: true,
         timeout: 15000,
       },
       '/api/widget-chat': {
-        target: 'https://statewave-web.vercel.app',
+        target: 'https://www.statewave.ai',
         changeOrigin: true,
         timeout: 30000,
       },

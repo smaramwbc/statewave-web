@@ -61,7 +61,7 @@ export function DevelopersPage() {
             {
               title: 'Live Demo',
               desc: 'Two identical agents — one with memory, one without. See the difference in 10 seconds.',
-              href: 'https://statewave-demo.vercel.app',
+              href: 'https://demo.statewave.ai',
               tag: 'Demo',
             },
             {
