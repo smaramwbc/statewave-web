@@ -83,7 +83,10 @@ export function ChatWidget() {
   const [mobileTab, setMobileTab] = useState<'split' | 'stateless' | 'statewave'>('split')
   // Track which suggestion round we're on (rotates through available suggestions)
   const [suggestionRound, setSuggestionRound] = useState(0)
+  // Maximized state - expands to full browser window
+  const [isMaximized, setIsMaximized] = useState(false)
   const chatEndRef = useRef<HTMLDivElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
 
   // Multi-round suggestions based on ACTUAL memories in the backend
   // Each array is a round of follow-up questions that flow naturally
@@ -200,8 +203,17 @@ export function ChatWidget() {
 
   // Reset suggestion round when subject changes
   useEffect(() => {
+    // Reset suggestion round when switching subjects - legitimate async data loading pattern
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSuggestionRound(0)
   }, [subjectId])
+
+  // Auto-focus input when widget opens
+  useEffect(() => {
+    if (isOpen && !isMinimized) {
+      setTimeout(() => inputRef.current?.focus(), 100)
+    }
+  }, [isOpen, isMinimized, subjectId])
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -269,6 +281,19 @@ export function ChatWidget() {
 
   // ─── Responsive sizing classes ───
   const getWidgetStyles = (): React.CSSProperties => {
+    // Maximized mode: large modal with padding
+    if (isMaximized) {
+      return {
+        width: 'calc(100vw - 48px)',
+        height: 'calc(100vh - 48px)',
+        maxWidth: 'calc(100vw - 48px)',
+        maxHeight: 'calc(100vh - 48px)',
+        bottom: 24,
+        right: 24,
+        left: 24,
+        top: 24,
+      }
+    }
     if (isMobile) {
       return {
         width: 'calc(100vw - 24px)',
@@ -309,7 +334,7 @@ export function ChatWidget() {
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: 20, scale: 0.95 }}
         transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-        className="fixed z-50 flex flex-col rounded-2xl shadow-2xl border overflow-hidden"
+        className="fixed z-50 flex flex-col shadow-2xl border overflow-hidden rounded-2xl"
         style={{
           ...widgetStyles,
           backgroundColor: isDark ? 'rgba(10, 15, 26, 0.98)' : 'rgba(255, 255, 255, 0.98)',
@@ -386,6 +411,17 @@ export function ChatWidget() {
               <MinimizeIcon className="w-4 h-4 text-theme-muted" />
             </button>
             <button
+              onClick={() => setIsMaximized(!isMaximized)}
+              className="p-1.5 rounded-lg hover:bg-theme-border/30 transition-colors"
+              title={isMaximized ? "Restore size" : "Maximize"}
+            >
+              {isMaximized ? (
+                <RestoreIcon className="w-4 h-4 text-theme-muted" />
+              ) : (
+                <MaximizeIcon className="w-4 h-4 text-theme-muted" />
+              )}
+            </button>
+            <button
               onClick={closeWidget}
               className="p-1.5 rounded-lg hover:bg-theme-border/30 transition-colors"
               title="Close"
@@ -423,12 +459,14 @@ export function ChatWidget() {
             <div className={`flex flex-col border-r border-theme-border/30 ${
               isMobile && mobileTab === 'split' ? 'w-1/2' : isMobile ? 'w-full' : 'flex-1'
             }`}>
-              <div className="px-2 sm:px-3 py-1.5 sm:py-2 border-b border-theme-border/30 bg-theme-surface-1/30 flex-shrink-0">
-                <div className="flex items-center gap-1.5 sm:gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-gray-400" />
-                  <span className="text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider text-theme-muted">
-                    {isMobile && mobileTab === 'split' ? 'No Mem' : 'Without Memory'}
-                  </span>
+              <div className="px-2 sm:px-3 py-1.5 sm:py-2 h-8 sm:h-9 border-b border-theme-border/30 bg-theme-surface-1/30 flex-shrink-0">
+                <div className="flex items-center justify-between h-full">
+                  <div className="flex items-center gap-1.5 sm:gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-gray-400" />
+                    <span className="text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider text-theme-muted">
+                      {isMobile && mobileTab === 'split' ? 'No Mem' : 'Without Memory'}
+                    </span>
+                  </div>
                 </div>
               </div>
               <div className="flex-1 overflow-y-auto p-2 sm:p-3 space-y-2 sm:space-y-3">
@@ -454,8 +492,8 @@ export function ChatWidget() {
             <div className={`flex flex-col ${
               isMobile && mobileTab === 'split' ? 'w-1/2' : isMobile ? 'w-full' : 'flex-1'
             }`}>
-              <div className="px-2 sm:px-3 py-1.5 sm:py-2 border-b border-theme-border/30 bg-accent/5 flex-shrink-0">
-                <div className="flex items-center justify-between">
+              <div className="px-2 sm:px-3 py-1.5 sm:py-2 h-8 sm:h-9 border-b border-theme-border/30 bg-accent/5 flex-shrink-0">
+                <div className="flex items-center justify-between h-full">
                   <div className="flex items-center gap-1.5 sm:gap-2">
                     <span className="w-1.5 h-1.5 rounded-full bg-accent" />
                     <span className="text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider text-accent">
@@ -511,7 +549,7 @@ export function ChatWidget() {
                     await sendMessage(s)
                     setSuggestionRound(r => r + 1)
                   }}
-                  className="text-[10px] sm:text-[11px] px-2.5 py-1.5 rounded-md border border-theme-border/50 text-theme-muted hover:text-accent hover:border-accent/50 hover:bg-accent/5 transition-all"
+                  className="text-[10px] sm:text-[11px] px-2.5 py-1.5 rounded-md border border-accent/30 bg-accent/10 text-accent hover:bg-accent/20 hover:border-accent/50 transition-all cursor-pointer"
                 >
                   {s}
                 </button>
@@ -520,6 +558,7 @@ export function ChatWidget() {
           )}
           <div className="flex items-center gap-2">
             <input
+              ref={inputRef}
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
@@ -716,6 +755,22 @@ function MinimizeIcon({ className }: { className?: string }) {
   return (
     <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
       <path strokeLinecap="round" strokeLinejoin="round" d="M20 12H4" />
+    </svg>
+  )
+}
+
+function MaximizeIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M4 8V4h4M20 8V4h-4M4 16v4h4M20 16v4h-4" />
+    </svg>
+  )
+}
+
+function RestoreIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M8 4H4v4M16 4h4v4M8 20H4v-4M16 20h4v-4" />
     </svg>
   )
 }

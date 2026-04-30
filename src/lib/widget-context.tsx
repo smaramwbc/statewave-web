@@ -106,6 +106,12 @@ export function ChatWidgetProvider({ children }: { children: ReactNode }) {
     setIsOpen(true)
     setIsMinimized(false)
     if (sid) {
+      // Clear chat when switching to a different subject
+      if (sid !== subjectId) {
+        setStatelessMessages([])
+        setStatewaveMessages([])
+        setLastContext(null)
+      }
       setSubjectId(sid)
       setSubjectLabel(label || DEMO_SUBJECTS.find(s => s.id === sid)?.label || sid)
       fetchMemories(sid)

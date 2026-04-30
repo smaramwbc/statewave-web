@@ -194,8 +194,6 @@ export function HeroBackground() {
   const [hintPos, setHintPos] = useState<{ x: number; y: number } | null>(null)
   const [hintLabel, setHintLabel] = useState('')
   const [hintVisible, setHintVisible] = useState(true)
-  const [modalOpen, setModalOpen] = useState(false)
-  const [selectedMemory, setSelectedMemory] = useState<Memory | null>(null)
 
   themeRef.current = isDark
 
@@ -292,22 +290,22 @@ export function HeroBackground() {
     setTooltip(null)
   }, [])
 
-  // Click handler to open modal or chat widget
+  // Click handler to open chat widget for any particle
   const handleClick = useCallback(() => {
     if (hoveredRef.current?.kind === 'episode') {
       const ep = episodesRef.current[hoveredRef.current.idx]
       const parentMem = memoriesRef.current[ep.memoryIdx]
-      setSelectedMemory(parentMem)
-      setModalOpen(true)
+      const subj = subjectsRef.current[parentMem.subjectIdx]
+      if (subj) {
+        openWidget(subj.subjectId, subj.label)
+      }
     } else if (hoveredRef.current?.kind === 'memory') {
       const mem = memoriesRef.current[hoveredRef.current.idx]
-      // Open chat widget with subject context
       const subj = subjectsRef.current[mem.subjectIdx]
       if (subj) {
         openWidget(subj.subjectId, subj.label)
       }
     } else if (hoveredRef.current?.kind === 'subject') {
-      // Open chat widget with this subject
       const subj = subjectsRef.current[hoveredRef.current.idx]
       if (subj) {
         openWidget(subj.subjectId, subj.label)
@@ -370,35 +368,39 @@ export function HeroBackground() {
     const episodes = episodesRef.current
     const subjects = subjectsRef.current
 
-    // Responsive group centers — push groups further out on wide screens
+    // Responsive group centers — distribute around hero content
+    // Hero content occupies roughly center (y: 0.3-0.6), so place groups around it
     const aspect = w / h
     const isWide = aspect > 1.4
     const isMobile = w < 640
 
     let groupCenters: { x: number; y: number }[]
     if (isMobile) {
+      // Mobile: groups distributed around content area
       groupCenters = [
-        { x: 0.25, y: 0.15 },
-        { x: 0.75, y: 0.15 },
-        { x: 0.2, y: 0.75 },
-        { x: 0.8, y: 0.75 },
-        { x: 0.5, y: 0.1 },
+        { x: 0.22, y: 0.32 },  // Support Agent - mid left
+        { x: 0.78, y: 0.28 },  // Coding Assistant - mid right
+        { x: 0.15, y: 0.65 },  // Sales Copilot - lower left
+        { x: 0.85, y: 0.68 },  // DevOps Agent - lower right
+        { x: 0.50, y: 0.18 },  // Research Assistant - upper center
       ]
     } else if (isWide) {
+      // Wide screens: shift everything down significantly
       groupCenters = [
-        { x: 0.15, y: 0.3 },
-        { x: 0.85, y: 0.28 },
-        { x: 0.13, y: 0.65 },
-        { x: 0.87, y: 0.63 },
-        { x: 0.5, y: 0.12 },
+        { x: 0.08, y: 0.52 },  // Support Agent - left mid
+        { x: 0.92, y: 0.48 },  // Coding Assistant - right mid
+        { x: 0.10, y: 0.85 },  // Sales Copilot - left bottom
+        { x: 0.90, y: 0.82 },  // DevOps Agent - right bottom
+        { x: 0.50, y: 0.18 },  // Research Assistant - upper center
       ]
     } else {
+      // Default/tablet: balanced, shifted down
       groupCenters = [
-        { x: 0.18, y: 0.3 },
-        { x: 0.82, y: 0.28 },
-        { x: 0.16, y: 0.68 },
-        { x: 0.84, y: 0.66 },
-        { x: 0.5, y: 0.13 },
+        { x: 0.12, y: 0.48 },  // Support Agent - left mid
+        { x: 0.88, y: 0.44 },  // Coding Assistant - right mid
+        { x: 0.10, y: 0.82 },  // Sales Copilot - left bottom
+        { x: 0.90, y: 0.78 },  // DevOps Agent - right bottom
+        { x: 0.50, y: 0.16 },  // Research Assistant - upper center
       ]
     }
 
@@ -794,78 +796,6 @@ export function HeroBackground() {
         >
           <span className="opacity-70">✦</span>
           <span>{hintLabel || 'memory'} · click →</span>
-        </div>
-      )}
-
-      {/* Modal for memory interaction */}
-      {modalOpen && selectedMemory && (
-        <div 
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm"
-          onClick={() => setModalOpen(false)}
-        >
-          <div 
-            className="relative max-w-lg w-full mx-4 p-6 rounded-2xl border border-theme-border shadow-2xl"
-            style={{
-              backgroundColor: isDark ? 'rgba(15, 12, 41, 0.98)' : 'rgba(255, 255, 255, 0.98)',
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Close button */}
-            <button
-              className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full hover:bg-theme-border/30 transition-colors"
-              onClick={() => setModalOpen(false)}
-            >
-              <span className="text-theme-muted text-lg">×</span>
-            </button>
-
-            {/* Header */}
-            <div className="flex items-center gap-3 mb-4 pb-4 border-b border-theme-border/30">
-              <div 
-                className="w-4 h-4 rounded-full"
-                style={{ backgroundColor: `hsl(${GROUP_COLORS[selectedMemory.group % 5].h}, ${GROUP_COLORS[selectedMemory.group % 5].s}%, 60%)` }}
-              />
-              <div>
-                <h2 className="text-lg font-semibold text-theme-primary">
-                  {['Support Agent', 'Coding Assistant', 'Sales Copilot', 'DevOps Agent', 'Research Assistant'][selectedMemory.group]}
-                </h2>
-                <p className="text-xs text-theme-muted font-mono">{selectedMemory.subjectId}</p>
-              </div>
-            </div>
-
-            {/* Memory content */}
-            <div className="mb-4">
-              <p className="text-[10px] uppercase tracking-wider text-theme-muted mb-1 font-semibold">Memory</p>
-              <p className="text-theme-primary">{selectedMemory.label}</p>
-            </div>
-
-            {/* Related episodes */}
-            {(() => {
-              const memIdx = memoriesRef.current.indexOf(selectedMemory)
-              const relatedEps = episodesRef.current.filter(ep => ep.memoryIdx === memIdx)
-              if (relatedEps.length === 0) return null
-              return (
-                <div className="mb-4">
-                  <p className="text-[10px] uppercase tracking-wider text-theme-muted mb-2 font-semibold">Related Episodes</p>
-                  <div className="space-y-1.5 max-h-[140px] overflow-y-auto">
-                    {relatedEps.slice(0, 6).map((ep, i) => (
-                      <div key={i} className="flex items-start gap-2 text-xs text-theme-secondary">
-                        <span className="w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0" style={{ backgroundColor: `hsl(${GROUP_COLORS[selectedMemory.group % 5].h}, 70%, 60%)` }} />
-                        <span>{ep.label}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )
-            })()}
-
-            {/* TODO: Chat interface placeholder */}
-            <div className="p-4 rounded-lg border border-dashed border-theme-border/50 bg-theme-surface-1/30">
-              <p className="text-sm text-theme-muted text-center">
-                {/* TODO: Implement chatbot interface to interact with this memory context */}
-                💬 Chat interface coming soon — ask questions about this memory
-              </p>
-            </div>
-          </div>
         </div>
       )}
     </div>
