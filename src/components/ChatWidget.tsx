@@ -72,6 +72,8 @@ export function ChatWidget() {
     isLoading,
     isResetting,
     isHydrating,
+    hydrationReason,
+    hasSeenWelcome,
     hasVisibleCta,
     openWidget,
     closeWidget,
@@ -80,6 +82,8 @@ export function ChatWidget() {
     selectPersona,
     sendMessage,
     resetDemo,
+    dismissWelcome,
+    showWelcome,
   } = useChatWidget()
 
   const [input, setInput] = useState('')
@@ -478,6 +482,14 @@ export function ChatWidget() {
 
           <div className="flex items-center gap-0.5 sm:gap-1 flex-shrink-0">
             <button
+              onClick={showWelcome}
+              className="p-1.5 rounded-lg hover:bg-theme-border/30 transition-colors"
+              title="What is this demo?"
+              aria-label="Show demo intro"
+            >
+              <HelpIcon className="w-4 h-4 text-theme-muted" />
+            </button>
+            <button
               onClick={() => {
                 if (isResetting) return
                 if (window.confirm('Reset demo memory? This permanently deletes the episodes and memories Statewave has stored for this browser.')) {
@@ -517,6 +529,75 @@ export function ChatWidget() {
             </button>
           </div>
         </div>
+
+        {/* Welcome panel — first-time onboarding. Takes over the body of the
+            widget while the visitor hasn't seen the intro. Header stays so it
+            reads as part of the same widget; preload + auto-seed continue in
+            the background so memory is ready by the time they dismiss. */}
+        {/* Welcome panel — shown the first time the widget opens. Replaces the
+            comparison columns until dismissed. Persists across reloads via
+            localStorage; resetDemo() does NOT bring it back (it's UI state,
+            not memory). */}
+        {!hasSeenWelcome && (
+          <div
+            data-testid="onboarding-welcome"
+            className="flex-1 flex flex-col items-center px-5 sm:px-8 py-6 sm:py-8 overflow-y-auto"
+          >
+            <div
+              className="w-12 h-12 rounded-full flex items-center justify-center mb-4 flex-shrink-0"
+              style={{
+                backgroundColor: isDark ? 'rgba(99, 102, 241, 0.15)' : 'rgba(99, 102, 241, 0.1)',
+                border: `1px solid ${isDark ? 'rgba(99, 102, 241, 0.3)' : 'rgba(99, 102, 241, 0.2)'}`,
+              }}
+            >
+              <span className="text-accent text-xl">✦</span>
+            </div>
+            <h3 className="text-base sm:text-lg font-semibold text-theme-primary text-center">
+              Try Statewave with real memory
+            </h3>
+            <p className="mt-3 text-xs sm:text-sm text-theme-muted text-center max-w-md leading-relaxed">
+              Two AI agents, same model. The left replies with no context.
+              The right gets ranked memory compiled live from your turns by
+              a real Statewave server.
+            </p>
+            <p className="mt-2.5 text-xs sm:text-sm text-theme-muted text-center max-w-md leading-relaxed">
+              This browser is remembered, so memory carries across visits.
+              Reset anytime from the trash icon.
+            </p>
+            {suggestions.length > 0 && (
+              <>
+                <p className="mt-6 text-[10px] uppercase tracking-wider text-theme-muted/70 font-semibold">
+                  Try a question
+                </p>
+                <div className="mt-2 flex flex-wrap justify-center gap-1.5 max-w-md">
+                  {suggestions.map((s, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={async () => {
+                        // sendMessage auto-dismisses the welcome — no extra call needed.
+                        await sendMessage(s)
+                        setSuggestionRound((r) => r + 1)
+                      }}
+                      className="text-[11px] px-2.5 py-1.5 rounded-md border border-accent/30 bg-accent/10 text-accent hover:bg-accent/20 hover:border-accent/50 transition-all cursor-pointer"
+                    >
+                      {s}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+            <button
+              type="button"
+              onClick={dismissWelcome}
+              className="mt-6 text-[11px] text-theme-muted hover:text-theme-secondary underline-offset-4 hover:underline transition-colors"
+            >
+              skip onboarding
+            </button>
+          </div>
+        )}
+
+        {hasSeenWelcome && <>
 
         {/* Mobile tab selector */}
         {isMobile && (
@@ -610,7 +691,7 @@ export function ChatWidget() {
               >
                 {statewaveMessages.length === 0 ? (
                   isHydrating ? (
-                    <div className="flex flex-col items-center justify-center py-8 sm:py-10 gap-3">
+                    <div className="flex flex-col items-center justify-center py-8 sm:py-10 gap-3 px-4 text-center">
                       <div className="flex gap-1.5">
                         {[0, 1, 2].map((i) => (
                           <motion.div
@@ -621,19 +702,37 @@ export function ChatWidget() {
                           />
                         ))}
                       </div>
-                      <p className="text-[10px] sm:text-xs text-theme-muted opacity-70">
-                        Loading demo memory…
+                      <p className="text-[11px] sm:text-xs font-medium text-theme-secondary">
+                        {hydrationReason === 'setup' && 'Setting up your demo subject…'}
+                        {hydrationReason === 'restore' && 'Restoring your memory pool…'}
+                        {hydrationReason === 'reset' && 'Starting fresh — new subject…'}
+                        {!hydrationReason && 'Loading demo memory…'}
+                      </p>
+                      <p className="text-[10px] text-theme-muted/80 leading-relaxed max-w-[260px]">
+                        {hydrationReason === 'setup' && 'Issuing your visitor cookie and seeding the support-agent pool from the Statewave server. About a second.'}
+                        {hydrationReason === 'restore' && 'Reading your demo subject from the Statewave server.'}
+                        {hydrationReason === 'reset' && 'Wiping the previous subjects and provisioning a clean one.'}
                       </p>
                     </div>
                   ) : (
-                    <div className="text-center py-6 sm:py-8">
-                      <p className="text-[10px] sm:text-xs text-theme-muted opacity-60 mb-2">
-                        {isReturningVisitor ? 'Welcome back — your demo memory is loaded' : 'Memory-backed responses'}
+                    <div className="text-center py-6 sm:py-8 px-4">
+                      <p className="text-[11px] sm:text-xs font-medium text-theme-secondary mb-1.5">
+                        {isReturningVisitor
+                          ? 'Welcome back — your demo memory is loaded'
+                          : memories.length > 0
+                          ? 'Memory loaded — ready when you are'
+                          : 'No memory yet'}
                       </p>
-                      <p className="text-[9px] sm:text-[10px] text-accent/70">
-                        {memories.length} {memories.length === 1 ? 'memory' : 'memories'}
-                        {episodeCount > 0 && ` · ${episodeCount} ${episodeCount === 1 ? 'episode' : 'episodes'}`}
-                      </p>
+                      {memories.length > 0 ? (
+                        <p className="text-[10px] text-accent/80">
+                          {memories.length} {memories.length === 1 ? 'memory' : 'memories'}
+                          {episodeCount > 0 && ` · ${episodeCount} ${episodeCount === 1 ? 'episode' : 'episodes'}`} · open the inspector to view
+                        </p>
+                      ) : (
+                        <p className="text-[10px] text-theme-muted/80 leading-relaxed max-w-[260px] mx-auto">
+                          Statewave will compile facts, procedures, and summaries from your turns as you chat. Watch the inspector populate.
+                        </p>
+                      )}
                     </div>
                   )
                 ) : (
@@ -700,6 +799,8 @@ export function ChatWidget() {
           </p>
         </form>
 
+        </>}
+
         {/* Inspector panel */}
         <AnimatePresence>
           {showInspector && (
@@ -734,8 +835,9 @@ export function ChatWidget() {
                     Your demo memory ({memories.length})
                   </h4>
                   <p className="text-[9px] sm:text-[10px] text-theme-muted/80 leading-relaxed mb-2">
-                    Compiled from {episodeCount} {episodeCount === 1 ? 'episode' : 'episodes'} written by this browser.
-                    Real Statewave subject; persists across visits until you reset.
+                    {episodeCount > 0
+                      ? <>Compiled from {episodeCount} {episodeCount === 1 ? 'episode' : 'episodes'} on your real Statewave subject. Persists across visits until you reset.</>
+                      : <>Statewave will compile facts, procedures, and summaries here as you chat. Real Statewave subject; persists across visits until you reset.</>}
                   </p>
                   <div className="space-y-2">
                     {memories.slice(0, 8).map((m, i) => (
@@ -914,6 +1016,15 @@ function InspectIcon({ className }: { className?: string }) {
   return (
     <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
       <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+    </svg>
+  )
+}
+
+function HelpIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+      <circle cx="12" cy="12" r="9" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M9.5 9.5a2.5 2.5 0 015 0c0 1.5-2.5 2-2.5 4M12 17h.01" />
     </svg>
   )
 }

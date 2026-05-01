@@ -65,6 +65,16 @@ interface ChatWidgetState {
   isResetting: boolean
   /** True while we're fetching demo state and (if needed) seeding from a persona. */
   isHydrating: boolean
+  /**
+   * Why we're hydrating. `setup` = first-time visitor (no cookie yet) — the
+   * server will issue a cookie and seed the showcase pool. `restore` = we're
+   * reading an existing visitor's memory back from the server. `reset` =
+   * starting over after a deliberate wipe. Drives the loading copy.
+   */
+  hydrationReason: 'setup' | 'restore' | 'reset' | null
+  /** Whether this browser has seen the welcome panel. Persists in localStorage,
+   *  independent of demo memory state. */
+  hasSeenWelcome: boolean
   /** True while at least one on-page demo CTA (e.g. hero "Try the Demo")
    *  is in the viewport — the floating launcher hides itself in that case
    *  so we don't double-up on the same affordance. */
@@ -91,6 +101,10 @@ interface ChatWidgetActions {
   /** Internal — used by useTrackDemoCta. Increment when an on-page CTA enters
    *  the viewport, decrement when it leaves. */
   _bumpVisibleCta: (delta: 1 | -1) => void
+  /** Mark the welcome as seen and reveal the chat. Persists across reloads. */
+  dismissWelcome: () => void
+  /** Re-show the welcome panel (small "?" help button in the header). */
+  showWelcome: () => void
 }
 
 type ChatWidgetContextType = ChatWidgetState & ChatWidgetActions
@@ -132,6 +146,38 @@ function normalizePersona(maybeSubject: string): string {
   return maybeSubject.startsWith('demo-') ? maybeSubject.slice(5) : maybeSubject
 }
 
+// ─── Onboarding state ───────────────────────────────────────────────────────
+// Tracks whether this browser has seen the welcome panel. Stored separately
+// from demo memory: resetDemo() does NOT clear it. The user can wipe their
+// memory pool without re-seeing the intro.
+const ONBOARDING_KEY = 'statewave-demo-onboarding-v1'
+
+interface OnboardingRecord {
+  welcomeSeenAt: number | null
+}
+
+function loadOnboarding(): OnboardingRecord {
+  if (typeof window === 'undefined') return { welcomeSeenAt: null }
+  try {
+    const raw = window.localStorage.getItem(ONBOARDING_KEY)
+    if (!raw) return { welcomeSeenAt: null }
+    const parsed = JSON.parse(raw) as OnboardingRecord
+    return { welcomeSeenAt: typeof parsed.welcomeSeenAt === 'number' ? parsed.welcomeSeenAt : null }
+  } catch {
+    return { welcomeSeenAt: null }
+  }
+}
+
+function persistOnboarding(rec: OnboardingRecord): void {
+  if (typeof window === 'undefined') return
+  try {
+    window.localStorage.setItem(ONBOARDING_KEY, JSON.stringify(rec))
+  } catch {
+    // localStorage unavailable (private mode, quota) — silently no-op; the
+    // welcome will simply re-show next visit.
+  }
+}
+
 export function ChatWidgetProvider({ children }: { children: ReactNode }) {
   const [isOpen, setIsOpen] = useState(false)
   const [isMinimized, setIsMinimized] = useState(false)
@@ -147,9 +193,20 @@ export function ChatWidgetProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(false)
   const [isResetting, setIsResetting] = useState(false)
   const [isHydrating, setIsHydrating] = useState(false)
+  const [hydrationReason, setHydrationReason] = useState<'setup' | 'restore' | 'reset' | null>(null)
+  const [hasSeenWelcome, setHasSeenWelcome] = useState<boolean>(() => loadOnboarding().welcomeSeenAt !== null)
   const [visibleCtaCount, setVisibleCtaCount] = useState(0)
   const _bumpVisibleCta = useCallback((delta: 1 | -1) => {
     setVisibleCtaCount((n) => Math.max(0, n + delta))
+  }, [])
+
+  const dismissWelcome = useCallback(() => {
+    persistOnboarding({ welcomeSeenAt: Date.now() })
+    setHasSeenWelcome(true)
+  }, [])
+
+  const showWelcome = useCallback(() => {
+    setHasSeenWelcome(false)
   }, [])
 
   const refreshState = useCallback(async (forPersona?: string) => {
@@ -164,6 +221,10 @@ export function ChatWidgetProvider({ children }: { children: ReactNode }) {
       setIsReturningVisitor(!data.isNew && (data.episodes.length > 0 || data.memories.length > 0))
       setEpisodeCount(data.episodeCount)
       setMemories(data.memories)
+      // The hydration reason defaults from the server's view of this visitor:
+      // a brand-new cookie means we're "setting up", an existing one means
+      // we're "restoring". Callers can override before/after this fetch.
+      setHydrationReason((current) => current === 'reset' ? 'reset' : (data.isNew ? 'setup' : 'restore'))
       // Deliberately do NOT rehydrate the chat column from server-side episodes.
       // Returning visitors get their compiled memories back (shown in the
       // inspector + the "Welcome back" placeholder) while the chat starts
@@ -214,16 +275,23 @@ export function ChatWidgetProvider({ children }: { children: ReactNode }) {
     // of flashing the spinner over the welcome-back placeholder.
     const personaUnchanged = chosen === persona
     const havePersonaData = personaUnchanged && (memories.length > 0 || episodeCount > 0)
-    if (!havePersonaData) setIsHydrating(true)
+    if (!havePersonaData) {
+      setIsHydrating(true)
+      setHydrationReason(havePersonaData ? 'restore' : 'setup')
+    }
     void (async () => {
       try {
         const data = await refreshState(chosen)
         const personaIsSeeded = !!DEMO_PERSONAS.find((x) => x.id === chosen)
-        if (explicit && data && data.episodeCount === 0 && data.memories.length === 0 && personaIsSeeded) {
+        const willSeed = explicit && data && data.episodeCount === 0 && data.memories.length === 0 && personaIsSeeded
+        if (willSeed) setHydrationReason('setup')
+        else if (data && (data.episodeCount > 0 || data.memories.length > 0)) setHydrationReason('restore')
+        if (willSeed) {
           await seedFromPersona(chosen)
         }
       } finally {
         setIsHydrating(false)
+        setHydrationReason(null)
       }
     })()
   }, [persona, memories.length, episodeCount, refreshState, seedFromPersona])
@@ -243,15 +311,20 @@ export function ChatWidgetProvider({ children }: { children: ReactNode }) {
     setStatewaveMessages([])
     setLastContext(null)
     setIsHydrating(true)
+    setHydrationReason('setup')
     void (async () => {
       try {
         const data = await refreshState(norm)
         const personaIsSeeded = !!DEMO_PERSONAS.find((x) => x.id === norm)
-        if (data && data.episodeCount === 0 && data.memories.length === 0 && personaIsSeeded) {
+        const willSeed = data && data.episodeCount === 0 && data.memories.length === 0 && personaIsSeeded
+        if (willSeed) setHydrationReason('setup')
+        else if (data && (data.episodeCount > 0 || data.memories.length > 0)) setHydrationReason('restore')
+        if (willSeed) {
           await seedFromPersona(norm)
         }
       } finally {
         setIsHydrating(false)
+        setHydrationReason(null)
       }
     })()
   }, [refreshState, seedFromPersona])
@@ -264,6 +337,7 @@ export function ChatWidgetProvider({ children }: { children: ReactNode }) {
 
   const resetDemo = useCallback(async () => {
     setIsResetting(true)
+    setHydrationReason('reset')
     try {
       const resp = await fetch('/api/demo-reset', { method: 'POST', credentials: 'same-origin' })
       if (!resp.ok) throw new Error(`Reset failed (${resp.status})`)
@@ -279,12 +353,19 @@ export function ChatWidgetProvider({ children }: { children: ReactNode }) {
       console.error('[widget] Reset failed:', err)
     } finally {
       setIsResetting(false)
+      setHydrationReason(null)
     }
   }, [])
 
   const sendMessage = useCallback(async (text: string) => {
     if (!text.trim()) return
     const trimmed = text.trim()
+    // Sending is the visitor's strongest "I get it" signal — auto-dismiss
+    // the welcome panel here too, not just on the explicit Skip link.
+    if (!hasSeenWelcome) {
+      persistOnboarding({ welcomeSeenAt: Date.now() })
+      setHasSeenWelcome(true)
+    }
     const userMsg: ChatMessage = { role: 'user', content: trimmed, timestamp: Date.now() }
     setStatelessMessages((prev) => [...prev, userMsg])
     setStatewaveMessages((prev) => [...prev, userMsg])
@@ -341,7 +422,7 @@ export function ChatWidgetProvider({ children }: { children: ReactNode }) {
     } finally {
       setIsLoading(false)
     }
-  }, [persona, refreshState])
+  }, [persona, hasSeenWelcome, refreshState])
 
   // Preload the default persona's memory pool on page mount so the demo is
   // populated the moment a visitor opens the widget — no spinner-while-seeding
@@ -376,6 +457,8 @@ export function ChatWidgetProvider({ children }: { children: ReactNode }) {
     isLoading,
     isResetting,
     isHydrating,
+    hydrationReason,
+    hasSeenWelcome,
     hasVisibleCta: visibleCtaCount > 0,
     openWidget,
     closeWidget,
@@ -387,6 +470,8 @@ export function ChatWidgetProvider({ children }: { children: ReactNode }) {
     clearChat,
     seedFromPersona,
     _bumpVisibleCta,
+    dismissWelcome,
+    showWelcome,
   }
 
   return <ChatWidgetContext.Provider value={value}>{children}</ChatWidgetContext.Provider>
