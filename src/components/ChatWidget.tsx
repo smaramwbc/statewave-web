@@ -26,7 +26,7 @@
  *   - Inspector: tabbed/stacked view instead of side panel
  */
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useChatWidget, DEMO_SUBJECTS } from '../lib/widget-context'
 import { useTheme } from '../lib/theme'
@@ -60,20 +60,25 @@ export function ChatWidget() {
   const {
     isOpen,
     isMinimized,
+    persona,
+    personaLabel,
     subjectId,
-    subjectLabel,
+    isReturningVisitor,
+    episodeCount,
     memories,
     statelessMessages,
     statewaveMessages,
     lastContext,
     isLoading,
+    isResetting,
+    isHydrating,
     openWidget,
     closeWidget,
     minimizeWidget,
     expandWidget,
-    selectSubject,
+    selectPersona,
     sendMessage,
-    clearChat,
+    resetDemo,
   } = useChatWidget()
 
   const [input, setInput] = useState('')
@@ -85,14 +90,19 @@ export function ChatWidget() {
   const [suggestionRound, setSuggestionRound] = useState(0)
   // Maximized state - expands to full browser window
   const [isMaximized, setIsMaximized] = useState(false)
-  const chatEndRef = useRef<HTMLDivElement>(null)
+  const statelessScrollRef = useRef<HTMLDivElement>(null)
+  const statewaveScrollRef = useRef<HTMLDivElement>(null)
+  // Guards against re-entrant scroll syncing: when we programmatically set
+  // scrollTop on column B from B's onScroll handler, we don't want B's handler
+  // to fire and try to sync back to A.
+  const syncingScrollRef = useRef(false)
   const inputRef = useRef<HTMLInputElement>(null)
   const expandedRef = useRef<HTMLDivElement>(null)
 
   // Multi-round suggestions based on ACTUAL memories in the backend
   // Each array is a round of follow-up questions that flow naturally
   const SUGGESTIONS: Record<string, string[][]> = {
-    'demo-support-agent': [
+    'support-agent': [
       // Round 1: Initial contact
       [
         "I'm having that login error again on mobile",
@@ -112,7 +122,7 @@ export function ChatWidget() {
         "I'm still getting the same error on my phone",
       ],
     ],
-    'demo-coding-assistant': [
+    'coding-assistant': [
       // Round 1: Current work
       [
         "I think there's another memory leak in useEffect",
@@ -132,7 +142,7 @@ export function ChatWidget() {
         "What was the SearchInput issue about?",
       ],
     ],
-    'demo-sales-copilot': [
+    'sales-copilot': [
       // Round 1: Deal status
       [
         "What's the status of the Acme Corp deal?",
@@ -152,7 +162,7 @@ export function ChatWidget() {
         "What's the total ARR if they sign?",
       ],
     ],
-    'demo-devops-agent': [
+    'devops-agent': [
       // Round 1: Current alerts
       [
         "Any issues with node-7 lately?",
@@ -172,7 +182,7 @@ export function ChatWidget() {
         "Is v2.3.0 still stable after the rollback?",
       ],
     ],
-    'demo-research-assistant': [
+    'research-assistant': [
       // Round 1: Recent papers
       [
         "Summarize the LoRA paper findings",
@@ -194,27 +204,24 @@ export function ChatWidget() {
     ],
   }
 
-  // Get current round suggestions, cycle through rounds
-  const subjectSuggestions = subjectId ? SUGGESTIONS[subjectId] || [] : []
-  const currentRound = suggestionRound % Math.max(subjectSuggestions.length, 1)
-  const suggestions = subjectSuggestions[currentRound] || []
-  
-  // Show suggestions when there are messages OR when empty (always helpful)
+  // Suggestions are keyed on persona (not subject — every visitor shares one
+  // subject; persona only biases the system prompt + suggestion chips).
+  const personaSuggestions = SUGGESTIONS[persona] ?? []
+  const currentRound = suggestionRound % Math.max(personaSuggestions.length, 1)
+  const suggestions = personaSuggestions[currentRound] ?? []
   const showSuggestions = suggestions.length > 0 && !isLoading
 
-  // Reset suggestion round when subject changes
   useEffect(() => {
-    // Reset suggestion round when switching subjects - legitimate async data loading pattern
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setSuggestionRound(0)
-  }, [subjectId])
+  }, [persona])
 
   // Auto-focus input when widget opens
   useEffect(() => {
     if (isOpen && !isMinimized) {
       setTimeout(() => inputRef.current?.focus(), 100)
     }
-  }, [isOpen, isMinimized, subjectId])
+  }, [isOpen, isMinimized, persona])
 
   // Click anywhere outside the expanded widget minimizes it.
   // Defer listener registration so the same click that opened the widget
@@ -236,9 +243,49 @@ export function ChatWidget() {
     }
   }, [isOpen, isMinimized, minimizeWidget])
 
+  // On new messages, scroll BOTH columns to the bottom together so the user
+  // can compare the latest reply side-by-side.
   useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [statelessMessages, statewaveMessages])
+    syncingScrollRef.current = true
+    const scrollBoth = () => {
+      const a = statelessScrollRef.current
+      const b = statewaveScrollRef.current
+      if (a) a.scrollTop = a.scrollHeight
+      if (b) b.scrollTop = b.scrollHeight
+    }
+    scrollBoth()
+    // Release the lock on the next frame so user-driven scrolls re-engage.
+    const r = requestAnimationFrame(() => { syncingScrollRef.current = false })
+    return () => cancelAnimationFrame(r)
+  }, [statelessMessages.length, statewaveMessages.length])
+
+  // Diff-style scroll sync: when the user scrolls one column, align the other
+  // by message index. Each turn produces matching index N in both columns,
+  // so anchoring on the topmost visible bubble keeps the same turn aligned
+  // even when individual replies have different heights.
+  const syncScrollByIndex = useCallback((source: 'stateless' | 'statewave') => {
+    if (syncingScrollRef.current) return
+    const src = source === 'stateless' ? statelessScrollRef.current : statewaveScrollRef.current
+    const dst = source === 'stateless' ? statewaveScrollRef.current : statelessScrollRef.current
+    if (!src || !dst) return
+    const bubbles = src.querySelectorAll<HTMLElement>('[data-msg-idx]')
+    let anchorIdx: string | null = null
+    let anchorOffset = 0
+    for (const el of bubbles) {
+      const topInScroller = el.offsetTop - src.offsetTop - src.scrollTop
+      if (topInScroller >= 0) {
+        anchorIdx = el.dataset.msgIdx ?? null
+        anchorOffset = topInScroller
+        break
+      }
+    }
+    if (!anchorIdx) return
+    const dstAnchor = dst.querySelector<HTMLElement>(`[data-msg-idx="${CSS.escape(anchorIdx)}"]`)
+    if (!dstAnchor) return
+    syncingScrollRef.current = true
+    dst.scrollTop = dstAnchor.offsetTop - dst.offsetTop - anchorOffset
+    requestAnimationFrame(() => { syncingScrollRef.current = false })
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -270,7 +317,7 @@ export function ChatWidget() {
         }}
       >
         <span className="text-accent text-lg">✦</span>
-        <span className="text-sm font-medium text-theme-primary">Try with Memory</span>
+        <span className="text-sm font-medium text-theme-primary">Try the demo</span>
       </motion.button>
     )
   }
@@ -293,7 +340,7 @@ export function ChatWidget() {
       >
         <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
         <span className="text-xs font-medium text-theme-secondary">
-          {subjectLabel || 'Chat'} · {statewaveMessages.length} msgs
+          {personaLabel} · {statewaveMessages.length} msgs
         </span>
         <ChevronUpIcon className="w-4 h-4 text-theme-muted" />
       </motion.button>
@@ -367,16 +414,18 @@ export function ChatWidget() {
         {/* Header */}
         <div className="flex items-center justify-between px-3 sm:px-4 py-2.5 sm:py-3 border-b border-theme-border/50 flex-shrink-0">
           <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
-            {/* Subject selector */}
+            {/* Persona selector — biases the prompt + suggestion chips. Subject
+                is the visitor's own and does not change with persona. */}
             <div className="relative">
               <button
                 onClick={() => setShowSubjectMenu(!showSubjectMenu)}
                 className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1.5 rounded-lg text-xs font-medium border border-theme-border/50 hover:border-accent/30 transition-colors"
                 style={{ backgroundColor: isDark ? 'rgba(99, 102, 241, 0.08)' : 'rgba(99, 102, 241, 0.05)' }}
+                title="Persona — biases the prompt; memory is shared across personas"
               >
                 <span className="w-2 h-2 rounded-full bg-accent flex-shrink-0" />
                 <span className="text-theme-primary truncate max-w-[100px] sm:max-w-[140px]">
-                  {subjectLabel || 'Select subject'}
+                  {personaLabel}
                 </span>
                 <ChevronDownIcon className="w-3.5 h-3.5 text-theme-muted flex-shrink-0" />
               </button>
@@ -387,21 +436,24 @@ export function ChatWidget() {
                     initial={{ opacity: 0, y: -8 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -8 }}
-                    className="absolute top-full left-0 mt-1 w-48 rounded-lg shadow-xl border overflow-hidden z-20"
+                    className="absolute top-full left-0 mt-1 w-56 rounded-lg shadow-xl border overflow-hidden z-20"
                     style={{
                       backgroundColor: isDark ? 'rgba(15, 12, 41, 0.98)' : 'rgba(255, 255, 255, 0.98)',
                       borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
                     }}
                   >
+                    <div className="px-3 py-1.5 text-[9px] uppercase tracking-wider text-theme-muted border-b border-theme-border/40">
+                      Persona (prompt only)
+                    </div>
                     {DEMO_SUBJECTS.map((s) => (
                       <button
                         key={s.id}
                         onClick={() => {
-                          selectSubject(s.id, s.label)
+                          selectPersona(s.id, s.label)
                           setShowSubjectMenu(false)
                         }}
                         className={`w-full px-3 py-2 text-left text-xs hover:bg-accent/10 transition-colors ${
-                          s.id === subjectId ? 'bg-accent/15 text-accent' : 'text-theme-secondary'
+                          s.id === persona ? 'bg-accent/15 text-accent' : 'text-theme-secondary'
                         }`}
                       >
                         {s.label}
@@ -412,16 +464,24 @@ export function ChatWidget() {
               </AnimatePresence>
             </div>
 
-            {!isMobile && (
-              <span className="text-[10px] text-theme-muted font-mono truncate">{subjectId}</span>
+            {!isMobile && subjectId && (
+              <span className="text-[10px] text-theme-muted font-mono truncate" title={subjectId}>
+                {subjectId.length > 22 ? `${subjectId.slice(0, 22)}…` : subjectId}
+              </span>
             )}
           </div>
 
           <div className="flex items-center gap-0.5 sm:gap-1 flex-shrink-0">
             <button
-              onClick={clearChat}
-              className="p-1.5 rounded-lg hover:bg-theme-border/30 transition-colors"
-              title="Clear chat"
+              onClick={() => {
+                if (isResetting) return
+                if (window.confirm('Reset demo memory? This permanently deletes the episodes and memories Statewave has stored for this browser.')) {
+                  void resetDemo()
+                }
+              }}
+              disabled={isResetting}
+              className="p-1.5 rounded-lg hover:bg-theme-border/30 transition-colors disabled:opacity-50"
+              title="Reset demo memory (delete this browser's Statewave subject)"
             >
               <TrashIcon className="w-4 h-4 text-theme-muted" />
             </button>
@@ -491,20 +551,25 @@ export function ChatWidget() {
                   </div>
                 </div>
               </div>
-              <div className="flex-1 overflow-y-auto p-2 sm:p-3 space-y-2 sm:space-y-3">
+              <div
+                ref={statelessScrollRef}
+                onScroll={() => syncScrollByIndex('stateless')}
+                className="flex-1 overflow-y-auto p-2 sm:p-3 space-y-2 sm:space-y-3"
+              >
                 {statelessMessages.length === 0 ? (
                   <p className="text-[10px] sm:text-xs text-theme-muted text-center py-6 sm:py-8 opacity-60">
                     No context available
                   </p>
                 ) : (
                   statelessMessages.map((msg, i) => (
-                    <MessageBubble key={i} message={msg} side="stateless" isDark={isDark} compact={isMobile && mobileTab === 'split'} />
+                    <div key={i} data-msg-idx={String(i)}>
+                      <MessageBubble message={msg} side="stateless" isDark={isDark} compact={isMobile && mobileTab === 'split'} />
+                    </div>
                   ))
                 )}
                 {isLoading && statelessMessages[statelessMessages.length - 1]?.role === 'user' && (
                   <LoadingIndicator isDark={isDark} />
                 )}
-                <div ref={chatEndRef} />
               </div>
             </div>
           )}
@@ -533,25 +598,49 @@ export function ChatWidget() {
                   </button>
                 </div>
               </div>
-              <div className="flex-1 overflow-y-auto p-2 sm:p-3 space-y-2 sm:space-y-3">
+              <div
+                ref={statewaveScrollRef}
+                onScroll={() => syncScrollByIndex('statewave')}
+                className="flex-1 overflow-y-auto p-2 sm:p-3 space-y-2 sm:space-y-3"
+              >
                 {statewaveMessages.length === 0 ? (
-                  <div className="text-center py-6 sm:py-8">
-                    <p className="text-[10px] sm:text-xs text-theme-muted opacity-60 mb-2">
-                      Memory-backed responses
-                    </p>
-                    <p className="text-[9px] sm:text-[10px] text-accent/70">
-                      {memories.length} memories loaded
-                    </p>
-                  </div>
+                  isHydrating ? (
+                    <div className="flex flex-col items-center justify-center py-8 sm:py-10 gap-3">
+                      <div className="flex gap-1.5">
+                        {[0, 1, 2].map((i) => (
+                          <motion.div
+                            key={i}
+                            className="w-2 h-2 rounded-full bg-accent"
+                            animate={{ opacity: [0.3, 1, 0.3], y: [0, -3, 0] }}
+                            transition={{ duration: 0.9, repeat: Infinity, delay: i * 0.15 }}
+                          />
+                        ))}
+                      </div>
+                      <p className="text-[10px] sm:text-xs text-theme-muted opacity-70">
+                        Loading demo memory…
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="text-center py-6 sm:py-8">
+                      <p className="text-[10px] sm:text-xs text-theme-muted opacity-60 mb-2">
+                        {isReturningVisitor ? 'Welcome back — your demo memory is loaded' : 'Memory-backed responses'}
+                      </p>
+                      <p className="text-[9px] sm:text-[10px] text-accent/70">
+                        {memories.length} {memories.length === 1 ? 'memory' : 'memories'}
+                        {episodeCount > 0 && ` · ${episodeCount} ${episodeCount === 1 ? 'episode' : 'episodes'}`}
+                      </p>
+                    </div>
+                  )
                 ) : (
                   statewaveMessages.map((msg, i) => (
-                    <MessageBubble key={i} message={msg} side="statewave" isDark={isDark} compact={isMobile && mobileTab === 'split'} />
+                    <div key={i} data-msg-idx={String(i)}>
+                      <MessageBubble message={msg} side="statewave" isDark={isDark} compact={isMobile && mobileTab === 'split'} />
+                    </div>
                   ))
                 )}
                 {isLoading && statewaveMessages[statewaveMessages.length - 1]?.role === 'user' && (
                   <LoadingIndicator isDark={isDark} accent />
                 )}
-                <div ref={chatEndRef} />
               </div>
             </div>
           )}
@@ -599,6 +688,11 @@ export function ChatWidget() {
           <p className="mt-1.5 sm:mt-2 text-[9px] sm:text-[10px] text-theme-muted text-center">
             Same model, same prompt — different outcomes
           </p>
+          <p className="mt-1 text-[9px] sm:text-[10px] text-theme-muted/80 text-center leading-relaxed">
+            This browser is remembered. Each Statewave turn writes a real episode to our hosted demo
+            backend; memory compiles after every turn. <button type="button" onClick={() => { if (!isResetting && window.confirm('Reset demo memory? This permanently deletes this browser’s episodes and memories.')) void resetDemo() }} className="underline hover:text-theme-secondary">Reset demo memory</button>{' '}
+            anytime.
+          </p>
         </form>
 
         {/* Inspector panel */}
@@ -629,11 +723,15 @@ export function ChatWidget() {
               </div>
 
               <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-4">
-                {/* Memories */}
+                {/* Memories — compiled from this browser's chat history */}
                 <div>
-                  <h4 className="text-[10px] font-semibold uppercase tracking-wider text-theme-muted mb-2">
-                    Memories ({memories.length})
+                  <h4 className="text-[10px] font-semibold uppercase tracking-wider text-theme-muted mb-1">
+                    Your demo memory ({memories.length})
                   </h4>
+                  <p className="text-[9px] sm:text-[10px] text-theme-muted/80 leading-relaxed mb-2">
+                    Compiled from {episodeCount} {episodeCount === 1 ? 'episode' : 'episodes'} written by this browser.
+                    Real Statewave subject; persists across visits until you reset.
+                  </p>
                   <div className="space-y-2">
                     {memories.slice(0, 8).map((m, i) => (
                       <div
@@ -648,7 +746,9 @@ export function ChatWidget() {
                       </div>
                     ))}
                     {memories.length === 0 && (
-                      <p className="text-[10px] sm:text-[11px] text-theme-muted opacity-60">No memories loaded</p>
+                      <p className="text-[10px] sm:text-[11px] text-theme-muted opacity-60">
+                        No memories yet — chat a few turns and Statewave will compile some.
+                      </p>
                     )}
                     {memories.length > 8 && (
                       <p className="text-[9px] sm:text-[10px] text-theme-muted">

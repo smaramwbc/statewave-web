@@ -1,32 +1,39 @@
 /**
- * Chat Widget Edge Function
- * 
- * Handles both stateless and Statewave-backed chat modes.
- * - stateless: plain GPT call with no context
- * - statewave: fetches context from Fly.io, injects into prompt
+ * POST /api/widget-chat
+ *
+ * Two modes:
+ *  - stateless: plain LLM call, no Statewave involvement. The "no memory"
+ *    baseline of the demo. Nothing is persisted.
+ *  - statewave: routes through the visitor's own Statewave subject. Each turn
+ *    writes a real episode, runs compilation, fetches ranked context, and
+ *    injects it into the LLM prompt. Returning visitors see their accrued
+ *    memory because the visitor cookie maps to a stable subject.
+ *
+ * The subject id is derived from the visitor cookie — the client cannot pick
+ * which subject to write to. This prevents cross-visitor pollution.
  */
 
-export const config = { runtime: 'edge' }
+import {
+  DEMO_EPISODE_CAP,
+  DEMO_MAX_MESSAGE_CHARS,
+  buildSetCookie,
+  compileMemories,
+  fetchContext,
+  fetchTimeline,
+  json,
+  newVisitorId,
+  parseDemoVisitor,
+  subjectFor,
+  writeEpisode,
+} from './_demo'
 
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY ?? ''
-const STATEWAVE_API_KEY = process.env.STATEWAVE_API_KEY ?? ''
-const STATEWAVE_URL = 'https://statewave-api.fly.dev'
+export const config = { runtime: 'edge' }
 
 interface Message {
   role: string
   content: string
 }
 
-interface ContextBundle {
-  subject_id: string
-  task: string
-  facts: Array<{ id: string; content: string; kind: string; confidence: number }>
-  procedures: Array<{ id: string; content: string; kind: string; confidence: number }>
-  assembled_context: string
-  token_estimate: number
-}
-
-// System prompts
 const STATELESS_PROMPT = `You are a helpful AI assistant. You have NO memory of any previous conversations with this user. Every conversation starts completely fresh.
 
 Rules:
@@ -44,39 +51,13 @@ Rules:
 - Keep responses concise (2-3 sentences max)
 - Be proactive — anticipate needs based on context`
 
-async function fetchStatewaveContext(subjectId: string, task: string): Promise<ContextBundle | null> {
-  try {
-    const resp = await fetch(`${STATEWAVE_URL}/v1/context`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-API-Key': STATEWAVE_API_KEY,
-      },
-      body: JSON.stringify({
-        subject_id: subjectId,
-        task,
-        max_tokens: 800,
-      }),
-    })
-
-    if (!resp.ok) {
-      console.warn('[widget-chat] Context fetch failed:', resp.status)
-      return null
-    }
-
-    return await resp.json()
-  } catch (err) {
-    console.warn('[widget-chat] Context fetch error:', err)
-    return null
-  }
-}
-
 async function callOpenAI(messages: Message[], systemPrompt: string): Promise<string> {
+  const apiKey = process.env.OPENAI_API_KEY ?? ''
   const resp = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${OPENAI_API_KEY}`,
+      'Authorization': `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
       model: 'gpt-4o-mini',
@@ -85,52 +66,33 @@ async function callOpenAI(messages: Message[], systemPrompt: string): Promise<st
       temperature: 0.7,
     }),
   })
-
-  if (!resp.ok) {
-    const err = await resp.text()
-    throw new Error(`OpenAI error: ${err}`)
-  }
-
+  if (!resp.ok) throw new Error(`OpenAI error: ${await resp.text()}`)
   const data = await resp.json()
   return data.choices?.[0]?.message?.content ?? 'No response'
 }
 
-function json(data: unknown, status = 200): Response {
-  return new Response(JSON.stringify(data), {
-    status,
-    headers: {
-      'Content-Type': 'application/json',
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type',
-    },
-  })
-}
-
 export default async function handler(req: Request): Promise<Response> {
-  if (req.method === 'OPTIONS') {
-    return json({}, 200)
-  }
+  if (req.method === 'OPTIONS') return json({}, { status: 200 })
+  if (req.method !== 'POST') return json({ error: 'Method not allowed' }, { status: 405 })
+  if (!process.env.OPENAI_API_KEY) return json({ error: 'OPENAI_API_KEY not configured' }, { status: 500 })
 
-  if (req.method !== 'POST') {
-    return json({ error: 'Method not allowed' }, 405)
-  }
-
-  if (!OPENAI_API_KEY) {
-    return json({ error: 'OPENAI_API_KEY not configured' }, 500)
-  }
-
-  let body: { messages: Message[]; subjectId: string; mode: 'stateless' | 'statewave' }
+  let body: { messages: Message[]; mode: 'stateless' | 'statewave'; persona?: string }
   try {
     body = await req.json()
   } catch {
-    return json({ error: 'Invalid JSON body' }, 400)
+    return json({ error: 'Invalid JSON body' }, { status: 400 })
+  }
+  const { messages, mode, persona } = body
+  if (!messages || !Array.isArray(messages) || messages.length === 0 || !mode) {
+    return json({ error: 'messages and mode required' }, { status: 400 })
   }
 
-  const { messages, subjectId, mode } = body
-
-  if (!messages || !Array.isArray(messages) || !subjectId || !mode) {
-    return json({ error: 'messages, subjectId, and mode required' }, 400)
+  const lastUserMsg = messages.filter((m) => m.role === 'user').pop()?.content ?? ''
+  if (lastUserMsg.length > DEMO_MAX_MESSAGE_CHARS) {
+    return json(
+      { error: `Message too long (max ${DEMO_MAX_MESSAGE_CHARS} chars).` },
+      { status: 400 },
+    )
   }
 
   try {
@@ -139,28 +101,65 @@ export default async function handler(req: Request): Promise<Response> {
       return json({ reply })
     }
 
-    // Statewave mode: fetch context first
-    const lastUserMsg = messages.filter(m => m.role === 'user').pop()?.content ?? ''
-    const context = await fetchStatewaveContext(
+    // Statewave mode — derive subject from cookie, issue if missing.
+    const existing = parseDemoVisitor(req.headers.get('cookie'))
+    let visitorUuid = existing
+    let setCookie: string | null = null
+    if (!visitorUuid) {
+      visitorUuid = newVisitorId()
+      setCookie = buildSetCookie(visitorUuid)
+    }
+    const subjectId = subjectFor(visitorUuid)
+
+    // Per-visitor episode cap. Cheap timeline read since the demo is small.
+    const { episodes } = await fetchTimeline(subjectId)
+    if (episodes.length >= DEMO_EPISODE_CAP) {
+      return json(
+        {
+          error: `Demo cap reached (${DEMO_EPISODE_CAP} episodes for this browser). Click "Reset demo memory" to start fresh.`,
+          capReached: true,
+        },
+        { status: 429, setCookie },
+      )
+    }
+
+    // Build context BEFORE writing this turn's episode so the response reflects
+    // memory derived from prior turns. This is the model's view of "what we know
+    // about you so far".
+    const context = await fetchContext(
       subjectId,
-      `Respond helpfully to: "${lastUserMsg.substring(0, 100)}"`
+      `Respond helpfully to: "${lastUserMsg.substring(0, 100)}"`,
     )
 
     let enrichedPrompt = STATEWAVE_PROMPT
     if (context) {
       const allMemories = [...(context.facts ?? []), ...(context.procedures ?? [])]
       if (allMemories.length > 0) {
-        const memorySection = allMemories
-          .map(m => `- [${m.kind}] ${m.content}`)
-          .join('\n')
+        const memorySection = allMemories.map((m) => `- [${m.kind}] ${m.content}`).join('\n')
         enrichedPrompt += `\n\n## Memory Context (from Statewave):\n${memorySection}`
       }
     }
+    if (persona) {
+      enrichedPrompt += `\n\nThe visitor selected the "${persona}" persona; bias your tone and topic accordingly.`
+    }
 
     const reply = await callOpenAI(messages, enrichedPrompt)
-    return json({ reply, context })
+
+    // Persist this turn as an episode (user message + assistant reply pair),
+    // then trigger compilation. Both are awaited so the next /api/demo-state
+    // fetch reflects the new memory.
+    const wrote = await writeEpisode(
+      subjectId,
+      { messages: [{ role: 'user', content: lastUserMsg }, { role: 'assistant', content: reply }] },
+      { persona: persona ?? null },
+    )
+    if (wrote) {
+      await compileMemories(subjectId)
+    }
+
+    return json({ reply, context, subjectId, persisted: wrote }, { setCookie })
   } catch (err) {
     console.error('[widget-chat] Error:', err)
-    return json({ error: (err as Error).message }, 500)
+    return json({ error: (err as Error).message }, { status: 500 })
   }
 }

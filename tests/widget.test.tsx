@@ -37,6 +37,6 @@ describe('ChatWidget', () => {
       </TestWrapper>
     )
 
-    expect(screen.getByText('Try with Memory')).toBeInTheDocument()
+    expect(screen.getByText('Try the demo')).toBeInTheDocument()
   })
 })
