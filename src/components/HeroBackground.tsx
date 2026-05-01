@@ -877,22 +877,9 @@ export function HeroBackground() {
           )}
         </div>
       )}
-      {isLive && (
-        <div
-          // z-50 lifts the chip above the parent section's bottom-edge fade
-          // gradient (HomePage HeroSection) which would otherwise wash it out.
-          className="absolute bottom-4 right-4 z-50 flex items-center gap-2 px-3 py-1.5 rounded-full text-[11px] font-semibold border backdrop-blur-md pointer-events-none shadow-md"
-          style={{
-            backgroundColor: isDark ? 'rgba(15, 23, 42, 0.92)' : 'rgba(255, 255, 255, 0.96)',
-            borderColor: isDark ? 'rgba(52, 211, 153, 0.45)' : 'rgba(5, 150, 105, 0.35)',
-            color: isDark ? '#34d399' : '#047857',
-            letterSpacing: '0.02em',
-          }}
-        >
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_6px_rgba(52,211,153,0.7)]" />
-          Live from Statewave API
-        </div>
-      )}
+      {/* "Live from Statewave API" chip relocated to the hero CTA row in
+          HomePage.tsx so it sits next to the demo button and reads with full
+          contrast (it was being washed out under the section's bottom fade). */}
 
       {/* Hint chip — anchored to a subject (biggest circle), demands attention.
           z-50 keeps it above the section's bottom-fade overlay and any other

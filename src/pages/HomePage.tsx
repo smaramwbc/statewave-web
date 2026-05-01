@@ -113,6 +113,20 @@ function HeroSection() {
               View on GitHub
             </a>
           </motion.div>
+
+          {/* Honesty stripe — the demo isn't a mock. Every episode, memory,
+              and ranked context bundle the demo shows comes from a real
+              running Statewave server. */}
+          <motion.div variants={fadeUp} className="mt-5 flex items-center gap-2.5">
+            <span
+              aria-hidden
+              className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.7)] flex-shrink-0"
+            />
+            <p className="text-xs text-theme-muted">
+              <span className="font-semibold text-theme-secondary">Real Statewave instance · live data.</span>{' '}
+              <span className="text-theme-muted/80">No mocks — every episode, memory, and ranking is computed live.</span>
+            </p>
+          </motion.div>
         </motion.div>
       </div>
     </section>
