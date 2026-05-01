@@ -10,14 +10,13 @@ export default defineConfig({
     },
   },
   server: {
+    // All /api/* paths are Vercel Edge functions. In dev they're proxied to a
+    // remote (the deployed site by default). To exercise locally edited
+    // handlers, run `vercel dev` on port 3000 and start vite with
+    // STATEWAVE_DEV_API=http://localhost:3000 npm run dev
     proxy: {
-      '/api/hero-data': {
-        target: 'https://www.statewave.ai',
-        changeOrigin: true,
-        timeout: 15000,
-      },
-      '/api/widget-chat': {
-        target: 'https://www.statewave.ai',
+      '/api': {
+        target: process.env.STATEWAVE_DEV_API ?? 'https://www.statewave.ai',
         changeOrigin: true,
         timeout: 30000,
       },
