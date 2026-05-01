@@ -41,6 +41,13 @@ interface Episode {
   phase: number
   group: number
   subjectIdx: number
+  // Provenance anchor: if this episode is cited by at least one memory,
+  // anchorMemoryIdx points to that memory (the first one citing it) and
+  // anchorOrder / anchorSiblings define its slot in that memory's local
+  // orbit. Orphan episodes have anchorMemoryIdx = -1 and orbit the subject.
+  anchorMemoryIdx: number
+  anchorOrder: number
+  anchorSiblings: number
   // Raw-event metadata (for tooltips)
   source: string
   type: string
@@ -151,6 +158,10 @@ function buildFromLiveData(data: LiveSubjectData[]): { subjects: Subject[]; memo
         phase: Math.random() * Math.PI * 2,
         group,
         subjectIdx,
+        // Anchor fields populated after memories are built (second pass below).
+        anchorMemoryIdx: -1,
+        anchorOrder: 0,
+        anchorSiblings: 0,
         source: ep.source,
         type: ep.type,
         label: payloadMsg,
@@ -186,6 +197,21 @@ function buildFromLiveData(data: LiveSubjectData[]): { subjects: Subject[]; memo
         label: m.content,
         sourceEpisodeIdxs,
       })
+    }
+  }
+
+  // Second pass: assign each cited episode an anchor memory + slot. Episodes
+  // cited by multiple memories anchor to the first one (deterministic), but
+  // provenance lines are still drawn to ALL citing memories.
+  for (let mi = 0; mi < memories.length; mi++) {
+    const cited = memories[mi].sourceEpisodeIdxs
+    for (let order = 0; order < cited.length; order++) {
+      const epIdx = cited[order]
+      const ep = episodes[epIdx]
+      if (!ep || ep.anchorMemoryIdx !== -1) continue
+      ep.anchorMemoryIdx = mi
+      ep.anchorOrder = order
+      ep.anchorSiblings = cited.length
     }
   }
 
@@ -456,21 +482,44 @@ export function HeroBackground() {
       m.y = baseY + Math.cos(t * 0.25 + m.phase * 2) * chaos + Math.cos(t * 0.12 + m.phase * 1.3) * 0.002 * progress
     }
 
-    // Update episode positions — episodes belong to the subject directly
-    // (sibling to memories, not children of them). Place them on an outer
-    // orbit so the visual hierarchy reads "subject in middle, memories close,
-    // raw episodes further out."
+    // Update episode positions.
+    // - Cited episodes orbit their anchor memory tightly (short provenance
+    //   lines, clear "this raw event compiled into that memory" reading).
+    // - Orphan episodes (uncompiled) orbit the subject on the outer ring.
+    // Pre-compute per-subject orphan counts/indices once for the orphan loop.
+    const orphanIdxBySubject: number[][] = subjects.map(() => [])
+    for (let ei = 0; ei < episodes.length; ei++) {
+      if (episodes[ei].anchorMemoryIdx === -1) {
+        orphanIdxBySubject[episodes[ei].subjectIdx].push(ei)
+      }
+    }
+
     for (let ei = 0; ei < episodes.length; ei++) {
       const e = episodes[ei]
-      const subj = subjects[e.subjectIdx]
-      // Spread episodes evenly around their subject on a wider ring
-      const groupEpisodes = episodes.filter(ep => ep.subjectIdx === e.subjectIdx)
-      const indexInGroup = groupEpisodes.indexOf(e)
-      const countInGroup = groupEpisodes.length
-      const angle = (indexInGroup / Math.max(countInGroup, 1)) * Math.PI * 2 + e.phase * 0.2 + t * 0.05
-      const r = 0.13 + ((e.phase / (Math.PI * 2)) % 1) * 0.04
-      const tX = subj.x + Math.cos(angle) * r
-      const tY = subj.y + Math.sin(angle) * r * 0.7
+      let tX: number, tY: number
+      if (e.anchorMemoryIdx !== -1) {
+        // Cluster around the anchor memory in a small local orbit.
+        const anchor = memories[e.anchorMemoryIdx]
+        const angle =
+          (e.anchorOrder / Math.max(e.anchorSiblings, 1)) * Math.PI * 2 +
+          e.phase * 0.2 +
+          t * 0.06
+        const r = 0.022 + ((e.phase / (Math.PI * 2)) % 1) * 0.012
+        tX = anchor.x + Math.cos(angle) * r
+        tY = anchor.y + Math.sin(angle) * r * 0.75
+      } else {
+        // Orphan: outer orbit around the subject.
+        const subj = subjects[e.subjectIdx]
+        const orphans = orphanIdxBySubject[e.subjectIdx]
+        const orderInOrphans = orphans.indexOf(ei)
+        const angle =
+          (orderInOrphans / Math.max(orphans.length, 1)) * Math.PI * 2 +
+          e.phase * 0.2 +
+          t * 0.05
+        const r = 0.14 + ((e.phase / (Math.PI * 2)) % 1) * 0.03
+        tX = subj.x + Math.cos(angle) * r
+        tY = subj.y + Math.sin(angle) * r * 0.7
+      }
 
       const baseX = e.startX + (tX - e.startX) * progress
       const baseY = e.startY + (tY - e.startY) * progress
@@ -488,7 +537,7 @@ export function HeroBackground() {
       for (const idx of m.sourceEpisodeIdxs) citedEpisodes.add(idx)
     }
     if (progress > 0.25) {
-      const orphanAlpha = (progress - 0.25) * 1.3 * (dark ? 0.42 : 0.32)
+      const orphanAlpha = (progress - 0.25) * 1.3 * (dark ? 0.18 : 0.13)
       for (let ei = 0; ei < episodes.length; ei++) {
         if (citedEpisodes.has(ei)) continue
         const e = episodes[ei]
@@ -501,8 +550,8 @@ export function HeroBackground() {
         ctx.beginPath()
         ctx.moveTo(ex, ey)
         ctx.lineTo(sx, sy)
-        ctx.strokeStyle = groupColor(e.group, dark ? 65 : 42, orphanAlpha)
-        ctx.lineWidth = 1
+        ctx.strokeStyle = groupColor(e.group, dark ? 60 : 50, orphanAlpha)
+        ctx.lineWidth = 0.6
         ctx.stroke()
       }
     }
@@ -515,7 +564,7 @@ export function HeroBackground() {
         if (m.sourceEpisodeIdxs.length === 0) continue
         const mx = m.x * w
         const my = m.y * h
-        const provenanceAlpha = (progress - 0.3) * 1.4 * (dark ? 0.8 : 0.7)
+        const provenanceAlpha = (progress - 0.3) * 1.4 * (dark ? 0.32 : 0.28)
         for (const epIdx of m.sourceEpisodeIdxs) {
           const e = episodes[epIdx]
           if (!e) continue
@@ -524,8 +573,8 @@ export function HeroBackground() {
           ctx.beginPath()
           ctx.moveTo(mx, my)
           ctx.lineTo(ex, ey)
-          ctx.strokeStyle = groupColor(m.group, dark ? 70 : 36, provenanceAlpha)
-          ctx.lineWidth = 1.7
+          ctx.strokeStyle = groupColor(m.group, dark ? 70 : 45, provenanceAlpha)
+          ctx.lineWidth = 0.9
           ctx.stroke()
         }
       }
@@ -543,12 +592,12 @@ export function HeroBackground() {
 
       if (dist < maxDist && progress > 0.2) {
         const strength = (1 - dist / maxDist) * progress
-        const alpha = strength * (dark ? 0.7 : 0.6)
+        const alpha = strength * (dark ? 0.3 : 0.22)
         ctx.beginPath()
         ctx.moveTo(mx, my)
         ctx.lineTo(sx, sy)
-        ctx.strokeStyle = groupColor(m.group, dark ? 72 : 36, alpha)
-        ctx.lineWidth = Math.max(1.2, strength * 3)
+        ctx.strokeStyle = groupColor(m.group, dark ? 72 : 45, alpha)
+        ctx.lineWidth = Math.max(0.7, strength * 1.6)
         ctx.stroke()
       }
     }
@@ -736,7 +785,7 @@ export function HeroBackground() {
     >
       <canvas
         ref={canvasRef}
-        className="absolute inset-0 w-full h-full"
+        className="absolute inset-0 w-full h-full opacity-50"
       />
       <div
         className="absolute inset-0 pointer-events-none"
@@ -842,10 +891,12 @@ export function HeroBackground() {
       )}
 
       {/* Hint chip — anchored to a subject (biggest circle), demands attention.
-          Shown only after a 2s settle delay so users register the viz first. */}
+          z-50 keeps it above the section's bottom-fade overlay and any other
+          page-level scrims, so it never looks dimmed even if its anchor
+          subject sits in the faded zone. */}
       {isLive && hintReady && hintVisible && hintPos && (
         <div
-          className="absolute pointer-events-none"
+          className="absolute pointer-events-none z-50"
           style={{
             left: `clamp(140px, ${hintPos.x * 100}%, calc(100% - 140px))`,
             top: `clamp(60px, ${hintPos.y * 100}%, calc(100% - 60px))`,
@@ -887,7 +938,7 @@ export function HeroBackground() {
             >
               <path d="M3 3l7 19 2-8 8-2z" />
             </svg>
-            <span>Hover over me</span>
+            <span>Try with Memory</span>
           </div>
         </div>
       )}

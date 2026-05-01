@@ -39,8 +39,15 @@ function HeroSection() {
     <section className="relative min-h-[92vh] flex items-center overflow-hidden">
       <HeroBackground />
 
-      {/* Gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-b from-surface-0/30 via-surface-0/50 to-surface-0" />
+      {/* Bottom-edge fade — only mask the final ~35% so the section blends
+          into the page below without killing the lower particles' colors. */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background:
+            'linear-gradient(to bottom, transparent 0%, transparent 65%, var(--theme-surface-0) 100%)',
+        }}
+      />
 
       <div className="relative z-10 mx-auto max-w-7xl px-6 pt-36 pb-24">
         <motion.div
