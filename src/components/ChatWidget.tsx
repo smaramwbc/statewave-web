@@ -100,6 +100,10 @@ export function ChatWidget() {
   const [suggestionRound, setSuggestionRound] = useState(0)
   // Maximized state - expands to full browser window
   const [isMaximized, setIsMaximized] = useState(false)
+  // Reset-demo confirmation: replaces window.confirm() with an in-widget
+  // modal that matches the Statewave theme. Lives inside the widget shell
+  // so it never breaks the visual frame.
+  const [confirmReset, setConfirmReset] = useState(false)
   const statelessScrollRef = useRef<HTMLDivElement>(null)
   const statewaveScrollRef = useRef<HTMLDivElement>(null)
   // Guards against re-entrant scroll syncing: when we programmatically set
@@ -497,9 +501,7 @@ export function ChatWidget() {
             <button
               onClick={() => {
                 if (isResetting) return
-                if (window.confirm('Reset demo memory? This permanently deletes the episodes and memories Statewave has stored for this browser.')) {
-                  void resetDemo()
-                }
+                setConfirmReset(true)
               }}
               disabled={isResetting}
               className="p-1.5 rounded-lg hover:bg-theme-border/30 transition-colors disabled:opacity-50"
@@ -910,7 +912,7 @@ export function ChatWidget() {
           </p>
           <p className="mt-1 text-[9px] sm:text-[10px] text-theme-muted/80 text-center leading-relaxed">
             This browser is remembered. Each Statewave turn writes a real episode to our hosted demo
-            backend; memory compiles after every turn. <button type="button" onClick={() => { if (!isResetting && window.confirm('Reset demo memory? This permanently deletes this browser’s episodes and memories.')) void resetDemo() }} className="underline hover:text-theme-secondary">Reset demo memory</button>{' '}
+            backend; memory compiles after every turn. <button type="button" onClick={() => { if (!isResetting) setConfirmReset(true) }} className="underline hover:text-theme-secondary">Reset demo memory</button>{' '}
             anytime.
           </p>
         </form>
@@ -1007,6 +1009,125 @@ export function ChatWidget() {
                   </div>
                 )}
               </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Reset confirmation — themed modal that lives inside the widget
+            shell so it never breaks the visual frame. Replaces the browser's
+            native confirm() dialog (which can't match Statewave styling). */}
+        <AnimatePresence>
+          {confirmReset && (
+            <motion.div
+              key="confirm-reset"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
+              className="absolute inset-0 z-[60] flex items-center justify-center px-4"
+              style={{
+                backgroundColor: isDark ? 'rgba(3, 7, 18, 0.7)' : 'rgba(15, 23, 42, 0.45)',
+                backdropFilter: 'blur(6px)',
+              }}
+              onClick={(e) => {
+                // Clicking the backdrop dismisses; clicks on the card stop here.
+                if (e.target === e.currentTarget && !isResetting) setConfirmReset(false)
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Escape' && !isResetting) setConfirmReset(false)
+              }}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="reset-confirm-title"
+              aria-describedby="reset-confirm-body"
+              tabIndex={-1}
+            >
+              <motion.div
+                initial={{ scale: 0.95, y: 8 }}
+                animate={{ scale: 1, y: 0 }}
+                exit={{ scale: 0.95, y: 8 }}
+                transition={{ duration: 0.18, ease: [0.25, 0.46, 0.45, 0.94] }}
+                className="w-full max-w-[360px] rounded-2xl border shadow-2xl overflow-hidden"
+                style={{
+                  backgroundColor: isDark ? 'rgba(10, 15, 26, 0.98)' : 'rgba(255, 255, 255, 0.98)',
+                  borderColor: isDark ? 'rgba(99, 102, 241, 0.25)' : 'rgba(99, 102, 241, 0.2)',
+                }}
+              >
+                <div className="px-5 pt-5 pb-4">
+                  <div className="flex items-start gap-3">
+                    <span
+                      aria-hidden
+                      className="mt-0.5 inline-flex w-9 h-9 rounded-full items-center justify-center flex-shrink-0"
+                      style={{
+                        backgroundColor: isDark ? 'rgba(244, 63, 94, 0.18)' : 'rgba(244, 63, 94, 0.12)',
+                        color: '#f87171',
+                      }}
+                    >
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </span>
+                    <div className="min-w-0">
+                      <h3
+                        id="reset-confirm-title"
+                        className="text-[15px] font-semibold text-theme-primary tracking-tight"
+                      >
+                        Reset demo memory?
+                      </h3>
+                      <p
+                        id="reset-confirm-body"
+                        className="mt-1.5 text-[12.5px] text-theme-secondary leading-relaxed"
+                      >
+                        This permanently deletes the episodes and memories
+                        Statewave has stored for this browser across all personas.
+                        A fresh subject is issued immediately.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  className="flex items-center justify-end gap-2 px-5 py-3 border-t"
+                  style={{
+                    borderTopColor: isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.06)',
+                    backgroundColor: isDark ? 'rgba(15, 23, 42, 0.4)' : 'rgba(248, 250, 252, 0.6)',
+                  }}
+                >
+                  <button
+                    type="button"
+                    onClick={() => { if (!isResetting) setConfirmReset(false) }}
+                    disabled={isResetting}
+                    className="text-[12px] px-3 py-1.5 rounded-md text-theme-secondary hover:text-theme-primary hover:bg-theme-border/30 disabled:opacity-40 disabled:cursor-not-allowed transition-colors font-medium"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      await resetDemo()
+                      setConfirmReset(false)
+                    }}
+                    disabled={isResetting}
+                    autoFocus
+                    className="text-[12px] px-3.5 py-1.5 rounded-md text-white font-semibold transition-all duration-150 disabled:opacity-60 disabled:cursor-not-allowed"
+                    style={{
+                      backgroundColor: '#ef4444',
+                      boxShadow: '0 2px 10px rgba(239, 68, 68, 0.35)',
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!isResetting) {
+                        e.currentTarget.style.backgroundColor = '#dc2626'
+                        e.currentTarget.style.boxShadow = '0 2px 14px rgba(239, 68, 68, 0.5)'
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = '#ef4444'
+                      e.currentTarget.style.boxShadow = '0 2px 10px rgba(239, 68, 68, 0.35)'
+                    }}
+                  >
+                    {isResetting ? 'Resetting…' : 'Reset memory'}
+                  </button>
+                </div>
+              </motion.div>
             </motion.div>
           )}
         </AnimatePresence>
