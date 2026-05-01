@@ -257,6 +257,38 @@ export function ChatWidget() {
     }
   }, [isOpen, isMinimized, minimizeWidget])
 
+  // Stop wheel events on the widget chrome from scrolling the page behind it.
+  // Inner scroll containers carry overscroll-behavior: contain so they handle
+  // their own bounds; for everything else inside the widget (header, banner,
+  // input footer) we walk up from the wheel target and absorb the event if no
+  // ancestor scroll container can consume the delta. Registered with
+  // passive:false because React's onWheel can't preventDefault by default.
+  useEffect(() => {
+    const root = expandedRef.current
+    if (!root || !isOpen || isMinimized) return
+    const handler = (e: WheelEvent) => {
+      let el = e.target as HTMLElement | null
+      while (el && el !== root) {
+        if (el.scrollHeight > el.clientHeight) {
+          const overflowY = window.getComputedStyle(el).overflowY
+          if (overflowY === 'auto' || overflowY === 'scroll') {
+            const goingDown = e.deltaY > 0
+            const atBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 1
+            const atTop = el.scrollTop <= 0
+            if ((goingDown && !atBottom) || (!goingDown && !atTop)) {
+              // Inner container can absorb this wheel — let the browser handle it.
+              return
+            }
+          }
+        }
+        el = el.parentElement
+      }
+      e.preventDefault()
+    }
+    root.addEventListener('wheel', handler, { passive: false })
+    return () => root.removeEventListener('wheel', handler)
+  }, [isOpen, isMinimized])
+
   // On new messages, scroll BOTH columns to the bottom together so the user
   // can compare the latest reply side-by-side.
   useEffect(() => {
@@ -548,7 +580,7 @@ export function ChatWidget() {
         {!hasSeenWelcome && (
           <div
             data-testid="onboarding-welcome"
-            className="flex-1 flex flex-col items-center px-5 sm:px-8 py-6 sm:py-8 overflow-y-auto"
+            className="flex-1 flex flex-col items-center px-5 sm:px-8 py-6 sm:py-8 overflow-y-auto scroll-contain"
           >
             <div
               className="w-12 h-12 rounded-full flex items-center justify-center mb-4 flex-shrink-0"
@@ -743,7 +775,7 @@ export function ChatWidget() {
               <div
                 ref={statelessScrollRef}
                 onScroll={() => syncScrollByIndex('stateless')}
-                className="flex-1 overflow-y-auto p-2 sm:p-3 space-y-2 sm:space-y-3"
+                className="flex-1 overflow-y-auto scroll-contain p-2 sm:p-3 space-y-2 sm:space-y-3"
               >
                 {statelessMessages.length === 0 ? (
                   <p className="text-[10px] sm:text-xs text-theme-muted text-center py-6 sm:py-8 opacity-60">
@@ -796,7 +828,7 @@ export function ChatWidget() {
               <div
                 ref={statewaveScrollRef}
                 onScroll={() => syncScrollByIndex('statewave')}
-                className="flex-1 overflow-y-auto p-2 sm:p-3 space-y-2 sm:space-y-3"
+                className="flex-1 overflow-y-auto scroll-contain p-2 sm:p-3 space-y-2 sm:space-y-3"
               >
                 {statewaveMessages.length === 0 ? (
                   isHydrating ? (
@@ -946,7 +978,7 @@ export function ChatWidget() {
                 </button>
               </div>
 
-              <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-4">
+              <div className="flex-1 overflow-y-auto scroll-contain p-3 sm:p-4 space-y-4">
                 {/* Memories — compiled from this browser's chat history */}
                 <div>
                   <h4 className="text-[10px] font-semibold uppercase tracking-wider text-theme-muted mb-1">

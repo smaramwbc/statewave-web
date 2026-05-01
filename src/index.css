@@ -163,6 +163,14 @@ body {
   border-radius: inherit;
 }
 
+/* Inner scroll containers in the chat widget never let scroll chain to the
+ * page underneath. Combined with the widget-root wheel listener (in
+ * ChatWidget.tsx), this means the page never scrolls while the cursor is
+ * over the widget. */
+.scroll-contain {
+  overscroll-behavior: contain;
+}
+
 /* ─── Custom scrollbar ───────────────────────────────────────────────────────
  * Slim, accent-tinted scrollbar that matches the Statewave palette in both
  * themes. Falls back gracefully on Firefox via `scrollbar-color`.
