@@ -208,11 +208,13 @@ export function ChatWidgetProvider({ children }: { children: ReactNode }) {
       setPersona(chosen)
       setPersonaLabel(label ?? DEMO_PERSONAS.find((x) => x.id === chosen)?.label ?? chosen)
     }
-    // Refresh state for the active persona's subject. If the caller explicitly
-    // opened against a showcase persona AND that persona's subject is empty,
-    // seed it. The plain launcher (no persona) skips seeding so users can
-    // build memory from chat themselves.
-    setIsHydrating(true)
+    // Only show the hydration spinner if there's genuinely nothing to display
+    // for the active persona yet. After the page-load preload (or a previous
+    // open), memories are already populated; refresh in the background instead
+    // of flashing the spinner over the welcome-back placeholder.
+    const personaUnchanged = chosen === persona
+    const havePersonaData = personaUnchanged && (memories.length > 0 || episodeCount > 0)
+    if (!havePersonaData) setIsHydrating(true)
     void (async () => {
       try {
         const data = await refreshState(chosen)
@@ -224,7 +226,7 @@ export function ChatWidgetProvider({ children }: { children: ReactNode }) {
         setIsHydrating(false)
       }
     })()
-  }, [persona, refreshState, seedFromPersona])
+  }, [persona, memories.length, episodeCount, refreshState, seedFromPersona])
 
   const closeWidget = useCallback(() => setIsOpen(false), [])
   const minimizeWidget = useCallback(() => setIsMinimized(true), [])
@@ -340,6 +342,24 @@ export function ChatWidgetProvider({ children }: { children: ReactNode }) {
       setIsLoading(false)
     }
   }, [persona, refreshState])
+
+  // Preload the default persona's memory pool on page mount so the demo is
+  // populated the moment a visitor opens the widget — no spinner-while-seeding
+  // pause on first interaction. Returning visitors just get a fast confirm
+  // fetch; new visitors get cookie issued + showcase episodes seeded silently.
+  useEffect(() => {
+    let cancelled = false
+    void (async () => {
+      const data = await refreshState(DEFAULT_PERSONA.id)
+      if (cancelled || !data) return
+      if (data.episodeCount === 0 && data.memories.length === 0) {
+        await seedFromPersona(DEFAULT_PERSONA.id)
+      }
+    })()
+    return () => { cancelled = true }
+    // Run once on mount. refreshState/seedFromPersona are stable callbacks.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const value: ChatWidgetContextType = {
     isOpen,
