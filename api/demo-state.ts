@@ -9,6 +9,7 @@
 import {
   buildSetCookie,
   fetchTimeline,
+  isDemoPersona,
   json,
   newVisitorId,
   parseDemoVisitor,
@@ -27,6 +28,11 @@ export default async function handler(req: Request): Promise<Response> {
   if (req.method === 'OPTIONS') return json({}, { status: 200 })
   if (req.method !== 'GET') return json({ error: 'Method not allowed' }, { status: 405 })
 
+  // Each persona has its own memory pool. Without a persona we return the
+  // bare visitor subject (legacy callers and ?persona=none paths).
+  const personaParam = new URL(req.url).searchParams.get('persona')
+  const persona = isDemoPersona(personaParam) ? personaParam : null
+
   const existing = parseDemoVisitor(req.headers.get('cookie'))
   let visitorUuid: string
   let setCookie: string | null = null
@@ -36,7 +42,7 @@ export default async function handler(req: Request): Promise<Response> {
     visitorUuid = newVisitorId()
     setCookie = buildSetCookie(visitorUuid)
   }
-  const subjectId = subjectFor(visitorUuid)
+  const subjectId = subjectFor(visitorUuid, persona)
 
   // For brand-new visitors there is nothing to fetch — return empty state
   // immediately so the very first visit is fast.
@@ -44,6 +50,7 @@ export default async function handler(req: Request): Promise<Response> {
     return json(
       {
         subjectId,
+        persona,
         isNew: true,
         episodes: [] as ChatTurn[],
         memories: [],
@@ -76,6 +83,7 @@ export default async function handler(req: Request): Promise<Response> {
   return json(
     {
       subjectId,
+      persona,
       isNew: false,
       episodes: chatTurns,
       memories: memories.map((m) => ({

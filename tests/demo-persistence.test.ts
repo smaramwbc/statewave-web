@@ -69,8 +69,25 @@ describe('subjectFor', () => {
     expect(sid).toBe(`${DEMO_SUBJECT_PREFIX}11111111222243338444555555555555`)
     expect(sid).toBe(subjectFor(VALID_UUID))
   })
-  it('does not include hyphens (Statewave subject id ergonomics)', () => {
-    expect(subjectFor(VALID_UUID)).not.toContain('-')
+  it('does not include hyphens in the visitor segment', () => {
+    expect(subjectFor(VALID_UUID).split('__')[0]).not.toContain('-')
+  })
+  it('produces a distinct subject per persona, allowing dashes only in the persona suffix', () => {
+    const a = subjectFor(VALID_UUID, 'support-agent')
+    const b = subjectFor(VALID_UUID, 'coding-assistant')
+    const bare = subjectFor(VALID_UUID)
+    expect(a).not.toBe(b)
+    expect(a).not.toBe(bare)
+    expect(a).toMatch(/__support-agent$/)
+    expect(b).toMatch(/__coding-assistant$/)
+    // Hyphens are allowed inside the persona suffix (after the __ delimiter)
+    // but not inside the visitor segment.
+    expect(a.split('__')[0]).not.toContain('-')
+  })
+  it('falls back to the bare subject for empty / unknown persona inputs', () => {
+    expect(subjectFor(VALID_UUID, '')).toBe(subjectFor(VALID_UUID))
+    // strips disallowed chars; if nothing legal remains we fall back to bare
+    expect(subjectFor(VALID_UUID, '!!!')).toBe(subjectFor(VALID_UUID))
   })
 })
 
@@ -189,7 +206,7 @@ describe('POST /api/widget-chat — statewave mode', () => {
     expect(resp.status).toBe(200)
     const data = await resp.json()
     expect(data.reply).toBe('hello back')
-    expect(data.subjectId).toBe(subjectFor(VALID_UUID))
+    expect(data.subjectId).toBe(subjectFor(VALID_UUID, 'support-agent'))
     expect(data.persisted).toBe(true)
 
     const urls = calls.map((c) => c.url)
@@ -202,7 +219,9 @@ describe('POST /api/widget-chat — statewave mode', () => {
     const epCall = calls.find((c) => c.url.includes('/v1/episodes'))
     expect(epCall).toBeDefined()
     const epBody = JSON.parse(epCall!.init?.body as string)
-    expect(epBody.subject_id).toBe(subjectFor(VALID_UUID))
+    // The widget-chat handler builds the subject from cookie + body.persona
+    // so each persona has its own memory pool.
+    expect(epBody.subject_id).toBe(subjectFor(VALID_UUID, 'support-agent'))
     expect(epBody.source).toBe('demo-web-chat')
     expect(epBody.payload.messages).toEqual([
       { role: 'user', content: 'Hi, I am Alice' },
@@ -335,7 +354,7 @@ describe('POST /api/demo-seed', () => {
     expect(episodeWrites).toHaveLength(3)
     const bodies = episodeWrites.map((c) => JSON.parse(c.body!))
     for (const body of bodies) {
-      expect(body.subject_id).toBe(subjectFor(VALID_UUID))
+      expect(body.subject_id).toBe(subjectFor(VALID_UUID, 'support-agent'))
       expect(body.metadata.seeded_from).toBe('demo-support-agent')
       expect(body.metadata.persona).toBe('support-agent')
       expect(body.metadata.original_episode_id).toMatch(/^src-/)
@@ -381,36 +400,47 @@ describe('POST /api/demo-seed', () => {
 })
 
 describe('POST /api/demo-reset', () => {
-  let deletedSubject: string | null = null
+  let deletedSubjects: string[] = []
 
   beforeEach(() => {
     setEnv()
-    deletedSubject = null
+    deletedSubjects = []
     vi.spyOn(globalThis, 'fetch').mockImplementation(async (input, init) => {
       const url = typeof input === 'string' ? input : (input as Request).url
       const method = (init as RequestInit | undefined)?.method ?? 'GET'
       if (url.includes('/v1/subjects/') && method === 'DELETE') {
-        deletedSubject = decodeURIComponent(url.split('/v1/subjects/')[1])
-        return new Response(JSON.stringify({ subject_id: deletedSubject }), { status: 200 })
+        const id = decodeURIComponent(url.split('/v1/subjects/')[1])
+        deletedSubjects.push(id)
+        return new Response(JSON.stringify({ subject_id: id }), { status: 200 })
       }
       throw new Error(`Unexpected fetch in reset test: ${url}`)
     })
   })
   afterEach(() => vi.restoreAllMocks())
 
-  it('deletes the visitor subject and reissues a fresh cookie', async () => {
+  it('deletes every persona subject for the visitor + the legacy bare one and reissues a fresh cookie', async () => {
     const req = makeRequest('POST', 'http://test/api/demo-reset', {
       headers: { cookie: cookieHeader(VALID_UUID) },
     })
     const resp = await demoReset(req)
     expect(resp.status).toBe(200)
-    expect(deletedSubject).toBe(subjectFor(VALID_UUID))
+    // Bare subject (legacy) + one per persona (5) = 6 deletes
+    const expected = new Set([
+      subjectFor(VALID_UUID),
+      subjectFor(VALID_UUID, 'support-agent'),
+      subjectFor(VALID_UUID, 'coding-assistant'),
+      subjectFor(VALID_UUID, 'sales-copilot'),
+      subjectFor(VALID_UUID, 'devops-agent'),
+      subjectFor(VALID_UUID, 'research-assistant'),
+    ])
+    expect(new Set(deletedSubjects)).toEqual(expected)
+
     const setCookie = resp.headers.get('set-cookie')
     expect(setCookie).toMatch(/sw_demo_visitor=[0-9a-f-]{36}/)
     const data = await resp.json()
     expect(data.reset).toBe(true)
+    // New subject id is bare (no persona scope yet) and uses a different uuid
     expect(data.subjectId).toMatch(/^demo_web_[0-9a-f]{32}$/)
-    // The new subject must NOT match the old one
     expect(data.subjectId).not.toBe(subjectFor(VALID_UUID))
   })
 
@@ -418,7 +448,7 @@ describe('POST /api/demo-reset', () => {
     const req = makeRequest('POST', 'http://test/api/demo-reset')
     const resp = await demoReset(req)
     expect(resp.status).toBe(200)
-    expect(deletedSubject).toBeNull()
+    expect(deletedSubjects).toEqual([])
     expect(resp.headers.get('set-cookie')).toBeTruthy()
   })
 })

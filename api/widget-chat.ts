@@ -20,6 +20,7 @@ import {
   compileMemories,
   fetchContext,
   fetchTimeline,
+  isDemoPersona,
   json,
   newVisitorId,
   parseDemoVisitor,
@@ -101,7 +102,9 @@ export default async function handler(req: Request): Promise<Response> {
       return json({ reply })
     }
 
-    // Statewave mode — derive subject from cookie, issue if missing.
+    // Statewave mode — derive the subject from cookie + persona so each
+    // persona has its own memory pool. Issue a cookie if the visitor doesn't
+    // have one yet.
     const existing = parseDemoVisitor(req.headers.get('cookie'))
     let visitorUuid = existing
     let setCookie: string | null = null
@@ -109,7 +112,8 @@ export default async function handler(req: Request): Promise<Response> {
       visitorUuid = newVisitorId()
       setCookie = buildSetCookie(visitorUuid)
     }
-    const subjectId = subjectFor(visitorUuid)
+    const personaScope = isDemoPersona(persona) ? persona : null
+    const subjectId = subjectFor(visitorUuid, personaScope)
 
     // Per-visitor episode cap. Cheap timeline read since the demo is small.
     const { episodes } = await fetchTimeline(subjectId)

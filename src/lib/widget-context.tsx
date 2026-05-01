@@ -152,9 +152,12 @@ export function ChatWidgetProvider({ children }: { children: ReactNode }) {
     setVisibleCtaCount((n) => Math.max(0, n + delta))
   }, [])
 
-  const refreshState = useCallback(async () => {
+  const refreshState = useCallback(async (forPersona?: string) => {
     try {
-      const resp = await fetch('/api/demo-state', { credentials: 'same-origin' })
+      const params = new URLSearchParams()
+      if (forPersona) params.set('persona', forPersona)
+      const url = `/api/demo-state${params.size ? `?${params.toString()}` : ''}`
+      const resp = await fetch(url, { credentials: 'same-origin' })
       if (!resp.ok) return null
       const data = (await resp.json()) as DemoStateResponse
       setSubjectId(data.subjectId)
@@ -184,9 +187,10 @@ export function ChatWidgetProvider({ children }: { children: ReactNode }) {
       })
       if (!resp.ok) return false
       const data = (await resp.json()) as { seeded?: boolean }
-      // Always refresh — even when seeded=false (already populated) we want
-      // the latest counts/memories on the inspector.
-      await refreshState()
+      // Always refresh against the persona we just seeded — even when
+      // seeded=false (already populated) we want the latest counts/memories
+      // on the inspector.
+      await refreshState(p)
       return data.seeded === true
     } catch (err) {
       console.warn('[widget] seed failed:', err)
@@ -204,13 +208,14 @@ export function ChatWidgetProvider({ children }: { children: ReactNode }) {
       setPersona(chosen)
       setPersonaLabel(label ?? DEMO_PERSONAS.find((x) => x.id === chosen)?.label ?? chosen)
     }
-    // Refresh state first. If the caller explicitly opened against a showcase
-    // persona AND the visitor's subject is empty, seed it. The plain launcher
-    // (no persona) skips seeding so users can build memory from chat.
+    // Refresh state for the active persona's subject. If the caller explicitly
+    // opened against a showcase persona AND that persona's subject is empty,
+    // seed it. The plain launcher (no persona) skips seeding so users can
+    // build memory from chat themselves.
     setIsHydrating(true)
     void (async () => {
       try {
-        const data = await refreshState()
+        const data = await refreshState(chosen)
         const personaIsSeeded = !!DEMO_PERSONAS.find((x) => x.id === chosen)
         if (explicit && data && data.episodeCount === 0 && data.memories.length === 0 && personaIsSeeded) {
           await seedFromPersona(chosen)
@@ -229,12 +234,25 @@ export function ChatWidgetProvider({ children }: { children: ReactNode }) {
     const norm = normalizePersona(p)
     setPersona(norm)
     setPersonaLabel(label)
-    // Persona switch is a UI-only prompt biasing change. Memories belong to the
-    // visitor, not to the persona, so we keep the chat as-is and just clear the
-    // stateless side which is purely live.
+    // Each persona is its own memory pool — switching is exactly like
+    // clicking a different particle group on the homepage. Reset the chat
+    // surface, fetch the new persona's state, and auto-seed if empty.
     setStatelessMessages([])
+    setStatewaveMessages([])
     setLastContext(null)
-  }, [])
+    setIsHydrating(true)
+    void (async () => {
+      try {
+        const data = await refreshState(norm)
+        const personaIsSeeded = !!DEMO_PERSONAS.find((x) => x.id === norm)
+        if (data && data.episodeCount === 0 && data.memories.length === 0 && personaIsSeeded) {
+          await seedFromPersona(norm)
+        }
+      } finally {
+        setIsHydrating(false)
+      }
+    })()
+  }, [refreshState, seedFromPersona])
 
   const clearChat = useCallback(() => {
     setStatelessMessages([])
@@ -307,9 +325,10 @@ export function ChatWidgetProvider({ children }: { children: ReactNode }) {
       if (statewaveData.context) setLastContext(statewaveData.context)
 
       // After a successful Statewave turn, the server has written an episode
-      // and run compile. Refresh state so the inspector reflects new memory.
+      // and run compile against the active persona's subject. Refresh against
+      // that same persona so the inspector reflects new memory.
       if (statewaveResp.ok && !statewaveData.capReached) {
-        void refreshState()
+        void refreshState(persona)
       }
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : 'Network error'

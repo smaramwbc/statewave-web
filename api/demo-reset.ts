@@ -7,6 +7,7 @@
  */
 
 import {
+  allSubjectsFor,
   buildSetCookie,
   deleteSubject,
   json,
@@ -23,7 +24,10 @@ export default async function handler(req: Request): Promise<Response> {
 
   const existing = parseDemoVisitor(req.headers.get('cookie'))
   if (existing) {
-    await deleteSubject(subjectFor(existing))
+    // Each persona has its own subject (`demo_web_<uuid>__<persona>`); plus a
+    // legacy bare `demo_web_<uuid>` from before that layout existed. Delete
+    // them all in parallel so the visitor's slate is genuinely empty.
+    await Promise.all(allSubjectsFor(existing).map(deleteSubject))
   }
 
   // Reissue a fresh visitor — leaves the user with a clean slate immediately

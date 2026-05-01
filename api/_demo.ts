@@ -45,8 +45,37 @@ export function newVisitorId(): string {
   return crypto.randomUUID()
 }
 
-export function subjectFor(visitorId: string): string {
-  return `${DEMO_SUBJECT_PREFIX}${visitorId.replace(/-/g, '')}`
+/** Personas the widget exposes — must match DEMO_PERSONAS in widget-context.tsx. */
+export const DEMO_PERSONAS = [
+  'support-agent',
+  'coding-assistant',
+  'sales-copilot',
+  'devops-agent',
+  'research-assistant',
+] as const
+export type DemoPersona = (typeof DEMO_PERSONAS)[number]
+
+export function isDemoPersona(value: string | undefined | null): value is DemoPersona {
+  return !!value && (DEMO_PERSONAS as readonly string[]).includes(value)
+}
+
+/**
+ * Subject id for a visitor. With a persona, returns `demo_web_<uuid>__<persona>`
+ * so each persona has its own memory pool. Without a persona, returns the bare
+ * `demo_web_<uuid>` (used by /api/demo-reset to clean up legacy subjects from
+ * before this layout existed; new traffic should always pass a persona).
+ */
+export function subjectFor(visitorId: string, persona?: string | null): string {
+  const base = `${DEMO_SUBJECT_PREFIX}${visitorId.replace(/-/g, '')}`
+  if (!persona) return base
+  const safe = persona.toLowerCase().replace(/[^a-z0-9-]/g, '')
+  if (!safe) return base
+  return `${base}__${safe}`
+}
+
+/** All subject ids that belong to a visitor — used when wiping on reset. */
+export function allSubjectsFor(visitorId: string): string[] {
+  return [subjectFor(visitorId), ...DEMO_PERSONAS.map((p) => subjectFor(visitorId, p))]
 }
 
 export function buildSetCookie(visitorId: string, isProd = process.env.NODE_ENV === 'production'): string {

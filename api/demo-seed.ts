@@ -64,7 +64,9 @@ export default async function handler(req: Request): Promise<Response> {
     visitorUuid = newVisitorId()
     setCookie = buildSetCookie(visitorUuid)
   }
-  const visitorSubject = subjectFor(visitorUuid)
+  // Seed into the persona-scoped subject — that way switching personas later
+  // loads its own memory pool, just like clicking the matching particle.
+  const visitorSubject = subjectFor(visitorUuid, persona)
 
   // Don't reseed if the visitor already has chat / memory. Reset is the
   // explicit way to start over.
