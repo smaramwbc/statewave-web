@@ -87,6 +87,7 @@ export function ChatWidget() {
   const [isMaximized, setIsMaximized] = useState(false)
   const chatEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+  const expandedRef = useRef<HTMLDivElement>(null)
 
   // Multi-round suggestions based on ACTUAL memories in the backend
   // Each array is a round of follow-up questions that flow naturally
@@ -215,6 +216,26 @@ export function ChatWidget() {
     }
   }, [isOpen, isMinimized, subjectId])
 
+  // Click anywhere outside the expanded widget minimizes it.
+  // Defer listener registration so the same click that opened the widget
+  // (e.g. a hero particle click) does not immediately collapse it.
+  useEffect(() => {
+    if (!isOpen || isMinimized) return
+    const handler = (e: MouseEvent) => {
+      const node = expandedRef.current
+      if (!node) return
+      if (node.contains(e.target as Node)) return
+      minimizeWidget()
+    }
+    const t = window.setTimeout(() => {
+      document.addEventListener('mousedown', handler)
+    }, 0)
+    return () => {
+      window.clearTimeout(t)
+      document.removeEventListener('mousedown', handler)
+    }
+  }, [isOpen, isMinimized, minimizeWidget])
+
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [statelessMessages, statewaveMessages])
@@ -330,6 +351,7 @@ export function ChatWidget() {
   return (
     <AnimatePresence>
       <motion.div
+        ref={expandedRef}
         initial={{ opacity: 0, y: 20, scale: 0.95 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: 20, scale: 0.95 }}

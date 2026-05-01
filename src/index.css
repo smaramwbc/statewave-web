@@ -112,3 +112,9 @@ body {
   outline-offset: 2px;
   border-radius: 4px;
 }
+
+/* Hero hint chip — attention bounce + subtle scale pulse */
+@keyframes heroHintBounce {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50%      { transform: translateY(-6px) scale(1.04); }
+}

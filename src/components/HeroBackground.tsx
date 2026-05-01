@@ -4,17 +4,19 @@ import { useChatWidget } from '../lib/widget-context'
 import { fetchLiveData, type LiveSubjectData } from '../services/statewave-live'
 
 /**
- * "Subjects → Memories → Episodes" — Hierarchical Visualization
+ * Statewave data model — visualized.
  *
- * Three distinct visual tiers reflecting the Statewave data model:
- * - Subjects: large central nodes (one per subject_id)
- * - Memories: medium nodes orbiting their subject
- * - Episodes: small particles orbiting their parent memory
+ * Episodes and memories both belong directly to a subject. Memories are
+ * compiled from episodes; the link is `source_episode_ids` (real provenance
+ * returned by the backend), not a content-similarity heuristic.
  *
- * Animation:
- * - All particles start scattered
- * - They drift into hierarchical orbits
- * - Final state: clear subject→memory→episode structure
+ * Layout reflects retrieval shape:
+ * - Subject: large central anchor (the entity Statewave organizes around)
+ * - Memory: medium node on inner orbit (compiled, ranked, retrieved)
+ * - Episode: small particle on outer orbit (raw event, append-only)
+ * - Lines:
+ *   - Memory → Subject (membership)
+ *   - Memory → its source Episodes (provenance)
  */
 
 interface Subject {
@@ -30,42 +32,53 @@ interface Subject {
 }
 
 interface Episode {
+  episodeId: string
   startX: number
   startY: number
-  targetX: number
-  targetY: number
-  x: number
-  y: number
-  size: number
-  phase: number
-  memoryIdx: number
-  label: string
-}
-
-interface Memory {
-  startX: number
-  startY: number
-  targetX: number
-  targetY: number
   x: number
   y: number
   size: number
   phase: number
   group: number
+  subjectIdx: number
+  // Raw-event metadata (for tooltips)
+  source: string
+  type: string
   label: string
+}
+
+interface Memory {
+  memoryId: string
+  startX: number
+  startY: number
+  x: number
+  y: number
+  size: number
+  phase: number
+  group: number
   subjectId: string
   subjectIdx: number
+  // Compiled-memory metadata (for tooltips)
+  kind: string
+  confidence: number
+  label: string
+  // Real provenance — indices into the episodes array of episodes this
+  // memory was compiled from (populated after build, since episode array
+  // grows alongside memories).
+  sourceEpisodeIdxs: number[]
 }
 
 const ANIMATION_DURATION = 3
 
-// Color spectrum per group (hue-shifted for a beautiful rainbow spread)
+// Color spectrum per group — hues chosen so every group is clearly visible
+// on both light and dark backgrounds (avoid yellows + pale pinks that vanish
+// on white).
 const GROUP_COLORS = [
-  { h: 180, s: 80, name: 'cyan' },    // Support Agent — cyan/teal
-  { h: 260, s: 75, name: 'violet' },   // Coding Assistant — violet
-  { h: 330, s: 75, name: 'rose' },     // Sales Copilot — rose/pink
-  { h: 45, s: 85, name: 'amber' },     // DevOps Agent — amber/gold
-  { h: 145, s: 70, name: 'emerald' },  // Research Assistant — emerald/green
+  { h: 190, s: 90, name: 'cyan' },     // Support Agent — bright cyan
+  { h: 265, s: 85, name: 'violet' },   // Coding Assistant — violet
+  { h: 340, s: 88, name: 'magenta' },  // Sales Copilot — deep pink/magenta (was rose, too pale on white)
+  { h: 22,  s: 92, name: 'orange' },   // DevOps Agent — orange (was amber/yellow, near-invisible on white)
+  { h: 160, s: 78, name: 'emerald' },  // Research Assistant — emerald
 ]
 
 function groupColor(group: number, lightness: number, alpha: number): string {
@@ -75,8 +88,10 @@ function groupColor(group: number, lightness: number, alpha: number): string {
 
 /**
  * Build Subject[], Memory[], and Episode[] from live Statewave API data.
- * Hierarchy: Subject → Memories → Episodes
- * Episodes are linked to their closest-matching memory by content similarity.
+ *
+ * Episodes and memories both belong directly to a subject. The episode↔memory
+ * relationship comes from the backend's real `source_episode_ids` provenance,
+ * not from any content-similarity guess.
  */
 function buildFromLiveData(data: LiveSubjectData[]): { subjects: Subject[]; memories: Memory[]; episodes: Episode[] } {
   const subjects: Subject[] = []
@@ -91,12 +106,15 @@ function buildFromLiveData(data: LiveSubjectData[]): { subjects: Subject[]; memo
     'demo-research-assistant': 'Research Assistant',
   }
 
+  // First pass: create subjects + episodes (need episode index for provenance)
+  // and remember per-subject mappings so we can resolve memory.source_episode_ids.
+  const episodeIdxById: Map<string, number> = new Map()
+
   for (let groupIdx = 0; groupIdx < data.length; groupIdx++) {
     const subjectData = data[groupIdx]
     const group = groupIdx % 5
     const subjectIdx = subjects.length
 
-    // Create subject node
     subjects.push({
       startX: Math.random(),
       startY: Math.random(),
@@ -109,64 +127,64 @@ function buildFromLiveData(data: LiveSubjectData[]): { subjects: Subject[]; memo
       label: SUBJECT_LABELS[subjectData.subject_id] || subjectData.subject_id,
     })
 
-    // Create Memory nodes (deduplicated by content)
+    // Episodes (raw events) — append-only history, child of subject
+    const seenEpisodeContent = new Set<string>()
+    for (const ep of subjectData.episodes) {
+      const payloadMsg =
+        (ep.payload?.content as string) ||
+        (ep.payload?.message as string) ||
+        (ep.payload?.text as string) ||
+        `${ep.type} from ${ep.source}`
+      const normalizedEp = payloadMsg.trim().toLowerCase()
+      if (seenEpisodeContent.has(normalizedEp)) continue
+      seenEpisodeContent.add(normalizedEp)
+
+      const idx = episodes.length
+      episodeIdxById.set(ep.id, idx)
+      episodes.push({
+        episodeId: ep.id,
+        startX: Math.random(),
+        startY: Math.random(),
+        x: Math.random(),
+        y: Math.random(),
+        size: 1.5 + Math.random() * 1.5,
+        phase: Math.random() * Math.PI * 2,
+        group,
+        subjectIdx,
+        source: ep.source,
+        type: ep.type,
+        label: payloadMsg,
+      })
+    }
+
+    // Memories (compiled, derived) — child of subject; link to source episodes via provenance
     const seenMemoryContent = new Set<string>()
-    const groupMemStart = memories.length
     for (const m of subjectData.memories) {
       const normalizedContent = m.content.trim().toLowerCase()
       if (seenMemoryContent.has(normalizedContent)) continue
       seenMemoryContent.add(normalizedContent)
 
+      const sourceEpisodeIdxs: number[] = []
+      for (const epId of m.source_episode_ids ?? []) {
+        const idx = episodeIdxById.get(epId)
+        if (idx !== undefined) sourceEpisodeIdxs.push(idx)
+      }
+
       memories.push({
+        memoryId: m.id,
         startX: Math.random(),
         startY: Math.random(),
-        targetX: 0, targetY: 0,
-        x: Math.random(), y: Math.random(),
+        x: Math.random(),
+        y: Math.random(),
         size: 5 + Math.random() * 3,
         phase: Math.random() * Math.PI * 2,
         group,
-        label: m.content,
         subjectId: subjectData.subject_id,
         subjectIdx,
-      })
-    }
-    const groupMemEnd = memories.length
-
-    // Create Episode particles (deduplicated), linked to closest memory by content
-    const seenEpisodeContent = new Set<string>()
-    for (const ep of subjectData.episodes) {
-      const payloadMsg = (ep.payload?.content as string) || (ep.payload?.message as string) || (ep.payload?.text as string) || `${ep.type} from ${ep.source}`
-      const normalizedEp = payloadMsg.trim().toLowerCase()
-      if (seenEpisodeContent.has(normalizedEp)) continue
-      seenEpisodeContent.add(normalizedEp)
-
-      // Find the best-matching memory in this group by content overlap
-      let bestMemIdx = groupMemStart
-      let bestScore = 0
-      for (let mi = groupMemStart; mi < groupMemEnd; mi++) {
-        const memContent = memories[mi].label.toLowerCase()
-        // Simple word-overlap score
-        const epWords = normalizedEp.split(/\s+/)
-        const score = epWords.filter(w => w.length > 3 && memContent.includes(w)).length
-        if (score > bestScore) {
-          bestScore = score
-          bestMemIdx = mi
-        }
-      }
-      // Fallback: round-robin within group
-      if (bestScore === 0 && groupMemEnd > groupMemStart) {
-        bestMemIdx = groupMemStart + (episodes.length % (groupMemEnd - groupMemStart))
-      }
-
-      episodes.push({
-        startX: Math.random(),
-        startY: Math.random(),
-        targetX: 0, targetY: 0,
-        x: Math.random(), y: Math.random(),
-        size: 1.5 + Math.random() * 1.5,
-        phase: Math.random() * Math.PI * 2,
-        memoryIdx: bestMemIdx,
-        label: payloadMsg,
+        kind: m.kind,
+        confidence: m.confidence,
+        label: m.content,
+        sourceEpisodeIdxs,
       })
     }
   }
@@ -190,9 +208,8 @@ export function HeroBackground() {
   const [isLive, setIsLive] = useState(false)
   const hoveredRef = useRef<{ kind: 'memory' | 'episode' | 'subject'; idx: number } | null>(null)
   const progressRef = useRef<number>(0)
-  const hintMemoryIdxRef = useRef<number>(-1)
+  const hintSubjectIdxRef = useRef<number>(-1)
   const [hintPos, setHintPos] = useState<{ x: number; y: number } | null>(null)
-  const [hintLabel, setHintLabel] = useState('')
   const [hintVisible, setHintVisible] = useState(true)
 
   themeRef.current = isDark
@@ -239,8 +256,9 @@ export function HeroBackground() {
       const dist = Math.sqrt(dx * dx + dy * dy)
       const hitRadius = (s.size * 1.5) / Math.min(canvasW, canvasH)
       if (dist < hitRadius) {
-        const allMems = memoriesRef.current.filter(m => m.subjectIdx === i)
-        const text = allMems.slice(0, 4).map(m => `• ${m.label}`).join('\n')
+        const memCount = memoriesRef.current.filter(m => m.subjectIdx === i).length
+        const epCount = episodesRef.current.filter(ep => ep.subjectIdx === i).length
+        const text = `Subject anchors all data for one entity.\n${memCount} memories · ${epCount} episodes`
         setTooltip({ x: e.clientX - rect.left, y: e.clientY - rect.top, text, type: `${s.label} · ${s.subjectId}`, group: s.group, kind: 'subject' })
         hoveredRef.current = { kind: 'subject', idx: i }
         document.body.style.cursor = 'pointer'
@@ -248,38 +266,48 @@ export function HeroBackground() {
       }
     }
 
-    // Check memories (hit area matches visual size)
+    // Check memories
     for (let i = 0; i < memoriesRef.current.length; i++) {
       const m = memoriesRef.current[i]
       const dx = m.x - mx
       const dy = m.y - my
       const dist = Math.sqrt(dx * dx + dy * dy)
-      // Convert pixel radius to normalized coords (size is ~6-11px, use size * 1.5 for comfortable hit area)
       const hitRadius = (m.size * 1.5) / Math.min(canvasW, canvasH)
       if (dist < hitRadius) {
         const groupNames = ['Support Agent', 'Coding Assistant', 'Sales Copilot', 'DevOps Agent', 'Research Assistant']
-        const storyText = m.label
-        setTooltip({ x: e.clientX - rect.left, y: e.clientY - rect.top, text: storyText, type: `${groupNames[m.group]} · ${m.subjectId}`, group: m.group, kind: 'memory' })
+        const sourceCount = m.sourceEpisodeIdxs.length
+        const confidencePct = Math.round(m.confidence * 100)
+        const provenanceLine = sourceCount > 0
+          ? `Compiled from ${sourceCount} episode${sourceCount === 1 ? '' : 's'}`
+          : 'No source episodes linked'
+        const text = `${m.label}\nkind: ${m.kind} · confidence: ${confidencePct}%\n${provenanceLine}`
+        setTooltip({ x: e.clientX - rect.left, y: e.clientY - rect.top, text, type: `${groupNames[m.group]} · ${m.subjectId}`, group: m.group, kind: 'memory' })
         hoveredRef.current = { kind: 'memory', idx: i }
         document.body.style.cursor = 'pointer'
         return
       }
     }
 
-    // Check episodes (hit area matches visual size)
+    // Check episodes
     for (let i = 0; i < episodesRef.current.length; i++) {
       const ep = episodesRef.current[i]
       const dx = ep.x - mx
       const dy = ep.y - my
       const dist = Math.sqrt(dx * dx + dy * dy)
-      // Episode size is ~1.5-3px, use size * 2 for comfortable hit area
       const hitRadius = (ep.size * 2) / Math.min(canvasW, canvasH)
       if (dist < hitRadius) {
-        const parentGroup = memoriesRef.current[ep.memoryIdx]?.group ?? 0
-        setTooltip({ x: e.clientX - rect.left, y: e.clientY - rect.top, text: ep.label, type: 'Episode', group: parentGroup, kind: 'episode' })
+        // Reverse provenance: which memories cite this episode
+        const citingCount = memoriesRef.current.reduce(
+          (acc, m) => acc + (m.sourceEpisodeIdxs.includes(i) ? 1 : 0),
+          0,
+        )
+        const citingLine = citingCount > 0
+          ? `Cited by ${citingCount} memor${citingCount === 1 ? 'y' : 'ies'}`
+          : 'Not yet compiled into a memory'
+        const text = `${ep.label}\nsource: ${ep.source} · type: ${ep.type}\n${citingLine}`
+        setTooltip({ x: e.clientX - rect.left, y: e.clientY - rect.top, text, type: 'Episode (raw)', group: ep.group, kind: 'episode' })
         hoveredRef.current = { kind: 'episode', idx: i }
         document.body.style.cursor = 'pointer'
-        // Hide hint chip once user discovers hovering
         setHintVisible(false)
         return
       }
@@ -294,8 +322,7 @@ export function HeroBackground() {
   const handleClick = useCallback(() => {
     if (hoveredRef.current?.kind === 'episode') {
       const ep = episodesRef.current[hoveredRef.current.idx]
-      const parentMem = memoriesRef.current[ep.memoryIdx]
-      const subj = subjectsRef.current[parentMem.subjectIdx]
+      const subj = subjectsRef.current[ep.subjectIdx]
       if (subj) {
         openWidget(subj.subjectId, subj.label)
       }
@@ -313,18 +340,16 @@ export function HeroBackground() {
     }
   }, [openWidget])
 
-  // Select a random memory (big circle) from any group as hint
+  // Anchor the hint chip to a random subject (the largest circle in any group),
+  // but delay its appearance so users register the visualization first.
+  const [hintReady, setHintReady] = useState(false)
   useEffect(() => {
-    if (isLive && memoriesRef.current.length > 0 && hintMemoryIdxRef.current === -1) {
-      const candidates = memoriesRef.current
-        .map((m, i) => ({ m, i }))
-        .filter(({ m }) => m.label.length > 10)
-      if (candidates.length > 0) {
-        hintMemoryIdxRef.current = candidates[Math.floor(Math.random() * candidates.length)].i
-      } else {
-        hintMemoryIdxRef.current = Math.floor(Math.random() * memoriesRef.current.length)
-      }
+    if (isLive && subjectsRef.current.length > 0 && hintSubjectIdxRef.current === -1) {
+      hintSubjectIdxRef.current = Math.floor(Math.random() * subjectsRef.current.length)
     }
+    if (!isLive) return
+    const t = window.setTimeout(() => setHintReady(true), 3000)
+    return () => window.clearTimeout(t)
   }, [isLive])
 
   useEffect(() => {
@@ -431,13 +456,21 @@ export function HeroBackground() {
       m.y = baseY + Math.cos(t * 0.25 + m.phase * 2) * chaos + Math.cos(t * 0.12 + m.phase * 1.3) * 0.002 * progress
     }
 
-    // Update episode positions (orbit their parent memory)
-    for (const e of episodes) {
-      const mem = memories[e.memoryIdx]
-      const angle = e.phase + t * 0.12
-      const r = 0.018 + (e.phase / (Math.PI * 2)) * 0.025
-      const tX = mem.x + Math.cos(angle) * r
-      const tY = mem.y + Math.sin(angle) * r * 0.7
+    // Update episode positions — episodes belong to the subject directly
+    // (sibling to memories, not children of them). Place them on an outer
+    // orbit so the visual hierarchy reads "subject in middle, memories close,
+    // raw episodes further out."
+    for (let ei = 0; ei < episodes.length; ei++) {
+      const e = episodes[ei]
+      const subj = subjects[e.subjectIdx]
+      // Spread episodes evenly around their subject on a wider ring
+      const groupEpisodes = episodes.filter(ep => ep.subjectIdx === e.subjectIdx)
+      const indexInGroup = groupEpisodes.indexOf(e)
+      const countInGroup = groupEpisodes.length
+      const angle = (indexInGroup / Math.max(countInGroup, 1)) * Math.PI * 2 + e.phase * 0.2 + t * 0.05
+      const r = 0.13 + ((e.phase / (Math.PI * 2)) % 1) * 0.04
+      const tX = subj.x + Math.cos(angle) * r
+      const tY = subj.y + Math.sin(angle) * r * 0.7
 
       const baseX = e.startX + (tX - e.startX) * progress
       const baseY = e.startY + (tY - e.startY) * progress
@@ -446,29 +479,59 @@ export function HeroBackground() {
       e.y = baseY + Math.cos(t * 0.4 + e.phase * 3) * chaos + Math.cos(t * 0.15 + e.phase * 1.5) * 0.002 * progress
     }
 
-    // Draw episode→memory connections
-    for (const e of episodes) {
-      const mem = memories[e.memoryIdx]
-      const ex = e.x * w
-      const ey = e.y * h
-      const mx = mem.x * w
-      const my = mem.y * h
-      const dist = Math.sqrt((ex - mx) ** 2 + (ey - my) ** 2)
-      const maxDist = 60 + progress * 30
-
-      if (dist < maxDist) {
-        const strength = (1 - dist / maxDist) * progress
-        const alpha = strength * (dark ? 0.25 : 0.15)
+    // Episodes reach the subject through the memories that cite them.
+    // Only orphan episodes (not yet compiled into any memory) get a direct
+    // membership line — that's the honest "raw, uncompiled" state. Cited
+    // episodes are connected via the brighter provenance line drawn below.
+    const citedEpisodes = new Set<number>()
+    for (const m of memories) {
+      for (const idx of m.sourceEpisodeIdxs) citedEpisodes.add(idx)
+    }
+    if (progress > 0.25) {
+      const orphanAlpha = (progress - 0.25) * 1.3 * (dark ? 0.42 : 0.32)
+      for (let ei = 0; ei < episodes.length; ei++) {
+        if (citedEpisodes.has(ei)) continue
+        const e = episodes[ei]
+        const subj = subjects[e.subjectIdx]
+        if (!subj) continue
+        const ex = e.x * w
+        const ey = e.y * h
+        const sx = subj.x * w
+        const sy = subj.y * h
         ctx.beginPath()
         ctx.moveTo(ex, ey)
-        ctx.lineTo(mx, my)
-        ctx.strokeStyle = groupColor(mem.group, dark ? 65 : 50, alpha)
-        ctx.lineWidth = strength * 0.6
+        ctx.lineTo(sx, sy)
+        ctx.strokeStyle = groupColor(e.group, dark ? 65 : 42, orphanAlpha)
+        ctx.lineWidth = 1
         ctx.stroke()
       }
     }
 
-    // Draw memory→subject connections
+    // Draw provenance lines: memory → each of its real source episodes.
+    // This is the actual Statewave link (memory.source_episode_ids), not a
+    // geometric or content-similarity guess. Visible after layout settles.
+    if (progress > 0.3) {
+      for (const m of memories) {
+        if (m.sourceEpisodeIdxs.length === 0) continue
+        const mx = m.x * w
+        const my = m.y * h
+        const provenanceAlpha = (progress - 0.3) * 1.4 * (dark ? 0.8 : 0.7)
+        for (const epIdx of m.sourceEpisodeIdxs) {
+          const e = episodes[epIdx]
+          if (!e) continue
+          const ex = e.x * w
+          const ey = e.y * h
+          ctx.beginPath()
+          ctx.moveTo(mx, my)
+          ctx.lineTo(ex, ey)
+          ctx.strokeStyle = groupColor(m.group, dark ? 70 : 36, provenanceAlpha)
+          ctx.lineWidth = 1.7
+          ctx.stroke()
+        }
+      }
+    }
+
+    // Draw memory→subject connections (membership)
     for (const m of memories) {
       const subj = subjects[m.subjectIdx]
       const mx = m.x * w
@@ -476,35 +539,34 @@ export function HeroBackground() {
       const sx = subj.x * w
       const sy = subj.y * h
       const dist = Math.sqrt((mx - sx) ** 2 + (my - sy) ** 2)
-      const maxDist = 200
+      const maxDist = 220
 
       if (dist < maxDist && progress > 0.2) {
         const strength = (1 - dist / maxDist) * progress
-        const alpha = strength * (dark ? 0.4 : 0.25)
+        const alpha = strength * (dark ? 0.7 : 0.6)
         ctx.beginPath()
         ctx.moveTo(mx, my)
         ctx.lineTo(sx, sy)
-        ctx.strokeStyle = groupColor(m.group, dark ? 70 : 45, alpha)
-        ctx.lineWidth = strength * 1.5
+        ctx.strokeStyle = groupColor(m.group, dark ? 72 : 36, alpha)
+        ctx.lineWidth = Math.max(1.2, strength * 3)
         ctx.stroke()
       }
     }
 
-    // Draw episodes (small dots — colored per group)
+    // Draw episodes (small dots — colored by their subject's group)
     const hovered = hoveredRef.current
     for (let ei = 0; ei < episodes.length; ei++) {
       const e = episodes[ei]
       const px = e.x * w
       const py = e.y * h
-      const parentGroup = memories[e.memoryIdx].group
       const isHovered = hovered?.kind === 'episode' && hovered.idx === ei
-      const alpha = isHovered ? 1 : (dark ? 0.5 + progress * 0.2 : 0.4 + progress * 0.15)
+      const alpha = isHovered ? 1 : (dark ? 0.65 + progress * 0.25 : 0.7 + progress * 0.25)
       const radius = isHovered ? e.size * 2 : e.size
 
       if (isHovered) {
         ctx.beginPath()
         ctx.arc(px, py, radius + 4, 0, Math.PI * 2)
-        ctx.strokeStyle = groupColor(parentGroup, 70, 0.5)
+        ctx.strokeStyle = groupColor(e.group, dark ? 72 : 38, 0.55)
         ctx.lineWidth = 1.5
         ctx.stroke()
       }
@@ -512,8 +574,8 @@ export function HeroBackground() {
       ctx.beginPath()
       ctx.arc(px, py, radius, 0, Math.PI * 2)
       ctx.fillStyle = isHovered
-        ? groupColor(parentGroup, dark ? 85 : 40, 0.95)
-        : groupColor(parentGroup, dark ? 65 : 45, alpha)
+        ? groupColor(e.group, dark ? 85 : 32, 0.98)
+        : groupColor(e.group, dark ? 68 : 38, alpha)
       ctx.fill()
     }
 
@@ -631,18 +693,14 @@ export function HeroBackground() {
     }
 
 
-    // Update hint chip position from tracked memory (throttled)
-    const hIdx = hintMemoryIdxRef.current
-    if (hIdx >= 0 && hIdx < memories.length && progress > 0.3) {
-      const m = memories[hIdx]
+    // Update hint chip position from tracked subject (throttled)
+    const hIdx = hintSubjectIdxRef.current
+    if (hIdx >= 0 && hIdx < subjects.length && progress > 0.3) {
+      const s = subjects[hIdx]
       const now = performance.now()
       if (!lastHintUpdate.current || now - lastHintUpdate.current > 80) {
         lastHintUpdate.current = now
-        setHintPos({ x: m.x, y: m.y })
-        if (!hintLabel) {
-          const label = m.label.length > 35 ? m.label.slice(0, 35) + '…' : m.label
-          setHintLabel(label)
-        }
+        setHintPos({ x: s.x, y: s.y })
       }
     }
 
@@ -683,9 +741,11 @@ export function HeroBackground() {
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
+          // Vignette only the very edges so corner/bottom particles stay
+          // legible while the text in the center still has breathing room.
           background: isDark
-            ? 'radial-gradient(ellipse 80% 75% at 50% 45%, transparent 30%, var(--theme-surface-0) 100%)'
-            : 'radial-gradient(ellipse 75% 70% at 50% 45%, transparent 25%, var(--theme-surface-0) 100%)',
+            ? 'radial-gradient(ellipse 100% 100% at 50% 50%, transparent 55%, var(--theme-surface-0) 100%)'
+            : 'radial-gradient(ellipse 100% 100% at 50% 50%, transparent 55%, var(--theme-surface-0) 100%)',
         }}
       />
       {tooltip && (
@@ -753,6 +813,17 @@ export function HeroBackground() {
                   </p>
                 ))}
               </div>
+              <div
+                className="mt-2 pt-2 border-t text-[10px] font-medium tracking-wide flex items-center gap-1"
+                style={{
+                  borderColor: isDark ? 'rgba(129, 140, 248, 0.15)' : 'rgba(99, 102, 241, 0.12)',
+                  color: isDark ? '#a5b4fc' : '#6366f1',
+                  opacity: 0.85,
+                }}
+              >
+                Click to try the demo
+                <span aria-hidden>→</span>
+              </div>
             </div>
           )}
         </div>
@@ -770,32 +841,54 @@ export function HeroBackground() {
         </div>
       )}
 
-      {/* Hint chip — follows a random memory particle */}
-      {isLive && hintVisible && hintPos && (
+      {/* Hint chip — anchored to a subject (biggest circle), demands attention.
+          Shown only after a 2s settle delay so users register the viz first. */}
+      {isLive && hintReady && hintVisible && hintPos && (
         <div
-          className="absolute flex items-center gap-2 px-3 py-2 rounded-full text-[11px] font-medium border border-indigo-400/30 backdrop-blur-sm cursor-pointer transition-all duration-100 whitespace-nowrap hover:scale-105"
+          className="absolute pointer-events-none"
           style={{
-            left: `clamp(120px, ${hintPos.x * 100}%, calc(100% - 120px))`,
-            top: `clamp(50px, ${hintPos.y * 100}%, calc(100% - 60px))`,
-            transform: 'translate(-50%, -130%)',
-            backgroundColor: isDark ? 'rgba(79, 70, 229, 0.15)' : 'rgba(99, 102, 241, 0.1)',
-            color: isDark ? '#c7d2fe' : '#4338ca',
-            animation: 'pulse 2s ease-in-out infinite',
-          }}
-          onClick={() => {
-            const idx = hintMemoryIdxRef.current
-            if (idx >= 0 && idx < memoriesRef.current.length) {
-              const mem = memoriesRef.current[idx]
-              const subj = subjectsRef.current[mem.subjectIdx]
-              if (subj) {
-                openWidget(subj.subjectId, subj.label)
-              }
-              setHintVisible(false)
-            }
+            left: `clamp(140px, ${hintPos.x * 100}%, calc(100% - 140px))`,
+            top: `clamp(60px, ${hintPos.y * 100}%, calc(100% - 60px))`,
+            transform: 'translate(-50%, -150%)',
           }}
         >
-          <span className="opacity-70">✦</span>
-          <span>{hintLabel || 'memory'} · click →</span>
+          <div
+            className="pointer-events-auto flex items-center gap-2 px-4 py-2.5 rounded-full text-[13px] font-semibold cursor-pointer whitespace-nowrap transition-transform duration-150 hover:scale-110"
+            style={{
+              backgroundColor: '#6366f1',
+              color: '#ffffff',
+              boxShadow: isDark
+                ? '0 0 0 4px rgba(99, 102, 241, 0.18), 0 8px 24px -4px rgba(99, 102, 241, 0.55), 0 4px 12px -2px rgba(0, 0, 0, 0.35)'
+                : '0 0 0 4px rgba(99, 102, 241, 0.18), 0 8px 24px -4px rgba(99, 102, 241, 0.4), 0 4px 12px -2px rgba(99, 102, 241, 0.25)',
+              animation: 'heroHintBounce 1.4s ease-in-out infinite',
+            }}
+            onClick={() => {
+              const idx = hintSubjectIdxRef.current
+              if (idx >= 0 && idx < subjectsRef.current.length) {
+                const subj = subjectsRef.current[idx]
+                if (subj) {
+                  openWidget(subj.subjectId, subj.label)
+                }
+                setHintVisible(false)
+              }
+            }}
+          >
+            {/* Mouse cursor icon — direct visual cue to "interact here" */}
+            <svg
+              aria-hidden
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.4"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M3 3l7 19 2-8 8-2z" />
+            </svg>
+            <span>Hover over me</span>
+          </div>
         </div>
       )}
     </div>

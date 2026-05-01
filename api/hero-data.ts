@@ -15,7 +15,6 @@ const DEMO_SUBJECTS = [
 ]
 
 export default async function handler(req: Request): Promise<Response> {
-  // Only allow GET
   if (req.method !== 'GET') {
     return new Response(JSON.stringify({ error: 'Method not allowed' }), { status: 405 })
   }
@@ -23,27 +22,26 @@ export default async function handler(req: Request): Promise<Response> {
   try {
     const results = await Promise.all(
       DEMO_SUBJECTS.map(async (subjectId) => {
-        const [memoriesResp, timelineResp] = await Promise.all([
-          fetch(`${STATEWAVE_URL}/v1/memories/search?subject_id=${subjectId}&limit=20`, {
-            headers: { 'X-API-Key': STATEWAVE_API_KEY },
-          }),
-          fetch(`${STATEWAVE_URL}/v1/timeline?subject_id=${subjectId}&limit=30`, {
-            headers: { 'X-API-Key': STATEWAVE_API_KEY },
-          }),
-        ])
-
-        const memoriesData = memoriesResp.ok ? await memoriesResp.json() : { memories: [] }
-        const timelineData = timelineResp.ok ? await timelineResp.json() : { episodes: [] }
+        // /v1/timeline returns both episodes and memories (with real
+        // source_episode_ids provenance) in a single call.
+        // Wider window so memories can reference their real source episodes
+        // (without this, lots of source_episode_ids point outside the slice).
+        const resp = await fetch(
+          `${STATEWAVE_URL}/v1/timeline?subject_id=${subjectId}&limit=200`,
+          { headers: { 'X-API-Key': STATEWAVE_API_KEY } },
+        )
+        const data = resp.ok ? await resp.json() : { episodes: [], memories: [] }
 
         return {
           subject_id: subjectId,
-          memories: (memoriesData.memories ?? []).map((m: Record<string, unknown>) => ({
+          memories: (data.memories ?? []).map((m: Record<string, unknown>) => ({
             id: m.id,
             content: m.content || m.summary || '',
             kind: m.kind || 'fact',
-            confidence: m.confidence || 0.8,
+            confidence: m.confidence ?? 0.8,
+            source_episode_ids: (m.source_episode_ids as string[]) ?? [],
           })).filter((m: { content: string }) => m.content),
-          episodes: (timelineData.episodes ?? timelineData.events ?? []).map((e: Record<string, unknown>) => ({
+          episodes: (data.episodes ?? []).map((e: Record<string, unknown>) => ({
             id: e.id,
             source: e.source || 'unknown',
             type: e.type || 'interaction',

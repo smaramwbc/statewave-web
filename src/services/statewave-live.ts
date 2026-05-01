@@ -13,6 +13,7 @@ export interface LiveMemory {
   kind: string
   confidence: number
   subject_id?: string
+  source_episode_ids: string[]
 }
 
 export interface LiveEpisode {
