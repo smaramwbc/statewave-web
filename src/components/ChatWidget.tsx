@@ -74,6 +74,8 @@ export function ChatWidget() {
     isHydrating,
     hydrationReason,
     hasSeenWelcome,
+    tourStep,
+    tourTotal,
     hasVisibleCta,
     openWidget,
     closeWidget,
@@ -84,6 +86,9 @@ export function ChatWidget() {
     resetDemo,
     dismissWelcome,
     showWelcome,
+    nextTourStep,
+    prevTourStep,
+    skipTour,
   } = useChatWidget()
 
   const [input, setInput] = useState('')
@@ -425,7 +430,7 @@ export function ChatWidget() {
           <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
             {/* Persona selector — biases the prompt + suggestion chips. Subject
                 is the visitor's own and does not change with persona. */}
-            <div className="relative">
+            <div className={`relative rounded-lg ${tourStep === 1 ? 'ring-2 ring-accent/70 ring-offset-2 ring-offset-transparent' : ''}`} data-tour-target="persona">
               <button
                 onClick={() => setShowSubjectMenu(!showSubjectMenu)}
                 className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1.5 rounded-lg text-xs font-medium border border-theme-border/50 hover:border-accent/30 transition-colors"
@@ -599,6 +604,81 @@ export function ChatWidget() {
 
         {hasSeenWelcome && <>
 
+        {/* Tour banner — visible only while a step is active. Walks the visitor
+            through the persona model, the suggestion+input flow, and the
+            inspector. Each step rings the relevant UI piece via data-tour-active. */}
+        {tourStep > 0 && (
+          <div
+            data-testid="tour-banner"
+            className="px-3 sm:px-4 py-2.5 sm:py-3 border-b border-accent/20 bg-accent/5 flex-shrink-0"
+            style={{ backgroundColor: isDark ? 'rgba(99, 102, 241, 0.08)' : 'rgba(99, 102, 241, 0.05)' }}
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0 flex-1">
+                <p className="text-[9px] uppercase tracking-wider text-accent/80 font-semibold mb-0.5">
+                  Step {tourStep} of {tourTotal}
+                </p>
+                <p className="text-xs sm:text-[13px] font-semibold text-theme-primary">
+                  {tourStep === 1 && 'About this persona’s memory'}
+                  {tourStep === 2 && 'Try a question'}
+                  {tourStep === 3 && 'See what Statewave used'}
+                </p>
+                <p className="mt-0.5 text-[11px] sm:text-xs text-theme-muted leading-relaxed">
+                  {tourStep === 1 && (
+                    <>
+                      You’re seeing the <span className="text-theme-secondary font-medium">{personaLabel}</span>’s
+                      seeded memory pool — facts compiled by Statewave from showcase sessions, not yours.
+                      Each persona has its own pool; switch via the dropdown.
+                    </>
+                  )}
+                  {tourStep === 2 && 'Pick a chip below or type your own. Both agents answer the same prompt simultaneously — left without memory, right with Statewave-ranked context.'}
+                  {tourStep === 3 && 'After a turn, open the Inspector to see the exact compiled memories Statewave drew from.'}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={skipTour}
+                className="text-[10px] text-theme-muted hover:text-theme-secondary underline-offset-2 hover:underline whitespace-nowrap flex-shrink-0 mt-0.5"
+              >
+                skip tour
+              </button>
+            </div>
+            <div className="mt-2 flex items-center justify-between gap-2">
+              <div className="flex items-center gap-1.5">
+                {Array.from({ length: tourTotal }).map((_, i) => (
+                  <span
+                    key={i}
+                    className={`block h-1 rounded-full transition-all ${
+                      i + 1 === tourStep
+                        ? 'w-5 bg-accent'
+                        : i + 1 < tourStep
+                          ? 'w-2 bg-accent/60'
+                          : 'w-2 bg-accent/20'
+                    }`}
+                  />
+                ))}
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={prevTourStep}
+                  disabled={tourStep <= 1}
+                  className="text-[11px] px-2 py-1 rounded-md text-theme-secondary hover:text-theme-primary hover:bg-theme-border/20 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                >
+                  Back
+                </button>
+                <button
+                  type="button"
+                  onClick={nextTourStep}
+                  className="text-[11px] px-3 py-1 rounded-md bg-accent text-white hover:bg-accent-light transition-colors font-medium"
+                >
+                  {tourStep < tourTotal ? 'Next' : 'Got it'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Mobile tab selector */}
         {isMobile && (
           <div className="flex border-b border-theme-border/30 flex-shrink-0">
@@ -674,10 +754,16 @@ export function ChatWidget() {
                     </span>
                   </div>
                   <button
-                    onClick={() => setShowInspector(!showInspector)}
+                    data-tour-target="inspect"
+                    onClick={() => {
+                      setShowInspector(!showInspector)
+                      // Opening the inspector during the final tour step is the
+                      // strongest "I get it" signal — auto-complete the tour.
+                      if (!showInspector && tourStep === tourTotal) nextTourStep()
+                    }}
                     className={`flex items-center gap-1 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-[9px] sm:text-[10px] font-medium transition-colors ${
                       showInspector ? 'bg-accent/20 text-accent' : 'hover:bg-accent/10 text-theme-muted'
-                    }`}
+                    } ${tourStep === 3 ? 'ring-2 ring-accent/70 ring-offset-2 ring-offset-transparent' : ''}`}
                   >
                     <InspectIcon className="w-3 h-3" />
                     {(!isMobile || mobileTab !== 'split') && 'Inspect'}
@@ -751,7 +837,13 @@ export function ChatWidget() {
         </div>
 
         {/* Input */}
-        <form onSubmit={handleSubmit} className="px-3 sm:px-4 py-2.5 sm:py-3 border-t border-theme-border/50 flex-shrink-0">
+        <form
+          onSubmit={handleSubmit}
+          data-tour-target="ask"
+          className={`px-3 sm:px-4 py-2.5 sm:py-3 border-t border-theme-border/50 flex-shrink-0 transition-shadow ${
+            tourStep === 2 ? 'ring-2 ring-accent/70 ring-inset' : ''
+          }`}
+        >
           {/* Suggestion chips */}
           {showSuggestions && (
             <div className="flex flex-wrap gap-1.5 mb-2.5">
@@ -763,6 +855,9 @@ export function ChatWidget() {
                     // Send the suggestion directly and advance to next round
                     await sendMessage(s)
                     setSuggestionRound(r => r + 1)
+                    // Auto-advance the tour from "try a question" once the
+                    // visitor actually tries one.
+                    if (tourStep === 2) nextTourStep()
                   }}
                   className="text-[10px] sm:text-[11px] px-2.5 py-1.5 rounded-md border border-accent/30 bg-accent/10 text-accent hover:bg-accent/20 hover:border-accent/50 transition-all cursor-pointer"
                 >

@@ -75,6 +75,15 @@ interface ChatWidgetState {
   /** Whether this browser has seen the welcome panel. Persists in localStorage,
    *  independent of demo memory state. */
   hasSeenWelcome: boolean
+  /** Current step of the post-welcome guided tour.
+   *   0  = tour not active (either welcome still showing, or tour complete)
+   *   1+ = active step number (1..TOUR_STEPS) */
+  tourStep: number
+  /** Total number of tour steps. Stable constant so callers can render
+   *  "Step N of M" without importing internals. */
+  tourTotal: number
+  /** True iff the visitor has finished or skipped the post-welcome tour. */
+  hasCompletedTour: boolean
   /** True while at least one on-page demo CTA (e.g. hero "Try the Demo")
    *  is in the viewport — the floating launcher hides itself in that case
    *  so we don't double-up on the same affordance. */
@@ -101,10 +110,20 @@ interface ChatWidgetActions {
   /** Internal — used by useTrackDemoCta. Increment when an on-page CTA enters
    *  the viewport, decrement when it leaves. */
   _bumpVisibleCta: (delta: 1 | -1) => void
-  /** Mark the welcome as seen and reveal the chat. Persists across reloads. */
+  /** Mark the welcome as seen and reveal the chat. Persists across reloads.
+   *  Also kicks off the guided tour at step 1 unless the tour was already
+   *  completed previously. */
   dismissWelcome: () => void
-  /** Re-show the welcome panel (small "?" help button in the header). */
+  /** Re-show the welcome panel (small "?" help button in the header).
+   *  Also resets tour progress so it plays again. */
   showWelcome: () => void
+  /** Advance to the next tour step, or complete the tour if already on the
+   *  last step. Persists tour completion in localStorage. */
+  nextTourStep: () => void
+  /** Step backward one. No-op at step 1. */
+  prevTourStep: () => void
+  /** Skip the entire tour without completing each step. Persists. */
+  skipTour: () => void
 }
 
 type ChatWidgetContextType = ChatWidgetState & ChatWidgetActions
@@ -128,6 +147,11 @@ const DEMO_PERSONAS = [
 export const DEMO_SUBJECTS = DEMO_PERSONAS.map((p) => ({ id: p.id, label: p.label }))
 
 const DEFAULT_PERSONA = DEMO_PERSONAS[0]
+
+/** Number of post-welcome tour steps. The tour banner walks through the
+ *  persona / suggestion-and-input / inspector pieces of the widget. Bumping
+ *  this constant alone is not enough — copy lives in ChatWidget.tsx. */
+export const TOUR_STEPS = 3
 
 interface DemoStateResponse {
   subjectId: string
@@ -154,17 +178,26 @@ const ONBOARDING_KEY = 'statewave-demo-onboarding-v1'
 
 interface OnboardingRecord {
   welcomeSeenAt: number | null
+  /** Set when the post-welcome guided tour has either been completed or
+   *  explicitly skipped. Independent of welcomeSeenAt — a visitor who
+   *  dismissed welcome but hasn't finished the tour will resume the tour
+   *  on next open. */
+  tourCompletedAt: number | null
 }
 
 function loadOnboarding(): OnboardingRecord {
-  if (typeof window === 'undefined') return { welcomeSeenAt: null }
+  const empty: OnboardingRecord = { welcomeSeenAt: null, tourCompletedAt: null }
+  if (typeof window === 'undefined') return empty
   try {
     const raw = window.localStorage.getItem(ONBOARDING_KEY)
-    if (!raw) return { welcomeSeenAt: null }
-    const parsed = JSON.parse(raw) as OnboardingRecord
-    return { welcomeSeenAt: typeof parsed.welcomeSeenAt === 'number' ? parsed.welcomeSeenAt : null }
+    if (!raw) return empty
+    const parsed = JSON.parse(raw) as Partial<OnboardingRecord>
+    return {
+      welcomeSeenAt: typeof parsed.welcomeSeenAt === 'number' ? parsed.welcomeSeenAt : null,
+      tourCompletedAt: typeof parsed.tourCompletedAt === 'number' ? parsed.tourCompletedAt : null,
+    }
   } catch {
-    return { welcomeSeenAt: null }
+    return empty
   }
 }
 
@@ -195,19 +228,57 @@ export function ChatWidgetProvider({ children }: { children: ReactNode }) {
   const [isHydrating, setIsHydrating] = useState(false)
   const [hydrationReason, setHydrationReason] = useState<'setup' | 'restore' | 'reset' | null>(null)
   const [hasSeenWelcome, setHasSeenWelcome] = useState<boolean>(() => loadOnboarding().welcomeSeenAt !== null)
+  const [hasCompletedTour, setHasCompletedTour] = useState<boolean>(() => loadOnboarding().tourCompletedAt !== null)
+  // tourStep semantics:
+  //   0          = no tour visible (welcome still up, or tour completed)
+  //   1..TOUR_STEPS = active step; tour banner is showing
+  // We start at 0 here; dismissWelcome() promotes to 1 if the tour hasn't
+  // been completed yet, otherwise stays 0.
+  const [tourStep, setTourStep] = useState<number>(0)
   const [visibleCtaCount, setVisibleCtaCount] = useState(0)
   const _bumpVisibleCta = useCallback((delta: 1 | -1) => {
     setVisibleCtaCount((n) => Math.max(0, n + delta))
   }, [])
 
   const dismissWelcome = useCallback(() => {
-    persistOnboarding({ welcomeSeenAt: Date.now() })
+    persistOnboarding({ welcomeSeenAt: Date.now(), tourCompletedAt: loadOnboarding().tourCompletedAt })
     setHasSeenWelcome(true)
-  }, [])
+    // Start the tour at step 1 unless the visitor finished it on a prior visit.
+    setTourStep((prev) => (prev === 0 && !hasCompletedTour ? 1 : prev))
+  }, [hasCompletedTour])
 
   const showWelcome = useCallback(() => {
+    // Re-running the intro from the help button: replay welcome AND the tour.
     setHasSeenWelcome(false)
+    setHasCompletedTour(false)
+    setTourStep(0)
   }, [])
+
+  const completeTour = useCallback(() => {
+    persistOnboarding({ welcomeSeenAt: loadOnboarding().welcomeSeenAt ?? Date.now(), tourCompletedAt: Date.now() })
+    setHasCompletedTour(true)
+    setTourStep(0)
+  }, [])
+
+  const nextTourStep = useCallback(() => {
+    setTourStep((prev) => {
+      if (prev <= 0) return prev
+      if (prev >= TOUR_STEPS) {
+        // Final-step "Got it" → mark complete + close banner.
+        completeTour()
+        return 0
+      }
+      return prev + 1
+    })
+  }, [completeTour])
+
+  const prevTourStep = useCallback(() => {
+    setTourStep((prev) => (prev > 1 ? prev - 1 : prev))
+  }, [])
+
+  const skipTour = useCallback(() => {
+    completeTour()
+  }, [completeTour])
 
   const refreshState = useCallback(async (forPersona?: string) => {
     try {
@@ -269,6 +340,10 @@ export function ChatWidgetProvider({ children }: { children: ReactNode }) {
       setPersona(chosen)
       setPersonaLabel(label ?? DEMO_PERSONAS.find((x) => x.id === chosen)?.label ?? chosen)
     }
+    // Resume the tour for visitors who saw the welcome on a prior visit but
+    // never finished walking through the steps. Mid-session reopens skip
+    // this branch (tourStep > 0 already, or already completed).
+    setTourStep((prev) => (prev === 0 && hasSeenWelcome && !hasCompletedTour ? 1 : prev))
     // Only show the hydration spinner if there's genuinely nothing to display
     // for the active persona yet. After the page-load preload (or a previous
     // open), memories are already populated; refresh in the background instead
@@ -294,7 +369,7 @@ export function ChatWidgetProvider({ children }: { children: ReactNode }) {
         setHydrationReason(null)
       }
     })()
-  }, [persona, memories.length, episodeCount, refreshState, seedFromPersona])
+  }, [persona, memories.length, episodeCount, hasSeenWelcome, hasCompletedTour, refreshState, seedFromPersona])
 
   const closeWidget = useCallback(() => setIsOpen(false), [])
   const minimizeWidget = useCallback(() => setIsMinimized(true), [])
@@ -363,8 +438,13 @@ export function ChatWidgetProvider({ children }: { children: ReactNode }) {
     // Sending is the visitor's strongest "I get it" signal — auto-dismiss
     // the welcome panel here too, not just on the explicit Skip link.
     if (!hasSeenWelcome) {
-      persistOnboarding({ welcomeSeenAt: Date.now() })
+      persistOnboarding({
+        welcomeSeenAt: Date.now(),
+        tourCompletedAt: loadOnboarding().tourCompletedAt,
+      })
       setHasSeenWelcome(true)
+      // Sending also kicks off the tour — same trigger as clicking Skip.
+      setTourStep((prev) => (prev === 0 && !hasCompletedTour ? 1 : prev))
     }
     const userMsg: ChatMessage = { role: 'user', content: trimmed, timestamp: Date.now() }
     setStatelessMessages((prev) => [...prev, userMsg])
@@ -422,7 +502,7 @@ export function ChatWidgetProvider({ children }: { children: ReactNode }) {
     } finally {
       setIsLoading(false)
     }
-  }, [persona, hasSeenWelcome, refreshState])
+  }, [persona, hasSeenWelcome, hasCompletedTour, refreshState])
 
   // Preload the default persona's memory pool on page mount so the demo is
   // populated the moment a visitor opens the widget — no spinner-while-seeding
@@ -459,6 +539,9 @@ export function ChatWidgetProvider({ children }: { children: ReactNode }) {
     isHydrating,
     hydrationReason,
     hasSeenWelcome,
+    tourStep,
+    tourTotal: TOUR_STEPS,
+    hasCompletedTour,
     hasVisibleCta: visibleCtaCount > 0,
     openWidget,
     closeWidget,
@@ -472,6 +555,9 @@ export function ChatWidgetProvider({ children }: { children: ReactNode }) {
     _bumpVisibleCta,
     dismissWelcome,
     showWelcome,
+    nextTourStep,
+    prevTourStep,
+    skipTour,
   }
 
   return <ChatWidgetContext.Provider value={value}>{children}</ChatWidgetContext.Provider>

@@ -170,10 +170,13 @@ describe('Widget onboarding — welcome panel', () => {
   })
 
   it('exposes a "What is this demo?" header button that re-opens the welcome', async () => {
-    // Visitor has already dismissed the welcome.
+    // Visitor has already dismissed the welcome AND completed the tour.
     window.localStorage.setItem(
       ONBOARDING_KEY,
-      JSON.stringify({ welcomeSeenAt: Date.now() - 60_000 }),
+      JSON.stringify({
+        welcomeSeenAt: Date.now() - 60_000,
+        tourCompletedAt: Date.now() - 60_000,
+      }),
     )
 
     render(
@@ -193,5 +196,138 @@ describe('Widget onboarding — welcome panel', () => {
 
     // Welcome panel returns.
     expect(await screen.findByText(/Try Statewave with real memory/i)).toBeInTheDocument()
+  })
+})
+
+describe('Widget onboarding — guided tour', () => {
+  beforeEach(() => {
+    window.localStorage.clear()
+    stubAllFetches()
+  })
+  afterEach(() => {
+    cleanup()
+    vi.restoreAllMocks()
+  })
+
+  it('starts the tour at step 1 immediately after the welcome is dismissed', async () => {
+    render(
+      <TestWrapper>
+        <ChatWidget />
+      </TestWrapper>,
+    )
+
+    fireEvent.click(screen.getByText('Try the demo'))
+    // Dismiss welcome via Skip.
+    act(() => {
+      fireEvent.click(screen.getByText(/skip onboarding/i))
+    })
+
+    // Tour banner appears at step 1.
+    const banner = await screen.findByTestId('tour-banner')
+    expect(banner).toBeInTheDocument()
+    expect(screen.getByText(/Step 1 of 3/i)).toBeInTheDocument()
+    expect(screen.getByText(/About this persona’s memory/i)).toBeInTheDocument()
+  })
+
+  it('Next + Back navigate through the tour; Got it ends and persists completion', async () => {
+    render(
+      <TestWrapper>
+        <ChatWidget />
+      </TestWrapper>,
+    )
+
+    fireEvent.click(screen.getByText('Try the demo'))
+    act(() => {
+      fireEvent.click(screen.getByText(/skip onboarding/i))
+    })
+    await screen.findByTestId('tour-banner')
+
+    // Step 1 -> 2
+    act(() => { fireEvent.click(screen.getByText('Next')) })
+    expect(screen.getByText(/Step 2 of 3/i)).toBeInTheDocument()
+    expect(screen.getByText(/Try a question/i)).toBeInTheDocument()
+
+    // Step 2 -> 3
+    act(() => { fireEvent.click(screen.getByText('Next')) })
+    expect(screen.getByText(/Step 3 of 3/i)).toBeInTheDocument()
+    expect(screen.getByText(/See what Statewave used/i)).toBeInTheDocument()
+
+    // Back from 3 -> 2
+    act(() => { fireEvent.click(screen.getByText('Back')) })
+    expect(screen.getByText(/Step 2 of 3/i)).toBeInTheDocument()
+
+    // 2 -> 3 again, then Got it closes the tour and persists completion.
+    act(() => { fireEvent.click(screen.getByText('Next')) })
+    act(() => { fireEvent.click(screen.getByText(/Got it/i)) })
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('tour-banner')).toBeNull()
+    })
+    const raw = window.localStorage.getItem(ONBOARDING_KEY)!
+    expect(JSON.parse(raw).tourCompletedAt).toEqual(expect.any(Number))
+  })
+
+  it('Skip tour closes the banner and persists completion immediately', async () => {
+    render(
+      <TestWrapper>
+        <ChatWidget />
+      </TestWrapper>,
+    )
+
+    fireEvent.click(screen.getByText('Try the demo'))
+    act(() => {
+      fireEvent.click(screen.getByText(/skip onboarding/i))
+    })
+    await screen.findByTestId('tour-banner')
+
+    act(() => { fireEvent.click(screen.getByText(/skip tour/i)) })
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('tour-banner')).toBeNull()
+    })
+    const raw = window.localStorage.getItem(ONBOARDING_KEY)!
+    expect(JSON.parse(raw).tourCompletedAt).toEqual(expect.any(Number))
+  })
+
+  it('does not show the tour banner if a returning visitor already completed it', async () => {
+    window.localStorage.setItem(
+      ONBOARDING_KEY,
+      JSON.stringify({
+        welcomeSeenAt: Date.now() - 60_000,
+        tourCompletedAt: Date.now() - 60_000,
+      }),
+    )
+
+    render(
+      <TestWrapper>
+        <ChatWidget />
+      </TestWrapper>,
+    )
+
+    fireEvent.click(screen.getByText('Try the demo'))
+    await screen.findByText(/Without Memory/i)
+    expect(screen.queryByTestId('tour-banner')).toBeNull()
+  })
+
+  it('resumes the tour for a visitor who saw welcome but never finished the tour', async () => {
+    window.localStorage.setItem(
+      ONBOARDING_KEY,
+      JSON.stringify({
+        welcomeSeenAt: Date.now() - 60_000,
+        tourCompletedAt: null,
+      }),
+    )
+
+    render(
+      <TestWrapper>
+        <ChatWidget />
+      </TestWrapper>,
+    )
+
+    fireEvent.click(screen.getByText('Try the demo'))
+    // Welcome doesn't show, but the tour banner resumes at step 1.
+    await screen.findByText(/Without Memory/i)
+    expect(await screen.findByTestId('tour-banner')).toBeInTheDocument()
+    expect(screen.getByText(/Step 1 of 3/i)).toBeInTheDocument()
   })
 })
