@@ -300,7 +300,7 @@ export function ChatWidget() {
   if (!isOpen) {
     // Hide the floating launcher whenever an on-page CTA (hero, footer, …) is
     // already in the viewport — having two "Try the demo" affordances visible
-    // at once is noisy. AnimatePresence around the wrapper handles the fade.
+    // at once is noisy.
     if (hasVisibleCta) return null
     return (
       <motion.button

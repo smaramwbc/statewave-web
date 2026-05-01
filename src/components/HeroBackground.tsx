@@ -879,10 +879,10 @@ export function HeroBackground() {
       )}
       {isLive && (
         <div
-          className="absolute bottom-4 right-4 flex items-center gap-2 px-3 py-1.5 rounded-full text-[11px] font-semibold border backdrop-blur-md pointer-events-none shadow-md"
+          // z-50 lifts the chip above the parent section's bottom-edge fade
+          // gradient (HomePage HeroSection) which would otherwise wash it out.
+          className="absolute bottom-4 right-4 z-50 flex items-center gap-2 px-3 py-1.5 rounded-full text-[11px] font-semibold border backdrop-blur-md pointer-events-none shadow-md"
           style={{
-            // High-opacity background + a stronger emerald border so the chip
-            // reads cleanly over both bright and dark hero canvas regions.
             backgroundColor: isDark ? 'rgba(15, 23, 42, 0.92)' : 'rgba(255, 255, 255, 0.96)',
             borderColor: isDark ? 'rgba(52, 211, 153, 0.45)' : 'rgba(5, 150, 105, 0.35)',
             color: isDark ? '#34d399' : '#047857',

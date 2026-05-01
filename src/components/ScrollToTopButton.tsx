@@ -14,16 +14,13 @@ export function ScrollToTopButton() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
-  // The full chat widget covers the bottom-right area — back-to-top is buried
-  // and redundant while it's open.
+  // The full chat widget covers the bottom-right area — but back-to-top
+  // sits at the bottom-center, well clear of it. Hidden anyway when the
+  // chat is open so we don't compete for attention with active chat input.
   const fullChatOpen = isOpen && !isMinimized
   if (fullChatOpen) return null
-
-  // Stack above whatever else is parked at bottom-right (floating launcher or
-  // minimized chat pill) so the two never overlap.
-  const launcherShowing = !isOpen && !isMinimized && !hasVisibleCta
-  const minimizedShowing = !isOpen && isMinimized
-  const stackAbove = launcherShowing || minimizedShowing
+  // unused now (we centered the button), kept in dependencies via destructure
+  void hasVisibleCta
 
   return (
     <AnimatePresence>
@@ -34,8 +31,10 @@ export function ScrollToTopButton() {
           exit={{ opacity: 0, scale: 0.8 }}
           transition={{ duration: 0.2 }}
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-          style={{ bottom: stackAbove ? 88 : 24, right: 24 }}
-          className="fixed z-50 w-10 h-10 rounded-full bg-surface-2 border border-theme-border shadow-lg flex items-center justify-center text-theme-muted hover:text-theme-primary hover:bg-surface-3 transition-[bottom,colors] duration-200"
+          // Centered horizontally so it doesn't fight the right-anchored
+          // chat launcher / minimized pill.
+          style={{ bottom: 24, left: '50%', x: '-50%' }}
+          className="fixed z-50 w-10 h-10 rounded-full bg-surface-2 border border-theme-border shadow-lg flex items-center justify-center text-theme-muted hover:text-theme-primary hover:bg-surface-3 transition-colors"
           aria-label="Scroll to top"
           title="Back to top"
         >
