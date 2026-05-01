@@ -430,7 +430,7 @@ export function ChatWidget() {
           <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
             {/* Persona selector — biases the prompt + suggestion chips. Subject
                 is the visitor's own and does not change with persona. */}
-            <div className={`relative rounded-lg ${tourStep === 1 ? 'ring-2 ring-accent/70 ring-offset-2 ring-offset-transparent' : ''}`} data-tour-target="persona">
+            <div className={`relative rounded-lg ${tourStep === 1 ? 'tour-pulse tour-pulse--inherit-radius' : ''}`} data-tour-target="persona">
               <button
                 onClick={() => setShowSubjectMenu(!showSubjectMenu)}
                 className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1.5 rounded-lg text-xs font-medium border border-theme-border/50 hover:border-accent/30 transition-colors"
@@ -610,23 +610,44 @@ export function ChatWidget() {
         {tourStep > 0 && (
           <div
             data-testid="tour-banner"
-            className="px-3 sm:px-4 py-2.5 sm:py-3 border-b border-accent/20 bg-accent/5 flex-shrink-0"
-            style={{ backgroundColor: isDark ? 'rgba(99, 102, 241, 0.08)' : 'rgba(99, 102, 241, 0.05)' }}
+            className="relative px-3.5 sm:px-5 py-3 sm:py-3.5 border-b flex-shrink-0 overflow-hidden"
+            style={{
+              // Layered background: a strong accent tint over a soft gradient
+              // sweep that gives the banner visible "guidance surface" weight
+              // without being garish in either theme.
+              background: isDark
+                ? 'linear-gradient(180deg, rgba(99,102,241,0.18) 0%, rgba(99,102,241,0.10) 100%)'
+                : 'linear-gradient(180deg, rgba(99,102,241,0.12) 0%, rgba(99,102,241,0.06) 100%)',
+              borderBottomColor: isDark ? 'rgba(99,102,241,0.35)' : 'rgba(99,102,241,0.28)',
+            }}
           >
+            {/* Vertical accent rail on the left edge — subliminal "this is a
+                guided panel" cue without taking up real estate. */}
+            <span
+              aria-hidden
+              className="absolute left-0 top-0 bottom-0 w-[3px] bg-accent"
+              style={{ boxShadow: '0 0 12px rgba(99,102,241,0.55)' }}
+            />
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0 flex-1">
-                <p className="text-[9px] uppercase tracking-wider text-accent/80 font-semibold mb-0.5">
-                  Step {tourStep} of {tourTotal}
-                </p>
-                <p className="text-xs sm:text-[13px] font-semibold text-theme-primary">
+                <div className="flex items-center gap-2 mb-1">
+                  {/* Step badge as a real chip — readable, branded. */}
+                  <span
+                    className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold tracking-wide bg-accent text-white shadow-[0_0_12px_rgba(99,102,241,0.45)]"
+                  >
+                    <span className="w-1.5 h-1.5 rounded-full bg-white/90" />
+                    Step {tourStep} of {tourTotal}
+                  </span>
+                </div>
+                <p className="text-sm sm:text-[15px] font-semibold text-theme-primary tracking-tight">
                   {tourStep === 1 && 'About this persona’s memory'}
                   {tourStep === 2 && 'Try a question'}
                   {tourStep === 3 && 'See what Statewave used'}
                 </p>
-                <p className="mt-0.5 text-[11px] sm:text-xs text-theme-muted leading-relaxed">
+                <p className="mt-1 text-[11.5px] sm:text-[12.5px] text-theme-secondary leading-relaxed">
                   {tourStep === 1 && (
                     <>
-                      You’re seeing the <span className="text-theme-secondary font-medium">{personaLabel}</span>’s
+                      You’re seeing <span className="text-theme-primary font-medium">{personaLabel}</span>’s
                       seeded memory pool — facts compiled by Statewave from showcase sessions, not yours.
                       Each persona has its own pool; switch via the dropdown.
                     </>
@@ -638,21 +659,21 @@ export function ChatWidget() {
               <button
                 type="button"
                 onClick={skipTour}
-                className="text-[10px] text-theme-muted hover:text-theme-secondary underline-offset-2 hover:underline whitespace-nowrap flex-shrink-0 mt-0.5"
+                className="text-[10.5px] text-theme-muted hover:text-theme-secondary underline-offset-2 hover:underline whitespace-nowrap flex-shrink-0 mt-1"
               >
                 skip tour
               </button>
             </div>
-            <div className="mt-2 flex items-center justify-between gap-2">
-              <div className="flex items-center gap-1.5">
+            <div className="mt-3 flex items-center justify-between gap-2">
+              <div className="flex items-center gap-1.5" aria-hidden>
                 {Array.from({ length: tourTotal }).map((_, i) => (
                   <span
                     key={i}
-                    className={`block h-1 rounded-full transition-all ${
+                    className={`block h-1.5 rounded-full transition-all duration-300 ${
                       i + 1 === tourStep
-                        ? 'w-5 bg-accent'
+                        ? 'w-6 bg-accent shadow-[0_0_8px_rgba(99,102,241,0.6)]'
                         : i + 1 < tourStep
-                          ? 'w-2 bg-accent/60'
+                          ? 'w-2 bg-accent/55'
                           : 'w-2 bg-accent/20'
                     }`}
                   />
@@ -663,14 +684,14 @@ export function ChatWidget() {
                   type="button"
                   onClick={prevTourStep}
                   disabled={tourStep <= 1}
-                  className="text-[11px] px-2 py-1 rounded-md text-theme-secondary hover:text-theme-primary hover:bg-theme-border/20 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                  className="text-[11.5px] px-2.5 py-1.5 rounded-md text-theme-secondary hover:text-theme-primary hover:bg-theme-border/30 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                 >
                   Back
                 </button>
                 <button
                   type="button"
                   onClick={nextTourStep}
-                  className="text-[11px] px-3 py-1 rounded-md bg-accent text-white hover:bg-accent-light transition-colors font-medium"
+                  className="text-[11.5px] px-3.5 py-1.5 rounded-md bg-accent text-white hover:bg-accent-light transition-all duration-150 font-semibold shadow-[0_2px_10px_rgba(99,102,241,0.35)] hover:shadow-[0_2px_14px_rgba(99,102,241,0.5)]"
                 >
                   {tourStep < tourTotal ? 'Next' : 'Got it'}
                 </button>
@@ -763,7 +784,7 @@ export function ChatWidget() {
                     }}
                     className={`flex items-center gap-1 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-[9px] sm:text-[10px] font-medium transition-colors ${
                       showInspector ? 'bg-accent/20 text-accent' : 'hover:bg-accent/10 text-theme-muted'
-                    } ${tourStep === 3 ? 'ring-2 ring-accent/70 ring-offset-2 ring-offset-transparent' : ''}`}
+                    } ${tourStep === 3 ? 'tour-pulse tour-pulse--inherit-radius' : ''}`}
                   >
                     <InspectIcon className="w-3 h-3" />
                     {(!isMobile || mobileTab !== 'split') && 'Inspect'}
@@ -841,7 +862,7 @@ export function ChatWidget() {
           onSubmit={handleSubmit}
           data-tour-target="ask"
           className={`px-3 sm:px-4 py-2.5 sm:py-3 border-t border-theme-border/50 flex-shrink-0 transition-shadow ${
-            tourStep === 2 ? 'ring-2 ring-accent/70 ring-inset' : ''
+            tourStep === 2 ? 'tour-pulse tour-pulse--inherit-radius' : ''
           }`}
         >
           {/* Suggestion chips */}

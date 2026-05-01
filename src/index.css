@@ -53,6 +53,8 @@
   --theme-gradient-text-from: #6366f1;
   --theme-gradient-text-via: #60a5fa;
   --theme-gradient-text-to: #93c5fd;
+  --theme-scrollbar-thumb: rgba(99, 102, 241, 0.32);
+  --theme-scrollbar-thumb-hover: rgba(129, 140, 248, 0.55);
 }
 
 /* Light theme tokens */
@@ -77,6 +79,8 @@
   --theme-gradient-text-from: #4f46e5;
   --theme-gradient-text-via: #2563eb;
   --theme-gradient-text-to: #1d4ed8;
+  --theme-scrollbar-thumb: rgba(99, 102, 241, 0.28);
+  --theme-scrollbar-thumb-hover: rgba(99, 102, 241, 0.5);
 }
 
 html {
@@ -117,4 +121,79 @@ body {
 @keyframes heroHintBounce {
   0%, 100% { transform: translateY(0) scale(1); }
   50%      { transform: translateY(-6px) scale(1.04); }
+}
+
+/* ─── Tour highlight ─────────────────────────────────────────────────────────
+ * Applied to the element the active tour step is pointing at. Layers a
+ * persistent accent border on top of an animated halo so the eye is drawn
+ * to the target without the page feeling busy.
+ *
+ * Reduced motion: the global @media rule above already clamps the animation
+ * to ~0; the resting halo (set on .tour-pulse itself) carries the highlight
+ * when motion is disabled.
+ */
+@keyframes tourPulse {
+  0%, 100% {
+    box-shadow:
+      0 0 0 2px var(--color-accent),
+      0 0 0 6px rgba(99, 102, 241, 0.15),
+      0 0 18px 4px rgba(99, 102, 241, 0.18);
+  }
+  50% {
+    box-shadow:
+      0 0 0 2px var(--color-accent),
+      0 0 0 6px rgba(99, 102, 241, 0.30),
+      0 0 28px 8px rgba(99, 102, 241, 0.32);
+  }
+}
+
+.tour-pulse {
+  position: relative;
+  border-radius: 0.5rem;
+  box-shadow:
+    0 0 0 2px var(--color-accent),
+    0 0 0 6px rgba(99, 102, 241, 0.18),
+    0 0 18px 4px rgba(99, 102, 241, 0.18);
+  animation: tourPulse 2.6s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  z-index: 1;
+}
+
+/* For elements that already have a corner radius — keep theirs. */
+.tour-pulse--inherit-radius {
+  border-radius: inherit;
+}
+
+/* ─── Custom scrollbar ───────────────────────────────────────────────────────
+ * Slim, accent-tinted scrollbar that matches the Statewave palette in both
+ * themes. Falls back gracefully on Firefox via `scrollbar-color`.
+ */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--theme-scrollbar-thumb) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--theme-scrollbar-thumb);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  transition: background-color 0.18s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--theme-scrollbar-thumb-hover);
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
 }

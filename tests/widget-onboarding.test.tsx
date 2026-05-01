@@ -309,6 +309,53 @@ describe('Widget onboarding — guided tour', () => {
     expect(screen.queryByTestId('tour-banner')).toBeNull()
   })
 
+  it('moves the tour-pulse highlight class to the right target on each step', async () => {
+    render(
+      <TestWrapper>
+        <ChatWidget />
+      </TestWrapper>,
+    )
+
+    fireEvent.click(screen.getByText('Try the demo'))
+    act(() => {
+      fireEvent.click(screen.getByText(/skip onboarding/i))
+    })
+    await screen.findByTestId('tour-banner')
+
+    const personaTarget = document.querySelector('[data-tour-target="persona"]') as HTMLElement
+    const askTarget = document.querySelector('[data-tour-target="ask"]') as HTMLElement
+    const inspectTarget = document.querySelector('[data-tour-target="inspect"]') as HTMLElement
+    expect(personaTarget).toBeTruthy()
+    expect(askTarget).toBeTruthy()
+    expect(inspectTarget).toBeTruthy()
+
+    // Step 1 → only persona is pulsing.
+    expect(personaTarget.classList.contains('tour-pulse')).toBe(true)
+    expect(askTarget.classList.contains('tour-pulse')).toBe(false)
+    expect(inspectTarget.classList.contains('tour-pulse')).toBe(false)
+
+    // Advance to step 2 → only ask form is pulsing.
+    act(() => { fireEvent.click(screen.getByText('Next')) })
+    expect(personaTarget.classList.contains('tour-pulse')).toBe(false)
+    expect(askTarget.classList.contains('tour-pulse')).toBe(true)
+    expect(inspectTarget.classList.contains('tour-pulse')).toBe(false)
+
+    // Advance to step 3 → only inspect button is pulsing.
+    act(() => { fireEvent.click(screen.getByText('Next')) })
+    expect(personaTarget.classList.contains('tour-pulse')).toBe(false)
+    expect(askTarget.classList.contains('tour-pulse')).toBe(false)
+    expect(inspectTarget.classList.contains('tour-pulse')).toBe(true)
+
+    // Got it → no element pulses.
+    act(() => { fireEvent.click(screen.getByText(/Got it/i)) })
+    await waitFor(() => {
+      expect(screen.queryByTestId('tour-banner')).toBeNull()
+    })
+    expect(personaTarget.classList.contains('tour-pulse')).toBe(false)
+    expect(askTarget.classList.contains('tour-pulse')).toBe(false)
+    expect(inspectTarget.classList.contains('tour-pulse')).toBe(false)
+  })
+
   it('resumes the tour for a visitor who saw welcome but never finished the tour', async () => {
     window.localStorage.setItem(
       ONBOARDING_KEY,
