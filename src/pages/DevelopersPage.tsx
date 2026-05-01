@@ -2,9 +2,11 @@ import { motion } from 'framer-motion'
 import { Section } from '../components/Section'
 import { Button } from '../components/Button'
 import { usePageSEO } from '../lib/seo'
+import { useChatWidget } from '../lib/widget-context'
 
 export function DevelopersPage() {
   usePageSEO()
+  const { openWidget } = useChatWidget()
   return (
     <>
       <section className="pt-32 pb-16">
@@ -61,7 +63,7 @@ export function DevelopersPage() {
             {
               title: 'Live Demo',
               desc: 'Two identical agents — one with memory, one without. See the difference in 10 seconds.',
-              href: 'https://demo.statewave.ai',
+              onClick: () => openWidget(),
               tag: 'Demo',
             },
             {
@@ -82,24 +84,48 @@ export function DevelopersPage() {
               href: 'https://github.com/smaramwbc/statewave',
               tag: 'Source',
             },
-          ].map((item, i) => (
-            <motion.a
-              key={i}
-              href={item.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.05 }}
-              whileHover={{ y: -4 }}
-              className="block p-6 rounded-2xl border border-theme-border bg-surface-1 hover:border-accent/20 transition-colors group"
-            >
-              <span className="text-[10px] font-medium uppercase tracking-wider text-accent">{item.tag}</span>
-              <h3 className="text-base font-semibold text-theme-primary mt-2 mb-2 group-hover:text-accent transition-colors">{item.title}</h3>
-              <p className="text-sm text-theme-muted leading-relaxed">{item.desc}</p>
-            </motion.a>
-          ))}
+          ].map((item, i) => {
+            const cardClass = 'block w-full text-left p-6 rounded-2xl border border-theme-border bg-surface-1 hover:border-accent/20 transition-colors group'
+            const motionProps = {
+              initial: { opacity: 0, y: 20 },
+              whileInView: { opacity: 1, y: 0 },
+              viewport: { once: true },
+              transition: { delay: i * 0.05 },
+              whileHover: { y: -4 },
+            } as const
+            const inner = (
+              <>
+                <span className="text-[10px] font-medium uppercase tracking-wider text-accent">{item.tag}</span>
+                <h3 className="text-base font-semibold text-theme-primary mt-2 mb-2 group-hover:text-accent transition-colors">{item.title}</h3>
+                <p className="text-sm text-theme-muted leading-relaxed">{item.desc}</p>
+              </>
+            )
+            if ('onClick' in item && item.onClick) {
+              return (
+                <motion.button
+                  key={i}
+                  type="button"
+                  onClick={item.onClick}
+                  {...motionProps}
+                  className={cardClass}
+                >
+                  {inner}
+                </motion.button>
+              )
+            }
+            return (
+              <motion.a
+                key={i}
+                href={item.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                {...motionProps}
+                className={cardClass}
+              >
+                {inner}
+              </motion.a>
+            )
+          })}
         </div>
       </Section>
 

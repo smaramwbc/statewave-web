@@ -5,12 +5,13 @@ interface Props {
   children: ReactNode
   href?: string
   to?: string
+  onClick?: () => void
   variant?: 'primary' | 'secondary' | 'ghost'
   size?: 'sm' | 'md' | 'lg'
   className?: string
 }
 
-export function Button({ children, href, to, variant = 'primary', size = 'md', className = '' }: Props) {
+export function Button({ children, href, to, onClick, variant = 'primary', size = 'md', className = '' }: Props) {
   const base = 'inline-flex items-center justify-center font-medium rounded-xl transition-all duration-200'
 
   const variants = {
@@ -29,5 +30,5 @@ export function Button({ children, href, to, variant = 'primary', size = 'md', c
 
   if (to) return <Link to={to} className={cls}>{children}</Link>
   if (href) return <a href={href} target="_blank" rel="noopener noreferrer" className={cls}>{children}</a>
-  return <button className={cls}>{children}</button>
+  return <button type="button" onClick={onClick} className={cls}>{children}</button>
 }

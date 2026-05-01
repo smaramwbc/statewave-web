@@ -1,7 +1,9 @@
 import { Link } from 'react-router-dom'
 import { Logo } from './Logo'
+import { useChatWidget } from '../lib/widget-context'
 
 export function Footer() {
+  const { openWidget } = useChatWidget()
   return (
     <footer className="border-t border-theme-border bg-surface-0">
       <div className="mx-auto max-w-7xl px-6 py-16">
@@ -24,26 +26,34 @@ export function Footer() {
             <ul className="space-y-2">
               <li><Link to="/product" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">How it works</Link></li>
               <li><Link to="/why" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">Why Statewave</Link></li>
-              <li><a href="https://demo.statewave.ai" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">Live Demo</a></li>
+              <li>
+                <button
+                  type="button"
+                  onClick={() => openWidget()}
+                  className="text-sm text-theme-muted hover:text-theme-primary transition-colors text-left"
+                >
+                  Live Demo
+                </button>
+              </li>
             </ul>
           </div>
 
           <div>
             <h4 className="text-sm font-medium text-theme-primary mb-4">Developers</h4>
             <ul className="space-y-2">
-              <li><a href="https://github.com/smaramwbc/statewave-docs/blob/main/getting-started.md" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">Getting Started</a></li>
-              <li><a href="https://github.com/smaramwbc/statewave-docs/blob/main/api/v1-contract.md" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">API Reference</a></li>
-              <li><a href="https://github.com/smaramwbc/statewave-py" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">Python SDK</a></li>
-              <li><a href="https://github.com/smaramwbc/statewave-ts" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">TypeScript SDK</a></li>
+              <li><a href="https://github.com/smaramwbc/statewave-docs/blob/main/getting-started.md" target="_blank" rel="noopener noreferrer" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">Getting Started</a></li>
+              <li><a href="https://github.com/smaramwbc/statewave-docs/blob/main/api/v1-contract.md" target="_blank" rel="noopener noreferrer" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">API Reference</a></li>
+              <li><a href="https://github.com/smaramwbc/statewave-py" target="_blank" rel="noopener noreferrer" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">Python SDK</a></li>
+              <li><a href="https://github.com/smaramwbc/statewave-ts" target="_blank" rel="noopener noreferrer" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">TypeScript SDK</a></li>
             </ul>
           </div>
 
           <div>
             <h4 className="text-sm font-medium text-theme-primary mb-4">Community</h4>
             <ul className="space-y-2">
-              <li><a href="https://github.com/smaramwbc/statewave" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">GitHub</a></li>
-              <li><a href="https://github.com/smaramwbc/statewave-examples" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">Examples</a></li>
-              <li><a href="https://github.com/smaramwbc/statewave-docs/blob/main/roadmap.md" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">Roadmap</a></li>
+              <li><a href="https://github.com/smaramwbc/statewave" target="_blank" rel="noopener noreferrer" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">GitHub</a></li>
+              <li><a href="https://github.com/smaramwbc/statewave-examples" target="_blank" rel="noopener noreferrer" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">Examples</a></li>
+              <li><a href="https://github.com/smaramwbc/statewave-docs/blob/main/roadmap.md" target="_blank" rel="noopener noreferrer" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">Roadmap</a></li>
             </ul>
           </div>
         </div>

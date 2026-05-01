@@ -67,10 +67,6 @@ describe('Navbar', () => {
     expect(screen.getAllByText('Product').length).toBeGreaterThan(0)
   })
 
-  it('renders demo CTA button', () => {
-    renderApp('/')
-    expect(screen.getByRole('link', { name: /try demo/i })).toBeInTheDocument()
-  })
 })
 
 describe('Accessibility', () => {

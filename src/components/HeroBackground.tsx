@@ -57,7 +57,7 @@ interface Memory {
   subjectIdx: number
 }
 
-const ANIMATION_DURATION = 14
+const ANIMATION_DURATION = 3
 
 // Color spectrum per group (hue-shifted for a beautiful rainbow spread)
 const GROUP_COLORS = [

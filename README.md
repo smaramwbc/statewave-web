@@ -6,13 +6,13 @@ The official product website for [Statewave](https://statewave.ai), the trusted 
 >
 > 📋 **Issues & feature requests:** [statewave/issues](https://github.com/smaramwbc/statewave/issues) (centralized tracker)
 
-> **Frontend role:** This is the **public marketing site** — product positioning, features, and developer resources. For the interactive demo, see [statewave-demo](https://github.com/smaramwbc/statewave-demo). For the operator console, see [statewave-admin](https://github.com/smaramwbc/statewave-admin).
+> **Frontend role:** This is the **public marketing site** — product positioning, features, developer resources, and an embedded chat-widget demo that talks to a live Statewave backend. For the operator console, see [statewave-admin](https://github.com/smaramwbc/statewave-admin).
 
 ## What this is
 
-This is the public-facing marketing and product site for Statewave. It communicates what the product is, how it works, why it matters, and how developers can get started.
+This is the public-facing marketing and product site for Statewave. It communicates what the product is, how it works, why it matters, and how developers can get started. It also hosts the **embedded comparison demo** — a floating chat widget that shows the same question answered side-by-side by a stateless agent and a Statewave-backed agent, against a live API.
 
-It is **not** the interactive demo (that's [statewave-demo](https://github.com/smaramwbc/statewave-demo)), the documentation (that's [statewave-docs](https://github.com/smaramwbc/statewave-docs)), or the operator console (that's [statewave-admin](https://github.com/smaramwbc/statewave-admin)).
+It is **not** the documentation (that's [statewave-docs](https://github.com/smaramwbc/statewave-docs)) or the operator console (that's [statewave-admin](https://github.com/smaramwbc/statewave-admin)).
 
 ## Stack
 
@@ -125,9 +125,9 @@ Custom domain: `statewave.ai` (configure in Vercel dashboard).
 | [statewave](https://github.com/smaramwbc/statewave) | Core server — API, domain model, DB, services |
 | [statewave-py](https://github.com/smaramwbc/statewave-py) | Python SDK |
 | [statewave-ts](https://github.com/smaramwbc/statewave-ts) | TypeScript SDK |
-| [statewave-demo](https://github.com/smaramwbc/statewave-demo) | Interactive comparison demo |
 | [statewave-docs](https://github.com/smaramwbc/statewave-docs) | Architecture, API contracts, ADRs |
 | [statewave-examples](https://github.com/smaramwbc/statewave-examples) | Runnable examples |
+| [statewave-admin](https://github.com/smaramwbc/statewave-admin) | Operator console (read-only) |
 
 ## GitHub repo settings
 
