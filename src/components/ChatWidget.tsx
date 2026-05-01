@@ -72,6 +72,7 @@ export function ChatWidget() {
     isLoading,
     isResetting,
     isHydrating,
+    hasVisibleCta,
     openWidget,
     closeWidget,
     minimizeWidget,
@@ -297,6 +298,10 @@ export function ChatWidget() {
 
   // ─── Launcher button (collapsed state) ───
   if (!isOpen) {
+    // Hide the floating launcher whenever an on-page CTA (hero, footer, …) is
+    // already in the viewport — having two "Try the demo" affordances visible
+    // at once is noisy. AnimatePresence around the wrapper handles the fade.
+    if (hasVisibleCta) return null
     return (
       <motion.button
         initial={{ opacity: 0, scale: 0.8, y: 20 }}

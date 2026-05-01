@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import { forwardRef, type ReactNode, type Ref } from 'react'
 import { Link } from 'react-router-dom'
 
 interface Props {
@@ -11,7 +11,10 @@ interface Props {
   className?: string
 }
 
-export function Button({ children, href, to, onClick, variant = 'primary', size = 'md', className = '' }: Props) {
+export const Button = forwardRef<HTMLElement, Props>(function Button(
+  { children, href, to, onClick, variant = 'primary', size = 'md', className = '' },
+  ref,
+) {
   const base = 'inline-flex items-center justify-center font-medium rounded-xl transition-all duration-200'
 
   const variants = {
@@ -28,7 +31,7 @@ export function Button({ children, href, to, onClick, variant = 'primary', size 
 
   const cls = `${base} ${variants[variant]} ${sizes[size]} ${className}`
 
-  if (to) return <Link to={to} className={cls}>{children}</Link>
-  if (href) return <a href={href} target="_blank" rel="noopener noreferrer" className={cls}>{children}</a>
-  return <button type="button" onClick={onClick} className={cls}>{children}</button>
-}
+  if (to) return <Link ref={ref as Ref<HTMLAnchorElement>} to={to} className={cls}>{children}</Link>
+  if (href) return <a ref={ref as Ref<HTMLAnchorElement>} href={href} target="_blank" rel="noopener noreferrer" className={cls}>{children}</a>
+  return <button ref={ref as Ref<HTMLButtonElement>} type="button" onClick={onClick} className={cls}>{children}</button>
+})

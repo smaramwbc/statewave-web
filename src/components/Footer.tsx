@@ -1,9 +1,12 @@
+import { useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { Logo } from './Logo'
-import { useChatWidget } from '../lib/widget-context'
+import { useChatWidget, useTrackDemoCta } from '../lib/widget-context'
 
 export function Footer() {
   const { openWidget } = useChatWidget()
+  const footerDemoRef = useRef<HTMLButtonElement>(null)
+  useTrackDemoCta(footerDemoRef)
   return (
     <footer className="border-t border-theme-border bg-surface-0">
       <div className="mx-auto max-w-7xl px-6 py-16">
@@ -28,6 +31,7 @@ export function Footer() {
               <li><Link to="/why" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">Why Statewave</Link></li>
               <li>
                 <button
+                  ref={footerDemoRef}
                   type="button"
                   onClick={() => openWidget()}
                   className="text-sm text-theme-muted hover:text-theme-primary transition-colors text-left"

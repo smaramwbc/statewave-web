@@ -6,7 +6,8 @@ import { Button } from '../components/Button'
 import { Card } from '../components/Card'
 import { HeroBackground } from '../components/HeroBackground'
 import { usePageSEO } from '../lib/seo'
-import { useChatWidget } from '../lib/widget-context'
+import { useChatWidget, useTrackDemoCta } from '../lib/widget-context'
+import { useRef } from 'react'
 
 export function HomePage() {
   usePageSEO()
@@ -27,6 +28,8 @@ export function HomePage() {
 
 function HeroSection() {
   const { openWidget } = useChatWidget()
+  const heroCtaRef = useRef<HTMLButtonElement>(null)
+  useTrackDemoCta(heroCtaRef)
   const stagger = {
     hidden: {},
     show: { transition: { staggerChildren: 0.12, delayChildren: 0.1 } },
@@ -88,6 +91,7 @@ function HeroSection() {
           {/* CTAs */}
           <motion.div variants={fadeUp} className="mt-10 flex flex-wrap items-center gap-4">
             <button
+              ref={heroCtaRef}
               type="button"
               onClick={() => openWidget()}
               className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-accent text-white text-sm font-medium hover:bg-accent-light transition-all duration-150 shadow-lg shadow-accent/20 hover:shadow-accent/30 hover:-translate-y-px"
@@ -564,6 +568,8 @@ console.log(ctx.assembledContext);
 
 function CTASection() {
   const { openWidget } = useChatWidget()
+  const ctaDemoRef = useRef<HTMLElement>(null)
+  useTrackDemoCta(ctaDemoRef)
   return (
     <Section className="bg-surface-1/50">
       <div className="text-center">
@@ -581,7 +587,7 @@ function CTASection() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
             </svg>
           </Button>
-          <Button onClick={() => openWidget()} variant="secondary" size="lg">
+          <Button ref={ctaDemoRef} onClick={() => openWidget()} variant="secondary" size="lg">
             Try Live Demo
           </Button>
           <Button href="https://github.com/smaramwbc/statewave" variant="secondary" size="lg">

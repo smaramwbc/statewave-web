@@ -1,12 +1,15 @@
+import { useRef } from 'react'
 import { motion } from 'framer-motion'
 import { Section } from '../components/Section'
 import { Button } from '../components/Button'
 import { usePageSEO } from '../lib/seo'
-import { useChatWidget } from '../lib/widget-context'
+import { useChatWidget, useTrackDemoCta } from '../lib/widget-context'
 
 export function DevelopersPage() {
   usePageSEO()
   const { openWidget } = useChatWidget()
+  const liveDemoRef = useRef<HTMLButtonElement>(null)
+  useTrackDemoCta(liveDemoRef)
   return (
     <>
       <section className="pt-32 pb-16">
@@ -104,6 +107,7 @@ export function DevelopersPage() {
               return (
                 <motion.button
                   key={i}
+                  ref={liveDemoRef}
                   type="button"
                   onClick={item.onClick}
                   {...motionProps}

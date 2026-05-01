@@ -15,7 +15,15 @@
  *    a fresh cookie.
  */
 
-import { createContext, useContext, useState, useCallback, type ReactNode } from 'react'
+import {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  useEffect,
+  type ReactNode,
+  type RefObject,
+} from 'react'
 
 export interface ChatMessage {
   role: 'user' | 'assistant'
@@ -57,6 +65,10 @@ interface ChatWidgetState {
   isResetting: boolean
   /** True while we're fetching demo state and (if needed) seeding from a persona. */
   isHydrating: boolean
+  /** True while at least one on-page demo CTA (e.g. hero "Try the Demo")
+   *  is in the viewport — the floating launcher hides itself in that case
+   *  so we don't double-up on the same affordance. */
+  hasVisibleCta: boolean
 }
 
 interface ChatWidgetActions {
@@ -76,6 +88,9 @@ interface ChatWidgetActions {
    * for visitors that already have data.
    */
   seedFromPersona: (persona: string) => Promise<boolean>
+  /** Internal — used by useTrackDemoCta. Increment when an on-page CTA enters
+   *  the viewport, decrement when it leaves. */
+  _bumpVisibleCta: (delta: 1 | -1) => void
 }
 
 type ChatWidgetContextType = ChatWidgetState & ChatWidgetActions
@@ -132,6 +147,10 @@ export function ChatWidgetProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(false)
   const [isResetting, setIsResetting] = useState(false)
   const [isHydrating, setIsHydrating] = useState(false)
+  const [visibleCtaCount, setVisibleCtaCount] = useState(0)
+  const _bumpVisibleCta = useCallback((delta: 1 | -1) => {
+    setVisibleCtaCount((n) => Math.max(0, n + delta))
+  }, [])
 
   const refreshState = useCallback(async () => {
     try {
@@ -316,6 +335,7 @@ export function ChatWidgetProvider({ children }: { children: ReactNode }) {
     isLoading,
     isResetting,
     isHydrating,
+    hasVisibleCta: visibleCtaCount > 0,
     openWidget,
     closeWidget,
     minimizeWidget,
@@ -325,7 +345,45 @@ export function ChatWidgetProvider({ children }: { children: ReactNode }) {
     resetDemo,
     clearChat,
     seedFromPersona,
+    _bumpVisibleCta,
   }
 
   return <ChatWidgetContext.Provider value={value}>{children}</ChatWidgetContext.Provider>
+}
+
+/**
+ * Marks a DOM element as an on-page "Try the demo" CTA. While the element is
+ * visible in the viewport the floating launcher in the corner hides itself,
+ * so the user only ever sees one demo affordance at a time.
+ *
+ * Usage:
+ *   const ctaRef = useRef<HTMLButtonElement>(null)
+ *   useTrackDemoCta(ctaRef)
+ *   <button ref={ctaRef} onClick={() => openWidget()}>Try the demo</button>
+ */
+export function useTrackDemoCta(ref: RefObject<HTMLElement | null>): void {
+  const { _bumpVisibleCta } = useChatWidget()
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    let registered = false
+    const obs = new IntersectionObserver(
+      ([entry]) => {
+        const visible = entry.isIntersecting
+        if (visible && !registered) {
+          _bumpVisibleCta(1)
+          registered = true
+        } else if (!visible && registered) {
+          _bumpVisibleCta(-1)
+          registered = false
+        }
+      },
+      { threshold: 0.1 },
+    )
+    obs.observe(el)
+    return () => {
+      obs.disconnect()
+      if (registered) _bumpVisibleCta(-1)
+    }
+  }, [ref, _bumpVisibleCta])
 }
