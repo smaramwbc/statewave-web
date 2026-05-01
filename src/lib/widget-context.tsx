@@ -161,9 +161,11 @@ export function ChatWidgetProvider({ children }: { children: ReactNode }) {
       setIsReturningVisitor(!data.isNew && (data.episodes.length > 0 || data.memories.length > 0))
       setEpisodeCount(data.episodeCount)
       setMemories(data.memories)
-      // Rehydrate the Statewave chat column with the visitor's prior turns.
-      // Stateless column stays empty — it's the live comparison baseline.
-      setStatewaveMessages(data.episodes)
+      // Deliberately do NOT rehydrate the chat column from server-side episodes.
+      // Returning visitors get their compiled memories back (shown in the
+      // inspector + the "Welcome back" placeholder) while the chat starts
+      // fresh — so the conversation surface is always for the current
+      // session, not a wall of replayed text from earlier visits.
       return data
     } catch (err) {
       console.warn('[widget] Failed to refresh demo state:', err)
