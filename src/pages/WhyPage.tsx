@@ -79,7 +79,7 @@ export function WhyPage() {
             { title: 'Provenance-traced', desc: 'Every memory traces to its source episode IDs. Every context bundle reports which facts and episodes were included.' },
             { title: 'Idempotent', desc: 'Recompiling the same subject produces no duplicate memories. Safe to run on schedule or on-demand.' },
             { title: 'Subject-centric', desc: 'Everything organized around subjects. Full lifecycle: ingest → compile → retrieve → inspect → delete.' },
-            { title: 'Self-hosted', desc: 'Postgres-only, no external services required. Customer data never leaves your infrastructure.' },
+            { title: 'Self-hosted storage', desc: 'Postgres-only. Episodes and compiled memories stay in your infrastructure. Whether prompt content leaves depends on your compiler and embedding choice — heuristic mode is fully local.' },
           ].map((item, i) => (
             <motion.div
               key={i}
@@ -106,7 +106,7 @@ export function WhyPage() {
                 'Teams building AI support agents with returning customers',
                 'Engineering leads who want measurable context quality',
                 'Teams that need provenance — "why did the agent say X?"',
-                'Self-hosted requirements — data stays on your infrastructure',
+                'Self-hosted storage requirements — episodes and memories stay on your infrastructure (heuristic compiler keeps everything local; LLM compiler or hosted embeddings will send content to the chosen provider)',
                 'Small capable teams using AI coding tools',
               ].map((item, i) => (
                 <li key={i} className="flex items-start gap-2">

@@ -90,8 +90,69 @@ export function ProductPage() {
         </div>
       </Section>
 
+      <Section id="privacy">
+        <h2 className="text-2xl font-bold text-theme-primary mb-4">Privacy &amp; data flow</h2>
+        <p className="text-theme-muted leading-relaxed mb-8 max-w-3xl">
+          Statewave is honest about what stays local and what leaves your network. Privacy depends on
+          the four layers below, not just where Postgres runs.
+        </p>
+        <div className="rounded-2xl border border-theme-border bg-surface-2 overflow-hidden">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-theme-border">
+                <th className="text-left p-4 text-theme-muted font-medium">Layer</th>
+                <th className="text-left p-4 text-theme-muted font-medium">Where it runs</th>
+                <th className="text-left p-4 text-theme-muted font-medium">What leaves your network</th>
+              </tr>
+            </thead>
+            <tbody className="text-theme-secondary">
+              <tr className="border-b border-theme-border">
+                <td className="p-4">Storage (Postgres + pgvector)</td>
+                <td className="p-4">Your infrastructure</td>
+                <td className="p-4">Nothing.</td>
+              </tr>
+              <tr className="border-b border-theme-border">
+                <td className="p-4">Retrieval / ranking</td>
+                <td className="p-4">Your infrastructure (Statewave server)</td>
+                <td className="p-4">Nothing — ranking is local and deterministic.</td>
+              </tr>
+              <tr className="border-b border-theme-border">
+                <td className="p-4">Compilation — heuristic</td>
+                <td className="p-4">Your infrastructure</td>
+                <td className="p-4">Nothing. Default mode.</td>
+              </tr>
+              <tr className="border-b border-theme-border">
+                <td className="p-4">Compilation — LLM</td>
+                <td className="p-4">Configured provider via LiteLLM</td>
+                <td className="p-4">Episode batches sent to the provider you choose. Self-hosted models keep this local.</td>
+              </tr>
+              <tr className="border-b border-theme-border">
+                <td className="p-4">Embeddings (optional)</td>
+                <td className="p-4">Configured provider</td>
+                <td className="p-4">Episode/memory text sent for vectorization. Use a self-hosted embedding model to avoid this.</td>
+              </tr>
+              <tr>
+                <td className="p-4">Your agent's LLM</td>
+                <td className="p-4">Wherever you host it</td>
+                <td className="p-4">Statewave returns context to your agent; what your agent sends to its model is governed by your agent, not Statewave.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p className="mt-6 text-xs text-theme-muted/80 leading-relaxed max-w-3xl">
+          <strong className="text-theme-secondary">Fully local mode:</strong> heuristic compiler + a self-hosted
+          embedding model (or text-only retrieval) means no Statewave-driven traffic leaves your network. Any
+          additional privacy depends on the LLM <em>your</em> agent calls.
+        </p>
+      </Section>
+
       <Section className="bg-surface-1/50">
-        <h2 className="text-2xl font-bold text-theme-primary mb-12">Scoring model</h2>
+        <h2 className="text-2xl font-bold text-theme-primary mb-4">Scoring model</h2>
+        <p className="text-theme-muted leading-relaxed mb-8 max-w-3xl">
+          Ranking is deterministic and inspectable. Items are sorted by composite score and packed
+          into your token budget. Support-agent workloads apply additional session, urgency, and
+          repeat-issue signals on top of the core formula below.
+        </p>
         <div className="rounded-2xl border border-theme-border bg-surface-2 overflow-hidden">
           <table className="w-full text-sm">
             <thead>
@@ -109,6 +170,13 @@ export function ProductPage() {
             </tbody>
           </table>
         </div>
+        <p className="mt-6 text-xs text-theme-muted/80 leading-relaxed max-w-3xl">
+          <strong className="text-theme-secondary">Customization today:</strong> the weights are fixed.
+          Filter the candidate set (by kind or subject) before retrieval, or subclass the assembler in
+          your deployment if you need different defaults. Per-call weight overrides are not exposed —
+          we'd rather ship that in response to a concrete misranking than speculatively. Full signal
+          list: <a href="https://github.com/smaramwbc/statewave-docs/blob/main/architecture/ranking.md" className="text-accent hover:underline">Ranking &amp; Retrieval →</a>
+        </p>
       </Section>
     </>
   )

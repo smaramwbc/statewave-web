@@ -1,5 +1,6 @@
 import React from 'react'
 import { motion } from 'framer-motion'
+import { Link } from 'react-router-dom'
 import { Section } from '../components/Section'
 import { Button } from '../components/Button'
 import { Card } from '../components/Card'
@@ -497,8 +498,13 @@ console.log(ctx.assembledContext);
             Self-hosted. Framework-neutral.
           </h2>
           <p className="mt-6 text-theme-muted leading-relaxed">
-            Run Statewave alongside any AI application. Postgres-only, no external services required.
-            Your data never leaves your infrastructure.
+            Run Statewave alongside any AI application. The storage layer is Postgres-only and runs in
+            your infrastructure — no Statewave-managed cloud sees your episodes or memories.
+          </p>
+          <p className="mt-3 text-xs text-theme-muted/80 leading-relaxed">
+            What leaves your network depends on the compiler and embedding you configure. The default
+            heuristic compiler is fully local; choosing the LLM compiler or a hosted embedding model
+            sends content to that provider. <Link to="/product#privacy" className="text-accent hover:underline">See the data-flow breakdown →</Link>
           </p>
           <ul className="mt-8 space-y-3">
             {[
