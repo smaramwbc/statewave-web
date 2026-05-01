@@ -879,13 +879,17 @@ export function HeroBackground() {
       )}
       {isLive && (
         <div
-          className="absolute bottom-4 right-4 flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-medium border border-theme-border/50 backdrop-blur-sm pointer-events-none"
+          className="absolute bottom-4 right-4 flex items-center gap-2 px-3 py-1.5 rounded-full text-[11px] font-semibold border backdrop-blur-md pointer-events-none shadow-md"
           style={{
-            backgroundColor: isDark ? 'rgba(30, 27, 75, 0.7)' : 'rgba(255, 255, 255, 0.8)',
-            color: isDark ? '#6ee7b7' : '#059669',
+            // High-opacity background + a stronger emerald border so the chip
+            // reads cleanly over both bright and dark hero canvas regions.
+            backgroundColor: isDark ? 'rgba(15, 23, 42, 0.92)' : 'rgba(255, 255, 255, 0.96)',
+            borderColor: isDark ? 'rgba(52, 211, 153, 0.45)' : 'rgba(5, 150, 105, 0.35)',
+            color: isDark ? '#34d399' : '#047857',
+            letterSpacing: '0.02em',
           }}
         >
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_6px_rgba(52,211,153,0.7)]" />
           Live from Statewave API
         </div>
       )}
