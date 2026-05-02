@@ -222,7 +222,12 @@ export function HeroBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const { resolvedTheme } = useTheme()
   const isDark = resolvedTheme === 'dark'
-  const { openWidget } = useChatWidget()
+  const { openWidget, isOpen: widgetOpen, isMinimized: widgetMinimized } = useChatWidget()
+  // While the chat widget is occupying the screen, the hero particles must
+  // not respond to hover or click. We park the live state in a ref so the
+  // window-level listeners (registered once) can read it without re-binding.
+  const widgetActiveRef = useRef(false)
+  widgetActiveRef.current = widgetOpen && !widgetMinimized
   const subjectsRef = useRef<Subject[]>([])
   const memoriesRef = useRef<Memory[]>([])  
   const episodesRef = useRef<Episode[]>([])
@@ -262,6 +267,16 @@ export function HeroBackground() {
     if (!canvas) return
     // Only allow hover interaction once particles are grouped
     if (progressRef.current < 0.85) return
+    // Suspend particle hover while the chat widget is occupying the screen —
+    // no cursor changes, no tooltip, no click target underneath.
+    if (widgetActiveRef.current) {
+      if (hoveredRef.current) {
+        hoveredRef.current = null
+        document.body.style.cursor = ''
+        setTooltip(null)
+      }
+      return
+    }
     const rect = canvas.getBoundingClientRect()
     if (e.clientX < rect.left || e.clientX > rect.right || e.clientY < rect.top || e.clientY > rect.bottom) {
       setTooltip(null)
@@ -346,6 +361,10 @@ export function HeroBackground() {
 
   // Click handler to open chat widget for any particle
   const handleClick = useCallback(() => {
+    // Disable particle clicks while the widget is in front — otherwise a
+    // click that lands on the visible canvas (e.g. between the widget and
+    // the page edge) could re-trigger openWidget for a different persona.
+    if (widgetActiveRef.current) return
     if (hoveredRef.current?.kind === 'episode') {
       const ep = episodesRef.current[hoveredRef.current.idx]
       const subj = subjectsRef.current[ep.subjectIdx]
@@ -885,7 +904,7 @@ export function HeroBackground() {
           z-50 keeps it above the section's bottom-fade overlay and any other
           page-level scrims, so it never looks dimmed even if its anchor
           subject sits in the faded zone. */}
-      {isLive && hintReady && hintVisible && hintPos && (
+      {isLive && hintReady && hintVisible && hintPos && !widgetOpen && (
         <div
           className="absolute pointer-events-none z-50"
           style={{
