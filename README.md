@@ -30,8 +30,20 @@ It is **not** the documentation (that's [statewave-docs](https://github.com/smar
 
 ```bash
 npm install
-npm run dev        # http://localhost:5173
+npm run dev        # http://localhost:5173 — full local stack, no proxy
 ```
+
+By default `npm run dev` points the website at a **local Statewave server on `http://localhost:8100`** (run [`statewave`](https://github.com/smaramwbc/statewave) via `docker compose up -d` first). The `api/*.ts` Edge handlers run in-process via a Vite middleware (`server/vite-plugin.ts`) — no `vercel dev` and no remote proxy needed.
+
+To point the website at production data instead, set `STATEWAVE_URL` in `.env.local`:
+
+```bash
+# .env.local
+STATEWAVE_URL=https://statewave-api.fly.dev
+STATEWAVE_API_KEY=...   # optional — only if the upstream requires X-API-Key
+```
+
+Shell env wins over `.env.local`, so a one-shot override also works: `STATEWAVE_URL=https://statewave-api.fly.dev npm run dev`.
 
 ## Scripts
 
@@ -163,13 +175,12 @@ Three modes: `auto` (system), `light`, `dark`. Implemented via:
 
 ## Environment variables
 
-Set in the Vercel project (Production + Preview). None are required for `npm run dev` — the dev server proxies `/api/*` to a remote target — but `vercel dev` and production deploys need:
+Both production (Vercel project) and local dev (`.env.local` or shell env) read the same names — `npm run dev` pipes them into `process.env` automatically:
 
 | Variable | Used by | Purpose |
 |---|---|---|
-| `STATEWAVE_API_KEY` | all `api/*` handlers | Server-to-server auth against the Statewave API — used for `/v1/episodes`, `/v1/context`, `/v1/llm/complete`, etc. |
-| `STATEWAVE_URL` | `api/_demo.ts` | Statewave API base URL (defaults to `https://statewave-api.fly.dev`) |
-| `STATEWAVE_DEV_API` | local Vite proxy only | Override for `vite.config.ts` to point `/api/*` at a local `vercel dev` instance |
+| `STATEWAVE_URL` | all `api/*` handlers | Statewave API base URL. Default in dev: `http://localhost:8100`. In Vercel production, set to the deployed Statewave host (e.g. `https://statewave-api.fly.dev`). |
+| `STATEWAVE_API_KEY` | all `api/*` handlers | Server-to-server auth against the Statewave API — used for `/v1/episodes`, `/v1/context`, `/v1/llm/complete`, etc. Only required if the upstream sets `STATEWAVE_API_KEY`. |
 
 ## Deployment
 

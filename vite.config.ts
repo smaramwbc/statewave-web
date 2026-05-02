@@ -1,35 +1,35 @@
-import { defineConfig } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
+import { statewaveApiPlugin } from './server/vite-plugin'
 
-export default defineConfig({
-  plugins: [react(), tailwindcss()],
-  resolve: {
-    alias: {
-      '@': '/src',
-    },
-  },
-  server: {
-    // All /api/* paths are Vercel Edge functions. In dev they're proxied to a
-    // remote (the deployed site by default). To exercise locally edited
-    // handlers, run `vercel dev` on port 3000 and start vite with
-    // STATEWAVE_DEV_API=http://localhost:3000 npm run dev
-    proxy: {
-      '/api': {
-        target: process.env.STATEWAVE_DEV_API ?? 'https://www.statewave.ai',
-        changeOrigin: true,
-        // 60s — dev-only band-aid. The docs-grounded Statewave Support
-        // persona's /v1/context call can hit a 10–30s embed_query latency
-        // spike on the first uncached query (any LiteLLM-routed embedding
-        // provider, depending on which one is configured). The actual fix
-        // lives server-side in statewave/server/services/embeddings/
-        // (`litellm.py` plus the L1 in-process LRU + L2 Postgres-backed
-        // `query_embedding_cache` shipped in v0.7), which makes repeat
-        // queries instant across all backend instances. This bump is only
-        // for the cold-cache first hit during local verification —
-        // production turns hit the cached path.
-        timeout: 60000,
+export default defineConfig(({ mode }) => {
+  // The api/*.ts edge handlers read server-only env vars via process.env
+  // (STATEWAVE_URL, STATEWAVE_API_KEY). Vite's built-in .env loading only
+  // exposes VITE_* to the client bundle, so explicitly copy non-VITE_ keys
+  // from .env / .env.local / .env.<mode> into process.env. Shell env wins
+  // over .env.* (so `STATEWAVE_URL=http://localhost:8100 npm run dev`
+  // continues to work).
+  const fileEnv = loadEnv(mode, process.cwd(), '')
+  for (const [k, v] of Object.entries(fileEnv)) {
+    if (k.startsWith('VITE_')) continue
+    if (process.env[k] === undefined) process.env[k] = v
+  }
+
+  // Default the upstream Statewave URL to the local docker-compose server
+  // so `npm run dev` is a true single-process local stack out of the box.
+  // Override with .env.local (STATEWAVE_URL=https://statewave-api.fly.dev)
+  // when iterating the website against production data.
+  if (!process.env.STATEWAVE_URL) {
+    process.env.STATEWAVE_URL = 'http://localhost:8100'
+  }
+
+  return {
+    plugins: [react(), tailwindcss(), statewaveApiPlugin()],
+    resolve: {
+      alias: {
+        '@': '/src',
       },
     },
-  },
+  }
 })
