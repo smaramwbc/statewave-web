@@ -1,10 +1,19 @@
 import { useMemo, useState, useRef } from 'react'
 import { motion } from 'framer-motion'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { Section } from '../components/Section'
 import { Button } from '../components/Button'
+import { Heading } from '../components/Heading'
+import { CardAnchor, slugify } from '../components/CardAnchor'
 import { usePageSEO } from '../lib/seo'
 import { useChatWidget, useTrackDemoCta } from '../lib/widget-context'
+
+/* ─── Hash-based active card highlight ───────────────────────────────────── */
+
+function useHashActive(id: string): boolean {
+  const { hash } = useLocation()
+  return hash === `#${id}`
+}
 
 /* ─── Domain types ───────────────────────────────────────────────────────── */
 
@@ -566,9 +575,9 @@ function MentalModelStrip() {
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
           <div className="md:max-w-md">
             <p className="text-[11px] font-medium uppercase tracking-wider text-accent">The unifying loop</p>
-            <h2 className="mt-2 text-xl md:text-2xl font-semibold text-theme-primary">
+            <Heading id="same-loop" className="mt-2 text-xl md:text-2xl font-semibold text-theme-primary">
               Every use case on this page is the same loop
-            </h2>
+            </Heading>
             <p className="mt-3 text-sm text-theme-muted leading-relaxed">
               Existing systems become episodes. Episodes compile into typed memory. Memory gets
               ranked into a token-bounded bundle. Your agent gets the context it needs — and
@@ -628,9 +637,9 @@ function StrongestTodaySection() {
       <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-10">
         <div className="max-w-2xl">
           <p className="text-[11px] font-medium uppercase tracking-wider text-accent">Strongest today</p>
-          <h2 className="mt-3 text-3xl md:text-4xl font-bold text-theme-primary tracking-tight">
+          <Heading id="proven-wedge" className="mt-3 text-3xl md:text-4xl font-bold text-theme-primary tracking-tight">
             The proven wedge: support agents
-          </h2>
+          </Heading>
           <p className="mt-4 text-theme-muted leading-relaxed">
             Support is where Statewave is deeply optimized — session-aware ranking, handoff packs,
             health and SLA scoring, repeat-issue detection. It’s the workflow with the most
@@ -660,13 +669,18 @@ function StrongestTodaySection() {
 
 function FeaturedCard({ uc, index }: { uc: UseCase; index: number }) {
   const meta = statusMeta(uc.status)
+  const slug = slugify(uc.title)
+  const active = useHashActive(slug)
   return (
     <motion.div
+      id={slug}
       initial={{ opacity: 0, y: 16 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-50px' }}
       transition={{ delay: index * 0.05, duration: 0.5 }}
-      className="relative p-6 md:p-7 rounded-2xl border border-accent/25 bg-gradient-to-br from-accent/[0.04] to-transparent ring-1 ring-accent/10 hover:ring-accent/25 transition-all"
+      className={`group relative scroll-mt-24 p-6 md:p-7 rounded-2xl border border-accent/25 bg-gradient-to-br from-accent/[0.04] to-transparent ring-1 ring-accent/10 hover:ring-accent/25 transition-all ${
+        active ? 'card-anchor-active' : ''
+      }`}
     >
       <div className="flex items-center justify-between gap-3 mb-3">
         <span
@@ -677,7 +691,10 @@ function FeaturedCard({ uc, index }: { uc: UseCase; index: number }) {
         </span>
         <span className="text-[10px] uppercase tracking-wider text-theme-muted">{categoryLabel(uc.category)}</span>
       </div>
-      <h3 className="text-lg md:text-xl font-semibold text-theme-primary">{uc.title}</h3>
+      <h3 className="flex items-center gap-2 text-lg md:text-xl font-semibold text-theme-primary">
+        <span>{uc.title}</span>
+        <CardAnchor id={slug} />
+      </h3>
       <p className="mt-2 text-sm text-theme-muted leading-relaxed">{uc.description}</p>
       {uc.tags && uc.tags.length > 0 && (
         <div className="mt-4 flex flex-wrap gap-1.5">
@@ -727,9 +744,9 @@ function ExplorerSection() {
     <Section id="explorer" className="bg-surface-1/50">
       <div className="max-w-2xl mb-10">
         <p className="text-[11px] font-medium uppercase tracking-wider text-accent">Use case explorer</p>
-        <h2 className="mt-3 text-3xl md:text-4xl font-bold text-theme-primary tracking-tight">
+        <Heading id="beyond-support" className="mt-3 text-3xl md:text-4xl font-bold text-theme-primary tracking-tight">
           Beyond support: what else fits
-        </h2>
+        </Heading>
         <p className="mt-4 text-theme-muted leading-relaxed">
           The same memory primitives power developer copilots, workspace assistants, account
           intelligence, voice continuity, and multi-agent infrastructure. Filter by category or by
@@ -868,14 +885,19 @@ function FilterChip({
 
 function UseCaseCard({ uc, index }: { uc: UseCase; index: number }) {
   const meta = statusMeta(uc.status)
+  const slug = slugify(uc.title)
+  const active = useHashActive(slug)
   return (
     <motion.article
+      id={slug}
       initial={{ opacity: 0, y: 12 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-30px' }}
       transition={{ delay: Math.min(index * 0.03, 0.25), duration: 0.4 }}
       whileHover={{ y: -3 }}
-      className="group p-5 rounded-2xl border border-theme-border bg-surface-1 hover:border-accent/25 transition-colors"
+      className={`group scroll-mt-24 p-5 rounded-2xl border border-theme-border bg-surface-1 hover:border-accent/25 transition-colors ${
+        active ? 'card-anchor-active' : ''
+      }`}
     >
       <div className="flex items-center justify-between gap-2 mb-3">
         <span className="text-[10px] font-medium uppercase tracking-wider text-theme-muted">
@@ -888,8 +910,9 @@ function UseCaseCard({ uc, index }: { uc: UseCase; index: number }) {
           {meta.label}
         </span>
       </div>
-      <h3 className="text-base font-semibold text-theme-primary group-hover:text-accent transition-colors">
-        {uc.title}
+      <h3 className="flex items-center gap-2 text-base font-semibold text-theme-primary group-hover:text-accent transition-colors">
+        <span>{uc.title}</span>
+        <CardAnchor id={slug} />
       </h3>
       <p className="mt-2 text-sm text-theme-muted leading-relaxed">{uc.description}</p>
       {uc.tags && uc.tags.length > 0 && (
@@ -912,9 +935,9 @@ function ConnectorSection() {
         <p className="text-[11px] font-medium uppercase tracking-wider text-emerald-400">
           Connectors & bootstrap
         </p>
-        <h2 className="mt-3 text-3xl md:text-4xl font-bold text-theme-primary tracking-tight">
+        <Heading id="not-just-live-chats" className="mt-3 text-3xl md:text-4xl font-bold text-theme-primary tracking-tight">
           Statewave is not just for live chats
-        </h2>
+        </Heading>
         <p className="mt-4 text-theme-muted leading-relaxed">
           You don’t need to wait for a new conversation to start. Pipe existing system history into
           episodes, compile it once, and your agent walks into its first session already informed.
@@ -1014,11 +1037,21 @@ function Arrow() {
 }
 
 function ConnectorCard({ connector }: { connector: Connector }) {
+  const slug = slugify(connector.title)
+  const active = useHashActive(slug)
   return (
-    <div className="p-4 rounded-xl border border-theme-border bg-surface-1 hover:border-emerald-500/25 transition-colors">
+    <div
+      id={slug}
+      className={`group scroll-mt-24 p-4 rounded-xl border border-theme-border bg-surface-1 hover:border-emerald-500/25 transition-colors ${
+        active ? 'card-anchor-active' : ''
+      }`}
+    >
       <div className="flex items-center gap-2">
         <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" aria-hidden />
-        <h4 className="text-sm font-semibold text-theme-primary">{connector.title}</h4>
+        <h4 className="flex items-center gap-2 text-sm font-semibold text-theme-primary">
+          <span>{connector.title}</span>
+          <CardAnchor id={slug} />
+        </h4>
       </div>
       <p className="mt-2 text-xs text-theme-muted leading-relaxed">{connector.description}</p>
     </div>
@@ -1034,9 +1067,9 @@ function FrontierSection() {
         <p className="text-[11px] font-medium uppercase tracking-wider text-theme-muted">
           Frontier
         </p>
-        <h2 className="mt-3 text-3xl md:text-4xl font-bold text-theme-primary tracking-tight">
+        <Heading id="ideas-at-the-edge" className="mt-3 text-3xl md:text-4xl font-bold text-theme-primary tracking-tight">
           Ideas at the edge
-        </h2>
+        </Heading>
         <p className="mt-4 text-theme-muted leading-relaxed">
           Directions Statewave makes possible but doesn’t yet ship pre-built. Some are research
           territory; some are just engineering work the platform doesn’t prescribe. Treat this
@@ -1046,26 +1079,45 @@ function FrontierSection() {
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
         {FRONTIER_IDEAS.map((idea, i) => (
-          <motion.div
-            key={idea.title}
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-30px' }}
-            transition={{ delay: i * 0.04, duration: 0.4 }}
-            className="p-5 rounded-2xl border border-dashed border-theme-border bg-surface-2/30"
-          >
-            <div className="flex items-center gap-2 mb-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-theme-muted" aria-hidden />
-              <span className="text-[10px] font-medium uppercase tracking-wider text-theme-muted">
-                Frontier
-              </span>
-            </div>
-            <h3 className="text-base font-semibold text-theme-secondary">{idea.title}</h3>
-            <p className="mt-2 text-sm text-theme-muted leading-relaxed">{idea.description}</p>
-          </motion.div>
+          <FrontierCard key={idea.title} idea={idea} index={i} />
         ))}
       </div>
     </Section>
+  )
+}
+
+function FrontierCard({
+  idea,
+  index,
+}: {
+  idea: { title: string; description: string }
+  index: number
+}) {
+  const slug = slugify(idea.title)
+  const active = useHashActive(slug)
+  return (
+    <motion.div
+      id={slug}
+      initial={{ opacity: 0, y: 10 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-30px' }}
+      transition={{ delay: index * 0.04, duration: 0.4 }}
+      className={`group scroll-mt-24 p-5 rounded-2xl border border-dashed border-theme-border bg-surface-2/30 ${
+        active ? 'card-anchor-active' : ''
+      }`}
+    >
+      <div className="flex items-center gap-2 mb-2">
+        <span className="w-1.5 h-1.5 rounded-full bg-theme-muted" aria-hidden />
+        <span className="text-[10px] font-medium uppercase tracking-wider text-theme-muted">
+          Frontier
+        </span>
+      </div>
+      <h3 className="flex items-center gap-2 text-base font-semibold text-theme-secondary">
+        <span>{idea.title}</span>
+        <CardAnchor id={slug} />
+      </h3>
+      <p className="mt-2 text-sm text-theme-muted leading-relaxed">{idea.description}</p>
+    </motion.div>
   )
 }
 
@@ -1078,9 +1130,9 @@ function CTASection() {
   return (
     <Section>
       <div className="rounded-3xl border border-accent/20 bg-gradient-to-br from-accent/[0.05] via-surface-1 to-surface-1 p-10 md:p-14 text-center">
-        <h2 className="text-3xl md:text-4xl font-bold text-theme-primary tracking-tight">
+        <Heading id="see-your-idea" className="text-3xl md:text-4xl font-bold text-theme-primary tracking-tight">
           See your idea on this page
-        </h2>
+        </Heading>
         <p className="mt-5 text-theme-muted max-w-2xl mx-auto leading-relaxed">
           If you’re building any AI workflow with multi-session memory, Statewave is the layer
           underneath. Run it locally in two minutes — or try the live demo first.

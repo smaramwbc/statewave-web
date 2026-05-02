@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
 import { Section } from '../components/Section'
+import { Heading } from '../components/Heading'
 import { ReturnLink } from '../components/ReturnLink'
 import { usePageSEO } from '../lib/seo'
 
@@ -7,27 +8,10 @@ export function WhyPage() {
   usePageSEO()
   return (
     <>
-      <section className="pt-32 pb-16">
-        <div className="mx-auto max-w-7xl px-6">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
-            <ReturnLink />
-            <h1 className="text-4xl md:text-5xl font-bold text-theme-primary tracking-tight">
-              Why Statewave
-            </h1>
-            <p className="mt-6 text-lg text-theme-muted max-w-2xl">
-              A technical comparison for teams building AI support agents that need
-              durable, structured memory.
-            </p>
-          </motion.div>
-        </div>
-      </section>
+      <ManifestoHero />
 
       <Section>
-        <h2 className="text-2xl font-bold text-theme-primary mb-8">The infrastructure gap</h2>
+        <Heading id="infrastructure-gap" className="text-2xl font-bold text-theme-primary mb-8">The infrastructure gap</Heading>
         <p className="text-theme-muted max-w-3xl leading-relaxed">
           AI support agents forget. Every session starts from zero. Returning customers re-explain
           who they are, what plan they're on, what they asked last time. Agents make the same
@@ -37,7 +21,7 @@ export function WhyPage() {
       </Section>
 
       <Section className="bg-surface-1/50">
-        <h2 className="text-2xl font-bold text-theme-primary mb-12">Statewave vs alternatives</h2>
+        <Heading id="vs-alternatives" className="text-2xl font-bold text-theme-primary mb-12">Statewave vs alternatives</Heading>
         <div className="rounded-2xl border border-theme-border bg-surface-2 overflow-hidden">
           <table className="w-full text-sm">
             <thead>
@@ -73,7 +57,7 @@ export function WhyPage() {
       </Section>
 
       <Section>
-        <h2 className="text-2xl font-bold text-theme-primary mb-12">Key technical properties</h2>
+        <Heading id="technical-properties" className="text-2xl font-bold text-theme-primary mb-12">Key technical properties</Heading>
         <div className="grid md:grid-cols-2 gap-6">
           {[
             { title: 'Deterministic', desc: 'Same subject + task + budget → same context bundle. No non-determinism from vector-only retrieval.' },
@@ -99,7 +83,7 @@ export function WhyPage() {
       </Section>
 
       <Section className="bg-surface-1/50">
-        <h2 className="text-2xl font-bold text-theme-primary mb-8">Who this is for</h2>
+        <Heading id="who-this-is-for" className="text-2xl font-bold text-theme-primary mb-8">Who this is for</Heading>
         <div className="grid md:grid-cols-2 gap-12">
           <div>
             <h3 className="text-lg font-semibold text-green-400 mb-4">Good fit</h3>
@@ -140,5 +124,126 @@ export function WhyPage() {
         </div>
       </Section>
     </>
+  )
+}
+
+/* ─── Manifesto hero ────────────────────────────────────────────────────────
+ * The /why page used to open with a dry "A technical comparison for teams…"
+ * subhead. The page is literally called Why — so it should answer with the
+ * actual why first. Heart, then proof. The technical comparison sections
+ * below now read as evidence rather than the main act.
+ *
+ * Layout: standard page top spacing (pt-32) for nav clearance, narrow
+ * centered column for manifesto-style readability, subtle accent halo
+ * behind the words, sign-off rule at the bottom that pairs with the
+ * technical sections that follow.
+ */
+function ManifestoHero() {
+  const stagger = {
+    hidden: {},
+    show: { transition: { staggerChildren: 0.12, delayChildren: 0.05 } },
+  }
+  const fadeUp = {
+    hidden: { opacity: 0, y: 12 },
+    show: { opacity: 1, y: 0, transition: { duration: 0.6 } },
+  }
+
+  return (
+    <section className="relative pt-32 pb-24 md:pb-32 overflow-hidden">
+      {/* Soft accent halo — barely there, just a warmth behind the words. */}
+      <div
+        aria-hidden
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background:
+            'radial-gradient(55% 55% at 50% 30%, rgba(99,102,241,0.08), transparent 70%)',
+        }}
+      />
+
+      <div className="relative mx-auto max-w-3xl px-6">
+        <ReturnLink />
+
+        <motion.div
+          variants={stagger}
+          initial="hidden"
+          animate="show"
+        >
+          <motion.p
+            variants={fadeUp}
+            className="text-[11px] font-medium uppercase tracking-[0.22em] text-accent"
+          >
+            Why Statewave
+          </motion.p>
+
+          <motion.h1
+            variants={fadeUp}
+            className="mt-6 text-[2.25rem] md:text-[3rem] font-semibold text-theme-primary tracking-[-0.02em] leading-[1.12]"
+          >
+            We built Statewave because we believe AI should remember.
+          </motion.h1>
+
+          <motion.div
+            variants={fadeUp}
+            className="mt-10 space-y-6 text-[1.075rem] md:text-lg text-theme-secondary leading-[1.75]"
+          >
+            <p>
+              Not a chat history. Memory — the kind that holds across days, makes
+              promises stick, and turns yesterday's lesson into today's better answer.
+            </p>
+            <p>
+              Every system we admire works because someone remembered. The line of code
+              that didn't need rewriting. The customer's name. The mistake we agreed
+              never to repeat.
+            </p>
+            <p>
+              So we built it carefully. Self-hosted, because what your agents remember
+              is yours. Provenance-first, because any answer worth giving is worth
+              tracing. Open source, because infrastructure this important shouldn't
+              live behind someone else's login.
+            </p>
+          </motion.div>
+
+          <motion.p
+            variants={fadeUp}
+            className="mt-10 text-2xl md:text-[1.875rem] font-semibold tracking-[-0.015em] leading-snug"
+          >
+            In the end,{' '}
+            <span className="bg-gradient-to-r from-accent via-brand-400 to-brand-300 bg-clip-text text-transparent">
+              only memories matter.
+            </span>
+          </motion.p>
+
+          <motion.div
+            variants={fadeUp}
+            className="mt-12 flex items-center gap-4"
+          >
+            <span className="h-px flex-1 bg-gradient-to-r from-transparent via-theme-border to-transparent" />
+            <span className="text-xs text-theme-muted tracking-wide">
+              Built with care, in the open.
+            </span>
+            <span className="h-px flex-1 bg-gradient-to-r from-transparent via-theme-border to-transparent" />
+          </motion.div>
+
+          {/* A discreet hint that there's substance below — no big "scroll" arrow. */}
+          <motion.div variants={fadeUp} className="mt-16 flex justify-center">
+            <a
+              href="#infrastructure-gap"
+              className="group inline-flex items-center gap-2 text-xs text-theme-muted hover:text-accent transition-colors"
+            >
+              <span className="tracking-wide uppercase">The technical case</span>
+              <svg
+                className="w-3.5 h-3.5 transition-transform group-hover:translate-y-0.5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                aria-hidden
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+              </svg>
+            </a>
+          </motion.div>
+        </motion.div>
+      </div>
+    </section>
   )
 }

@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { Section } from '../components/Section'
 import { Button } from '../components/Button'
+import { Heading } from '../components/Heading'
 import { Card } from '../components/Card'
 import { HeroBackground } from '../components/HeroBackground'
 import { usePageSEO } from '../lib/seo'
@@ -138,9 +139,9 @@ function WhatSection() {
     <Section>
       <div className="grid md:grid-cols-2 gap-16 items-center">
         <div>
-          <h2 className="text-3xl md:text-4xl font-bold text-theme-primary tracking-tight">
+          <Heading id="memory-infrastructure" className="text-3xl md:text-4xl font-bold text-theme-primary tracking-tight">
             Memory infrastructure for AI agents
-          </h2>
+          </Heading>
           <p className="mt-6 text-theme-muted leading-relaxed">
             Most AI applications have no memory. Every conversation starts from scratch.
             Context is lost between sessions. Statewave treats memory as infrastructure —
@@ -216,9 +217,9 @@ function WhyNotSection() {
   return (
     <Section className="bg-surface-1/50">
       <div className="text-center mb-16">
-        <h2 className="text-3xl md:text-4xl font-bold text-theme-primary tracking-tight">
+        <Heading id="why-existing-approaches-fail" className="text-3xl md:text-4xl font-bold text-theme-primary tracking-tight">
           Why existing approaches fail
-        </h2>
+        </Heading>
         <p className="mt-4 text-theme-muted max-w-2xl mx-auto">
           Bolting on a vector database or dumping chat logs into a prompt creates fragile,
           unstructured context that degrades as it scales.
@@ -287,9 +288,9 @@ function UseCasesSection() {
   return (
     <Section>
       <div className="text-center mb-16">
-        <h2 className="text-3xl md:text-4xl font-bold text-theme-primary tracking-tight">
+        <Heading id="stateful-workflows" className="text-3xl md:text-4xl font-bold text-theme-primary tracking-tight">
           Built for any stateful AI workflow
-        </h2>
+        </Heading>
         <p className="mt-4 text-theme-muted max-w-2xl mx-auto">
           Statewave is infrastructure — not a vertical product. Any AI system that needs to
           remember across sessions can build on it.
@@ -320,6 +321,24 @@ function UseCasesSection() {
           </motion.div>
         ))}
       </div>
+
+      <div className="mt-10 text-center">
+        <Link
+          to="/use-cases"
+          className="group inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium border border-accent/25 bg-accent/[0.06] text-accent hover:bg-accent/10 hover:border-accent/40 transition-colors"
+        >
+          Browse the full map — 80+ ideas to build
+          <svg
+            className="w-4 h-4 transition-transform group-hover:translate-x-0.5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            aria-hidden
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+          </svg>
+        </Link>
+      </div>
     </Section>
   )
 }
@@ -328,9 +347,9 @@ function SupportProofSection() {
   return (
     <Section className="bg-surface-1/50">
       <div className="text-center mb-16">
-        <h2 className="text-3xl md:text-4xl font-bold text-theme-primary tracking-tight">
+        <Heading id="support-agent-proof" className="text-3xl md:text-4xl font-bold text-theme-primary tracking-tight">
           Proven first in support-agent workflows
-        </h2>
+        </Heading>
         <p className="mt-4 text-theme-muted max-w-2xl mx-auto">
           Support agents are the first workflow where Statewave is deeply optimized and
           rigorously evaluated — the clearest proof that structured memory outperforms naive approaches.
@@ -386,9 +405,9 @@ function CapabilitiesSection() {
   return (
     <Section>
       <div className="text-center mb-16">
-        <h2 className="text-3xl md:text-4xl font-bold text-theme-primary tracking-tight">
+        <Heading id="core-capabilities" className="text-3xl md:text-4xl font-bold text-theme-primary tracking-tight">
           Core capabilities
-        </h2>
+        </Heading>
         <p className="mt-4 text-theme-muted max-w-2xl mx-auto">
           Production-ready primitives for any AI system that needs persistent, structured memory.
         </p>
@@ -424,9 +443,9 @@ function ProofSection() {
   return (
     <Section className="bg-surface-1/50">
       <div className="text-center mb-16">
-        <h2 className="text-3xl md:text-4xl font-bold text-theme-primary tracking-tight">
+        <Heading id="proven-not-promised" className="text-3xl md:text-4xl font-bold text-theme-primary tracking-tight">
           Proven, not promised
-        </h2>
+        </Heading>
         <p className="mt-4 text-theme-muted max-w-2xl mx-auto">
           Every claim is backed by automated evals and benchmarks that run in CI.
           Statewave scores 9/9 on support workflow criteria where naive approaches score 2/9.
@@ -512,9 +531,9 @@ console.log(ctx.assembledContext);
     <Section>
       <div className="grid md:grid-cols-2 gap-16 items-center">
         <div>
-          <h2 className="text-3xl md:text-4xl font-bold text-theme-primary tracking-tight">
+          <Heading id="self-hosted" className="text-3xl md:text-4xl font-bold text-theme-primary tracking-tight">
             Self-hosted. Framework-neutral.
-          </h2>
+          </Heading>
           <p className="mt-6 text-theme-muted leading-relaxed">
             Run Statewave alongside any AI application. The storage layer is Postgres-only and runs in
             your infrastructure — no Statewave-managed cloud sees your episodes or memories.
@@ -639,9 +658,9 @@ function CTASection() {
   return (
     <Section className="bg-surface-1/50">
       <div className="text-center">
-        <h2 className="text-3xl md:text-5xl font-bold text-theme-primary tracking-tight">
+        <Heading id="give-ai-memory" className="text-3xl md:text-5xl font-bold text-theme-primary tracking-tight">
           Give your AI system memory
-        </h2>
+        </Heading>
         <p className="mt-6 text-lg text-theme-muted max-w-xl mx-auto">
           Start building with Statewave in under 10 minutes.
           Self-hosted, open source, and proven.

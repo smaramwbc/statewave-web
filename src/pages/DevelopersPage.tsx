@@ -1,7 +1,9 @@
 import { useRef } from 'react'
 import { motion } from 'framer-motion'
+import { Link } from 'react-router-dom'
 import { Section } from '../components/Section'
 import { Button } from '../components/Button'
+import { Heading } from '../components/Heading'
 import { usePageSEO } from '../lib/seo'
 import { useChatWidget, useTrackDemoCta } from '../lib/widget-context'
 
@@ -64,6 +66,12 @@ export function DevelopersPage() {
               tag: 'Examples',
             },
             {
+              title: 'Use Cases',
+              desc: 'A categorized map of what you can build — support, coding, workspace, account, voice, multi-agent, plus connector patterns and frontier ideas.',
+              to: '/use-cases',
+              tag: 'Inspiration',
+            },
+            {
               title: 'Live Demo',
               desc: 'Two identical agents — one with memory, one without. See the difference in 10 seconds.',
               onClick: () => openWidget(),
@@ -117,6 +125,15 @@ export function DevelopersPage() {
                 </motion.button>
               )
             }
+            if ('to' in item && item.to) {
+              return (
+                <motion.div key={i} {...motionProps}>
+                  <Link to={item.to} className={cardClass}>
+                    {inner}
+                  </Link>
+                </motion.div>
+              )
+            }
             return (
               <motion.a
                 key={i}
@@ -135,7 +152,7 @@ export function DevelopersPage() {
 
       <Section className="bg-surface-1/50">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-theme-primary mb-4">Quick install</h2>
+          <Heading id="quick-install" className="text-2xl font-bold text-theme-primary mb-4">Quick install</Heading>
           <div className="mt-8 grid md:grid-cols-2 gap-6 max-w-3xl mx-auto">
             <div className="rounded-xl border border-theme-border bg-surface-2 p-6 text-left">
               <p className="text-xs text-theme-muted font-mono mb-3">Python</p>
