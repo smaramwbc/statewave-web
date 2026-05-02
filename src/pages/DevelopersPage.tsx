@@ -12,7 +12,7 @@ export function DevelopersPage() {
   useTrackDemoCta(liveDemoRef)
   return (
     <>
-      <section className="snap-section pt-32 pb-16">
+      <section className="pt-32 pb-16">
         <div className="mx-auto max-w-7xl px-6">
           <motion.div
             initial={{ opacity: 0, y: 20 }}

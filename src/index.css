@@ -85,22 +85,11 @@
 
 html {
   scroll-behavior: smooth;
-  /* Section-aware scrolling: when the user lands within a section's snap
-   * zone the browser pulls them to the section boundary (= one "view" per
-   * stop). `proximity` keeps scrolling fluid — slow / fine-grained scrolls
-   * never get hijacked, only a stop near a boundary triggers the snap.
-   * scroll-padding-top accounts for the 60px fixed navbar so snapped
-   * sections aren't hidden behind it. */
-  scroll-snap-type: y proximity;
+  /* Anchor links (e.g. /product#privacy) and programmatic scrolls land
+   * below the 60px fixed navbar instead of being clipped by it. No snap
+   * here — proximity-based scroll-snap fought trackpad momentum and made
+   * the page feel sticky. */
   scroll-padding-top: 80px;
-}
-
-/* Major page sections opt in via this class. Sections taller than the
- * viewport keep `scroll-snap-stop: normal` so they don't trap the user
- * inside; they snap only on entry. */
-.snap-section {
-  scroll-snap-align: start;
-  scroll-snap-stop: normal;
 }
 
 body {

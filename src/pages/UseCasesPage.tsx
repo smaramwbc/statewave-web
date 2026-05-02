@@ -474,7 +474,7 @@ export function UseCasesPage() {
 function HeroSection() {
   const total = USE_CASES.length + CONNECTORS.length + FRONTIER_IDEAS.length
   return (
-    <section className="snap-section relative pt-32 pb-12 overflow-hidden">
+    <section className="relative pt-32 pb-12 overflow-hidden">
       {/* Soft accent glow */}
       <div
         aria-hidden
