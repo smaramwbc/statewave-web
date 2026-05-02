@@ -311,15 +311,25 @@ export interface DocSource {
  * Walk a context bundle and produce a deduplicated, ranked list of doc-pack
  * sources for citation rendering. Pulls first from the bundle's own
  * `episodes[]` (the ranked retrieved set), then fills in via memories'
- * `source_episode_ids`. Caps at `limit` (default 4) and drops anything
+ * `source_episode_ids`. Caps at `limit` (default 3) and drops anything
  * without a `doc_path` — i.e. anything not from the docs pack.
+ *
+ * Why 3 (not 4): live-observed citations on simple questions like
+ * "What database does Statewave use?" pulled in tangential mentions of
+ * Postgres from `dev/backup-restore.md` and `deployment/migrations.md` as
+ * the 4th slot, alongside the canonical `architecture/overview.md`. The
+ * 4th rarely adds clarity and dilutes the trust signal — top 3 are almost
+ * always the strongest matches under HNSW + cosine. Lowering the cap is
+ * the simplest fix; per-source distance thresholding would require
+ * surfacing pgvector distance through the bundle response, which is
+ * bigger than this quality pass.
  *
  * Returns [] when nothing is grounded — callers should hide the citation UI
  * rather than rendering an empty "Sources:" line.
  */
 export function resolveDocSources(
   context: ContextBundle | null | undefined,
-  limit = 4,
+  limit = 3,
 ): DocSource[] {
   if (!context) return []
   const sources: DocSource[] = []

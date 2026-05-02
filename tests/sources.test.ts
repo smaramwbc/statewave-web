@@ -112,14 +112,19 @@ describe('resolveDocSources', () => {
     expect(result[0].breadcrumb).toContain('Section A')
   })
 
-  it('caps the result at the limit (default 4)', () => {
+  it('caps the result at the limit (default 3)', () => {
+    // Lowered from 4 → 3 to reduce citation noise on simple questions
+    // where the top 3 docs are almost always the strongest matches and
+    // the 4th tends to be a tangential mention.
     const eps = Array.from({ length: 10 }, (_, i) => ({
       id: `e${i}`,
       payload: { breadcrumb: `B${i}` },
       provenance: { doc_path: `doc-${i}.md` },
     }))
-    expect(resolveDocSources(bundle({ episodes: eps }))).toHaveLength(4)
+    expect(resolveDocSources(bundle({ episodes: eps }))).toHaveLength(3)
     expect(resolveDocSources(bundle({ episodes: eps }), 2)).toHaveLength(2)
+    // Explicit higher cap still respected when callers want it.
+    expect(resolveDocSources(bundle({ episodes: eps }), 5)).toHaveLength(5)
   })
 
   it('falls back to memories.source_episode_ids when episodes alone do not cover', () => {
