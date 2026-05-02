@@ -524,22 +524,74 @@ console.log(ctx.assembledContext);
             heuristic compiler is fully local; choosing the LLM compiler or a hosted embedding model
             sends content to that provider. <Link to="/product#privacy" className="text-accent hover:underline">See the data-flow breakdown →</Link>
           </p>
+          {/* Each bullet links to the most relevant doc / repo. The SDK row
+              splits into two inline links so Python and TypeScript each go
+              to their own GitHub repo. External links open in a new tab so
+              the visitor doesn't lose their place on the homepage. */}
           <ul className="mt-8 space-y-3">
-            {[
-              'Docker Compose — running in 2 minutes',
-              'No vendor lock-in — heuristic compiler works without any LLM',
-              'LiteLLM integration — 100+ LLM providers supported',
-              'REST API + OpenAPI docs',
-              'Python & TypeScript SDKs',
-              'Structured logging + OpenTelemetry',
-            ].map((item, i) => (
-              <li key={i} className="flex items-start gap-3 text-sm text-theme-secondary">
-                <svg className="w-4 h-4 text-accent mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                {item}
-              </li>
-            ))}
+            {(() => {
+              const DOCS = 'https://github.com/smaramwbc/statewave-docs/blob/main'
+              type Bullet = { node: React.ReactNode }
+              const items: Bullet[] = [
+                {
+                  node: (
+                    <a href={`${DOCS}/deployment/guide.md`} target="_blank" rel="noopener noreferrer" className="hover:text-accent transition-colors">
+                      Docker Compose — running in 2 minutes
+                    </a>
+                  ),
+                },
+                {
+                  node: (
+                    <a href={`${DOCS}/architecture/compiler-modes.md`} target="_blank" rel="noopener noreferrer" className="hover:text-accent transition-colors">
+                      No vendor lock-in — heuristic compiler works without any LLM
+                    </a>
+                  ),
+                },
+                {
+                  node: (
+                    <a href={`${DOCS}/architecture/compiler-modes.md#when-to-choose-llm`} target="_blank" rel="noopener noreferrer" className="hover:text-accent transition-colors">
+                      LiteLLM integration — 100+ LLM providers supported
+                    </a>
+                  ),
+                },
+                {
+                  node: (
+                    <a href={`${DOCS}/api/v1-contract.md`} target="_blank" rel="noopener noreferrer" className="hover:text-accent transition-colors">
+                      REST API + OpenAPI docs
+                    </a>
+                  ),
+                },
+                {
+                  node: (
+                    <>
+                      <a href="https://github.com/smaramwbc/statewave-py" target="_blank" rel="noopener noreferrer" className="hover:text-accent transition-colors underline-offset-2 decoration-dotted decoration-theme-border">
+                        Python
+                      </a>
+                      <span className="text-theme-muted/70">&nbsp;&amp;&nbsp;</span>
+                      <a href="https://github.com/smaramwbc/statewave-ts" target="_blank" rel="noopener noreferrer" className="hover:text-accent transition-colors underline-offset-2 decoration-dotted decoration-theme-border">
+                        TypeScript
+                      </a>
+                      <span>&nbsp;SDKs</span>
+                    </>
+                  ),
+                },
+                {
+                  node: (
+                    <a href={`${DOCS}/architecture/overview.md#middleware-stack`} target="_blank" rel="noopener noreferrer" className="hover:text-accent transition-colors">
+                      Structured logging + OpenTelemetry
+                    </a>
+                  ),
+                },
+              ]
+              return items.map((item, i) => (
+                <li key={i} className="flex items-start gap-3 text-sm text-theme-secondary">
+                  <svg className="w-4 h-4 text-accent mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span>{item.node}</span>
+                </li>
+              ))
+            })()}
           </ul>
         </div>
 

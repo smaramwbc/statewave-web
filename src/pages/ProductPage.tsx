@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion'
 import { Section } from '../components/Section'
 import { Card } from '../components/Card'
+import { Heading } from '../components/Heading'
 import { usePageSEO } from '../lib/seo'
 
 export function ProductPage() {
@@ -26,7 +27,7 @@ export function ProductPage() {
       </section>
 
       <Section>
-        <h2 className="text-2xl font-bold text-theme-primary mb-12">The core loop</h2>
+        <Heading id="core-loop" className="text-2xl font-bold text-theme-primary mb-12">The core loop</Heading>
         <div className="grid md:grid-cols-4 gap-6">
           {[
             { step: '01', title: 'Record', desc: 'Immutable episodes capture raw interaction truth — conversations, tool calls, decisions. Append-only, never mutated.' },
@@ -51,7 +52,7 @@ export function ProductPage() {
       </Section>
 
       <Section className="bg-surface-1/50">
-        <h2 className="text-2xl font-bold text-theme-primary mb-12">Domain model</h2>
+        <Heading id="domain-model" className="text-2xl font-bold text-theme-primary mb-12">Domain model</Heading>
         <div className="grid md:grid-cols-3 gap-8">
           <Card
             title="Episodes"
@@ -69,7 +70,7 @@ export function ProductPage() {
       </Section>
 
       <Section>
-        <h2 className="text-2xl font-bold text-theme-primary mb-12">Support-native intelligence</h2>
+        <Heading id="support-native" className="text-2xl font-bold text-theme-primary mb-12">Support-native intelligence</Heading>
         <div className="grid md:grid-cols-2 gap-8">
           <Card
             title="Handoff packs"
@@ -90,8 +91,8 @@ export function ProductPage() {
         </div>
       </Section>
 
-      <Section id="privacy">
-        <h2 className="text-2xl font-bold text-theme-primary mb-4">Privacy &amp; data flow</h2>
+      <Section>
+        <Heading id="privacy" className="text-2xl font-bold text-theme-primary mb-4">Privacy &amp; data flow</Heading>
         <p className="text-theme-muted leading-relaxed mb-8 max-w-3xl">
           Statewave is honest about what stays local and what leaves your network. Privacy depends on
           the four layers below, not just where Postgres runs.
@@ -147,7 +148,7 @@ export function ProductPage() {
       </Section>
 
       <Section className="bg-surface-1/50">
-        <h2 className="text-2xl font-bold text-theme-primary mb-4">Scoring model</h2>
+        <Heading id="scoring-model" className="text-2xl font-bold text-theme-primary mb-4">Scoring model</Heading>
         <p className="text-theme-muted leading-relaxed mb-8 max-w-3xl">
           Ranking is deterministic and inspectable. Items are sorted by composite score and packed
           into your token budget. Support-agent workloads apply additional session, urgency, and
