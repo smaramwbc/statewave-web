@@ -1,18 +1,20 @@
 import { motion } from 'framer-motion'
 import { Section } from '../components/Section'
+import { ReturnLink } from '../components/ReturnLink'
 import { usePageSEO } from '../lib/seo'
 
 export function WhyPage() {
   usePageSEO()
   return (
     <>
-      <section className="pt-32 pb-16">
+      <section className="snap-section pt-32 pb-16">
         <div className="mx-auto max-w-7xl px-6">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
+            <ReturnLink />
             <h1 className="text-4xl md:text-5xl font-bold text-theme-primary tracking-tight">
               Why Statewave
             </h1>

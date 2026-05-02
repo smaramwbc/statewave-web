@@ -40,7 +40,7 @@ function HeroSection() {
   }
 
   return (
-    <section className="relative min-h-[92vh] flex items-center overflow-hidden">
+    <section className="snap-section relative min-h-[92vh] flex items-center overflow-hidden">
       <HeroBackground />
 
       {/* Bottom-edge fade — only mask the final ~35% so the section blends
