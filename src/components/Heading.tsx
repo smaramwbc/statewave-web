@@ -49,11 +49,11 @@ export function Heading({ id, level = 2, children, className = '' }: HeadingProp
       <button
         type="button"
         onClick={handleCopy}
-        aria-label={`Copy link to this section`}
+        aria-label="Copy link to this section"
         title={copied ? 'Link copied' : 'Copy link to this section'}
-        className="ml-2 inline-flex items-center align-middle opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity duration-150 text-theme-muted hover:text-accent focus:outline-none"
+        className="ml-2 inline-flex items-center align-middle text-theme-muted/55 hover:text-accent focus-visible:text-accent focus:outline-none transition-colors duration-150"
       >
-        <HashIcon className="w-[0.8em] h-[0.8em]" />
+        <HashIcon className="w-[0.7em] h-[0.7em]" />
         <span
           aria-live="polite"
           className={`ml-1.5 text-[11px] font-medium uppercase tracking-wide transition-all duration-200 ${
