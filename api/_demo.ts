@@ -195,16 +195,34 @@ export async function fetchTimeline(subjectId: string): Promise<TimelineResult> 
  * docs pack (citations from deployment/, privacy/, etc would otherwise
  * never resolve). Requires an API key with admin scope; the widget's
  * STATEWAVE_API_KEY already has it.
+ *
+ * The admin endpoint enforces an upper bound on `limit` — values > 200
+ * return HTTP 422. limit=200 is the sweet spot: it returns the full
+ * 178-episode docs pack in one call (verified live against
+ * statewave-api.fly.dev). If a subject ever grows past 200 episodes we
+ * pick up the rest with offset pagination.
  */
+const ADMIN_PAGE_LIMIT = 200
+
 export async function fetchAllEpisodesAdmin(subjectId: string): Promise<TimelineEpisode[]> {
-  const resp = await fetch(
-    `${statewaveUrl()}/admin/subjects/${encodeURIComponent(subjectId)}/episodes?limit=500`,
-    { headers: { 'X-API-Key': statewaveApiKey() } },
-  )
-  if (!resp.ok) return []
-  const data = await resp.json()
-  if (Array.isArray(data)) return data as TimelineEpisode[]
-  return (data?.episodes ?? []) as TimelineEpisode[]
+  const out: TimelineEpisode[] = []
+  // Defensive paginator: caps total fetch at 1000 episodes so a runaway
+  // pagination on a large subject can't OOM the edge runtime.
+  for (let offset = 0; offset < 1000; offset += ADMIN_PAGE_LIMIT) {
+    const resp = await fetch(
+      `${statewaveUrl()}/admin/subjects/${encodeURIComponent(subjectId)}/episodes?limit=${ADMIN_PAGE_LIMIT}&offset=${offset}`,
+      { headers: { 'X-API-Key': statewaveApiKey() } },
+    )
+    if (!resp.ok) break
+    const data = await resp.json()
+    const page = Array.isArray(data)
+      ? (data as TimelineEpisode[])
+      : ((data?.episodes ?? []) as TimelineEpisode[])
+    if (page.length === 0) break
+    out.push(...page)
+    if (page.length < ADMIN_PAGE_LIMIT) break
+  }
+  return out
 }
 
 export async function writeEpisode(
