@@ -40,7 +40,8 @@ function makeRequest(method: string, url: string, init: RequestInit = {}): Reque
 }
 
 function setEnv() {
-  process.env.OPENAI_API_KEY = 'test-key'
+  // Chat completions flow through the Statewave server's /v1/llm/complete
+  // — no direct provider key needed in the website env.
   process.env.STATEWAVE_API_KEY = 'test-key'
   process.env.STATEWAVE_URL = 'https://statewave-api.test'
 }
@@ -102,11 +103,9 @@ describe('POST /api/widget-chat — statewave-support persona', () => {
           { status: 200 },
         )
       }
-      if (url.includes('api.openai.com')) {
+      if (url.includes('/v1/llm/complete')) {
         return new Response(
-          JSON.stringify({
-            choices: [{ message: { content: 'Statewave uses PostgreSQL + pgvector.' } }],
-          }),
+          JSON.stringify({ reply: 'Statewave uses PostgreSQL + pgvector.' }),
           { status: 200 },
         )
       }
@@ -155,7 +154,7 @@ describe('POST /api/widget-chat — statewave-support persona', () => {
       }),
     })
     await widgetChat(req)
-    const llmCall = calls.find((c) => c.url.includes('api.openai.com'))
+    const llmCall = calls.find((c) => c.url.includes('/v1/llm/complete'))
     expect(llmCall).toBeDefined()
     const body = JSON.parse(llmCall!.init?.body as string)
     const systemMsg = body.messages.find((m: { role: string }) => m.role === 'system')!.content as string

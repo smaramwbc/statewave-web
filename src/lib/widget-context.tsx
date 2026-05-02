@@ -192,7 +192,7 @@ export function isDocsSharedPersona(id: string): boolean {
   return personaKind(id) === 'docs-shared'
 }
 
-const DEFAULT_PERSONA = DEMO_PERSONAS[0]
+const DEFAULT_PERSONA = DEMO_PERSONAS.find((p) => p.id === 'statewave-support')!
 
 /** Number of post-welcome tour steps. The tour banner walks through the
  *  persona / suggestion-and-input / inspector pieces of the widget. Bumping
@@ -585,6 +585,29 @@ export function ChatWidgetProvider({ children }: { children: ReactNode }) {
     })()
     return () => { cancelled = true }
     // Run once on mount. refreshState/seedFromPersona are stable callbacks.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // Deep-link: a visitor landing with `?ask=support` (or `?widget=support`)
+  // gets the widget opened directly to the Statewave Support persona. Lets
+  // docs READMEs, the GitHub front page, and external materials link straight
+  // into the docs-grounded chat without an extra click.
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const params = new URLSearchParams(window.location.search)
+    const target = params.get('ask') ?? params.get('widget')
+    if (target !== 'support' && target !== 'statewave-support') return
+    // Strip the param up-front so a back-nav or refresh doesn't keep reopening.
+    params.delete('ask')
+    params.delete('widget')
+    const next = params.toString()
+    const url = window.location.pathname + (next ? `?${next}` : '') + window.location.hash
+    window.history.replaceState({}, '', url)
+    // Defer the open into a microtask so the setState calls happen outside
+    // the effect's render cycle (avoids react-hooks/set-state-in-effect)
+    // and lets the page paint before the widget animates in.
+    queueMicrotask(() => openWidget('statewave-support', 'Statewave Support'))
+    // Run once on mount. openWidget is stable enough for this one-shot effect.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 

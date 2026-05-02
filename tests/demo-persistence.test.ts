@@ -38,8 +38,8 @@ function makeRequest(method: string, url: string, init: RequestInit = {}): Reque
 }
 
 function setEnv() {
-  // The handlers read OPENAI_API_KEY etc. from process.env. Stub for the test.
-  process.env.OPENAI_API_KEY = 'test-key'
+  // Chat completions flow through the Statewave server's /v1/llm/complete
+  // endpoint — no direct provider key in the website env.
   process.env.STATEWAVE_API_KEY = 'test-key'
   process.env.STATEWAVE_URL = 'https://statewave-api.test'
 }
@@ -189,8 +189,8 @@ describe('POST /api/widget-chat — statewave mode', () => {
       if (url.includes('/v1/memories/compile')) {
         return new Response(JSON.stringify({ memories_created: 1, memories: [] }), { status: 200 })
       }
-      if (url.includes('api.openai.com')) {
-        return new Response(JSON.stringify({ choices: [{ message: { content: 'hello back' } }] }), { status: 200 })
+      if (url.includes('/v1/llm/complete')) {
+        return new Response(JSON.stringify({ reply: 'hello back' }), { status: 200 })
       }
       throw new Error(`Unexpected fetch in widget-chat test: ${url}`)
     })
@@ -255,8 +255,8 @@ describe('POST /api/widget-chat — stateless mode', () => {
     setEnv()
     vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) => {
       const url = typeof input === 'string' ? input : (input as Request).url
-      if (url.includes('api.openai.com')) {
-        return new Response(JSON.stringify({ choices: [{ message: { content: 'stateless reply' } }] }), { status: 200 })
+      if (url.includes('/v1/llm/complete')) {
+        return new Response(JSON.stringify({ reply: 'stateless reply' }), { status: 200 })
       }
       throw new Error(`stateless mode should not call ${url}`)
     })

@@ -269,6 +269,52 @@ export async function deleteSubject(subjectId: string): Promise<boolean> {
   return resp.ok || resp.status === 404
 }
 
+export interface LLMMessage {
+  role: 'system' | 'user' | 'assistant'
+  content: string
+}
+
+/**
+ * Run a single chat completion via the Statewave server's `/v1/llm/complete`
+ * endpoint. The Statewave server picks the model + provider via its own
+ * LiteLLM-backed config (`STATEWAVE_LITELLM_MODEL`, etc.), so the website
+ * holds NO LLM provider keys. Authentication uses the same `STATEWAVE_API_KEY`
+ * the website already needs for `/v1/episodes`, `/v1/context`, etc.
+ *
+ * Throws on transport / non-2xx — caller should wrap to surface a clean error.
+ */
+export async function callStatewaveLLM(
+  messages: LLMMessage[],
+  systemPrompt: string,
+  opts: { maxTokens?: number; temperature?: number } = {},
+): Promise<string> {
+  const body = {
+    messages: [{ role: 'system' as const, content: systemPrompt }, ...messages],
+    max_tokens: opts.maxTokens ?? 200,
+    temperature: opts.temperature ?? 0.7,
+  }
+  const resp = await fetch(`${statewaveUrl()}/v1/llm/complete`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-API-Key': statewaveApiKey() },
+    body: JSON.stringify(body),
+  })
+  if (!resp.ok) {
+    // Surface a stable, opaque error — the upstream JSON may include the
+    // configured model identifier or other internal detail we don't want
+    // echoed back to the browser. The handler logs full detail server-side.
+    let code = 'upstream_llm_error'
+    try {
+      const data = (await resp.json()) as { error?: { code?: string } }
+      if (typeof data?.error?.code === 'string') code = data.error.code
+    } catch {
+      /* non-JSON upstream response */
+    }
+    throw new Error(`LLM upstream failed (${resp.status} ${code})`)
+  }
+  const data = (await resp.json()) as { reply?: string }
+  return data.reply ?? ''
+}
+
 export interface ContextMemory {
   id: string
   content: string

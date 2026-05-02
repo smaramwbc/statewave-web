@@ -18,6 +18,7 @@ import {
   DEMO_MAX_MESSAGE_CHARS,
   DOCS_SUBJECT_ID,
   buildSetCookie,
+  callStatewaveLLM,
   compileMemories,
   fetchAllEpisodesAdmin,
   fetchContext,
@@ -31,14 +32,12 @@ import {
   subjectFor,
   writeEpisode,
   type ContextEpisode,
+  type LLMMessage,
 } from './_demo'
 
 export const config = { runtime: 'edge' }
 
-interface Message {
-  role: string
-  content: string
-}
+type Message = LLMMessage
 
 const STATELESS_PROMPT = `You are a helpful AI assistant. You have NO memory of any previous conversations with this user. Every conversation starts completely fresh.
 
@@ -70,30 +69,9 @@ Rules:
 - Present retrieved facts as natural prose. Do not include any internal labels like "(profile_fact)" or bracketed tags in your reply — those are internal annotations, not part of the answer.
 - Keep responses concise (2-4 sentences). Prefer accurate over comprehensive.`
 
-async function callOpenAI(messages: Message[], systemPrompt: string): Promise<string> {
-  const apiKey = process.env.OPENAI_API_KEY ?? ''
-  const resp = await fetch('https://api.openai.com/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model: 'gpt-4o-mini',
-      messages: [{ role: 'system', content: systemPrompt }, ...messages],
-      max_tokens: 200,
-      temperature: 0.7,
-    }),
-  })
-  if (!resp.ok) throw new Error(`OpenAI error: ${await resp.text()}`)
-  const data = await resp.json()
-  return data.choices?.[0]?.message?.content ?? 'No response'
-}
-
 export default async function handler(req: Request): Promise<Response> {
   if (req.method === 'OPTIONS') return json({}, { status: 200 })
   if (req.method !== 'POST') return json({ error: 'Method not allowed' }, { status: 405 })
-  if (!process.env.OPENAI_API_KEY) return json({ error: 'OPENAI_API_KEY not configured' }, { status: 500 })
 
   let body: { messages: Message[]; mode: 'stateless' | 'statewave'; persona?: string }
   try {
@@ -116,7 +94,7 @@ export default async function handler(req: Request): Promise<Response> {
 
   try {
     if (mode === 'stateless') {
-      const reply = await callOpenAI(messages, STATELESS_PROMPT)
+      const reply = await callStatewaveLLM(messages, STATELESS_PROMPT)
       return json({ reply })
     }
 
@@ -152,7 +130,7 @@ export default async function handler(req: Request): Promise<Response> {
           enriched += `\n\n## Statewave docs (retrieved facts):\n${memorySection}`
         }
       }
-      const reply = await callOpenAI(messages, enriched)
+      const reply = await callStatewaveLLM(messages, enriched)
 
       // Resolve visible citations from the same context the model was given.
       // Sourcing from retrieved context (not the model's reply text) prevents
@@ -231,7 +209,7 @@ export default async function handler(req: Request): Promise<Response> {
       enrichedPrompt += `\n\nThe visitor selected the "${persona}" persona; bias your tone and topic accordingly.`
     }
 
-    const reply = await callOpenAI(messages, enrichedPrompt)
+    const reply = await callStatewaveLLM(messages, enrichedPrompt)
 
     // Persist this turn as an episode (user message + assistant reply pair),
     // then trigger compilation. Both are awaited so the next /api/demo-state

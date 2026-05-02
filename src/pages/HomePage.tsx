@@ -115,6 +115,21 @@ function HeroSection() {
             </a>
           </motion.div>
 
+          {/* Secondary affordance for visitors who came with a question rather
+              than wanting the comparison demo. Opens the widget directly to the
+              docs-grounded Statewave Support persona. */}
+          <motion.div variants={fadeUp} className="mt-3 text-xs text-theme-muted">
+            Have a question?{' '}
+            <button
+              type="button"
+              onClick={() => openWidget('statewave-support', 'Statewave Support')}
+              className="text-theme-secondary hover:text-accent underline-offset-4 hover:underline transition-colors font-medium"
+            >
+              Ask Statewave Support
+            </button>{' '}
+            <span className="text-theme-muted/80">— grounded in the official docs, with citations.</span>
+          </motion.div>
+
           {/* Honesty stripe — the demo isn't a mock. Every episode, memory,
               and ranked context bundle the demo shows comes from a real
               running Statewave server. */}

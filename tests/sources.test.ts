@@ -27,7 +27,9 @@ function makeRequest(method: string, url: string, init: RequestInit = {}): Reque
   return new Request(url, { method, ...init })
 }
 function setEnv() {
-  process.env.OPENAI_API_KEY = 'test-key'
+  // No OPENAI_API_KEY here on purpose — the website no longer talks to OpenAI
+  // directly; chat completions flow through the Statewave server's
+  // /v1/llm/complete endpoint, authenticated with STATEWAVE_API_KEY.
   process.env.STATEWAVE_API_KEY = 'test-key'
   process.env.STATEWAVE_URL = 'https://statewave-api.test'
 }
@@ -273,9 +275,9 @@ describe('POST /api/widget-chat — sources in the response', () => {
         // test failure if the contract regresses.
         throw new Error(`docs persona must not call ${url}`)
       }
-      if (url.includes('api.openai.com')) {
+      if (url.includes('/v1/llm/complete')) {
         return new Response(
-          JSON.stringify({ choices: [{ message: { content: 'PostgreSQL with pgvector.' } }] }),
+          JSON.stringify({ reply: 'PostgreSQL with pgvector.' }),
           { status: 200 },
         )
       }
@@ -388,9 +390,11 @@ describe('POST /api/widget-chat — admin-episodes fallback for citations', () =
           { status: 200 },
         )
       }
-      if (url.includes('api.openai.com')) {
+      if (url.includes('/v1/llm/complete')) {
         // Capture the system prompt the model actually receives so we can
-        // assert it contains no [kind] tags.
+        // assert it contains no [kind] tags. The Statewave-server endpoint
+        // accepts the same OpenAI-style messages array, so the system
+        // message is still messages[0].
         try {
           const body = JSON.parse((init?.body as string) ?? '{}')
           const sys = body.messages?.find((m: { role: string }) => m.role === 'system')
@@ -398,10 +402,7 @@ describe('POST /api/widget-chat — admin-episodes fallback for citations', () =
         } catch {
           /* ignore */
         }
-        return new Response(
-          JSON.stringify({ choices: [{ message: { content: 'Postgres + pgvector.' } }] }),
-          { status: 200 },
-        )
+        return new Response(JSON.stringify({ reply: 'Postgres + pgvector.' }), { status: 200 })
       }
       throw new Error(`Unexpected fetch in fallback test: ${url}`)
     })
@@ -484,11 +485,8 @@ describe('POST /api/widget-chat — visitor-memory persona has no sources', () =
           { status: 200 },
         )
       }
-      if (url.includes('api.openai.com')) {
-        return new Response(
-          JSON.stringify({ choices: [{ message: { content: 'hi' } }] }),
-          { status: 200 },
-        )
+      if (url.includes('/v1/llm/complete')) {
+        return new Response(JSON.stringify({ reply: 'hi' }), { status: 200 })
       }
       throw new Error(`Unexpected fetch in visitor-memory sources test: ${url}`)
     })

@@ -640,17 +640,36 @@ export function ChatWidget() {
               <span className="text-accent text-xl">✦</span>
             </div>
             <h3 className="text-base sm:text-lg font-semibold text-theme-primary text-center">
-              Try Statewave with real memory
+              {isDocsSharedPersona(persona)
+                ? 'Ask Statewave Support'
+                : 'Try Statewave with real memory'}
             </h3>
-            <p className="mt-3 text-xs sm:text-sm text-theme-muted text-center max-w-md leading-relaxed">
-              Two AI agents, same model. The left replies with no context.
-              The right gets ranked memory compiled live from your turns by
-              a real Statewave server.
-            </p>
-            <p className="mt-2.5 text-xs sm:text-sm text-theme-muted text-center max-w-md leading-relaxed">
-              This browser is remembered, so memory carries across visits.
-              Reset anytime from the trash icon.
-            </p>
+            {isDocsSharedPersona(persona) ? (
+              <>
+                <p className="mt-3 text-xs sm:text-sm text-theme-muted text-center max-w-md leading-relaxed">
+                  Two AI agents, same model. The left replies with no context.
+                  The right is grounded in the official Statewave docs and
+                  cites the pages it used — no fabrication, no per-visitor memory.
+                </p>
+                <p className="mt-2.5 text-xs sm:text-sm text-theme-muted text-center max-w-md leading-relaxed">
+                  Ask about deployment, retrieval, the SDKs, or how the runtime
+                  works. Switch the dropdown above to try the per-visitor
+                  memory personas instead.
+                </p>
+              </>
+            ) : (
+              <>
+                <p className="mt-3 text-xs sm:text-sm text-theme-muted text-center max-w-md leading-relaxed">
+                  Two AI agents, same model. The left replies with no context.
+                  The right gets ranked memory compiled live from your turns by
+                  a real Statewave server.
+                </p>
+                <p className="mt-2.5 text-xs sm:text-sm text-theme-muted text-center max-w-md leading-relaxed">
+                  This browser is remembered, so memory carries across visits.
+                  Reset anytime from the trash icon.
+                </p>
+              </>
+            )}
             {suggestions.length > 0 && (
               <>
                 <p className="mt-6 text-[10px] uppercase tracking-wider text-theme-muted/70 font-semibold">
@@ -722,17 +741,30 @@ export function ChatWidget() {
                   </span>
                 </div>
                 <p className="text-sm sm:text-[15px] font-semibold text-theme-primary tracking-tight">
-                  {tourStep === 1 && 'About this persona’s memory'}
+                  {tourStep === 1 && (isDocsSharedPersona(persona)
+                    ? 'Grounded in the official docs'
+                    : 'About this persona’s memory')}
                   {tourStep === 2 && 'Try a question'}
                   {tourStep === 3 && 'See what Statewave used'}
                 </p>
                 <p className="mt-1 text-[11.5px] sm:text-[12.5px] text-theme-secondary leading-relaxed">
                   {tourStep === 1 && (
-                    <>
-                      You’re seeing <span className="text-theme-primary font-medium">{personaLabel}</span>’s
-                      seeded memory pool — facts compiled by Statewave from showcase sessions, not yours.
-                      Each persona has its own pool; switch via the dropdown.
-                    </>
+                    isDocsSharedPersona(persona) ? (
+                      <>
+                        <span className="text-theme-primary font-medium">{personaLabel}</span> answers
+                        from the shared Statewave docs pack — the same pages
+                        every visitor sees, with citations on every reply.
+                        It’s read-only and doesn’t learn from your visit.
+                        Switch the dropdown to the per-visitor personas to see
+                        Statewave compile memory from your turns instead.
+                      </>
+                    ) : (
+                      <>
+                        You’re seeing <span className="text-theme-primary font-medium">{personaLabel}</span>’s
+                        seeded memory pool — facts compiled by Statewave from showcase sessions, not yours.
+                        Each persona has its own pool; switch via the dropdown.
+                      </>
+                    )
                   )}
                   {tourStep === 2 && 'Pick a chip below or type your own. Both agents answer the same prompt simultaneously — left without memory, right with Statewave-ranked context.'}
                   {tourStep === 3 && 'After a turn, open the Inspector to see the exact compiled memories Statewave drew from.'}

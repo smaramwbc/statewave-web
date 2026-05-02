@@ -84,8 +84,10 @@ describe('Widget onboarding — welcome panel', () => {
     // Click the floating launcher to open the widget.
     fireEvent.click(screen.getByText('Try the demo'))
 
-    // Headline is visible
-    expect(await screen.findByText(/Try Statewave with real memory/i)).toBeInTheDocument()
+    // The default persona is the docs-grounded Statewave Support — its welcome
+    // headline names that explicitly so first-time visitors know what they're
+    // looking at.
+    expect(await screen.findByText(/Ask Statewave Support/i)).toBeInTheDocument()
     // Skip link is reachable
     expect(screen.getByText(/skip onboarding/i)).toBeInTheDocument()
     // The comparison columns should NOT render yet
@@ -108,7 +110,7 @@ describe('Widget onboarding — welcome panel', () => {
 
     // Welcome is gone, columns are visible.
     await waitFor(() => {
-      expect(screen.queryByText(/Try Statewave with real memory/i)).toBeNull()
+      expect(screen.queryByText(/Ask Statewave Support/i)).toBeNull()
     })
     expect(screen.getByText(/Without Memory/i)).toBeInTheDocument()
     // localStorage flag persisted.
@@ -134,7 +136,7 @@ describe('Widget onboarding — welcome panel', () => {
 
     // Comparison columns appear immediately, no welcome.
     expect(await screen.findByText(/Without Memory/i)).toBeInTheDocument()
-    expect(screen.queryByText(/Try Statewave with real memory/i)).toBeNull()
+    expect(screen.queryByText(/Ask Statewave Support/i)).toBeNull()
   })
 
   it('clicking a welcome suggestion chip auto-dismisses and sends a message', async () => {
@@ -149,8 +151,9 @@ describe('Widget onboarding — welcome panel', () => {
     )
 
     fireEvent.click(screen.getByText('Try the demo'))
-    // The welcome's "Try a question" chips are the support-agent suggestions.
-    const chip = await screen.findByText(/Did my \$50 refund go through\?/i)
+    // The default persona is statewave-support, so the welcome's "Try a
+    // question" chips come from the docs-grounded suggestion bank.
+    const chip = await screen.findByText(/What database does Statewave use\?/i)
 
     act(() => {
       fireEvent.click(chip)
@@ -195,7 +198,7 @@ describe('Widget onboarding — welcome panel', () => {
     })
 
     // Welcome panel returns.
-    expect(await screen.findByText(/Try Statewave with real memory/i)).toBeInTheDocument()
+    expect(await screen.findByText(/Ask Statewave Support/i)).toBeInTheDocument()
   })
 })
 
@@ -222,11 +225,13 @@ describe('Widget onboarding — guided tour', () => {
       fireEvent.click(screen.getByText(/skip onboarding/i))
     })
 
-    // Tour banner appears at step 1.
+    // Tour banner appears at step 1. Default persona is statewave-support
+    // (docs-grounded), so step 1 explains the docs-grounded path rather than
+    // the visitor-memory persona model.
     const banner = await screen.findByTestId('tour-banner')
     expect(banner).toBeInTheDocument()
     expect(screen.getByText(/Step 1 of 3/i)).toBeInTheDocument()
-    expect(screen.getByText(/About this persona’s memory/i)).toBeInTheDocument()
+    expect(screen.getByText(/Grounded in the official docs/i)).toBeInTheDocument()
   })
 
   it('Next + Back navigate through the tour; Got it ends and persists completion', async () => {

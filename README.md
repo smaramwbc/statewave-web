@@ -109,8 +109,8 @@ The floating chat widget is a real Statewave-backed comparison surface, not a mo
 
 - **Identity:** anonymous first-party HttpOnly cookie `sw_demo_visitor` (UUID v4, `Path=/`, `SameSite=Lax`, `Secure` in prod, 30-day Max-Age). No fingerprinting, no localStorage for the id.
 - **Persona kinds:** the dropdown exposes two kinds. **Visitor-memory** personas (Support Agent, Coding Assistant, Sales Copilot, DevOps Agent, Research Assistant) each get a per-visitor subject `demo_web_<uuid>__<persona>` and run the full write/compile/seed cycle. **Docs-shared** personas (currently *Statewave Support*) read from a fixed shared subject `statewave-support-docs` populated upstream from the official docs corpus by `statewave/scripts/bootstrap_docs_pack.py`. Docs-shared personas never write, never compile, and are not visitor-resettable.
-- **Per-turn flow (visitor-memory):** `widget-chat` writes an episode under the active persona's subject, runs `compile`, fetches ranked context, and forwards the assembled context to OpenAI. The "without memory" column is a parallel stateless OpenAI call.
-- **Per-turn flow (docs-shared):** `widget-chat` fetches ranked context from `statewave-support-docs`, injects it into a docs-grounded system prompt that requires citations and forbids fabrication, and forwards to OpenAI. No write, no compile.
+- **Per-turn flow (visitor-memory):** `widget-chat` writes an episode under the active persona's subject, runs `compile`, fetches ranked context, and asks the Statewave server to run the chat completion via `POST /v1/llm/complete`. The "without memory" column is a parallel call to the same Statewave-server endpoint with no context. The website never talks to an LLM provider directly — provider/model selection lives entirely in the Statewave server's LiteLLM config.
+- **Per-turn flow (docs-shared):** `widget-chat` fetches ranked context from `statewave-support-docs`, injects it into a docs-grounded system prompt that requires citations and forbids fabrication, and asks the Statewave server's `/v1/llm/complete` to generate the reply. No write, no compile.
 - **Reset:** wipes every visitor-memory subject for the visitor and reissues a fresh cookie. The shared docs subject is excluded by construction (`allSubjectsFor()` only iterates visitor-memory personas).
 - **Onboarding:** versioned localStorage flag (`statewave-demo-onboarding-v1`) gates a one-time welcome panel + 3-step guided tour. Reset does **not** bring the welcome back — onboarding is UI state, not data.
 - **Abuse caps:** 200 episodes per visitor, 1000 chars per message. Docs-shared personas don't accrue episodes, so the cap doesn't apply.
@@ -167,9 +167,8 @@ Set in the Vercel project (Production + Preview). None are required for `npm run
 
 | Variable | Used by | Purpose |
 |---|---|---|
-| `STATEWAVE_API_KEY` | all `api/*` handlers | Server-to-server auth against the Statewave API |
+| `STATEWAVE_API_KEY` | all `api/*` handlers | Server-to-server auth against the Statewave API — used for `/v1/episodes`, `/v1/context`, `/v1/llm/complete`, etc. |
 | `STATEWAVE_URL` | `api/_demo.ts` | Statewave API base URL (defaults to `https://statewave-api.fly.dev`) |
-| `OPENAI_API_KEY` | `api/widget-chat.ts` | LLM provider for both demo modes |
 | `STATEWAVE_DEV_API` | local Vite proxy only | Override for `vite.config.ts` to point `/api/*` at a local `vercel dev` instance |
 
 ## Deployment

@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import { useState, useEffect, useRef } from 'react'
 import { ThemeSwitcher } from './ThemeSwitcher'
 import { Logo } from './Logo'
+import { useChatWidget } from '../lib/widget-context'
 
 const links = [
   { to: '/product', label: 'Product' },
@@ -14,6 +15,12 @@ const links = [
 export function Navbar() {
   const location = useLocation()
   const [mobileOpen, setMobileOpen] = useState(false)
+  const { openWidget } = useChatWidget()
+
+  const askSupport = () => {
+    openWidget('statewave-support', 'Statewave Support')
+    setMobileOpen(false)
+  }
 
   // Close mobile menu on Escape
   useEffect(() => {
@@ -74,6 +81,14 @@ export function Navbar() {
 
         {/* Desktop right — actions */}
         <div className="hidden md:flex items-center gap-3">
+          <button
+            type="button"
+            onClick={askSupport}
+            className="text-[12.5px] font-medium px-3 py-1.5 rounded-md border border-theme-border text-theme-secondary hover:text-theme-primary hover:border-accent/50 transition-colors duration-150"
+            title="Ask the Statewave Support agent — answers grounded in the official docs"
+          >
+            Ask Support
+          </button>
           <ThemeSwitcher />
         </div>
 
@@ -120,6 +135,13 @@ export function Navbar() {
             >
               GitHub
             </a>
+            <button
+              type="button"
+              onClick={askSupport}
+              className="text-[15px] font-medium text-left text-theme-secondary hover:text-theme-primary transition-colors"
+            >
+              Ask Support
+            </button>
             <div className="pt-3 border-t border-theme-border flex items-center justify-between">
               <span className="text-xs text-theme-muted">Theme</span>
               <ThemeSwitcher />

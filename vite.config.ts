@@ -19,12 +19,15 @@ export default defineConfig({
         target: process.env.STATEWAVE_DEV_API ?? 'https://www.statewave.ai',
         changeOrigin: true,
         // 60s — dev-only band-aid. The docs-grounded Statewave Support
-        // persona's /v1/context call can hit a 10–30s OpenAI embed_query
-        // latency spike on the first uncached query. The actual fix lives
-        // server-side in statewave/server/services/embeddings/openai.py
-        // (in-process LRU cache for query embeddings), which makes repeat
-        // queries instant. This bump is only for the cold-cache first hit
-        // during local verification — production turns hit the cached path.
+        // persona's /v1/context call can hit a 10–30s embed_query latency
+        // spike on the first uncached query (any LiteLLM-routed embedding
+        // provider, depending on which one is configured). The actual fix
+        // lives server-side in statewave/server/services/embeddings/
+        // (`litellm.py` plus the L1 in-process LRU + L2 Postgres-backed
+        // `query_embedding_cache` shipped in v0.7), which makes repeat
+        // queries instant across all backend instances. This bump is only
+        // for the cold-cache first hit during local verification —
+        // production turns hit the cached path.
         timeout: 60000,
       },
     },
