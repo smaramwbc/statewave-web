@@ -302,6 +302,109 @@ describe('POST /api/widget-chat — sources in the response', () => {
   })
 })
 
+describe('POST /api/widget-chat — timeline fallback for citations', () => {
+  // Pins the production-observed shape: /v1/context returns compiled
+  // memories with source_episode_ids but NO inline episodes. Without the
+  // timeline-fallback path the citation resolver would return [] and the
+  // widget Sources row would never render. This test guards against
+  // re-introducing that gap.
+
+  let timelineCalls = 0
+
+  beforeEach(() => {
+    setEnv()
+    timelineCalls = 0
+    vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) => {
+      const url = typeof input === 'string' ? input : (input as Request).url
+      if (url.includes('/v1/timeline')) {
+        timelineCalls++
+        // Timeline returns the doc-section episode with full provenance —
+        // exactly what /v1/context omitted.
+        return new Response(
+          JSON.stringify({
+            episodes: [
+              {
+                id: 'e-postgres',
+                source: 'statewave-docs',
+                type: 'doc_section',
+                payload: {
+                  breadcrumb: 'Architecture Overview › Data store',
+                  url: 'https://github.com/smaramwbc/statewave-docs/blob/main/architecture/overview.md#data-store',
+                },
+                provenance: { doc_path: 'architecture/overview.md' },
+              },
+              // An unrelated episode — must NOT leak into citations because
+              // its id is not in any memory.source_episode_ids.
+              {
+                id: 'e-other',
+                source: 'statewave-docs',
+                type: 'doc_section',
+                payload: { breadcrumb: 'Other section' },
+                provenance: { doc_path: 'unrelated.md' },
+              },
+            ],
+            memories: [],
+          }),
+          { status: 200 },
+        )
+      }
+      if (url.includes('/v1/context')) {
+        // Production-shape: facts with source_episode_ids, but episodes[]
+        // is empty — server elided the raw episodes for token efficiency.
+        return new Response(
+          JSON.stringify({
+            subject_id: DOCS_SUBJECT_ID,
+            task: 't',
+            facts: [
+              {
+                id: 'm-1',
+                kind: 'profile_fact',
+                content: 'Statewave uses PostgreSQL with pgvector.',
+                confidence: 0.9,
+                source_episode_ids: ['e-postgres'],
+              },
+            ],
+            procedures: [],
+            episodes: [],
+            assembled_context: '',
+            token_estimate: 0,
+          }),
+          { status: 200 },
+        )
+      }
+      if (url.includes('api.openai.com')) {
+        return new Response(
+          JSON.stringify({ choices: [{ message: { content: 'Postgres + pgvector.' } }] }),
+          { status: 200 },
+        )
+      }
+      throw new Error(`Unexpected fetch in fallback test: ${url}`)
+    })
+  })
+  afterEach(() => vi.restoreAllMocks())
+
+  it('falls back to /v1/timeline when /v1/context returns no inline episodes', async () => {
+    const req = makeRequest('POST', 'http://test/api/widget-chat', {
+      headers: { 'content-type': 'application/json', cookie: cookieHeader(VALID_UUID) },
+      body: JSON.stringify({
+        messages: [{ role: 'user', content: 'What database does Statewave use?' }],
+        mode: 'statewave',
+        persona: 'statewave-support',
+      }),
+    })
+    const resp = await widgetChat(req)
+    expect(resp.status).toBe(200)
+    const data = await resp.json()
+    expect(timelineCalls).toBe(1)
+    expect(data.sources).toHaveLength(1)
+    expect(data.sources[0].doc_path).toBe('architecture/overview.md')
+    expect(data.sources[0].url).toContain('overview.md')
+    // The unrelated episode in the timeline response must NOT appear in
+    // citations — only episodes referenced by retrieved memories survive.
+    expect(data.sources.find((s: { doc_path: string }) => s.doc_path === 'unrelated.md')).toBeUndefined()
+  })
+})
+
 describe('POST /api/widget-chat — visitor-memory persona has no sources', () => {
   beforeEach(() => {
     setEnv()

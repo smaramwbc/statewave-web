@@ -167,6 +167,10 @@ interface TimelineEpisode {
   type?: string
   /** Free-form. Showcase subjects use a mix of shapes — preserve verbatim when copying. */
   payload?: unknown
+  /** Doc-pack episodes carry { doc_path, content_hash, pack_version }; needed
+   *  to resolve docs-grounded citations when /v1/context returns memories
+   *  but no inline episodes. */
+  provenance?: Record<string, unknown>
   created_at?: string
 }
 

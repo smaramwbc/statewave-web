@@ -29,6 +29,7 @@ import {
   resolveDocSources,
   subjectFor,
   writeEpisode,
+  type ContextEpisode,
 } from './_demo'
 
 export const config = { runtime: 'edge' }
@@ -146,11 +147,42 @@ export default async function handler(req: Request): Promise<Response> {
         }
       }
       const reply = await callOpenAI(messages, enriched)
+
       // Resolve visible citations from the same context the model was given.
       // Sourcing from retrieved context (not the model's reply text) prevents
       // fabricated citations and means we only show sources the answer was
       // actually grounded in.
-      const sources = resolveDocSources(context)
+      //
+      // The Statewave server's /v1/context response often returns compiled
+      // memories *without* their source episodes inline (the assembled
+      // context is summary-driven for token efficiency). When that happens,
+      // resolveDocSources can't map memories.source_episode_ids to doc_path
+      // — so we fall back to one timeline fetch and stitch matching
+      // episodes into a synthesized bundle just for the citation resolve.
+      let bundleForCitations = context
+      if (
+        context &&
+        (!context.episodes || context.episodes.length === 0) &&
+        [...(context.facts ?? []), ...(context.procedures ?? [])].some(
+          (m) => (m.source_episode_ids ?? []).length > 0,
+        )
+      ) {
+        const wantedEpisodeIds = new Set<string>()
+        for (const m of [...(context.facts ?? []), ...(context.procedures ?? [])]) {
+          for (const sid of m.source_episode_ids ?? []) wantedEpisodeIds.add(sid)
+        }
+        const { episodes: timelineEpisodes } = await fetchTimeline(DOCS_SUBJECT_ID)
+        const matched = timelineEpisodes.filter((e) => wantedEpisodeIds.has(e.id))
+        if (matched.length > 0) {
+          bundleForCitations = {
+            ...context,
+            // Cast: TimelineEpisode shape matches ContextEpisode for the
+            // fields resolveDocSources reads (id, payload, provenance).
+            episodes: matched as unknown as ContextEpisode[],
+          }
+        }
+      }
+      const sources = resolveDocSources(bundleForCitations)
       // Read-only against the shared docs subject: no episode write, no compile.
       return json(
         { reply, context, sources, subjectId: DOCS_SUBJECT_ID, persisted: false },
