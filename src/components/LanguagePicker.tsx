@@ -29,24 +29,29 @@ export function LanguagePicker({ value, onChange }: Props) {
   const inputRef = useRef<HTMLInputElement>(null)
   const current = languageFor(value)
 
+  // Closing the picker resets the query so re-opening starts from a clean
+  // state. Bundled into a helper so every close path goes through the same
+  // reset and we don't end up with setState-in-effect cascades.
+  const closePicker = () => {
+    setOpen(false)
+    setQuery('')
+  }
+
   // Focus the search field as soon as the dropdown appears so the user can
-  // start typing immediately. Reset the query whenever the picker closes so
-  // re-opening always starts from a clean state.
+  // start typing immediately.
   useEffect(() => {
     if (open) {
       requestAnimationFrame(() => inputRef.current?.focus())
-    } else {
-      setQuery('')
     }
   }, [open])
 
   useEffect(() => {
     if (!open) return
     const handler = (e: MouseEvent | TouchEvent) => {
-      if (!wrapperRef.current?.contains(e.target as Node)) setOpen(false)
+      if (!wrapperRef.current?.contains(e.target as Node)) closePicker()
     }
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setOpen(false)
+      if (e.key === 'Escape') closePicker()
     }
     document.addEventListener('mousedown', handler)
     document.addEventListener('touchstart', handler)
@@ -64,7 +69,7 @@ export function LanguagePicker({ value, onChange }: Props) {
     const first = filtered[0]
     if (first) {
       onChange(first.code)
-      setOpen(false)
+      closePicker()
     }
   }
 
@@ -72,7 +77,7 @@ export function LanguagePicker({ value, onChange }: Props) {
     <div ref={wrapperRef} className="relative inline-block">
       <button
         type="button"
-        onClick={() => setOpen((o) => !o)}
+        onClick={() => (open ? closePicker() : setOpen(true))}
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-label={`Language: ${current.englishName}. Change language.`}
@@ -142,7 +147,7 @@ export function LanguagePicker({ value, onChange }: Props) {
                       aria-selected={active}
                       onClick={() => {
                         onChange(lang.code)
-                        setOpen(false)
+                        closePicker()
                       }}
                       className={`w-full flex items-center justify-between gap-3 px-3 py-1.5 text-[13px] text-left transition-colors ${
                         active
