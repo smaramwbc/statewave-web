@@ -187,6 +187,26 @@ export async function fetchTimeline(subjectId: string): Promise<TimelineResult> 
   return (await resp.json()) as TimelineResult
 }
 
+/**
+ * Fetch every episode for a subject via the admin endpoint. Used by the
+ * docs-grounded citation resolver which needs to reach episodes the
+ * /v1/timeline endpoint won't return — that endpoint caps responses at
+ * 100 regardless of limit/offset, which is too low for the 178-section
+ * docs pack (citations from deployment/, privacy/, etc would otherwise
+ * never resolve). Requires an API key with admin scope; the widget's
+ * STATEWAVE_API_KEY already has it.
+ */
+export async function fetchAllEpisodesAdmin(subjectId: string): Promise<TimelineEpisode[]> {
+  const resp = await fetch(
+    `${statewaveUrl()}/admin/subjects/${encodeURIComponent(subjectId)}/episodes?limit=500`,
+    { headers: { 'X-API-Key': statewaveApiKey() } },
+  )
+  if (!resp.ok) return []
+  const data = await resp.json()
+  if (Array.isArray(data)) return data as TimelineEpisode[]
+  return (data?.episodes ?? []) as TimelineEpisode[]
+}
+
 export async function writeEpisode(
   subjectId: string,
   payload: unknown,

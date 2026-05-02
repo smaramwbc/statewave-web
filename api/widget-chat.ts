@@ -19,6 +19,7 @@ import {
   DOCS_SUBJECT_ID,
   buildSetCookie,
   compileMemories,
+  fetchAllEpisodesAdmin,
   fetchContext,
   fetchTimeline,
   isDemoPersona,
@@ -56,13 +57,15 @@ Rules:
 - Keep responses concise (2-3 sentences max)
 - Be proactive — anticipate needs based on context`
 
-const STATEWAVE_DOCS_PROMPT = `You are the Statewave Support assistant. You answer questions about Statewave (the memory runtime for AI agents) using ONLY the official Statewave documentation supplied as memory context below.
+const STATEWAVE_DOCS_PROMPT = `You are the Statewave Support assistant. You answer questions about Statewave (the memory runtime for AI agents) using ONLY the retrieved facts from the official Statewave documentation supplied below.
 
 Rules:
-- Ground every claim in the provided docs context. Cite the doc path (e.g. "deployment/guide.md") when you reference a fact.
-- If the answer is not in the docs context, say so plainly and route the visitor to https://github.com/smaramwbc/statewave/issues or the SUPPORT.md file. Out-of-scope questions are an expected outcome — not a failure.
-- Never invent API fields, config keys, or version-specific behavior. If the docs don't cover an exact case, prefix with "The docs don't cover this exactly, but..." and stay close to what the docs do say.
+- The retrieved facts come from the official Statewave docs. When they contain information relevant to the question, USE IT directly — even if the wording is approximate or you have to combine multiple facts. Do not say "the docs don't cover this" when applicable facts are present.
+- Cite the doc path naturally where useful (e.g. "per architecture/overview.md") but do not fabricate filenames.
+- Refuse only when the retrieved facts contain nothing applicable. In that case say so plainly and route the visitor to https://github.com/smaramwbc/statewave/issues — out-of-scope is an expected outcome, not a failure.
+- Never invent API fields, config keys, version-specific behavior, or specific commands not stated in the retrieved facts.
 - Never claim knowledge of the visitor's specific deployment, instance health, or live errors — you cannot know that.
+- Present retrieved facts as natural prose. Do not include any internal labels like "(profile_fact)" or bracketed tags in your reply — those are internal annotations, not part of the answer.
 - Keep responses concise (2-4 sentences). Prefer accurate over comprehensive.`
 
 async function callOpenAI(messages: Message[], systemPrompt: string): Promise<string> {
@@ -140,10 +143,11 @@ export default async function handler(req: Request): Promise<Response> {
       if (context) {
         const allMemories = [...(context.facts ?? []), ...(context.procedures ?? [])]
         if (allMemories.length > 0) {
-          const memorySection = allMemories
-            .map((m) => `- [${m.kind}] ${m.content}`)
-            .join('\n')
-          enriched += `\n\n## Memory Context (from official Statewave docs):\n${memorySection}`
+          // Plain content only — no [kind] prefix. The previous format
+          // (`- [profile_fact] ...`) caused the model to copy the kind
+          // tag into user-visible replies (e.g. "PostgreSQL (profile_fact).").
+          const memorySection = allMemories.map((m) => `- ${m.content}`).join('\n')
+          enriched += `\n\n## Statewave docs (retrieved facts):\n${memorySection}`
         }
       }
       const reply = await callOpenAI(messages, enriched)
@@ -153,12 +157,12 @@ export default async function handler(req: Request): Promise<Response> {
       // fabricated citations and means we only show sources the answer was
       // actually grounded in.
       //
-      // The Statewave server's /v1/context response often returns compiled
-      // memories *without* their source episodes inline (the assembled
-      // context is summary-driven for token efficiency). When that happens,
-      // resolveDocSources can't map memories.source_episode_ids to doc_path
-      // — so we fall back to one timeline fetch and stitch matching
-      // episodes into a synthesized bundle just for the citation resolve.
+      // /v1/context returns compiled memories without inline episodes, so we
+      // walk memories.source_episode_ids back to the episodes ourselves.
+      // /v1/timeline hard-caps at 100 episodes regardless of limit/offset
+      // (verified against production), which silently drops citations from
+      // deployment/, privacy/, etc. — anything past the first 100. Use the
+      // admin endpoint instead, which honors limit and returns all 178.
       let bundleForCitations = context
       if (
         context &&
@@ -171,8 +175,8 @@ export default async function handler(req: Request): Promise<Response> {
         for (const m of [...(context.facts ?? []), ...(context.procedures ?? [])]) {
           for (const sid of m.source_episode_ids ?? []) wantedEpisodeIds.add(sid)
         }
-        const { episodes: timelineEpisodes } = await fetchTimeline(DOCS_SUBJECT_ID)
-        const matched = timelineEpisodes.filter((e) => wantedEpisodeIds.has(e.id))
+        const allEpisodes = await fetchAllEpisodesAdmin(DOCS_SUBJECT_ID)
+        const matched = allEpisodes.filter((e) => wantedEpisodeIds.has(e.id))
         if (matched.length > 0) {
           bundleForCitations = {
             ...context,

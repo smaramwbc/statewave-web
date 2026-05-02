@@ -302,24 +302,30 @@ describe('POST /api/widget-chat — sources in the response', () => {
   })
 })
 
-describe('POST /api/widget-chat — timeline fallback for citations', () => {
+describe('POST /api/widget-chat — admin-episodes fallback for citations', () => {
   // Pins the production-observed shape: /v1/context returns compiled
-  // memories with source_episode_ids but NO inline episodes. Without the
-  // timeline-fallback path the citation resolver would return [] and the
-  // widget Sources row would never render. This test guards against
-  // re-introducing that gap.
+  // memories with source_episode_ids but NO inline episodes. The fallback
+  // resolves citations via /admin/subjects/{id}/episodes — NOT /v1/timeline,
+  // because timeline hard-caps at 100 episodes regardless of limit/offset
+  // (verified against statewave-api.fly.dev) which silently drops citations
+  // from the back half of any subject larger than 100. This test guards
+  // against regressing back to the broken timeline-based path AND against
+  // the prompt-format leak that was copying "[kind]" tags into replies.
 
+  let adminEpisodesCalls = 0
   let timelineCalls = 0
+  let lastSystemPrompt = ''
 
   beforeEach(() => {
     setEnv()
+    adminEpisodesCalls = 0
     timelineCalls = 0
-    vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) => {
+    lastSystemPrompt = ''
+    vi.spyOn(globalThis, 'fetch').mockImplementation(async (input, init) => {
       const url = typeof input === 'string' ? input : (input as Request).url
-      if (url.includes('/v1/timeline')) {
-        timelineCalls++
-        // Timeline returns the doc-section episode with full provenance —
-        // exactly what /v1/context omitted.
+      if (url.includes('/admin/subjects/') && url.includes('/episodes')) {
+        adminEpisodesCalls++
+        // Admin endpoint returns full episode set — what /v1/timeline cannot.
         return new Response(
           JSON.stringify({
             episodes: [
@@ -343,10 +349,15 @@ describe('POST /api/widget-chat — timeline fallback for citations', () => {
                 provenance: { doc_path: 'unrelated.md' },
               },
             ],
-            memories: [],
           }),
           { status: 200 },
         )
+      }
+      if (url.includes('/v1/timeline')) {
+        timelineCalls++
+        // The docs-shared path must NOT use timeline — it caps at 100. Return
+        // a sentinel that would break the test if mistakenly used.
+        return new Response(JSON.stringify({ episodes: [], memories: [] }), { status: 200 })
       }
       if (url.includes('/v1/context')) {
         // Production-shape: facts with source_episode_ids, but episodes[]
@@ -373,6 +384,15 @@ describe('POST /api/widget-chat — timeline fallback for citations', () => {
         )
       }
       if (url.includes('api.openai.com')) {
+        // Capture the system prompt the model actually receives so we can
+        // assert it contains no [kind] tags.
+        try {
+          const body = JSON.parse((init?.body as string) ?? '{}')
+          const sys = body.messages?.find((m: { role: string }) => m.role === 'system')
+          lastSystemPrompt = sys?.content ?? ''
+        } catch {
+          /* ignore */
+        }
         return new Response(
           JSON.stringify({ choices: [{ message: { content: 'Postgres + pgvector.' } }] }),
           { status: 200 },
@@ -383,7 +403,7 @@ describe('POST /api/widget-chat — timeline fallback for citations', () => {
   })
   afterEach(() => vi.restoreAllMocks())
 
-  it('falls back to /v1/timeline when /v1/context returns no inline episodes', async () => {
+  it('falls back to /admin/subjects/{id}/episodes when /v1/context returns no inline episodes', async () => {
     const req = makeRequest('POST', 'http://test/api/widget-chat', {
       headers: { 'content-type': 'application/json', cookie: cookieHeader(VALID_UUID) },
       body: JSON.stringify({
@@ -395,13 +415,36 @@ describe('POST /api/widget-chat — timeline fallback for citations', () => {
     const resp = await widgetChat(req)
     expect(resp.status).toBe(200)
     const data = await resp.json()
-    expect(timelineCalls).toBe(1)
+    expect(adminEpisodesCalls).toBe(1)
+    expect(timelineCalls).toBe(0) // must not regress to the capped endpoint
     expect(data.sources).toHaveLength(1)
     expect(data.sources[0].doc_path).toBe('architecture/overview.md')
     expect(data.sources[0].url).toContain('overview.md')
-    // The unrelated episode in the timeline response must NOT appear in
-    // citations — only episodes referenced by retrieved memories survive.
+    // The unrelated episode in the response must NOT appear in citations —
+    // only episodes referenced by retrieved memories survive.
     expect(data.sources.find((s: { doc_path: string }) => s.doc_path === 'unrelated.md')).toBeUndefined()
+  })
+
+  it('memory context in the system prompt does not leak [kind] tags', async () => {
+    // Regression guard for the production bug where the model was copying
+    // "(profile_fact)" into user-visible replies because the prompt format
+    // was `- [profile_fact] content`. Memories now appear as plain bullets.
+    const req = makeRequest('POST', 'http://test/api/widget-chat', {
+      headers: { 'content-type': 'application/json', cookie: cookieHeader(VALID_UUID) },
+      body: JSON.stringify({
+        messages: [{ role: 'user', content: 'What database?' }],
+        mode: 'statewave',
+        persona: 'statewave-support',
+      }),
+    })
+    await widgetChat(req)
+    expect(lastSystemPrompt).toContain('Statewave uses PostgreSQL with pgvector.')
+    // The bullet must NOT carry a bracketed kind tag.
+    expect(lastSystemPrompt).not.toMatch(/\[profile_fact\]/)
+    expect(lastSystemPrompt).not.toMatch(/\[episode_summary\]/)
+    expect(lastSystemPrompt).not.toMatch(/\[procedure\]/)
+    // And the system prompt must not invite hedging when context exists.
+    expect(lastSystemPrompt).not.toMatch(/docs don't cover this exactly/i)
   })
 })
 
