@@ -122,6 +122,38 @@ body {
   border-radius: 4px;
 }
 
+/* ─── Cursor affordances ─────────────────────────────────────────────────────
+ * Tailwind's preflight resets <button> to cursor: default to match the HTML
+ * spec, but visually that reads as "this isn't clickable". Override at the
+ * site level so every interactive control has the right cursor without each
+ * component having to opt in. Disabled controls switch to not-allowed.
+ *
+ * <a href> already has cursor: pointer by default so it's not listed here;
+ * <a> without href is left alone (browser default).
+ */
+button:not(:disabled),
+[role="button"]:not([aria-disabled="true"]),
+[type="button"]:not(:disabled),
+[type="submit"]:not(:disabled),
+[type="reset"]:not(:disabled),
+summary,
+label[for],
+input[type="checkbox"]:not(:disabled),
+input[type="radio"]:not(:disabled) {
+  cursor: pointer;
+}
+
+button:disabled,
+[role="button"][aria-disabled="true"],
+[type="button"]:disabled,
+[type="submit"]:disabled,
+[type="reset"]:disabled,
+input:disabled,
+select:disabled,
+textarea:disabled {
+  cursor: not-allowed;
+}
+
 /* Hero hint chip — attention bounce + subtle scale pulse */
 @keyframes heroHintBounce {
   0%, 100% { transform: translateY(0) scale(1); }
