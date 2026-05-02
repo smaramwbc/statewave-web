@@ -18,7 +18,14 @@ export default defineConfig({
       '/api': {
         target: process.env.STATEWAVE_DEV_API ?? 'https://www.statewave.ai',
         changeOrigin: true,
-        timeout: 30000,
+        // 60s — dev-only band-aid. The docs-grounded Statewave Support
+        // persona's /v1/context call can hit a 10–30s OpenAI embed_query
+        // latency spike on the first uncached query. The actual fix lives
+        // server-side in statewave/server/services/embeddings/openai.py
+        // (in-process LRU cache for query embeddings), which makes repeat
+        // queries instant. This bump is only for the cold-cache first hit
+        // during local verification — production turns hit the cached path.
+        timeout: 60000,
       },
     },
   },
