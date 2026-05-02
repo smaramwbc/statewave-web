@@ -126,6 +126,27 @@ body {
   }
 }
 
+/* ─── Theme-switch flicker prevention ────────────────────────────────────────
+ * When `data-theme` flips on <html>, every CSS variable swaps at once. Any
+ * element with a `transition` on a property tied to those variables (body
+ * bg, card backgrounds, borders) starts an interpolation. The custom
+ * scrollbar thumb is alpha-tinted, so as the body background transitions
+ * underneath it, the thumb appears to change color through wrong shades —
+ * reading as "flicker."
+ *
+ * Standard fix: ThemeProvider toggles `theme-switching` on <html> for one
+ * frame around the swap. While the class is present, every transition is
+ * suppressed, so the whole page snaps to the new theme cleanly. The class
+ * is removed on the next animation frame, restoring transitions for normal
+ * interactions (hover states, etc.).
+ */
+html.theme-switching,
+html.theme-switching *,
+html.theme-switching *::before,
+html.theme-switching *::after {
+  transition: none !important;
+}
+
 /* Focus visible ring for keyboard navigation */
 :focus-visible {
   outline: 2px solid var(--color-accent);
@@ -241,9 +262,18 @@ textarea:disabled {
 
 /* ─── Custom scrollbar ───────────────────────────────────────────────────────
  * Slim, accent-tinted scrollbar that matches the Statewave palette in both
- * themes. Falls back gracefully on Firefox via `scrollbar-color`.
+ * themes. Firefox uses `scrollbar-color`; WebKit uses the pseudo-element
+ * rules below.
+ *
+ * Theme-switch flicker fix: the scrollbar properties live on `html` (they're
+ * inherited, so a global `*` selector is wasteful and causes unnecessary
+ * style recalc on every theme swap). The thumb has NO transition either —
+ * WebKit pseudo-element transitions are unreliable and produce a visible
+ * flash when interpolating between the dark and light alpha values during a
+ * theme change. Snappier is better here; the body's bg fade carries the
+ * theme-change feel without involving the scrollbar.
  */
-* {
+html {
   scrollbar-width: thin;
   scrollbar-color: var(--theme-scrollbar-thumb) transparent;
 }
@@ -262,7 +292,6 @@ textarea:disabled {
   border-radius: 999px;
   border: 2px solid transparent;
   background-clip: padding-box;
-  transition: background-color 0.18s ease;
 }
 
 ::-webkit-scrollbar-thumb:hover {

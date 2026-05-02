@@ -150,25 +150,24 @@ export function WhyPage() {
  * technical sections that follow.
  */
 function ManifestoHero() {
-  // Two-phase init for SSR/hydration safety: render English on first paint,
-  // then sync to the detected/stored preference after mount.
-  const [lang, setLang] = useState<LangCode>('en')
-  // Copy is loaded async per locale (each is a separate JS chunk via
-  // import.meta.glob). English is bundled with this page, so the very first
-  // render never paints empty. Subsequent locale switches show the previous
-  // copy until the new chunk arrives — typically a single frame on a hot
-  // network and the cache makes repeat picks instant.
+  // Detect synchronously so the first render already knows the right language.
+  // Previously we deferred this to a useEffect, which made non-English visitors
+  // see English text for one paint before the right chunk arrived. The site is
+  // SPA-only (no SSR), so there's no hydration-mismatch risk from sync init.
+  const [lang, setLang] = useState<LangCode>(() => detectInitialLang())
   const [copy, setCopy] = useState<ManifestoCopy>(ENGLISH_COPY)
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setLang(detectInitialLang())
-  }, [])
+  // Track which language the current `copy` actually represents. Used to
+  // tell whether we're still on the eager English fallback (skeleton time)
+  // or already showing real content for the user's language.
+  const [copyLang, setCopyLang] = useState<LangCode>('en')
 
   useEffect(() => {
     let cancelled = false
     loadManifesto(lang).then((next) => {
-      if (!cancelled) setCopy(next)
+      if (!cancelled) {
+        setCopy(next)
+        setCopyLang(lang)
+      }
     })
     return () => {
       cancelled = true
@@ -182,6 +181,13 @@ function ManifestoHero() {
 
   const langInfo = languageFor(lang)
   const dir = langInfo.dir ?? 'ltr'
+
+  // Skeleton appears only when we have not yet loaded the user's actual
+  // language and the eager English fallback would otherwise show. Once any
+  // non-English copy is loaded, subsequent language switches keep the prior
+  // content visible during the transition (kinder than flashing to a
+  // skeleton mid-session).
+  const showSkeleton = copyLang === 'en' && lang !== 'en'
 
   return (
     <section className="relative pt-32 pb-24 md:pb-32 overflow-hidden">
@@ -214,48 +220,64 @@ function ManifestoHero() {
             The keyed parent's single fade is enough; staggering each child on
             every locale change would feel busy anyway. */}
         <AnimatePresence mode="wait" initial={false}>
-          <motion.div
-            key={lang}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -6 }}
-            transition={{ duration: 0.35 }}
-            dir={dir}
-            lang={lang}
-          >
-            <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-accent">
-              {copy.eyebrow}
-            </p>
+          {showSkeleton ? (
+            <motion.div
+              key="skeleton"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.25 }}
+              dir={dir}
+              aria-hidden
+            >
+              <ManifestoSkeleton />
+            </motion.div>
+          ) : (
+            <motion.div
+              key={lang}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.35 }}
+              dir={dir}
+              lang={lang}
+            >
+              <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-accent">
+                {copy.eyebrow}
+              </p>
 
-            <h1 className="mt-6 text-[2.25rem] md:text-[3rem] font-semibold text-theme-primary tracking-[-0.02em] leading-[1.12]">
-              {copy.headline}
-            </h1>
+              <h1 className="mt-6 text-[2.25rem] md:text-[3rem] font-semibold text-theme-primary tracking-[-0.02em] leading-[1.12]">
+                {copy.headline}
+              </h1>
 
-            <div className="mt-10 space-y-6 text-[1.075rem] md:text-lg text-theme-secondary leading-[1.75]">
-              {copy.paragraphs.map((p, i) => (
-                <p key={i}>{p}</p>
-              ))}
-            </div>
+              <div className="mt-10 space-y-6 text-[1.075rem] md:text-lg text-theme-secondary leading-[1.75]">
+                {copy.paragraphs.map((p, i) => (
+                  <p key={i}>{p}</p>
+                ))}
+              </div>
 
-            <p className="mt-10 text-2xl md:text-[1.875rem] font-semibold tracking-[-0.015em] leading-snug">
-              {copy.closerLead}{' '}
-              <span className="bg-gradient-to-r from-accent via-brand-400 to-brand-300 bg-clip-text text-transparent">
-                {copy.closerHighlight}
-              </span>
-            </p>
+              <p className="mt-10 text-2xl md:text-[1.875rem] font-semibold tracking-[-0.015em] leading-snug">
+                {copy.closerLead}{' '}
+                <span className="bg-gradient-to-r from-accent via-brand-400 to-brand-300 bg-clip-text text-transparent">
+                  {copy.closerHighlight}
+                </span>
+              </p>
 
-            <div className="mt-12 flex items-center gap-4">
-              <span className="h-px flex-1 bg-gradient-to-r from-transparent via-theme-border to-transparent" />
-              <span className="text-xs text-theme-muted tracking-wide">
-                {copy.signoff}
-              </span>
-              <span className="h-px flex-1 bg-gradient-to-r from-transparent via-theme-border to-transparent" />
-            </div>
-          </motion.div>
+              <div className="mt-12 flex items-center gap-4">
+                <span className="h-px flex-1 bg-gradient-to-r from-transparent via-theme-border to-transparent" />
+                <span className="text-xs text-theme-muted tracking-wide">
+                  {copy.signoff}
+                </span>
+                <span className="h-px flex-1 bg-gradient-to-r from-transparent via-theme-border to-transparent" />
+              </div>
+            </motion.div>
+          )}
         </AnimatePresence>
 
         {/* The "scroll for the technical case" hint stays mounted across
-            locale changes — only its label translates. */}
+            locale changes — only its label translates. While the skeleton
+            is up the label is intentionally blank to avoid flashing English
+            below the placeholder. */}
         <div className="mt-16 flex justify-center">
           <a
             href="#infrastructure-gap"
@@ -263,7 +285,9 @@ function ManifestoHero() {
             dir={dir}
             lang={lang}
           >
-            <span className="tracking-wide uppercase">{copy.technicalCta}</span>
+            <span className="tracking-wide uppercase">
+              {showSkeleton ? '' : copy.technicalCta}
+            </span>
             <svg
               className="w-3.5 h-3.5 transition-transform group-hover:translate-y-0.5"
               fill="none"
@@ -277,5 +301,64 @@ function ManifestoHero() {
         </div>
       </div>
     </section>
+  )
+}
+
+/* ─── Manifesto skeleton ─────────────────────────────────────────────────────
+ * Shown only on first paint when the user's detected language isn't English
+ * yet — the eager English copy would otherwise flash before the right locale
+ * chunk arrives. Layout mirrors the real manifesto's vertical rhythm so the
+ * swap doesn't shift content below.
+ *
+ * Tailwind's `animate-pulse` fades opacity 1 → 0.5 → 1 on a 2s loop. Subtle
+ * enough to feel premium, obvious enough to communicate "loading" without a
+ * spinner.
+ */
+function ManifestoSkeleton() {
+  return (
+    <div className="animate-pulse">
+      {/* Eyebrow */}
+      <div className="h-3 w-28 rounded-full bg-surface-2" />
+
+      {/* Headline — two stacked lines, sized to match real h1 line-height */}
+      <div className="mt-6 space-y-3">
+        <div className="h-8 md:h-11 w-[88%] rounded-md bg-surface-2" />
+        <div className="h-8 md:h-11 w-[64%] rounded-md bg-surface-2" />
+      </div>
+
+      {/* Body paragraphs — three blocks of varying line counts to echo the
+          natural rhythm of the real copy. */}
+      <div className="mt-10 space-y-6">
+        <SkeletonParagraph widths={[100, 96, 70]} />
+        <SkeletonParagraph widths={[98, 100, 88, 52]} />
+        <SkeletonParagraph widths={[100, 95, 92, 78]} />
+      </div>
+
+      {/* Closer */}
+      <div className="mt-10">
+        <div className="h-7 md:h-8 w-[58%] rounded-md bg-surface-2" />
+      </div>
+
+      {/* Signoff rule */}
+      <div className="mt-12 flex items-center gap-4">
+        <span className="h-px flex-1 bg-gradient-to-r from-transparent via-theme-border to-transparent" />
+        <div className="h-3 w-32 rounded bg-surface-2" />
+        <span className="h-px flex-1 bg-gradient-to-r from-transparent via-theme-border to-transparent" />
+      </div>
+    </div>
+  )
+}
+
+function SkeletonParagraph({ widths }: { widths: number[] }) {
+  return (
+    <div className="space-y-2.5">
+      {widths.map((w, i) => (
+        <div
+          key={i}
+          className="h-4 rounded bg-surface-2"
+          style={{ width: `${w}%` }}
+        />
+      ))}
+    </div>
   )
 }

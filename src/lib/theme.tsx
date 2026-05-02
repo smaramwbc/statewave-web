@@ -23,7 +23,19 @@ function resolveTheme(mode: ThemeMode): ResolvedTheme {
 }
 
 function applyTheme(resolved: ResolvedTheme) {
-  document.documentElement.setAttribute('data-theme', resolved)
+  const html = document.documentElement
+  // Suppress all transitions for the duration of the swap. Without this,
+  // body bg fades over 200ms while the alpha-tinted scrollbar thumb composites
+  // over the moving background, producing visible flicker. See the
+  // `.theme-switching` rule in index.css for the full story.
+  html.classList.add('theme-switching')
+  html.setAttribute('data-theme', resolved)
+  // Force a style recalc so the new variables apply with transitions still
+  // disabled, then restore transitions on the next frame for hover/focus etc.
+  void html.offsetWidth
+  requestAnimationFrame(() => {
+    html.classList.remove('theme-switching')
+  })
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
