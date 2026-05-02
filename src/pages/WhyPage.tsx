@@ -1,7 +1,18 @@
-import { motion } from 'framer-motion'
+import { useEffect, useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { Section } from '../components/Section'
 import { Heading } from '../components/Heading'
 import { ReturnLink } from '../components/ReturnLink'
+import { LanguagePicker } from '../components/LanguagePicker'
+import {
+  ENGLISH_COPY,
+  detectInitialLang,
+  languageFor,
+  loadManifesto,
+  persistLang,
+  type LangCode,
+  type ManifestoCopy,
+} from '../lib/manifesto-i18n'
 import { usePageSEO } from '../lib/seo'
 
 export function WhyPage() {
@@ -139,14 +150,38 @@ export function WhyPage() {
  * technical sections that follow.
  */
 function ManifestoHero() {
-  const stagger = {
-    hidden: {},
-    show: { transition: { staggerChildren: 0.12, delayChildren: 0.05 } },
+  // Two-phase init for SSR/hydration safety: render English on first paint,
+  // then sync to the detected/stored preference after mount.
+  const [lang, setLang] = useState<LangCode>('en')
+  // Copy is loaded async per locale (each is a separate JS chunk via
+  // import.meta.glob). English is bundled with this page, so the very first
+  // render never paints empty. Subsequent locale switches show the previous
+  // copy until the new chunk arrives — typically a single frame on a hot
+  // network and the cache makes repeat picks instant.
+  const [copy, setCopy] = useState<ManifestoCopy>(ENGLISH_COPY)
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setLang(detectInitialLang())
+  }, [])
+
+  useEffect(() => {
+    let cancelled = false
+    loadManifesto(lang).then((next) => {
+      if (!cancelled) setCopy(next)
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [lang])
+
+  const handleLang = (code: LangCode) => {
+    setLang(code)
+    persistLang(code)
   }
-  const fadeUp = {
-    hidden: { opacity: 0, y: 12 },
-    show: { opacity: 1, y: 0, transition: { duration: 0.6 } },
-  }
+
+  const langInfo = languageFor(lang)
+  const dir = langInfo.dir ?? 'ltr'
 
   return (
     <section className="relative pt-32 pb-24 md:pb-32 overflow-hidden">
@@ -161,88 +196,85 @@ function ManifestoHero() {
       />
 
       <div className="relative mx-auto max-w-3xl px-6">
-        <ReturnLink />
+        {/* The header row stays LTR regardless of the manifesto language —
+            it carries product chrome (back-link, picker), not localized
+            content. */}
+        <div className="flex items-start justify-between gap-4">
+          <ReturnLink />
+          <div className="ml-auto">
+            <LanguagePicker value={lang} onChange={handleLang} />
+          </div>
+        </div>
 
-        <motion.div
-          variants={stagger}
-          initial="hidden"
-          animate="show"
-        >
-          <motion.p
-            variants={fadeUp}
-            className="text-[11px] font-medium uppercase tracking-[0.22em] text-accent"
-          >
-            Why Statewave
-          </motion.p>
-
-          <motion.h1
-            variants={fadeUp}
-            className="mt-6 text-[2.25rem] md:text-[3rem] font-semibold text-theme-primary tracking-[-0.02em] leading-[1.12]"
-          >
-            We built Statewave because we believe AI should remember.
-          </motion.h1>
-
+        {/* Eyebrow / headline / body / closer cross-fade together on language
+            switch. We avoid `variants` on the inner children because mixing
+            inline `initial`/`animate` on the keyed parent with variant-based
+            children breaks variant inheritance — children can get stuck at
+            their `hidden` variant after the first switch and render invisibly.
+            The keyed parent's single fade is enough; staggering each child on
+            every locale change would feel busy anyway. */}
+        <AnimatePresence mode="wait" initial={false}>
           <motion.div
-            variants={fadeUp}
-            className="mt-10 space-y-6 text-[1.075rem] md:text-lg text-theme-secondary leading-[1.75]"
+            key={lang}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.35 }}
+            dir={dir}
+            lang={lang}
           >
-            <p>
-              Not a chat history. Memory — the kind that holds across days, makes
-              promises stick, and turns yesterday's lesson into today's better answer.
+            <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-accent">
+              {copy.eyebrow}
             </p>
-            <p>
-              Every system we admire works because someone remembered. The line of code
-              that didn't need rewriting. The customer's name. The mistake we agreed
-              never to repeat.
+
+            <h1 className="mt-6 text-[2.25rem] md:text-[3rem] font-semibold text-theme-primary tracking-[-0.02em] leading-[1.12]">
+              {copy.headline}
+            </h1>
+
+            <div className="mt-10 space-y-6 text-[1.075rem] md:text-lg text-theme-secondary leading-[1.75]">
+              {copy.paragraphs.map((p, i) => (
+                <p key={i}>{p}</p>
+              ))}
+            </div>
+
+            <p className="mt-10 text-2xl md:text-[1.875rem] font-semibold tracking-[-0.015em] leading-snug">
+              {copy.closerLead}{' '}
+              <span className="bg-gradient-to-r from-accent via-brand-400 to-brand-300 bg-clip-text text-transparent">
+                {copy.closerHighlight}
+              </span>
             </p>
-            <p>
-              So we built it carefully. Self-hosted, because what your agents remember
-              is yours. Provenance-first, because any answer worth giving is worth
-              tracing. Open source, because infrastructure this important shouldn't
-              live behind someone else's login.
-            </p>
+
+            <div className="mt-12 flex items-center gap-4">
+              <span className="h-px flex-1 bg-gradient-to-r from-transparent via-theme-border to-transparent" />
+              <span className="text-xs text-theme-muted tracking-wide">
+                {copy.signoff}
+              </span>
+              <span className="h-px flex-1 bg-gradient-to-r from-transparent via-theme-border to-transparent" />
+            </div>
           </motion.div>
+        </AnimatePresence>
 
-          <motion.p
-            variants={fadeUp}
-            className="mt-10 text-2xl md:text-[1.875rem] font-semibold tracking-[-0.015em] leading-snug"
+        {/* The "scroll for the technical case" hint stays mounted across
+            locale changes — only its label translates. */}
+        <div className="mt-16 flex justify-center">
+          <a
+            href="#infrastructure-gap"
+            className="group inline-flex items-center gap-2 text-xs text-theme-muted hover:text-accent transition-colors"
+            dir={dir}
+            lang={lang}
           >
-            In the end,{' '}
-            <span className="bg-gradient-to-r from-accent via-brand-400 to-brand-300 bg-clip-text text-transparent">
-              only memories matter.
-            </span>
-          </motion.p>
-
-          <motion.div
-            variants={fadeUp}
-            className="mt-12 flex items-center gap-4"
-          >
-            <span className="h-px flex-1 bg-gradient-to-r from-transparent via-theme-border to-transparent" />
-            <span className="text-xs text-theme-muted tracking-wide">
-              Built with care, in the open.
-            </span>
-            <span className="h-px flex-1 bg-gradient-to-r from-transparent via-theme-border to-transparent" />
-          </motion.div>
-
-          {/* A discreet hint that there's substance below — no big "scroll" arrow. */}
-          <motion.div variants={fadeUp} className="mt-16 flex justify-center">
-            <a
-              href="#infrastructure-gap"
-              className="group inline-flex items-center gap-2 text-xs text-theme-muted hover:text-accent transition-colors"
+            <span className="tracking-wide uppercase">{copy.technicalCta}</span>
+            <svg
+              className="w-3.5 h-3.5 transition-transform group-hover:translate-y-0.5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden
             >
-              <span className="tracking-wide uppercase">The technical case</span>
-              <svg
-                className="w-3.5 h-3.5 transition-transform group-hover:translate-y-0.5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                aria-hidden
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-              </svg>
-            </a>
-          </motion.div>
-        </motion.div>
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+            </svg>
+          </a>
+        </div>
       </div>
     </section>
   )

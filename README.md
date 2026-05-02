@@ -21,7 +21,7 @@ It is **not** the documentation (that's [statewave-docs](https://github.com/smar
 | Framework | Vite 8 + React 19 + TypeScript 6 |
 | Styling | Tailwind CSS v4 (CSS-first config) |
 | Animation | Framer Motion + Canvas 2D (hero) |
-| Routing | React Router (SPA, 5 routes) |
+| Routing | React Router (SPA, 5 routes + 404 catch-all) |
 | Testing | Vitest + Testing Library + happy-dom |
 | CI | GitHub Actions (typecheck → lint → test → build) |
 | Deployment | Vercel (auto-deploy on push to main) |
@@ -49,28 +49,47 @@ npm run dev        # http://localhost:5173
 
 ```
 src/
-  App.tsx            # Route definitions (lazy-loaded)
-  main.tsx           # Entry point (BrowserRouter + ThemeProvider)
-  index.css          # Tailwind + theme tokens (light/dark)
+  App.tsx               # Route definitions (lazy-loaded after HomePage)
+  main.tsx              # Entry point (BrowserRouter + ThemeProvider)
+  index.css             # Tailwind + theme tokens, scrollbar, tour pulse, cursor rules
   lib/
-    theme.tsx        # Theme context (auto/light/dark, localStorage, no-FOUC)
-    seo.tsx          # Per-page SEO: title, OG, Twitter, canonical
+    theme.tsx           # Theme context (auto/light/dark, localStorage, no-FOUC)
+    seo.tsx             # Per-page SEO: title, OG, Twitter, canonical
+    widget-context.tsx  # Chat-widget global state, demo persistence, onboarding tour
+    manifesto-i18n.ts   # /why manifesto translations (the only translatable surface)
   components/
-    Layout.tsx       # Shell: skip-to-content, Navbar, main, Footer
-    Navbar.tsx       # Fixed header with mobile menu, theme switcher
+    Layout.tsx          # Shell: skip-to-content, Navbar, main, Footer, ScrollToTop, ChatWidget
+    Navbar.tsx          # Fixed header with mobile menu, theme switcher
+    Footer.tsx          # Site footer with nav links
     HeroBackground.tsx  # Canvas 2D particle visualization (live data)
-    Footer.tsx       # Site footer with nav links
-    ...              # Button, Card, Section, Logo, ThemeSwitcher, ScrollToTop
+    ChatWidget.tsx      # Embedded comparison demo + onboarding flow
+    Heading.tsx         # Section heading with always-visible # anchor + clipboard copy
+    CardAnchor.tsx      # Same affordance for use-case / connector cards
+    ReturnLink.tsx      # Cross-page back link that restores exact scroll position
+    ScrollToTop.tsx     # Route-change scroll handler (honors hash + saved Y)
+    ScrollToTopButton.tsx  # Floating back-to-top FAB
+    Section.tsx         # Standardized full-width section wrapper
+    Button.tsx          # forwardRef-aware primary / secondary / ghost button
+    Card.tsx, Logo.tsx, ThemeSwitcher.tsx
   services/
-    statewave-live.ts  # Fetch live data from Statewave API via proxy
+    statewave-live.ts   # Fetch live hero data from Statewave API via proxy
   pages/
-    HomePage.tsx     # Hero + features + proof + CTA
-    ProductPage.tsx  # How it works, domain model, scoring
-    WhyPage.tsx      # Comparison: prompt stuffing vs RAG vs Statewave
-    DevelopersPage.tsx  # SDKs, setup, API overview
-    NotFoundPage.tsx # 404
+    HomePage.tsx        # Hero, what/why, use cases, support proof, capabilities, proof, CTA
+    ProductPage.tsx     # Core loop, domain model, support intelligence, privacy, scoring
+    WhyPage.tsx         # Manifesto + technical comparison vs prompt stuffing / RAG
+    UseCasesPage.tsx    # Use case map — categories, status pills, connectors, frontier ideas
+    DevelopersPage.tsx  # SDKs, quick install, links to docs/examples
+    NotFoundPage.tsx    # 404
 api/
-  hero-data.ts       # Vercel Edge Function — proxies to Fly.io backend
+  _demo.ts              # Shared visitor cookie + Statewave fetch helpers
+  demo-state.ts         # GET — issue/restore visitor cookie + return memory pool
+  demo-seed.ts          # POST — copy showcase episodes into the visitor's persona pool
+  demo-reset.ts         # POST — wipe all of a visitor's persona subjects + reissue cookie
+  widget-chat.ts        # POST — stateless / Statewave-mode chat (writes episode + compiles)
+  hero-data.ts          # GET — proxy live hero-page data from Fly.io backend
+tests/
+  widget.test.tsx, widget-onboarding.test.tsx, demo-persistence.test.ts,
+  smoke.test.tsx, theme.test.tsx, routes.test.tsx
 ```
 
 ## Hero visualization
@@ -82,7 +101,35 @@ It visualizes the 3-tier Statewave data model:
 - **Memories** — medium nodes orbiting their subject
 - **Episodes** — small particles orbiting their parent memory
 
-All particles are interactive: hover shows tooltips, click opens a detail modal with memory content and related episodes.
+All particles are interactive: hover shows tooltips, click opens a detail modal with memory content and related episodes. Particle interaction is automatically suspended while the chat widget is open so visitors don't accidentally re-trigger the demo.
+
+## Chat widget / embedded demo
+
+The floating chat widget is a real Statewave-backed comparison surface, not a mock. Architecture:
+
+- **Identity:** anonymous first-party HttpOnly cookie `sw_demo_visitor` (UUID v4, `Path=/`, `SameSite=Lax`, `Secure` in prod, 30-day Max-Age). No fingerprinting, no localStorage for the id.
+- **Subjects:** one per persona — `demo_web_<uuid>__<persona>`. Switching the dropdown loads that persona's own memory pool. Reset wipes every persona subject for the visitor and reissues a fresh cookie.
+- **Per-turn flow:** `widget-chat` writes an episode under the active persona's subject, runs `compile`, fetches ranked context, and forwards the assembled context to OpenAI. The "without memory" column is a parallel stateless OpenAI call.
+- **Onboarding:** versioned localStorage flag (`statewave-demo-onboarding-v1`) gates a one-time welcome panel + 3-step guided tour. Reset does **not** bring the welcome back — onboarding is UI state, not data.
+- **Abuse caps:** 200 episodes per visitor, 1000 chars per message.
+
+The widget logic lives in [`src/lib/widget-context.tsx`](src/lib/widget-context.tsx); the visual layer in [`src/components/ChatWidget.tsx`](src/components/ChatWidget.tsx); the server side in [`api/`](api/) (see structure above).
+
+## Heading anchor convention
+
+Every navigable section title across the site is rendered with [`<Heading>`](src/components/Heading.tsx) — never a raw `<h2>`. The component renders a stable `id`, an always-visible `#` button, and copies a deep link to clipboard on click. Slug ids are part of the URL contract — once shipped, don't rename them. See [`.github/copilot-instructions.md`](.github/copilot-instructions.md) for the full convention.
+
+## Use Cases page
+
+`/use-cases` is the inventory of what developers can build with Statewave. It is content-driven — every card on the page comes from one of three inline arrays at the top of [`pages/UseCasesPage.tsx`](src/pages/UseCasesPage.tsx):
+
+| Array | Purpose |
+|---|---|
+| `USE_CASES` | Use cases tagged with a `category` (7 options) and a `status` (`strongest` / `good-fit` / `future`). `strongest` entries auto-promote to the featured "Strongest today" section; everything else lands in the filterable explorer. |
+| `CONNECTORS` | Bootstrap/import patterns, grouped into `CONNECTOR_GROUPS` (support, engineering, docs, CRM, realtime, events). |
+| `FRONTIER_IDEAS` | Forward-looking ideas; rendered with subtle dashed cards. |
+
+To add a use case: append one object. Categories, counts, status pills, and the "showing X of Y" line wire themselves. To promote a `good-fit` workflow once it becomes proven, change its `status` to `'strongest'` — it moves into the featured grid and out of the explorer pool automatically.
 
 ## Theme system
 
@@ -112,9 +159,20 @@ Three modes: `auto` (system), `light`, `dark`. Implemented via:
 - Focus-visible ring on keyboard navigation
 - Escape closes mobile menu
 
+## Environment variables
+
+Set in the Vercel project (Production + Preview). None are required for `npm run dev` — the dev server proxies `/api/*` to a remote target — but `vercel dev` and production deploys need:
+
+| Variable | Used by | Purpose |
+|---|---|---|
+| `STATEWAVE_API_KEY` | all `api/*` handlers | Server-to-server auth against the Statewave API |
+| `STATEWAVE_URL` | `api/_demo.ts` | Statewave API base URL (defaults to `https://statewave-api.fly.dev`) |
+| `OPENAI_API_KEY` | `api/widget-chat.ts` | LLM provider for both demo modes |
+| `STATEWAVE_DEV_API` | local Vite proxy only | Override for `vite.config.ts` to point `/api/*` at a local `vercel dev` instance |
+
 ## Deployment
 
-Auto-deployed to Vercel on push to `main`. SPA routing handled via `vercel.json` rewrites.
+Auto-deployed to Vercel on push to `main`. SPA routing handled via `vercel.json` rewrites. The `api/*` files are deployed as Vercel Edge Functions.
 
 Custom domain: `statewave.ai` (configure in Vercel dashboard).
 

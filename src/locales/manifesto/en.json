@@ -1,0 +1,13 @@
+{
+  "eyebrow": "Why Statewave",
+  "headline": "We built Statewave because we believe AI should remember.",
+  "paragraphs": [
+    "Not a chat history. Memory — the kind that holds across days, makes promises stick, and turns yesterday's lesson into today's better answer.",
+    "Every system we admire works because someone remembered. The line of code that didn't need rewriting. The customer's name. The mistake we agreed never to repeat.",
+    "So we built it carefully. Self-hosted, because what your agents remember is yours. Provenance-first, because any answer worth giving is worth tracing. Open source, because infrastructure this important shouldn't live behind someone else's login."
+  ],
+  "closerLead": "In the end,",
+  "closerHighlight": "only memories matter.",
+  "signoff": "Built with care, in the open.",
+  "technicalCta": "The technical case"
+}

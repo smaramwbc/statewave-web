@@ -113,3 +113,36 @@ Common destinations:
 - Getting started → `getting-started.md`
 - Python SDK → repo `smaramwbc/statewave-py`
 - TypeScript SDK → repo `smaramwbc/statewave-ts`
+
+---
+
+## Language: English-only, with one exception
+
+The entire marketing site is in **English**. Every page, every section, every
+card, every CTA, every microcopy string. Do not localize, translate, or add
+non-English copy anywhere — even when the user's request is ambiguous about
+language scope.
+
+### The single exception: the manifesto on `/why`
+
+The "Why we built Statewave" manifesto in
+[`src/pages/WhyPage.tsx`](../src/pages/WhyPage.tsx) (rendered by
+`ManifestoHero`) is the **only** translatable surface on the site. It has its
+own translations table in
+[`src/lib/manifesto-i18n.ts`](../src/lib/manifesto-i18n.ts) and a dedicated
+language picker.
+
+Rules for the manifesto:
+
+- All strings live in `MANIFESTO_TRANSLATIONS` keyed by language code.
+- The picker auto-detects `navigator.language` on first load and persists the
+  user's choice to `localStorage` under `statewave:manifesto-lang`.
+- The brand name **Statewave** is never translated. Other proper nouns stay
+  in their natural rendering for each language.
+- Translations are poetic, not literal. If a phrase doesn't carry in the
+  target language, rewrite it so it does — the throughline ("only memories
+  matter") must land emotionally in every locale, not just be grammatically
+  correct.
+
+If a future request asks to translate any other part of the site, push back
+and confirm — that's a deliberate scope expansion, not a default.

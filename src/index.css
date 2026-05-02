@@ -57,25 +57,36 @@
   --theme-scrollbar-thumb-hover: rgba(129, 140, 248, 0.55);
 }
 
-/* Light theme tokens */
+/* Light theme tokens
+ *
+ * Surface-0 is intentionally a tinted off-white, not pure #fff. Pure white at
+ * full-screen size is fatiguing, and when surface-0 and surface-1 collapse
+ * (which they did at #fff vs #f8fafc) cards stop separating from the page
+ * and the whole UI reads as one bright field. The current ramp adds ~3-5%
+ * lightness step between each surface so elevation actually shows.
+ *
+ * Border opacity stays at 0.06: against #fafbfc the contrast is gentler
+ * than against #fff but still defines edges cleanly. Text-primary stays at
+ * slate-900 — the issue was the bg, not the foreground.
+ */
 [data-theme="light"] {
-  --theme-surface-0: #ffffff;
-  --theme-surface-1: #f8fafc;
-  --theme-surface-2: #f1f5f9;
-  --theme-surface-3: #e2e8f0;
+  --theme-surface-0: #fafbfc;
+  --theme-surface-1: #f3f5f9;
+  --theme-surface-2: #ebeef4;
+  --theme-surface-3: #dde2eb;
   --theme-text-primary: #0f172a;
   --theme-text-secondary: #475569;
   --theme-text-muted: #64748b;
   --theme-border: rgba(0, 0, 0, 0.06);
   --theme-border-hover: rgba(0, 0, 0, 0.12);
-  --theme-card-bg: #ffffff;
-  --theme-overlay: rgba(255, 255, 255, 0.85);
-  --theme-code-bg: #f8fafc;
+  --theme-card-bg: #fafbfc;
+  --theme-overlay: rgba(250, 251, 252, 0.85);
+  --theme-code-bg: #f3f5f9;
   --theme-selection: rgba(99, 102, 241, 0.15);
   --theme-hero-particle: #4f46e5;
   --theme-hero-opacity: 0.35;
-  --theme-hero-overlay-from: rgba(255, 255, 255, 0.5);
-  --theme-hero-overlay-via: rgba(255, 255, 255, 0.7);
+  --theme-hero-overlay-from: rgba(250, 251, 252, 0.5);
+  --theme-hero-overlay-via: rgba(250, 251, 252, 0.7);
   --theme-gradient-text-from: #4f46e5;
   --theme-gradient-text-via: #2563eb;
   --theme-gradient-text-to: #1d4ed8;
@@ -198,6 +209,26 @@ textarea:disabled {
 /* For elements that already have a corner radius — keep theirs. */
 .tour-pulse--inherit-radius {
   border-radius: inherit;
+}
+
+/* ─── Card permalink highlight ───────────────────────────────────────────────
+ * Applied to a use-case card whose slug matches the current URL hash. The
+ * keyframes fire once on activation to draw the eye after smooth-scroll
+ * settles, then the card keeps a persistent accent border so a user who
+ * scrolls away can still find the highlighted card by color.
+ *
+ * Reduced motion: the global rule above clamps the animation to ~0; the
+ * steady accent border carries the highlight when motion is disabled.
+ */
+@keyframes cardAnchorPulse {
+  0%   { box-shadow: 0 0 0 0   rgba(99, 102, 241, 0.55); }
+  60%  { box-shadow: 0 0 0 10px rgba(99, 102, 241, 0); }
+  100% { box-shadow: 0 0 0 0   rgba(99, 102, 241, 0); }
+}
+
+.card-anchor-active {
+  border-color: rgba(99, 102, 241, 0.5) !important;
+  animation: cardAnchorPulse 1.4s ease-out;
 }
 
 /* Inner scroll containers in the chat widget never let scroll chain to the

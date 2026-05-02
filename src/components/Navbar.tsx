@@ -7,6 +7,7 @@ import { Logo } from './Logo'
 const links = [
   { to: '/product', label: 'Product' },
   { to: '/why', label: 'Why Statewave' },
+  { to: '/use-cases', label: 'Use Cases' },
   { to: '/developers', label: 'Developers' },
 ]
 

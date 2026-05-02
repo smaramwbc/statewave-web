@@ -11,8 +11,7 @@
     "typecheck": "tsc -b --noEmit",
     "lint": "eslint .",
     "test": "vitest run",
-    "test:watch": "vitest",
-    "seed": "node scripts/seed-hero-data.mjs"
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@vercel/speed-insights": "^2.0.0",

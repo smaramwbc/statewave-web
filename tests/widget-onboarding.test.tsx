@@ -33,7 +33,7 @@ function TestWrapper({ children }: { children: React.ReactNode }) {
  * what was called.
  */
 function stubAllFetches() {
-  return vi.spyOn(globalThis, 'fetch').mockImplementation(async (input, init) => {
+  return vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) => {
     const url = typeof input === 'string' ? input : (input as Request).url
     if (url.includes('/api/demo-state')) {
       return new Response(

@@ -28,6 +28,11 @@ const PAGE_META: Record<string, { title: string; description: string }> = {
     description:
       'Why prompt stuffing, naive RAG, and history replay fail — and how structured memory infrastructure solves AI context at scale.',
   },
+  '/use-cases': {
+    title: 'Use Cases — What you can build with Statewave',
+    description:
+      'A map of what Statewave powers — support agents, coding copilots, account intelligence, voice continuity, multi-agent infrastructure, connectors, and frontier ideas.',
+  },
   '/developers': {
     title: 'Developers — Statewave',
     description:
