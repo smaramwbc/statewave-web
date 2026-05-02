@@ -16,14 +16,17 @@
 import {
   DEMO_EPISODE_CAP,
   DEMO_MAX_MESSAGE_CHARS,
+  DOCS_SUBJECT_ID,
   buildSetCookie,
   compileMemories,
   fetchContext,
   fetchTimeline,
   isDemoPersona,
+  isDocsSharedPersona,
   json,
   newVisitorId,
   parseDemoVisitor,
+  resolveDocSources,
   subjectFor,
   writeEpisode,
 } from './_demo'
@@ -51,6 +54,15 @@ Rules:
 - Never ask for information you already know from memory
 - Keep responses concise (2-3 sentences max)
 - Be proactive — anticipate needs based on context`
+
+const STATEWAVE_DOCS_PROMPT = `You are the Statewave Support assistant. You answer questions about Statewave (the memory runtime for AI agents) using ONLY the official Statewave documentation supplied as memory context below.
+
+Rules:
+- Ground every claim in the provided docs context. Cite the doc path (e.g. "deployment/guide.md") when you reference a fact.
+- If the answer is not in the docs context, say so plainly and route the visitor to https://github.com/smaramwbc/statewave/issues or the SUPPORT.md file. Out-of-scope questions are an expected outcome — not a failure.
+- Never invent API fields, config keys, or version-specific behavior. If the docs don't cover an exact case, prefix with "The docs don't cover this exactly, but..." and stay close to what the docs do say.
+- Never claim knowledge of the visitor's specific deployment, instance health, or live errors — you cannot know that.
+- Keep responses concise (2-4 sentences). Prefer accurate over comprehensive.`
 
 async function callOpenAI(messages: Message[], systemPrompt: string): Promise<string> {
   const apiKey = process.env.OPENAI_API_KEY ?? ''
@@ -102,9 +114,14 @@ export default async function handler(req: Request): Promise<Response> {
       return json({ reply })
     }
 
-    // Statewave mode — derive the subject from cookie + persona so each
-    // persona has its own memory pool. Issue a cookie if the visitor doesn't
-    // have one yet.
+    // Statewave mode. Two flavors:
+    //   * visitor-memory persona → per-visitor subject, full write/compile cycle
+    //   * docs-shared persona    → fixed shared subject, read-only against docs
+    //
+    // Docs-shared visitors still get a cookie issued (we want consistent visitor
+    // identity for analytics / future per-visitor docs personas) but their
+    // questions are not written to the shared subject — that pack is built
+    // upstream from the official docs and must not be visitor-mutable.
     const existing = parseDemoVisitor(req.headers.get('cookie'))
     let visitorUuid = existing
     let setCookie: string | null = null
@@ -112,6 +129,35 @@ export default async function handler(req: Request): Promise<Response> {
       visitorUuid = newVisitorId()
       setCookie = buildSetCookie(visitorUuid)
     }
+
+    if (isDocsSharedPersona(persona)) {
+      const context = await fetchContext(
+        DOCS_SUBJECT_ID,
+        `Answer this Statewave product/support question: "${lastUserMsg.substring(0, 200)}"`,
+      )
+      let enriched = STATEWAVE_DOCS_PROMPT
+      if (context) {
+        const allMemories = [...(context.facts ?? []), ...(context.procedures ?? [])]
+        if (allMemories.length > 0) {
+          const memorySection = allMemories
+            .map((m) => `- [${m.kind}] ${m.content}`)
+            .join('\n')
+          enriched += `\n\n## Memory Context (from official Statewave docs):\n${memorySection}`
+        }
+      }
+      const reply = await callOpenAI(messages, enriched)
+      // Resolve visible citations from the same context the model was given.
+      // Sourcing from retrieved context (not the model's reply text) prevents
+      // fabricated citations and means we only show sources the answer was
+      // actually grounded in.
+      const sources = resolveDocSources(context)
+      // Read-only against the shared docs subject: no episode write, no compile.
+      return json(
+        { reply, context, sources, subjectId: DOCS_SUBJECT_ID, persisted: false },
+        { setCookie },
+      )
+    }
+
     const personaScope = isDemoPersona(persona) ? persona : null
     const subjectId = subjectFor(visitorUuid, personaScope)
 

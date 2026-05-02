@@ -45,7 +45,12 @@ export function newVisitorId(): string {
   return crypto.randomUUID()
 }
 
-/** Personas the widget exposes — must match DEMO_PERSONAS in widget-context.tsx. */
+/**
+ * Visitor-memory personas — each gets its own per-visitor subject and full
+ * write/compile/reset cycle. `allSubjectsFor()` iterates this list, so adding
+ * a non-visitor-memory persona here would let `/api/demo-reset` delete shared
+ * data. Don't.
+ */
 export const DEMO_PERSONAS = [
   'support-agent',
   'coding-assistant',
@@ -55,8 +60,40 @@ export const DEMO_PERSONAS = [
 ] as const
 export type DemoPersona = (typeof DEMO_PERSONAS)[number]
 
+/**
+ * Docs-shared personas — read-only against a fixed shared Statewave subject
+ * containing the official docs memory pack. No per-visitor write, no compile,
+ * no seed, no reset. The widget surfaces these alongside DEMO_PERSONAS but
+ * routes them through a different code path.
+ */
+export const DOCS_SUBJECT_ID = 'statewave-support-docs'
+export const DOCS_SHARED_PERSONAS = ['statewave-support'] as const
+export type DocsSharedPersona = (typeof DOCS_SHARED_PERSONAS)[number]
+
 export function isDemoPersona(value: string | undefined | null): value is DemoPersona {
   return !!value && (DEMO_PERSONAS as readonly string[]).includes(value)
+}
+
+export function isDocsSharedPersona(
+  value: string | undefined | null,
+): value is DocsSharedPersona {
+  return !!value && (DOCS_SHARED_PERSONAS as readonly string[]).includes(value)
+}
+
+/** Any persona id the widget recognises (visitor-memory or docs-shared). */
+export function isKnownPersona(value: string | undefined | null): boolean {
+  return isDemoPersona(value) || isDocsSharedPersona(value)
+}
+
+/**
+ * Resolve the Statewave subject a given persona reads from. Docs-shared
+ * personas always resolve to `DOCS_SUBJECT_ID` regardless of visitor —
+ * this is what makes the docs pack a shared knowledge base instead of a
+ * per-visitor copy.
+ */
+export function subjectForPersona(visitorId: string, persona: string | null | undefined): string {
+  if (isDocsSharedPersona(persona)) return DOCS_SUBJECT_ID
+  return subjectFor(visitorId, persona ?? null)
 }
 
 /**
@@ -190,13 +227,96 @@ export async function deleteSubject(subjectId: string): Promise<boolean> {
   return resp.ok || resp.status === 404
 }
 
+export interface ContextMemory {
+  id: string
+  content: string
+  kind: string
+  confidence: number
+  /** UUIDs of the raw episodes this compiled memory was extracted from. */
+  source_episode_ids?: string[]
+}
+
+export interface ContextEpisode {
+  id: string
+  source?: string
+  type?: string
+  /** Free-form. Doc-pack episodes carry { title, breadcrumb, doc_path, url, text }. */
+  payload?: Record<string, unknown>
+  /** Doc-pack episodes carry { doc_path, content_hash, pack_version }. */
+  provenance?: Record<string, unknown>
+}
+
 export interface ContextBundle {
   subject_id: string
   task: string
-  facts: Array<{ id: string; content: string; kind: string; confidence: number }>
-  procedures: Array<{ id: string; content: string; kind: string; confidence: number }>
+  facts: ContextMemory[]
+  procedures: ContextMemory[]
+  /** Raw episodes that survived ranking — present in the wire response from
+   *  `POST /v1/context`. For the docs subject these carry the doc_path and
+   *  breadcrumb we render as visible sources. */
+  episodes?: ContextEpisode[]
   assembled_context: string
   token_estimate: number
+}
+
+export interface DocSource {
+  doc_path: string
+  breadcrumb: string
+  url: string
+}
+
+/**
+ * Walk a context bundle and produce a deduplicated, ranked list of doc-pack
+ * sources for citation rendering. Pulls first from the bundle's own
+ * `episodes[]` (the ranked retrieved set), then fills in via memories'
+ * `source_episode_ids`. Caps at `limit` (default 4) and drops anything
+ * without a `doc_path` — i.e. anything not from the docs pack.
+ *
+ * Returns [] when nothing is grounded — callers should hide the citation UI
+ * rather than rendering an empty "Sources:" line.
+ */
+export function resolveDocSources(
+  context: ContextBundle | null | undefined,
+  limit = 4,
+): DocSource[] {
+  if (!context) return []
+  const sources: DocSource[] = []
+  const seen = new Set<string>()
+
+  const tryAddEpisode = (ep: ContextEpisode | undefined) => {
+    if (!ep) return
+    const docPath = (ep.provenance as { doc_path?: string } | undefined)?.doc_path
+    if (!docPath || seen.has(docPath)) return
+    const payload = (ep.payload ?? {}) as { breadcrumb?: string; url?: string; title?: string }
+    const breadcrumb = payload.breadcrumb || payload.title || docPath
+    const url = payload.url || `https://github.com/smaramwbc/statewave-docs/blob/main/${docPath}`
+    sources.push({ doc_path: docPath, breadcrumb, url })
+    seen.add(docPath)
+  }
+
+  // Pass 1: episodes returned in the bundle, in their ranked order.
+  for (const ep of context.episodes ?? []) {
+    if (sources.length >= limit) break
+    tryAddEpisode(ep)
+  }
+
+  // Pass 2: walk compiled memories back to their source episodes for any
+  // doc paths that didn't already surface via raw episodes (e.g. when the
+  // server returned the summary instead of the underlying section).
+  if (sources.length < limit) {
+    const epById = new Map<string, ContextEpisode>()
+    for (const ep of context.episodes ?? []) epById.set(ep.id, ep)
+    const allMemories = [...(context.facts ?? []), ...(context.procedures ?? [])]
+    for (const mem of allMemories) {
+      if (sources.length >= limit) break
+      for (const epId of mem.source_episode_ids ?? []) {
+        if (sources.length >= limit) break
+        tryAddEpisode(epById.get(epId))
+      }
+    }
+  }
+
+  return sources
 }
 
 export async function fetchContext(subjectId: string, task: string): Promise<ContextBundle | null> {

@@ -18,6 +18,7 @@ import {
   buildSetCookie,
   compileMemories,
   fetchTimeline,
+  isDocsSharedPersona,
   json,
   newVisitorId,
   parseDemoVisitor,
@@ -49,6 +50,19 @@ export default async function handler(req: Request): Promise<Response> {
   }
 
   const persona = (body.persona ?? '').trim()
+  if (isDocsSharedPersona(persona)) {
+    return json(
+      {
+        error:
+          `Persona "${persona}" is grounded in the official Statewave docs pack ` +
+          'and is not visitor-seedable. The pack is built upstream by ' +
+          'scripts/bootstrap_docs_pack.py.',
+        seeded: false,
+        reason: 'docs-shared',
+      },
+      { status: 400 },
+    )
+  }
   const sourceSubject = SEED_SOURCES[persona]
   if (!sourceSubject) {
     return json(

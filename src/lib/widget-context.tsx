@@ -25,10 +25,23 @@ import {
   type RefObject,
 } from 'react'
 
+/**
+ * A doc-pack source attached to a docs-grounded assistant turn. Resolved
+ * server-side from the same context bundle the model was given (see
+ * resolveDocSources in api/_demo.ts) — never parsed from the model's text.
+ */
+export interface DocSource {
+  doc_path: string
+  breadcrumb: string
+  url: string
+}
+
 export interface ChatMessage {
   role: 'user' | 'assistant'
   content: string
   timestamp: number
+  /** Only populated for assistant turns from the docs-shared persona. */
+  sources?: DocSource[]
 }
 
 export interface MemoryItem {
@@ -136,15 +149,48 @@ export function useChatWidget() {
   return ctx
 }
 
+/**
+ * Persona kinds:
+ *   visitor-memory — per-visitor subject, full write/compile/seed/reset cycle.
+ *                    The 5 demo personas show "what Statewave remembers about
+ *                    YOU as you chat".
+ *   docs-shared    — read-only against a fixed shared subject containing the
+ *                    official docs memory pack (built upstream by
+ *                    statewave/scripts/bootstrap_docs_pack.py). Visitors can't
+ *                    write to or reset this pack — it is the same pack for
+ *                    everyone, and the LLM is grounded in it.
+ *
+ * `seedFromPersona` and the reset flow are gated on `kind`, so adding more
+ * docs-shared personas later is a one-line registry change.
+ */
 const DEMO_PERSONAS = [
-  { id: 'support-agent', label: 'Support Agent' },
-  { id: 'coding-assistant', label: 'Coding Assistant' },
-  { id: 'sales-copilot', label: 'Sales Copilot' },
-  { id: 'devops-agent', label: 'DevOps Agent' },
-  { id: 'research-assistant', label: 'Research Assistant' },
+  { id: 'support-agent', label: 'Support Agent', kind: 'visitor-memory' },
+  { id: 'coding-assistant', label: 'Coding Assistant', kind: 'visitor-memory' },
+  { id: 'sales-copilot', label: 'Sales Copilot', kind: 'visitor-memory' },
+  { id: 'devops-agent', label: 'DevOps Agent', kind: 'visitor-memory' },
+  { id: 'research-assistant', label: 'Research Assistant', kind: 'visitor-memory' },
+  { id: 'statewave-support', label: 'Statewave Support', kind: 'docs-shared' },
 ] as const
 
-export const DEMO_SUBJECTS = DEMO_PERSONAS.map((p) => ({ id: p.id, label: p.label }))
+export type PersonaKind = 'visitor-memory' | 'docs-shared'
+
+export const DEMO_SUBJECTS = DEMO_PERSONAS.map((p) => ({
+  id: p.id,
+  label: p.label,
+  kind: p.kind as PersonaKind,
+}))
+
+export function personaKind(id: string): PersonaKind | null {
+  return DEMO_PERSONAS.find((p) => p.id === id)?.kind ?? null
+}
+
+export function isVisitorMemoryPersona(id: string): boolean {
+  return personaKind(id) === 'visitor-memory'
+}
+
+export function isDocsSharedPersona(id: string): boolean {
+  return personaKind(id) === 'docs-shared'
+}
 
 const DEFAULT_PERSONA = DEMO_PERSONAS[0]
 
@@ -357,7 +403,10 @@ export function ChatWidgetProvider({ children }: { children: ReactNode }) {
     void (async () => {
       try {
         const data = await refreshState(chosen)
-        const personaIsSeeded = !!DEMO_PERSONAS.find((x) => x.id === chosen)
+        // Only visitor-memory personas seed from a per-visitor showcase
+        // subject. Docs-shared personas (statewave-support) read from a
+        // fixed shared subject built upstream and must not be seeded.
+        const personaIsSeeded = isVisitorMemoryPersona(chosen)
         const willSeed = explicit && data && data.episodeCount === 0 && data.memories.length === 0 && personaIsSeeded
         if (willSeed) setHydrationReason('setup')
         else if (data && (data.episodeCount > 0 || data.memories.length > 0)) setHydrationReason('restore')
@@ -390,7 +439,7 @@ export function ChatWidgetProvider({ children }: { children: ReactNode }) {
     void (async () => {
       try {
         const data = await refreshState(norm)
-        const personaIsSeeded = !!DEMO_PERSONAS.find((x) => x.id === norm)
+        const personaIsSeeded = isVisitorMemoryPersona(norm)
         const willSeed = data && data.episodeCount === 0 && data.memories.length === 0 && personaIsSeeded
         if (willSeed) setHydrationReason('setup')
         else if (data && (data.episodeCount > 0 || data.memories.length > 0)) setHydrationReason('restore')
@@ -470,7 +519,13 @@ export function ChatWidgetProvider({ children }: { children: ReactNode }) {
       const statelessText = await statelessResp.text()
       const statewaveText = await statewaveResp.text()
       let statelessData: { reply?: string; error?: string }
-      let statewaveData: { reply?: string; error?: string; context?: ContextBundle; capReached?: boolean }
+      let statewaveData: {
+        reply?: string
+        error?: string
+        context?: ContextBundle
+        sources?: DocSource[]
+        capReached?: boolean
+      }
       try { statelessData = JSON.parse(statelessText) } catch { statelessData = { error: `API error: ${statelessResp.status}` } }
       try { statewaveData = JSON.parse(statewaveText) } catch { statewaveData = { error: `API error: ${statewaveResp.status}` } }
 
@@ -483,6 +538,11 @@ export function ChatWidgetProvider({ children }: { children: ReactNode }) {
         role: 'assistant',
         content: statewaveData.reply ?? statewaveData.error ?? 'No response',
         timestamp: Date.now(),
+        // Sources are only emitted by the docs-shared persona; for everything
+        // else `sources` is absent and the bubble renders without a citations line.
+        sources: Array.isArray(statewaveData.sources) && statewaveData.sources.length > 0
+          ? statewaveData.sources
+          : undefined,
       }])
 
       if (statewaveData.context) setLastContext(statewaveData.context)
@@ -508,12 +568,18 @@ export function ChatWidgetProvider({ children }: { children: ReactNode }) {
   // populated the moment a visitor opens the widget — no spinner-while-seeding
   // pause on first interaction. Returning visitors just get a fast confirm
   // fetch; new visitors get cookie issued + showcase episodes seeded silently.
+  // Docs-shared default personas (theoretical) skip seeding because their
+  // pack is built upstream from official docs, not from a showcase subject.
   useEffect(() => {
     let cancelled = false
     void (async () => {
       const data = await refreshState(DEFAULT_PERSONA.id)
       if (cancelled || !data) return
-      if (data.episodeCount === 0 && data.memories.length === 0) {
+      if (
+        isVisitorMemoryPersona(DEFAULT_PERSONA.id) &&
+        data.episodeCount === 0 &&
+        data.memories.length === 0
+      ) {
         await seedFromPersona(DEFAULT_PERSONA.id)
       }
     })()

@@ -28,7 +28,7 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useChatWidget, DEMO_SUBJECTS } from '../lib/widget-context'
+import { useChatWidget, DEMO_SUBJECTS, isDocsSharedPersona, type DocSource } from '../lib/widget-context'
 import { useTheme } from '../lib/theme'
 
 // Responsive breakpoints
@@ -214,6 +214,29 @@ export function ChatWidget() {
         "Find more arxiv papers on this topic",
         "What parameter-efficient methods did we compare?",
         "What's the 10x cost reduction about?",
+      ],
+    ],
+    // Docs-grounded persona — answers come from the official docs pack
+    // (subject `statewave-support-docs`). Suggestions cover the three
+    // response modes: documented fact, best-effort, and out-of-scope.
+    'statewave-support': [
+      // Round 1: product basics
+      [
+        "What database does Statewave use?",
+        "How is Statewave different from a vector DB?",
+        "Heuristic vs LLM compilation — when to pick which?",
+      ],
+      // Round 2: deployment / ops
+      [
+        "How do I deploy Statewave on Fly.io?",
+        "What hardware do I need for production?",
+        "How do I migrate the schema safely?",
+      ],
+      // Round 3: advanced + privacy
+      [
+        "How does context ranking work?",
+        "What data leaves the box during compilation?",
+        "How do I back up and restore a subject?",
       ],
     ],
   }
@@ -471,7 +494,11 @@ export function ChatWidget() {
                 onClick={() => setShowSubjectMenu(!showSubjectMenu)}
                 className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1.5 rounded-lg text-xs font-medium border border-theme-border/50 hover:border-accent/30 transition-colors"
                 style={{ backgroundColor: isDark ? 'rgba(99, 102, 241, 0.08)' : 'rgba(99, 102, 241, 0.05)' }}
-                title="Persona — biases the prompt; memory is shared across personas"
+                title={
+                  isDocsSharedPersona(persona)
+                    ? 'Statewave Support — answers grounded in the official docs memory pack.'
+                    : 'Persona — each has its own per-visitor memory pool.'
+                }
               >
                 <span className="w-2 h-2 rounded-full bg-accent flex-shrink-0" />
                 <span className="text-theme-primary truncate max-w-[100px] sm:max-w-[140px]">
@@ -493,7 +520,7 @@ export function ChatWidget() {
                     }}
                   >
                     <div className="px-3 py-1.5 text-[9px] uppercase tracking-wider text-theme-muted border-b border-theme-border/40">
-                      Persona (prompt only)
+                      Persona
                     </div>
                     {DEMO_SUBJECTS.map((s) => (
                       <button
@@ -505,8 +532,14 @@ export function ChatWidget() {
                         className={`w-full px-3 py-2 text-left text-xs hover:bg-accent/10 transition-colors ${
                           s.id === persona ? 'bg-accent/15 text-accent' : 'text-theme-secondary'
                         }`}
+                        data-persona-kind={s.kind}
                       >
-                        {s.label}
+                        <div>{s.label}</div>
+                        {s.kind === 'docs-shared' && (
+                          <div className="text-[10px] text-theme-muted mt-0.5">
+                            Grounded in official docs
+                          </div>
+                        )}
                       </button>
                     ))}
                   </motion.div>
@@ -517,6 +550,15 @@ export function ChatWidget() {
             {!isMobile && subjectId && (
               <span className="text-[10px] text-theme-muted font-mono truncate" title={subjectId}>
                 {subjectId.length > 22 ? `${subjectId.slice(0, 22)}…` : subjectId}
+              </span>
+            )}
+            {isDocsSharedPersona(persona) && (
+              <span
+                data-testid="docs-grounding-badge"
+                className="text-[10px] px-1.5 py-0.5 rounded bg-accent/10 text-accent border border-accent/20 whitespace-nowrap"
+                title="Answers are grounded in the official Statewave documentation memory pack. The agent will say so when a question is out of scope."
+              >
+                Grounded in official docs
               </span>
             )}
           </div>
@@ -533,11 +575,17 @@ export function ChatWidget() {
             <button
               onClick={() => {
                 if (isResetting) return
+                if (isDocsSharedPersona(persona)) return
                 setConfirmReset(true)
               }}
-              disabled={isResetting}
-              className="p-1.5 rounded-lg hover:bg-theme-border/30 transition-colors disabled:opacity-50"
-              title="Reset demo memory (delete this browser's Statewave subject)"
+              disabled={isResetting || isDocsSharedPersona(persona)}
+              className="p-1.5 rounded-lg hover:bg-theme-border/30 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              title={
+                isDocsSharedPersona(persona)
+                  ? 'Statewave Support reads from the shared docs pack — there is no per-visitor memory to reset.'
+                  : "Reset demo memory (delete this browser's Statewave subject)"
+              }
+              data-testid="reset-demo-button"
             >
               <TrashIcon className="w-4 h-4 text-theme-muted" />
             </button>
@@ -858,13 +906,19 @@ export function ChatWidget() {
                   ) : (
                     <div className="text-center py-6 sm:py-8 px-4">
                       <p className="text-[11px] sm:text-xs font-medium text-theme-secondary mb-1.5">
-                        {isReturningVisitor
+                        {isDocsSharedPersona(persona)
+                          ? 'Grounded in the official Statewave docs'
+                          : isReturningVisitor
                           ? 'Welcome back — your demo memory is loaded'
                           : memories.length > 0
                           ? 'Memory loaded — ready when you are'
                           : 'No memory yet'}
                       </p>
-                      {memories.length > 0 ? (
+                      {isDocsSharedPersona(persona) ? (
+                        <p className="text-[10px] text-theme-muted/80 leading-relaxed max-w-[280px] mx-auto">
+                          Ask product, setup, deployment, privacy, or compiler questions. Answers come from the docs memory pack and cite the source. The agent will say so plainly when something isn't covered.
+                        </p>
+                      ) : memories.length > 0 ? (
                         <p className="text-[10px] text-accent/80">
                           {memories.length} {memories.length === 1 ? 'memory' : 'memories'}
                           {episodeCount > 0 && ` · ${episodeCount} ${episodeCount === 1 ? 'episode' : 'episodes'}`} · open the inspector to view
@@ -1171,18 +1225,22 @@ export function ChatWidget() {
 // ─── Sub-components ───
 
 interface MessageBubbleProps {
-  message: { role: string; content: string }
+  message: { role: string; content: string; sources?: DocSource[] }
   side: 'stateless' | 'statewave'
   isDark: boolean
   compact?: boolean
 }
 
-function MessageBubble({ message, side, isDark, compact }: MessageBubbleProps) {
+export function MessageBubble({ message, side, isDark, compact }: MessageBubbleProps) {
   const isUser = message.role === 'user'
   const isStatewave = side === 'statewave'
+  // Sources are only attached to docs-grounded assistant turns by sendMessage,
+  // and only on the Statewave side. Render the citation row when present —
+  // otherwise stay completely silent (no "no sources" placeholder).
+  const sources = !isUser && isStatewave ? message.sources : undefined
 
   return (
-    <div className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>
+    <div className={`flex flex-col ${isUser ? 'items-end' : 'items-start'}`}>
       <div
         className={`${compact ? 'max-w-[95%] px-2 py-1.5 text-[10px]' : 'max-w-[90%] px-3 py-2 text-xs'} rounded-xl leading-relaxed ${
           isUser
@@ -1194,6 +1252,38 @@ function MessageBubble({ message, side, isDark, compact }: MessageBubbleProps) {
       >
         {message.content}
       </div>
+      {sources && sources.length > 0 && (
+        <SourcesRow sources={sources} compact={compact} />
+      )}
+    </div>
+  )
+}
+
+function SourcesRow({ sources, compact }: { sources: DocSource[]; compact?: boolean }) {
+  return (
+    <div
+      data-testid="message-sources"
+      className={`${compact ? 'mt-1 max-w-[95%]' : 'mt-1.5 max-w-[90%]'} px-1 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[10px] leading-snug`}
+    >
+      <span className="uppercase tracking-wider text-theme-muted/80">Sources</span>
+      {sources.map((s, i) => (
+        <span key={s.doc_path} className="flex items-center gap-1.5">
+          <a
+            href={s.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            title={s.breadcrumb}
+            className="text-theme-secondary hover:text-accent hover:underline underline-offset-2 decoration-accent/40 transition-colors font-mono"
+            data-testid="source-link"
+            data-doc-path={s.doc_path}
+          >
+            {s.doc_path}
+          </a>
+          {i < sources.length - 1 && (
+            <span aria-hidden className="text-theme-muted/50">·</span>
+          )}
+        </span>
+      ))}
     </div>
   )
 }

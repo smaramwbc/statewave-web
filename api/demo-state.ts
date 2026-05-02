@@ -7,9 +7,11 @@
  */
 
 import {
+  DOCS_SUBJECT_ID,
   buildSetCookie,
   fetchTimeline,
   isDemoPersona,
+  isDocsSharedPersona,
   json,
   newVisitorId,
   parseDemoVisitor,
@@ -28,10 +30,12 @@ export default async function handler(req: Request): Promise<Response> {
   if (req.method === 'OPTIONS') return json({}, { status: 200 })
   if (req.method !== 'GET') return json({ error: 'Method not allowed' }, { status: 405 })
 
-  // Each persona has its own memory pool. Without a persona we return the
-  // bare visitor subject (legacy callers and ?persona=none paths).
+  // Visitor-memory personas resolve to per-visitor subjects. Docs-shared
+  // personas resolve to a fixed shared subject (the official docs pack).
+  // Without a persona we return the bare visitor subject (legacy callers).
   const personaParam = new URL(req.url).searchParams.get('persona')
-  const persona = isDemoPersona(personaParam) ? personaParam : null
+  const visitorPersona = isDemoPersona(personaParam) ? personaParam : null
+  const docsPersona = isDocsSharedPersona(personaParam) ? personaParam : null
 
   const existing = parseDemoVisitor(req.headers.get('cookie'))
   let visitorUuid: string
@@ -42,6 +46,40 @@ export default async function handler(req: Request): Promise<Response> {
     visitorUuid = newVisitorId()
     setCookie = buildSetCookie(visitorUuid)
   }
+
+  // Docs-shared persona: read counts/memories from the shared docs subject so
+  // the inspector shows real grounded knowledge. Don't rehydrate "chat history"
+  // from docs episodes — those are doc sections, not visitor turns.
+  if (docsPersona) {
+    const { memories } = await fetchTimeline(DOCS_SUBJECT_ID)
+    return json(
+      {
+        subjectId: DOCS_SUBJECT_ID,
+        persona: docsPersona,
+        isNew: false,
+        // No visitor-driven chat for the docs persona — start each session fresh.
+        episodes: [] as ChatTurn[],
+        // Surface the top docs-derived memories so the inspector reflects what
+        // the LLM actually has access to. Capped to keep payload small.
+        memories: memories
+          .slice(0, 12)
+          .map((m) => ({
+            id: m.id,
+            content: m.content || m.summary || '',
+            kind: m.kind ?? 'fact',
+            confidence: m.confidence ?? 0.8,
+          }))
+          .filter((m) => m.content),
+        // Visitor-driven episode count is always 0 for this persona — the docs
+        // are not a per-visitor pool. Keeping the field at 0 prevents the
+        // inspector from claiming "178 episodes for your session".
+        episodeCount: 0,
+      },
+      { setCookie },
+    )
+  }
+
+  const persona = visitorPersona
   const subjectId = subjectFor(visitorUuid, persona)
 
   // For brand-new visitors there is nothing to fetch — return empty state

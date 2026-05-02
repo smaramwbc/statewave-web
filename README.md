@@ -108,10 +108,12 @@ All particles are interactive: hover shows tooltips, click opens a detail modal 
 The floating chat widget is a real Statewave-backed comparison surface, not a mock. Architecture:
 
 - **Identity:** anonymous first-party HttpOnly cookie `sw_demo_visitor` (UUID v4, `Path=/`, `SameSite=Lax`, `Secure` in prod, 30-day Max-Age). No fingerprinting, no localStorage for the id.
-- **Subjects:** one per persona — `demo_web_<uuid>__<persona>`. Switching the dropdown loads that persona's own memory pool. Reset wipes every persona subject for the visitor and reissues a fresh cookie.
-- **Per-turn flow:** `widget-chat` writes an episode under the active persona's subject, runs `compile`, fetches ranked context, and forwards the assembled context to OpenAI. The "without memory" column is a parallel stateless OpenAI call.
+- **Persona kinds:** the dropdown exposes two kinds. **Visitor-memory** personas (Support Agent, Coding Assistant, Sales Copilot, DevOps Agent, Research Assistant) each get a per-visitor subject `demo_web_<uuid>__<persona>` and run the full write/compile/seed cycle. **Docs-shared** personas (currently *Statewave Support*) read from a fixed shared subject `statewave-support-docs` populated upstream from the official docs corpus by `statewave/scripts/bootstrap_docs_pack.py`. Docs-shared personas never write, never compile, and are not visitor-resettable.
+- **Per-turn flow (visitor-memory):** `widget-chat` writes an episode under the active persona's subject, runs `compile`, fetches ranked context, and forwards the assembled context to OpenAI. The "without memory" column is a parallel stateless OpenAI call.
+- **Per-turn flow (docs-shared):** `widget-chat` fetches ranked context from `statewave-support-docs`, injects it into a docs-grounded system prompt that requires citations and forbids fabrication, and forwards to OpenAI. No write, no compile.
+- **Reset:** wipes every visitor-memory subject for the visitor and reissues a fresh cookie. The shared docs subject is excluded by construction (`allSubjectsFor()` only iterates visitor-memory personas).
 - **Onboarding:** versioned localStorage flag (`statewave-demo-onboarding-v1`) gates a one-time welcome panel + 3-step guided tour. Reset does **not** bring the welcome back — onboarding is UI state, not data.
-- **Abuse caps:** 200 episodes per visitor, 1000 chars per message.
+- **Abuse caps:** 200 episodes per visitor, 1000 chars per message. Docs-shared personas don't accrue episodes, so the cap doesn't apply.
 
 The widget logic lives in [`src/lib/widget-context.tsx`](src/lib/widget-context.tsx); the visual layer in [`src/components/ChatWidget.tsx`](src/components/ChatWidget.tsx); the server side in [`api/`](api/) (see structure above).
 
