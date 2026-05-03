@@ -622,14 +622,20 @@ function StrongestTodaySection() {
 
   const goToComparison = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault()
-    navigate('/why', {
-      state: {
-        returnTo: '/use-cases',
-        returnLabel: 'Use Cases',
-        returnSection: 'Strongest today',
-        returnScrollY: window.scrollY,
+    // The hash is what ScrollToTop reads to jump to the comparison table.
+    // Without it the visitor lands at the top of the manifesto hero instead
+    // of the section the link advertises.
+    navigate(
+      { pathname: '/why', hash: '#vs-alternatives' },
+      {
+        state: {
+          returnTo: '/use-cases',
+          returnLabel: 'Use Cases',
+          returnSection: 'Strongest today',
+          returnScrollY: window.scrollY,
+        },
       },
-    })
+    )
   }
 
   return (
@@ -647,7 +653,7 @@ function StrongestTodaySection() {
           </p>
         </div>
         <a
-          href="/why"
+          href="/why#vs-alternatives"
           onClick={goToComparison}
           className="inline-flex items-center gap-2 text-sm text-accent hover:text-accent-light transition-colors whitespace-nowrap"
         >
