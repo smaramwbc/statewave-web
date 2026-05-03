@@ -194,6 +194,10 @@ export function breadcrumbJsonLd(items: BreadcrumbItem[]): JsonLd {
 export interface FaqEntry {
   question: string
   answer: string
+  /** Optional follow-up links rendered under the visible answer. The
+   *  FAQPage JSON-LD only emits `question` and `answer`, so these are
+   *  presentation-only — they don't change the structured data. */
+  links?: ReadonlyArray<{ label: string; href: string }>
 }
 
 export function faqPageJsonLd(entries: readonly FaqEntry[]): JsonLd {
