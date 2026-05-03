@@ -547,4 +547,43 @@ describe('Widget — Ask Support (support mode)', () => {
     // the demo launcher — the demo flow uses the persona picker instead.
     expect(screen.queryByTestId('support-mode-title')).toBeNull()
   })
+
+  it('only fires the statewave /api/widget-chat call per turn — no stateless comparison fetch', async () => {
+    const fetchSpy = stubAllFetches()
+    window.history.replaceState({}, '', '/?ask=support')
+
+    render(
+      <TestWrapper>
+        <ChatWidget />
+      </TestWrapper>,
+    )
+
+    // Dismiss the support welcome to expose the input.
+    const next = await screen.findByRole('button', { name: /^Next$/i })
+    act(() => { fireEvent.click(next) })
+    const input = await screen.findByPlaceholderText(/Ask something/i) as HTMLInputElement
+
+    fireEvent.change(input, { target: { value: 'How do I get started?' } })
+    const sendBtn = screen.getByRole('button', { name: /^Send$/i })
+    act(() => { fireEvent.click(sendBtn) })
+
+    // Wait until the Statewave assistant turn has resolved.
+    await waitFor(() => {
+      const calls = fetchSpy.mock.calls.filter(
+        ([url]) => typeof url === 'string' && url.includes('/api/widget-chat'),
+      )
+      expect(calls.length).toBeGreaterThan(0)
+    })
+
+    const chatCalls = fetchSpy.mock.calls.filter(
+      ([url]) => typeof url === 'string' && url.includes('/api/widget-chat'),
+    )
+    // Exactly one /api/widget-chat call per turn in support mode — the
+    // stateless "without memory" comparison fetch is suppressed.
+    expect(chatCalls.length).toBe(1)
+    // And that one call must be the statewave-mode call, not the stateless one.
+    const [, init] = chatCalls[0] as [string, RequestInit]
+    const body = JSON.parse(init.body as string)
+    expect(body.mode).toBe('statewave')
+  })
 })

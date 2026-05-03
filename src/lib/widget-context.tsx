@@ -550,29 +550,36 @@ export function ChatWidgetProvider({ children }: { children: ReactNode }) {
       }
     }
     const userMsg: ChatMessage = { role: 'user', content: trimmed, timestamp: Date.now() }
-    setStatelessMessages((prev) => [...prev, userMsg])
+    // Support mode renders only the statewave column, so the stateless side
+    // is dead state — skip its setState too. Saves a render and keeps the
+    // stateless message log empty (handy for tests asserting "no demo
+    // chatter happened in the support channel").
+    const skipStateless = mode === 'support'
+    if (!skipStateless) setStatelessMessages((prev) => [...prev, userMsg])
     setStatewaveMessages((prev) => [...prev, userMsg])
     setIsLoading(true)
 
     try {
-      const [statelessResp, statewaveResp] = await Promise.all([
-        fetch('/api/widget-chat', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'same-origin',
-          body: JSON.stringify({ messages: [{ role: 'user', content: trimmed }], mode: 'stateless', persona }),
-        }),
-        fetch('/api/widget-chat', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'same-origin',
-          body: JSON.stringify({ messages: [{ role: 'user', content: trimmed }], mode: 'statewave', persona }),
-        }),
-      ])
+      // The "without memory" comparison call is purely demo chrome — the
+      // support channel never renders that column, so don't waste a backend
+      // round-trip on it. Halves per-turn LLM load for support traffic.
+      const statelessFetch = skipStateless
+        ? Promise.resolve(null)
+        : fetch('/api/widget-chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'same-origin',
+            body: JSON.stringify({ messages: [{ role: 'user', content: trimmed }], mode: 'stateless', persona }),
+          })
+      const statewaveFetch = fetch('/api/widget-chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify({ messages: [{ role: 'user', content: trimmed }], mode: 'statewave', persona }),
+      })
+      const [statelessResp, statewaveResp] = await Promise.all([statelessFetch, statewaveFetch])
 
-      const statelessText = await statelessResp.text()
       const statewaveText = await statewaveResp.text()
-      let statelessData: { reply?: string; error?: string }
       let statewaveData: {
         reply?: string
         error?: string
@@ -580,14 +587,18 @@ export function ChatWidgetProvider({ children }: { children: ReactNode }) {
         sources?: DocSource[]
         capReached?: boolean
       }
-      try { statelessData = JSON.parse(statelessText) } catch { statelessData = { error: `API error: ${statelessResp.status}` } }
       try { statewaveData = JSON.parse(statewaveText) } catch { statewaveData = { error: `API error: ${statewaveResp.status}` } }
 
-      setStatelessMessages((prev) => [...prev, {
-        role: 'assistant',
-        content: statelessData.reply ?? statelessData.error ?? 'No response',
-        timestamp: Date.now(),
-      }])
+      if (statelessResp) {
+        const statelessText = await statelessResp.text()
+        let statelessData: { reply?: string; error?: string }
+        try { statelessData = JSON.parse(statelessText) } catch { statelessData = { error: `API error: ${statelessResp.status}` } }
+        setStatelessMessages((prev) => [...prev, {
+          role: 'assistant',
+          content: statelessData.reply ?? statelessData.error ?? 'No response',
+          timestamp: Date.now(),
+        }])
+      }
       setStatewaveMessages((prev) => [...prev, {
         role: 'assistant',
         content: statewaveData.reply ?? statewaveData.error ?? 'No response',
@@ -611,7 +622,7 @@ export function ChatWidgetProvider({ children }: { children: ReactNode }) {
       const errorMsg = err instanceof Error ? err.message : 'Network error'
       console.error('[widget] API error:', err)
       const errMsg = (role: 'user' | 'assistant'): ChatMessage => ({ role, content: `Error: ${errorMsg}`, timestamp: Date.now() })
-      setStatelessMessages((prev) => [...prev, errMsg('assistant')])
+      if (!skipStateless) setStatelessMessages((prev) => [...prev, errMsg('assistant')])
       setStatewaveMessages((prev) => [...prev, errMsg('assistant')])
     } finally {
       setIsLoading(false)
