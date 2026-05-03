@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Section } from '../components/Section'
 import { Heading } from '../components/Heading'
+import { HowStatewaveWorks } from '../components/HowStatewaveWorks'
 import { ReturnLink } from '../components/ReturnLink'
 import { LanguagePicker } from '../components/LanguagePicker'
 import {
@@ -29,6 +30,10 @@ export function WhyPage() {
           mistakes they made before. This isn't a capability gap in the LLM — it's an
           infrastructure gap. Most AI applications have no memory layer.
         </p>
+      </Section>
+
+      <Section className="bg-surface-1/40">
+        <HowStatewaveWorks variant="compact" id="how-it-works" />
       </Section>
 
       <Section className="bg-surface-1/50">

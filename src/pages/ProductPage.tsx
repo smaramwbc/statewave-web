@@ -2,6 +2,7 @@ import { motion } from 'framer-motion'
 import { Section } from '../components/Section'
 import { Card } from '../components/Card'
 import { Heading } from '../components/Heading'
+import { HowStatewaveWorks } from '../components/HowStatewaveWorks'
 import { usePageSEO } from '../lib/seo'
 
 export function ProductPage() {
@@ -25,6 +26,10 @@ export function ProductPage() {
           </motion.div>
         </div>
       </section>
+
+      <Section className="bg-surface-1/40">
+        <HowStatewaveWorks variant="full" id="how-it-works" showHeader={false} />
+      </Section>
 
       <Section>
         <Heading id="core-loop" className="text-2xl font-bold text-theme-primary mb-12">The core loop</Heading>

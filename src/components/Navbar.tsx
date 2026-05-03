@@ -6,7 +6,7 @@ import { Logo } from './Logo'
 import { useChatWidget } from '../lib/widget-context'
 
 const links = [
-  { to: '/product', label: 'Product' },
+  { to: '/product', label: 'How it works' },
   { to: '/why', label: 'Why Statewave' },
   { to: '/use-cases', label: 'Use Cases' },
   { to: '/developers', label: 'Developers' },
