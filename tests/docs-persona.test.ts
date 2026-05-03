@@ -1,18 +1,24 @@
 // @vitest-environment node
 /**
- * Tests for the Statewave Support persona — the docs-grounded, read-only
- * persona that reads from the shared `statewave-support-docs` subject.
+ * Tests for the Statewave Support persona — hybrid model:
+ *   * docs grounding comes from the shared `statewave-support-docs` subject
+ *     (built upstream by bootstrap_docs_pack.py)
+ *   * visitor memory lives in a per-visitor subject
+ *     `demo_web_<uuid>__statewave-support`
  *
- * Covers the contract that prevents the persona from corrupting or leaking
- * the canonical docs pack:
- *   * widget-chat routes to DOCS_SUBJECT_ID (not a per-visitor subject)
- *   * widget-chat does NOT write episodes or compile against the docs subject
- *   * widget-chat injects docs memories from the shared subject into the prompt
- *   * demo-state with persona=statewave-support exposes docs memories but
- *     reports episodeCount=0 (no visitor-driven turns) and no chat history
- *   * demo-seed refuses the persona — the pack is built upstream, not seeded
- *   * demo-reset still works for visitor-memory subjects and never targets
- *     the docs subject
+ * Covers the contracts:
+ *   * widget-chat fetches BOTH docs context (DOCS_SUBJECT_ID) and visitor
+ *     context (per-visitor subject) and merges them into the system prompt
+ *   * widget-chat writes the chat turn ONLY to the visitor subject — the
+ *     shared docs pack stays read-only
+ *   * widget-chat compiles ONLY the visitor subject
+ *   * citations still resolve against DOCS_SUBJECT_ID (visitor memory is
+ *     never cited as a source)
+ *   * demo-state with persona=statewave-support returns the visitor's own
+ *     subject and surfaces the visitor's memories — not the docs pack
+ *   * demo-seed accepts the persona as a no-op (no copy, no rejection)
+ *   * demo-reset wipes the visitor's per-visitor statewave-support subject
+ *     and never targets the shared docs subject
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -73,7 +79,8 @@ describe('docs-shared persona registry', () => {
   })
 })
 
-describe('POST /api/widget-chat — statewave-support persona', () => {
+describe('POST /api/widget-chat — statewave-support persona (hybrid)', () => {
+  const visitorSubject = subjectFor(VALID_UUID, 'statewave-support')
   let calls: Array<{ url: string; init?: RequestInit }> = []
 
   beforeEach(() => {
@@ -82,24 +89,63 @@ describe('POST /api/widget-chat — statewave-support persona', () => {
     vi.spyOn(globalThis, 'fetch').mockImplementation(async (input, init) => {
       const url = typeof input === 'string' ? input : (input as Request).url
       calls.push({ url, init: init as RequestInit })
+      if (url.includes('/v1/timeline')) {
+        // Per-visitor episode-cap pre-check on the visitor subject — empty
+        // for a fresh visitor.
+        return new Response(JSON.stringify({ episodes: [], memories: [] }), { status: 200 })
+      }
       if (url.includes('/v1/context')) {
+        // Two context fetches happen on this path (docs + visitor). Disambiguate
+        // by the request body's subject_id so each gets a representative shape.
+        const body = init?.body ? JSON.parse(init.body as string) : {}
+        if (body.subject_id === DOCS_SUBJECT_ID) {
+          return new Response(
+            JSON.stringify({
+              subject_id: DOCS_SUBJECT_ID,
+              task: 't',
+              facts: [
+                {
+                  id: 'm-1',
+                  kind: 'episode_summary',
+                  content:
+                    'Statewave uses PostgreSQL with pgvector for both relational and vector storage (architecture/overview.md).',
+                  confidence: 0.9,
+                },
+              ],
+              procedures: [],
+              assembled_context: '',
+              token_estimate: 0,
+            }),
+            { status: 200 },
+          )
+        }
+        // Visitor-subject context: a returning visitor whose prior questions
+        // hinted at multi-tenant interest. Lets the model personalise.
         return new Response(
           JSON.stringify({
-            subject_id: DOCS_SUBJECT_ID,
+            subject_id: body.subject_id,
             task: 't',
             facts: [
               {
-                id: 'm-1',
-                kind: 'episode_summary',
-                content:
-                  'Statewave uses PostgreSQL with pgvector for both relational and vector storage (architecture/overview.md).',
-                confidence: 0.9,
+                id: 'mv-1',
+                kind: 'profile_fact',
+                content: 'Visitor previously asked about multi-tenant deployments.',
+                confidence: 0.8,
               },
             ],
             procedures: [],
             assembled_context: '',
             token_estimate: 0,
           }),
+          { status: 200 },
+        )
+      }
+      if (url.includes('/v1/episodes')) {
+        return new Response(JSON.stringify({ id: 'ep-new' }), { status: 201 })
+      }
+      if (url.includes('/v1/memories/compile')) {
+        return new Response(
+          JSON.stringify({ memories_created: 1, memories: [] }),
           { status: 200 },
         )
       }
@@ -114,7 +160,7 @@ describe('POST /api/widget-chat — statewave-support persona', () => {
   })
   afterEach(() => vi.restoreAllMocks())
 
-  it('routes to the shared docs subject and never writes/compiles', async () => {
+  it('returns the per-visitor subject, persists the turn, and compiles only the visitor subject', async () => {
     const req = makeRequest('POST', 'http://test/api/widget-chat', {
       headers: { 'content-type': 'application/json', cookie: cookieHeader(VALID_UUID) },
       body: JSON.stringify({
@@ -126,25 +172,64 @@ describe('POST /api/widget-chat — statewave-support persona', () => {
     const resp = await widgetChat(req)
     expect(resp.status).toBe(200)
     const data = await resp.json()
-    expect(data.subjectId).toBe(DOCS_SUBJECT_ID)
-    expect(data.persisted).toBe(false)
+    // Hybrid model: the response surfaces the VISITOR subject (where memory
+    // accrues), not the shared docs subject.
+    expect(data.subjectId).toBe(visitorSubject)
+    expect(data.persisted).toBe(true)
     expect(data.reply).toBe('Statewave uses PostgreSQL + pgvector.')
-
-    const urls = calls.map((c) => c.url)
-    // Read context from the docs subject — yes.
-    expect(urls.some((u) => u.includes('/v1/context'))).toBe(true)
-    // But never write an episode, run compile, or fetch a timeline against
-    // the visitor or the docs subject. That's the read-only contract.
-    expect(urls.some((u) => u.includes('/v1/episodes'))).toBe(false)
-    expect(urls.some((u) => u.includes('/v1/memories/compile'))).toBe(false)
-    expect(urls.some((u) => u.includes('/v1/timeline'))).toBe(false)
-    // The /v1/context call targets the docs subject specifically.
-    const ctxCall = calls.find((c) => c.url.includes('/v1/context'))
-    const ctxBody = JSON.parse(ctxCall!.init?.body as string)
-    expect(ctxBody.subject_id).toBe(DOCS_SUBJECT_ID)
   })
 
-  it('injects docs memories into the system prompt with a docs-grounding header', async () => {
+  it('fetches context from BOTH the docs subject and the visitor subject', async () => {
+    const req = makeRequest('POST', 'http://test/api/widget-chat', {
+      headers: { 'content-type': 'application/json', cookie: cookieHeader(VALID_UUID) },
+      body: JSON.stringify({
+        messages: [{ role: 'user', content: 'How do I deploy?' }],
+        mode: 'statewave',
+        persona: 'statewave-support',
+      }),
+    })
+    await widgetChat(req)
+    const ctxCalls = calls.filter((c) => c.url.includes('/v1/context'))
+    const ctxSubjects = ctxCalls.map((c) => JSON.parse(c.init?.body as string).subject_id)
+    expect(ctxSubjects).toContain(DOCS_SUBJECT_ID)
+    expect(ctxSubjects).toContain(visitorSubject)
+  })
+
+  it('writes the chat turn ONLY to the visitor subject — never the docs subject', async () => {
+    const req = makeRequest('POST', 'http://test/api/widget-chat', {
+      headers: { 'content-type': 'application/json', cookie: cookieHeader(VALID_UUID) },
+      body: JSON.stringify({
+        messages: [{ role: 'user', content: 'How do I deploy?' }],
+        mode: 'statewave',
+        persona: 'statewave-support',
+      }),
+    })
+    await widgetChat(req)
+    const writeCalls = calls.filter((c) => c.url.includes('/v1/episodes') && (c.init?.method ?? 'GET').toUpperCase() === 'POST')
+    expect(writeCalls).toHaveLength(1)
+    const writeBody = JSON.parse(writeCalls[0].init?.body as string)
+    expect(writeBody.subject_id).toBe(visitorSubject)
+    expect(writeBody.subject_id).not.toBe(DOCS_SUBJECT_ID)
+  })
+
+  it('compiles ONLY the visitor subject — never the docs subject', async () => {
+    const req = makeRequest('POST', 'http://test/api/widget-chat', {
+      headers: { 'content-type': 'application/json', cookie: cookieHeader(VALID_UUID) },
+      body: JSON.stringify({
+        messages: [{ role: 'user', content: 'How do I deploy?' }],
+        mode: 'statewave',
+        persona: 'statewave-support',
+      }),
+    })
+    await widgetChat(req)
+    const compileCalls = calls.filter((c) => c.url.includes('/v1/memories/compile'))
+    expect(compileCalls).toHaveLength(1)
+    const compileBody = JSON.parse(compileCalls[0].init?.body as string)
+    expect(compileBody.subject_id).toBe(visitorSubject)
+    expect(compileBody.subject_id).not.toBe(DOCS_SUBJECT_ID)
+  })
+
+  it('injects both docs and visitor memories into the system prompt under labeled headers', async () => {
     const req = makeRequest('POST', 'http://test/api/widget-chat', {
       headers: { 'content-type': 'application/json', cookie: cookieHeader(VALID_UUID) },
       body: JSON.stringify({
@@ -158,45 +243,51 @@ describe('POST /api/widget-chat — statewave-support persona', () => {
     expect(llmCall).toBeDefined()
     const body = JSON.parse(llmCall!.init?.body as string)
     const systemMsg = body.messages.find((m: { role: string }) => m.role === 'system')!.content as string
-    // The docs-grounding header tells the model the context is from official docs.
     expect(systemMsg).toContain('Statewave Support assistant')
-    expect(systemMsg).toContain('official Statewave docs')
-    // The compiled docs memory was injected verbatim.
+    // Docs grounding header + content present.
+    expect(systemMsg).toContain('Statewave docs (retrieved facts)')
     expect(systemMsg).toContain('PostgreSQL with pgvector')
+    // Visitor-personalisation header + content present.
+    expect(systemMsg).toContain('About this visitor')
+    expect(systemMsg).toContain('multi-tenant')
   })
 })
 
-describe('GET /api/demo-state — statewave-support persona', () => {
+describe('GET /api/demo-state — statewave-support persona (hybrid)', () => {
+  const visitorSubject = subjectFor(VALID_UUID, 'statewave-support')
+
   beforeEach(() => {
     setEnv()
     vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) => {
       const url = typeof input === 'string' ? input : (input as Request).url
       if (url.includes('/v1/timeline')) {
         const u = new URL(url)
-        // The docs subject's timeline contains the curated doc-section
-        // episodes plus their compiled memories. We only return memories
-        // because demo-state for the docs persona doesn't surface episodes.
-        if (u.searchParams.get('subject_id') === DOCS_SUBJECT_ID) {
+        // The visitor's per-visitor statewave-support subject — what the
+        // hybrid model surfaces in the inspector. The shared docs pack is
+        // intentionally NOT read here; it's the chat handler's grounding
+        // pool, not the visitor's own memory.
+        if (u.searchParams.get('subject_id') === visitorSubject) {
           return new Response(
             JSON.stringify({
-              episodes: Array.from({ length: 178 }, (_, i) => ({
-                id: `ep-${i}`,
-                source: 'statewave-docs',
-                type: 'doc_section',
-                payload: {},
-                created_at: '2026-05-01T00:00:00Z',
-              })),
+              episodes: [
+                {
+                  id: 'ep-1',
+                  source: 'demo-web-chat',
+                  type: 'conversation',
+                  payload: {
+                    messages: [
+                      { role: 'user', content: 'Does Statewave support multi-tenant?' },
+                      { role: 'assistant', content: 'Yes — see deployment/multi-tenant.md.' },
+                    ],
+                  },
+                  created_at: '2026-05-01T00:00:00Z',
+                },
+              ],
               memories: [
                 {
-                  id: 'm-1',
-                  kind: 'episode_summary',
-                  content: 'Statewave uses PostgreSQL + pgvector.',
-                  confidence: 0.9,
-                },
-                {
-                  id: 'm-2',
-                  kind: 'episode_summary',
-                  content: 'Heuristic compilation is the default; LLM compilation is opt-in.',
+                  id: 'mv-1',
+                  kind: 'profile_fact',
+                  content: 'Visitor is exploring multi-tenant deployment options.',
                   confidence: 0.85,
                 },
               ],
@@ -204,13 +295,18 @@ describe('GET /api/demo-state — statewave-support persona', () => {
             { status: 200 },
           )
         }
+        // Any other timeline lookup (e.g. the shared docs subject) means
+        // demo-state is leaking the docs pack as visitor memory — fail loudly.
+        throw new Error(
+          `demo-state must not read from any subject other than the visitor subject; got ${u.searchParams.get('subject_id')}`,
+        )
       }
       throw new Error(`Unexpected fetch in demo-state docs test: ${url}`)
     })
   })
   afterEach(() => vi.restoreAllMocks())
 
-  it('returns the docs subject and surfaces docs-derived memories', async () => {
+  it('returns the per-visitor subject and surfaces the visitor\'s OWN memories — not the docs pack', async () => {
     const resp = await demoState(
       makeRequest('GET', 'http://test/api/demo-state?persona=statewave-support', {
         headers: { cookie: cookieHeader(VALID_UUID) },
@@ -218,21 +314,21 @@ describe('GET /api/demo-state — statewave-support persona', () => {
     )
     expect(resp.status).toBe(200)
     const data = await resp.json()
-    expect(data.subjectId).toBe(DOCS_SUBJECT_ID)
+    expect(data.subjectId).toBe(visitorSubject)
+    expect(data.subjectId).not.toBe(DOCS_SUBJECT_ID)
     expect(data.persona).toBe('statewave-support')
-    // No visitor chat history rehydrated — docs episodes are doc sections,
-    // not turns.
-    expect(data.episodes).toEqual([])
-    // Visitor-driven episode count is 0 even though the docs subject has 178
-    // episodes — those don't count as the visitor's session.
-    expect(data.episodeCount).toBe(0)
-    // But docs memories ARE surfaced so the inspector reflects real grounded
-    // knowledge.
-    expect(data.memories).toHaveLength(2)
-    expect(data.memories[0].content).toContain('PostgreSQL')
+    // Visitor's chat history is rehydrated like any other persona.
+    expect(data.episodes).toHaveLength(2)
+    expect(data.episodes[0].role).toBe('user')
+    expect(data.episodes[0].content).toContain('multi-tenant')
+    expect(data.episodeCount).toBe(1)
+    // The visitor's compiled memories are surfaced — what STATEWAVE remembers
+    // about THEM, not what the docs pack contains.
+    expect(data.memories).toHaveLength(1)
+    expect(data.memories[0].content).toContain('multi-tenant')
   })
 
-  it('issues a fresh cookie for first-time docs-persona visitors', async () => {
+  it('issues a fresh cookie and returns empty visitor state for first-time visitors', async () => {
     const resp = await demoState(
       makeRequest('GET', 'http://test/api/demo-state?persona=statewave-support'),
     )
@@ -240,36 +336,59 @@ describe('GET /api/demo-state — statewave-support persona', () => {
     const setCookie = resp.headers.get('set-cookie')
     expect(setCookie).toMatch(/sw_demo_visitor=[0-9a-f-]{36}/)
     const data = await resp.json()
-    expect(data.subjectId).toBe(DOCS_SUBJECT_ID)
+    // First-time visitors get the per-visitor subject id (with the new uuid)
+    // but no memories yet — they fill as the visitor chats.
+    expect(data.subjectId).toMatch(/^demo_web_[0-9a-f]{32}__statewave-support$/)
+    expect(data.subjectId).not.toBe(DOCS_SUBJECT_ID)
     expect(data.episodeCount).toBe(0)
+    expect(data.memories).toEqual([])
   })
 })
 
-describe('POST /api/demo-seed — statewave-support persona', () => {
+describe('POST /api/demo-seed — statewave-support persona (no-op)', () => {
   beforeEach(() => {
     setEnv()
-    // demo-seed should reject before making any network calls — but mock to
-    // catch any accidental fetches.
+    // The hybrid model has no doc-pack copy step, so demo-seed should not
+    // call Statewave at all for this persona. Any fetch is a regression
+    // (docs pack copy or accidental write).
     vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) => {
       const url = typeof input === 'string' ? input : (input as Request).url
-      throw new Error(`demo-seed should not fetch when refusing docs persona: ${url}`)
+      throw new Error(`demo-seed must not fetch for the no-seed persona: ${url}`)
     })
   })
   afterEach(() => vi.restoreAllMocks())
 
-  it('refuses the docs persona with a clear reason and does not touch Statewave', async () => {
+  it('accepts statewave-support as a no-op and never touches Statewave', async () => {
     const resp = await demoSeed(
       makeRequest('POST', 'http://test/api/demo-seed', {
         headers: { 'content-type': 'application/json', cookie: cookieHeader(VALID_UUID) },
         body: JSON.stringify({ persona: 'statewave-support' }),
       }),
     )
-    expect(resp.status).toBe(400)
+    expect(resp.status).toBe(200)
     const data = await resp.json()
     expect(data.seeded).toBe(false)
-    expect(data.reason).toBe('docs-shared')
-    expect(String(data.error)).toMatch(/docs pack/i)
+    expect(data.reason).toBe('no-seed-needed')
+    expect(data.persona).toBe('statewave-support')
+    // The returned subject is the visitor's per-visitor statewave-support
+    // subject — that's where memory will accrue as they chat.
+    expect(data.subjectId).toBe(subjectFor(VALID_UUID, 'statewave-support'))
     expect(globalThis.fetch as ReturnType<typeof vi.fn>).not.toHaveBeenCalled()
+  })
+
+  it('issues a fresh cookie when no visitor cookie is present', async () => {
+    const resp = await demoSeed(
+      makeRequest('POST', 'http://test/api/demo-seed', {
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ persona: 'statewave-support' }),
+      }),
+    )
+    expect(resp.status).toBe(200)
+    const setCookie = resp.headers.get('set-cookie')
+    expect(setCookie).toMatch(/sw_demo_visitor=[0-9a-f-]{36}/)
+    const data = await resp.json()
+    expect(data.reason).toBe('no-seed-needed')
+    expect(data.subjectId).toMatch(/^demo_web_[0-9a-f]{32}__statewave-support$/)
   })
 })
 
@@ -292,7 +411,7 @@ describe('POST /api/demo-reset — never deletes the docs subject', () => {
   })
   afterEach(() => vi.restoreAllMocks())
 
-  it('deletes visitor-memory subjects but never the shared docs subject', async () => {
+  it('deletes visitor-memory subjects (incl. per-visitor statewave-support) but never the shared docs subject', async () => {
     const resp = await demoReset(
       makeRequest('POST', 'http://test/api/demo-reset', {
         headers: { cookie: cookieHeader(VALID_UUID) },
@@ -301,6 +420,9 @@ describe('POST /api/demo-reset — never deletes the docs subject', () => {
     expect(resp.status).toBe(200)
     expect(deletedSubjects.length).toBeGreaterThan(0)
     expect(deletedSubjects).not.toContain(DOCS_SUBJECT_ID)
+    // The per-visitor statewave-support subject MUST be in the wipe — that's
+    // where the visitor's accrued docs-persona memory lives.
+    expect(deletedSubjects).toContain(subjectFor(VALID_UUID, 'statewave-support'))
     // Sanity: every deleted subject is a per-visitor subject.
     for (const sid of deletedSubjects) {
       expect(sid.startsWith('demo_web_')).toBe(true)

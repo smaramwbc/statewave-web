@@ -217,16 +217,39 @@ describe('resolveDocSources', () => {
 })
 
 describe('POST /api/widget-chat — sources in the response', () => {
+  let lastEpisodeWriteSubject = ''
+  let lastCompileSubject = ''
+
   beforeEach(() => {
     setEnv()
-    vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) => {
+    lastEpisodeWriteSubject = ''
+    lastCompileSubject = ''
+    vi.spyOn(globalThis, 'fetch').mockImplementation(async (input, init) => {
       const url = typeof input === 'string' ? input : (input as Request).url
       if (url.includes('/v1/timeline')) {
         return new Response(JSON.stringify({ episodes: [], memories: [] }), { status: 200 })
       }
       if (url.includes('/v1/context')) {
+        // Hybrid path makes two /v1/context calls (docs + visitor). Disambiguate
+        // by request body subject_id. The visitor-context call returns an empty
+        // bundle so citations come purely from the docs context.
+        const body = init?.body ? JSON.parse(init.body as string) : {}
+        if (body.subject_id !== DOCS_SUBJECT_ID) {
+          return new Response(
+            JSON.stringify({
+              subject_id: body.subject_id,
+              task: 't',
+              facts: [],
+              procedures: [],
+              episodes: [],
+              assembled_context: '',
+              token_estimate: 0,
+            }),
+            { status: 200 },
+          )
+        }
         // Wire-shape response with episodes[] and source_episode_ids — what the
-        // server actually returns from POST /v1/context.
+        // server actually returns from POST /v1/context against the docs subject.
         return new Response(
           JSON.stringify({
             subject_id: DOCS_SUBJECT_ID,
@@ -270,10 +293,17 @@ describe('POST /api/widget-chat — sources in the response', () => {
           { status: 200 },
         )
       }
-      if (url.includes('/v1/episodes') || url.includes('/v1/memories/compile')) {
-        // Defensive — docs persona must NOT call these. Throwing surfaces as a
-        // test failure if the contract regresses.
-        throw new Error(`docs persona must not call ${url}`)
+      if (url.includes('/v1/episodes')) {
+        // Hybrid path writes the visitor turn to the visitor subject. Capture
+        // the subject so a separate test can pin "never written to docs".
+        const body = init?.body ? JSON.parse(init.body as string) : {}
+        lastEpisodeWriteSubject = body.subject_id
+        return new Response(JSON.stringify({ id: 'ep-new' }), { status: 201 })
+      }
+      if (url.includes('/v1/memories/compile')) {
+        const body = init?.body ? JSON.parse(init.body as string) : {}
+        lastCompileSubject = body.subject_id
+        return new Response(JSON.stringify({ memories_created: 0, memories: [] }), { status: 200 })
       }
       if (url.includes('/v1/llm/complete')) {
         return new Response(
@@ -306,6 +336,12 @@ describe('POST /api/widget-chat — sources in the response', () => {
       url: expect.stringContaining('overview.md'),
     })
     expect(data.sources[1].doc_path).toBe('deployment/guide.md')
+    // Hybrid contract: the chat turn must persist to the visitor's subject —
+    // never to the shared docs subject. Same for compile.
+    expect(lastEpisodeWriteSubject).not.toBe(DOCS_SUBJECT_ID)
+    expect(lastEpisodeWriteSubject).toMatch(/^demo_web_[0-9a-f]{32}__statewave-support$/)
+    expect(lastCompileSubject).not.toBe(DOCS_SUBJECT_ID)
+    expect(lastCompileSubject).toMatch(/^demo_web_[0-9a-f]{32}__statewave-support$/)
   })
 })
 
@@ -320,13 +356,13 @@ describe('POST /api/widget-chat — admin-episodes fallback for citations', () =
   // the prompt-format leak that was copying "[kind]" tags into replies.
 
   let adminEpisodesCalls = 0
-  let timelineCalls = 0
+  let docsTimelineCalls = 0
   let lastSystemPrompt = ''
 
   beforeEach(() => {
     setEnv()
     adminEpisodesCalls = 0
-    timelineCalls = 0
+    docsTimelineCalls = 0
     lastSystemPrompt = ''
     vi.spyOn(globalThis, 'fetch').mockImplementation(async (input, init) => {
       const url = typeof input === 'string' ? input : (input as Request).url
@@ -361,14 +397,36 @@ describe('POST /api/widget-chat — admin-episodes fallback for citations', () =
         )
       }
       if (url.includes('/v1/timeline')) {
-        timelineCalls++
-        // The docs-shared path must NOT use timeline — it caps at 100. Return
-        // a sentinel that would break the test if mistakenly used.
+        // The hybrid path uses /v1/timeline against the per-visitor subject
+        // for the episode-cap pre-check — that's expected and harmless.
+        // What we MUST NOT regress to is using /v1/timeline against the docs
+        // subject for citation lookup, because timeline hard-caps at 100
+        // and would silently drop citations from larger packs. Track docs-
+        // subject hits separately so the test can assert that count is 0.
+        const u = new URL(url)
+        if (u.searchParams.get('subject_id') === DOCS_SUBJECT_ID) docsTimelineCalls++
         return new Response(JSON.stringify({ episodes: [], memories: [] }), { status: 200 })
       }
       if (url.includes('/v1/context')) {
         // Production-shape: facts with source_episode_ids, but episodes[]
         // is empty — server elided the raw episodes for token efficiency.
+        // Hybrid path makes two /v1/context calls (docs + visitor); only the
+        // docs call carries the citation-bearing facts.
+        const body = init?.body ? JSON.parse(init.body as string) : {}
+        if (body.subject_id !== DOCS_SUBJECT_ID) {
+          return new Response(
+            JSON.stringify({
+              subject_id: body.subject_id,
+              task: 't',
+              facts: [],
+              procedures: [],
+              episodes: [],
+              assembled_context: '',
+              token_estimate: 0,
+            }),
+            { status: 200 },
+          )
+        }
         return new Response(
           JSON.stringify({
             subject_id: DOCS_SUBJECT_ID,
@@ -389,6 +447,14 @@ describe('POST /api/widget-chat — admin-episodes fallback for citations', () =
           }),
           { status: 200 },
         )
+      }
+      if (url.includes('/v1/episodes')) {
+        // Visitor-subject write — expected on the hybrid path. Don't capture
+        // here; the previous block has the contract test.
+        return new Response(JSON.stringify({ id: 'ep-new' }), { status: 201 })
+      }
+      if (url.includes('/v1/memories/compile')) {
+        return new Response(JSON.stringify({ memories_created: 0, memories: [] }), { status: 200 })
       }
       if (url.includes('/v1/llm/complete')) {
         // Capture the system prompt the model actually receives so we can
@@ -422,7 +488,10 @@ describe('POST /api/widget-chat — admin-episodes fallback for citations', () =
     expect(resp.status).toBe(200)
     const data = await resp.json()
     expect(adminEpisodesCalls).toBe(1)
-    expect(timelineCalls).toBe(0) // must not regress to the capped endpoint
+    // Hybrid path is allowed to call /v1/timeline against the visitor subject
+    // (cap pre-check), but MUST NOT call it against the docs subject for
+    // citation lookup — that endpoint hard-caps at 100 episodes.
+    expect(docsTimelineCalls).toBe(0)
     expect(data.sources).toHaveLength(1)
     expect(data.sources[0].doc_path).toBe('architecture/overview.md')
     expect(data.sources[0].url).toContain('overview.md')

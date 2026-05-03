@@ -1055,6 +1055,60 @@ export function ChatWidget() {
                         {hydrationReason === 'reset' && 'Wiping the previous subjects and provisioning a clean one.'}
                       </p>
                     </div>
+                  ) : isSupportMode ? (
+                    <motion.div
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.4, ease: 'easeOut' }}
+                      className="flex flex-col items-center text-center px-4 sm:px-6 py-7 sm:py-9"
+                    >
+                      <div className="relative mb-4">
+                        <div
+                          className="absolute inset-0 rounded-2xl blur-xl opacity-70"
+                          style={{
+                            background: isDark
+                              ? 'radial-gradient(closest-side, rgba(99,102,241,0.55), transparent 75%)'
+                              : 'radial-gradient(closest-side, rgba(99,102,241,0.35), transparent 75%)',
+                          }}
+                        />
+                        <div className="relative flex h-12 w-12 items-center justify-center rounded-2xl border border-accent/30 bg-gradient-to-br from-accent/15 to-accent/5 shadow-[0_6px_24px_-8px_rgba(99,102,241,0.55)]">
+                          <svg className="h-5 w-5 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.7}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 4h6.5L19 9.75v8.5A2.75 2.75 0 0116.25 21H7.75A2.75 2.75 0 015 18.25V6.75A2.75 2.75 0 017.75 4z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M13 4v4.25c0 .69.56 1.25 1.25 1.25h4.5" />
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M8.5 13.5h7M8.5 16.5h4.5" />
+                          </svg>
+                        </div>
+                      </div>
+
+                      <div className="inline-flex items-center gap-1.5 rounded-full border border-accent/25 bg-accent/10 px-2.5 py-[3px] text-[9px] sm:text-[9.5px] font-semibold uppercase tracking-[0.16em] text-accent/90">
+                        <span className="h-1 w-1 rounded-full bg-accent shadow-[0_0_6px_rgba(99,102,241,0.8)]" />
+                        Docs memory pack
+                      </div>
+
+                      <h3 className="mt-2.5 text-[13px] sm:text-sm font-semibold tracking-tight text-theme-primary">
+                        Grounded in the official Statewave docs
+                      </h3>
+
+                      <p className="mt-1.5 max-w-[300px] text-[10.5px] sm:text-[11px] leading-relaxed text-theme-secondary/85">
+                        Ask product, setup, deployment, privacy, or compiler questions. Answers come from the docs memory pack and cite the source — the agent will say so plainly when something isn't covered.
+                      </p>
+
+                      <div className="mt-4 grid w-full max-w-[320px] grid-cols-3 gap-1.5">
+                        {[
+                          { label: 'Cited', sub: 'every claim' },
+                          { label: 'Grounded', sub: 'official docs' },
+                          { label: 'Honest', sub: 'about gaps' },
+                        ].map((f) => (
+                          <div
+                            key={f.label}
+                            className="rounded-lg border border-theme-border/40 bg-theme-border/[0.04] px-1.5 py-1.5"
+                          >
+                            <div className="text-[10px] font-semibold text-theme-primary/90 leading-none">{f.label}</div>
+                            <div className="mt-1 text-[9px] text-theme-muted/75 leading-tight">{f.sub}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </motion.div>
                   ) : (
                     <div className="text-center py-6 sm:py-8 px-4">
                       <p className="text-[11px] sm:text-xs font-medium text-theme-secondary mb-1.5">

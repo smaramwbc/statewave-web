@@ -424,7 +424,11 @@ describe('POST /api/demo-reset', () => {
     })
     const resp = await demoReset(req)
     expect(resp.status).toBe(200)
-    // Bare subject (legacy) + one per persona (5) = 6 deletes
+    // Bare subject (legacy) + one per visitor-memory persona (5) +
+    // one per docs-shared persona's per-visitor memory subject (1) = 7 deletes.
+    // The shared docs subject (statewave-support-docs) is intentionally NOT
+    // included — reset wipes the visitor's slate, never the shared knowledge
+    // pack.
     const expected = new Set([
       subjectFor(VALID_UUID),
       subjectFor(VALID_UUID, 'support-agent'),
@@ -432,6 +436,7 @@ describe('POST /api/demo-reset', () => {
       subjectFor(VALID_UUID, 'sales-copilot'),
       subjectFor(VALID_UUID, 'devops-agent'),
       subjectFor(VALID_UUID, 'research-assistant'),
+      subjectFor(VALID_UUID, 'statewave-support'),
     ])
     expect(new Set(deletedSubjects)).toEqual(expected)
 

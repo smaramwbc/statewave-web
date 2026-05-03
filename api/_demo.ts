@@ -47,9 +47,8 @@ export function newVisitorId(): string {
 
 /**
  * Visitor-memory personas — each gets its own per-visitor subject and full
- * write/compile/reset cycle. `allSubjectsFor()` iterates this list, so adding
- * a non-visitor-memory persona here would let `/api/demo-reset` delete shared
- * data. Don't.
+ * write/compile/reset cycle. `allSubjectsFor()` iterates this list together
+ * with DOCS_SHARED_PERSONAS to wipe every per-visitor subject on reset.
  */
 export const DEMO_PERSONAS = [
   'support-agent',
@@ -61,10 +60,18 @@ export const DEMO_PERSONAS = [
 export type DemoPersona = (typeof DEMO_PERSONAS)[number]
 
 /**
- * Docs-shared personas — read-only against a fixed shared Statewave subject
- * containing the official docs memory pack. No per-visitor write, no compile,
- * no seed, no reset. The widget surfaces these alongside DEMO_PERSONAS but
- * routes them through a different code path.
+ * Docs-shared personas — hybrid model:
+ *   * grounding context comes from the fixed shared `DOCS_SUBJECT_ID` subject
+ *     (the official docs pack, built upstream by bootstrap_docs_pack.py and
+ *     read by every visitor)
+ *   * the visitor's own questions and accrued memory live in a per-visitor
+ *     subject (`subjectFor(visitorId, persona)`), exactly like DEMO_PERSONAS
+ *
+ * The shared subject stays read-only during normal chat — chat turns are
+ * written only to the visitor's per-visitor subject. `allSubjectsFor()`
+ * includes the per-visitor docs-shared subjects so reset wipes them; the
+ * shared `DOCS_SUBJECT_ID` itself is never in that list and so reset never
+ * touches the docs pack.
  */
 export const DOCS_SUBJECT_ID = 'statewave-support-docs'
 export const DOCS_SHARED_PERSONAS = ['statewave-support'] as const
@@ -110,9 +117,18 @@ export function subjectFor(visitorId: string, persona?: string | null): string {
   return `${base}__${safe}`
 }
 
-/** All subject ids that belong to a visitor — used when wiping on reset. */
+/**
+ * All subject ids that belong to a visitor — used when wiping on reset.
+ * Includes both DEMO_PERSONAS (visitor-memory) and DOCS_SHARED_PERSONAS
+ * (whose per-visitor memory subject lives alongside the shared docs pack).
+ * The shared `DOCS_SUBJECT_ID` itself is intentionally NOT in this list.
+ */
 export function allSubjectsFor(visitorId: string): string[] {
-  return [subjectFor(visitorId), ...DEMO_PERSONAS.map((p) => subjectFor(visitorId, p))]
+  return [
+    subjectFor(visitorId),
+    ...DEMO_PERSONAS.map((p) => subjectFor(visitorId, p)),
+    ...DOCS_SHARED_PERSONAS.map((p) => subjectFor(visitorId, p)),
+  ]
 }
 
 export function buildSetCookie(visitorId: string, isProd = process.env.NODE_ENV === 'production'): string {

@@ -26,6 +26,20 @@ import {
   writeEpisode,
 } from './_demo'
 
+/**
+ * Personas the seed endpoint accepts but treats as no-op.
+ *
+ * The docs-shared persona (`statewave-support`) has no curated showcase
+ * subject to copy from — its grounding comes from the shared docs pack at
+ * answer time, not from a visitor-side episode copy. The visitor's memory
+ * subject naturally fills as they chat, so seeding is unnecessary. We
+ * accept the request and return success so the client's seed-on-first-open
+ * flow stays generic across persona kinds.
+ */
+function isNoSeedPersona(persona: string): boolean {
+  return isDocsSharedPersona(persona)
+}
+
 export const config = { runtime: 'edge' }
 
 const SEED_EPISODE_LIMIT = 24
@@ -50,26 +64,6 @@ export default async function handler(req: Request): Promise<Response> {
   }
 
   const persona = (body.persona ?? '').trim()
-  if (isDocsSharedPersona(persona)) {
-    return json(
-      {
-        error:
-          `Persona "${persona}" is grounded in the official Statewave docs pack ` +
-          'and is not visitor-seedable. The pack is built upstream by ' +
-          'scripts/bootstrap_docs_pack.py.',
-        seeded: false,
-        reason: 'docs-shared',
-      },
-      { status: 400 },
-    )
-  }
-  const sourceSubject = SEED_SOURCES[persona]
-  if (!sourceSubject) {
-    return json(
-      { error: `Unknown persona "${persona}". Expected one of: ${Object.keys(SEED_SOURCES).join(', ')}` },
-      { status: 400 },
-    )
-  }
 
   const existing = parseDemoVisitor(req.headers.get('cookie'))
   let visitorUuid = existing
@@ -78,6 +72,29 @@ export default async function handler(req: Request): Promise<Response> {
     visitorUuid = newVisitorId()
     setCookie = buildSetCookie(visitorUuid)
   }
+
+  if (isNoSeedPersona(persona)) {
+    // Issue the cookie so the visitor identity is established, but don't
+    // copy any episodes — there's nothing to seed for this persona.
+    return json(
+      {
+        subjectId: subjectFor(visitorUuid, persona),
+        seeded: false,
+        reason: 'no-seed-needed',
+        persona,
+      },
+      { setCookie },
+    )
+  }
+
+  const sourceSubject = SEED_SOURCES[persona]
+  if (!sourceSubject) {
+    return json(
+      { error: `Unknown persona "${persona}". Expected one of: ${Object.keys(SEED_SOURCES).join(', ')}` },
+      { status: 400 },
+    )
+  }
+
   // Seed into the persona-scoped subject — that way switching personas later
   // loads its own memory pool, just like clicking the matching particle.
   const visitorSubject = subjectFor(visitorUuid, persona)
