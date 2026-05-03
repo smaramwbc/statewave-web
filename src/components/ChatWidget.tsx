@@ -86,6 +86,7 @@ export function ChatWidget() {
     expandWidget,
     selectPersona,
     sendMessage,
+    retryLast,
     resetDemo,
     dismissWelcome,
     showWelcome,
@@ -950,7 +951,17 @@ export function ChatWidget() {
                 ) : (
                   statelessMessages.map((msg, i) => (
                     <div key={i} data-msg-idx={String(i)}>
-                      <MessageBubble message={msg} side="stateless" isDark={isDark} compact={isMobile && mobileTab === 'split'} />
+                      <MessageBubble
+                        message={msg}
+                        side="stateless"
+                        isDark={isDark}
+                        compact={isMobile && mobileTab === 'split'}
+                        onRetry={
+                          i === statelessMessages.length - 1 && msg.error && !isLoading
+                            ? retryLast
+                            : undefined
+                        }
+                      />
                     </div>
                   ))
                 )}
@@ -1073,7 +1084,17 @@ export function ChatWidget() {
                 ) : (
                   statewaveMessages.map((msg, i) => (
                     <div key={i} data-msg-idx={String(i)}>
-                      <MessageBubble message={msg} side="statewave" isDark={isDark} compact={isMobile && mobileTab === 'split'} />
+                      <MessageBubble
+                        message={msg}
+                        side="statewave"
+                        isDark={isDark}
+                        compact={isMobile && mobileTab === 'split'}
+                        onRetry={
+                          i === statewaveMessages.length - 1 && msg.error && !isLoading
+                            ? retryLast
+                            : undefined
+                        }
+                      />
                     </div>
                   ))
                 )}
@@ -1373,15 +1394,20 @@ export function ChatWidget() {
 // ─── Sub-components ───
 
 interface MessageBubbleProps {
-  message: { role: string; content: string; sources?: DocSource[] }
+  message: { role: string; content: string; sources?: DocSource[]; error?: boolean }
   side: 'stateless' | 'statewave'
   isDark: boolean
   compact?: boolean
+  /** When provided, renders a Retry affordance under the bubble. Only set on
+   *  the trailing error bubble per column so the user can re-send the failed
+   *  turn without retyping. */
+  onRetry?: () => void
 }
 
-export function MessageBubble({ message, side, isDark, compact }: MessageBubbleProps) {
+export function MessageBubble({ message, side, isDark, compact, onRetry }: MessageBubbleProps) {
   const isUser = message.role === 'user'
   const isStatewave = side === 'statewave'
+  const isError = !isUser && message.error === true
   // Sources are only attached to docs-grounded assistant turns by sendMessage,
   // and only on the Statewave side. Render the citation row when present —
   // otherwise stay completely silent (no "no sources" placeholder).
@@ -1393,13 +1419,29 @@ export function MessageBubble({ message, side, isDark, compact }: MessageBubbleP
         className={`${compact ? 'max-w-[95%] px-2 py-1.5 text-[10px]' : 'max-w-[90%] px-3 py-2 text-xs'} rounded-xl leading-relaxed ${
           isUser
             ? 'bg-accent/20 text-theme-primary'
-            : isStatewave
-              ? isDark ? 'bg-accent/10 text-theme-secondary' : 'bg-accent/5 text-theme-secondary'
-              : isDark ? 'bg-white/5 text-theme-secondary' : 'bg-black/5 text-theme-secondary'
+            : isError
+              ? isDark ? 'bg-red-500/10 text-red-200' : 'bg-red-500/10 text-red-700'
+              : isStatewave
+                ? isDark ? 'bg-accent/10 text-theme-secondary' : 'bg-accent/5 text-theme-secondary'
+                : isDark ? 'bg-white/5 text-theme-secondary' : 'bg-black/5 text-theme-secondary'
         }`}
       >
         {message.content}
       </div>
+      {isError && onRetry && (
+        <button
+          type="button"
+          onClick={onRetry}
+          data-testid="chat-retry"
+          className={`${compact ? 'mt-1 text-[10px]' : 'mt-1.5 text-xs'} px-2 py-0.5 rounded-md font-medium border transition-colors ${
+            isDark
+              ? 'border-red-400/30 text-red-200 hover:bg-red-500/10'
+              : 'border-red-500/30 text-red-700 hover:bg-red-500/10'
+          }`}
+        >
+          Retry
+        </button>
+      )}
       {sources && sources.length > 0 && (
         <SourcesRow sources={sources} compact={compact} />
       )}

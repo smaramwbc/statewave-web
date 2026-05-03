@@ -21,6 +21,7 @@ import {
   useState,
   useCallback,
   useEffect,
+  useRef,
   type ReactNode,
   type RefObject,
 } from 'react'
@@ -42,6 +43,12 @@ export interface ChatMessage {
   timestamp: number
   /** Only populated for assistant turns from the docs-shared persona. */
   sources?: DocSource[]
+  /** Marks an assistant bubble that's standing in for a failed exchange so
+   *  the UI can render a Retry affordance instead of a regular reply. */
+  error?: boolean
+  /** The original user input that produced this error bubble. Used by the
+   *  retry path to re-issue the exchange without making the visitor retype. */
+  retryText?: string
 }
 
 export interface MemoryItem {
@@ -133,6 +140,10 @@ interface ChatWidgetActions {
   expandWidget: () => void
   selectPersona: (persona: string, label: string) => void
   sendMessage: (text: string) => Promise<void>
+  /** Re-issues the most recent failed exchange without making the visitor
+   *  retype. Strips the trailing error bubble(s) first. No-op if the last
+   *  exchange succeeded or there's no remembered failure. */
+  retryLast: () => Promise<void>
   /** Wipes the visitor's Statewave subject and clears chat. */
   resetDemo: () => Promise<void>
   /** Local-only: clears the chat panel without touching server state. */
@@ -268,6 +279,42 @@ function loadOnboarding(): OnboardingRecord {
   } catch {
     return empty
   }
+}
+
+/**
+ * Fetch wrapper that auto-retries transient failures so a brief network blip
+ * doesn't surface as an error bubble. Retries on:
+ *   - Network errors (fetch throws — typically TypeError "Failed to fetch")
+ *   - HTTP 408 / 429 / 5xx (transient server-side or rate-limit responses)
+ * Backoff is exponential and short (250ms, 750ms) so the visitor only sees a
+ * slightly longer loading indicator on a recovering blip. Non-transient HTTP
+ * statuses (4xx other than 408/429) are returned as-is for the caller to render.
+ */
+async function fetchWithRetry(
+  input: RequestInfo,
+  init: RequestInit,
+  maxAttempts = 3,
+): Promise<Response> {
+  let lastErr: unknown
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      const resp = await fetch(input, init)
+      const transient =
+        resp.status === 408 || resp.status === 429 || (resp.status >= 500 && resp.status < 600)
+      if (transient && attempt < maxAttempts) {
+        await new Promise((r) => setTimeout(r, 250 * Math.pow(3, attempt - 1)))
+        continue
+      }
+      return resp
+    } catch (err) {
+      lastErr = err
+      if (attempt < maxAttempts) {
+        await new Promise((r) => setTimeout(r, 250 * Math.pow(3, attempt - 1)))
+        continue
+      }
+    }
+  }
+  throw lastErr instanceof Error ? lastErr : new Error('Network error')
 }
 
 function persistOnboarding(rec: OnboardingRecord): void {
@@ -532,46 +579,32 @@ export function ChatWidgetProvider({ children }: { children: ReactNode }) {
     }
   }, [])
 
-  const sendMessage = useCallback(async (text: string) => {
-    if (!text.trim()) return
-    const trimmed = text.trim()
-    // Sending is the visitor's strongest "I get it" signal — auto-dismiss
-    // the welcome panel here too, not just on the explicit Skip link.
-    if (!hasSeenWelcome) {
-      persistOnboarding({
-        welcomeSeenAt: Date.now(),
-        tourCompletedAt: loadOnboarding().tourCompletedAt,
-      })
-      setHasSeenWelcome(true)
-      // Sending also kicks off the tour — but only in the demo flow. Support
-      // mode never runs the demo tour regardless of completion state.
-      if (mode !== 'support') {
-        setTourStep((prev) => (prev === 0 && !hasCompletedTour ? 1 : prev))
-      }
-    }
-    const userMsg: ChatMessage = { role: 'user', content: trimmed, timestamp: Date.now() }
-    // Support mode renders only the statewave column, so the stateless side
-    // is dead state — skip its setState too. Saves a render and keeps the
-    // stateless message log empty (handy for tests asserting "no demo
-    // chatter happened in the support channel").
-    const skipStateless = mode === 'support'
-    if (!skipStateless) setStatelessMessages((prev) => [...prev, userMsg])
-    setStatewaveMessages((prev) => [...prev, userMsg])
-    setIsLoading(true)
+  // Holds the most recent user input that hit a hard failure after retries.
+  // The Retry button (rendered on error bubbles) reads this to re-issue the
+  // exchange without making the visitor retype. Cleared as soon as a retry
+  // is dispatched or a fresh send succeeds.
+  const lastFailedTextRef = useRef<string | null>(null)
 
+  /**
+   * Runs a single chat exchange (one user turn → assistant replies on each
+   * column) using fetchWithRetry. On hard failure after retries, appends an
+   * error bubble carrying retryText so the UI can render a Retry affordance.
+   * Returns nothing; side-effects state directly.
+   */
+  const runExchange = useCallback(async (trimmed: string, skipStateless: boolean) => {
     try {
       // The "without memory" comparison call is purely demo chrome — the
       // support channel never renders that column, so don't waste a backend
       // round-trip on it. Halves per-turn LLM load for support traffic.
       const statelessFetch = skipStateless
         ? Promise.resolve(null)
-        : fetch('/api/widget-chat', {
+        : fetchWithRetry('/api/widget-chat', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'same-origin',
             body: JSON.stringify({ messages: [{ role: 'user', content: trimmed }], mode: 'stateless', persona }),
           })
-      const statewaveFetch = fetch('/api/widget-chat', {
+      const statewaveFetch = fetchWithRetry('/api/widget-chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'same-origin',
@@ -611,6 +644,7 @@ export function ChatWidgetProvider({ children }: { children: ReactNode }) {
       }])
 
       if (statewaveData.context) setLastContext(statewaveData.context)
+      lastFailedTextRef.current = null
 
       // After a successful Statewave turn, the server has written an episode
       // and run compile against the active persona's subject. Refresh against
@@ -619,15 +653,76 @@ export function ChatWidgetProvider({ children }: { children: ReactNode }) {
         void refreshState(persona)
       }
     } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : 'Network error'
-      console.error('[widget] API error:', err)
-      const errMsg = (role: 'user' | 'assistant'): ChatMessage => ({ role, content: `Error: ${errorMsg}`, timestamp: Date.now() })
-      if (!skipStateless) setStatelessMessages((prev) => [...prev, errMsg('assistant')])
-      setStatewaveMessages((prev) => [...prev, errMsg('assistant')])
+      console.error('[widget] API error after retries:', err)
+      lastFailedTextRef.current = trimmed
+      const errBubble = (): ChatMessage => ({
+        role: 'assistant',
+        content: "Connection lost. Tap Retry to send again.",
+        timestamp: Date.now(),
+        error: true,
+        retryText: trimmed,
+      })
+      if (!skipStateless) setStatelessMessages((prev) => [...prev, errBubble()])
+      setStatewaveMessages((prev) => [...prev, errBubble()])
+    }
+  }, [persona, refreshState])
+
+  const sendMessage = useCallback(async (text: string) => {
+    if (!text.trim()) return
+    const trimmed = text.trim()
+    // Sending is the visitor's strongest "I get it" signal — auto-dismiss
+    // the welcome panel here too, not just on the explicit Skip link.
+    if (!hasSeenWelcome) {
+      persistOnboarding({
+        welcomeSeenAt: Date.now(),
+        tourCompletedAt: loadOnboarding().tourCompletedAt,
+      })
+      setHasSeenWelcome(true)
+      // Sending also kicks off the tour — but only in the demo flow. Support
+      // mode never runs the demo tour regardless of completion state.
+      if (mode !== 'support') {
+        setTourStep((prev) => (prev === 0 && !hasCompletedTour ? 1 : prev))
+      }
+    }
+    const userMsg: ChatMessage = { role: 'user', content: trimmed, timestamp: Date.now() }
+    // Support mode renders only the statewave column, so the stateless side
+    // is dead state — skip its setState too. Saves a render and keeps the
+    // stateless message log empty (handy for tests asserting "no demo
+    // chatter happened in the support channel").
+    const skipStateless = mode === 'support'
+    if (!skipStateless) setStatelessMessages((prev) => [...prev, userMsg])
+    setStatewaveMessages((prev) => [...prev, userMsg])
+    setIsLoading(true)
+    try {
+      await runExchange(trimmed, skipStateless)
     } finally {
       setIsLoading(false)
     }
-  }, [persona, hasSeenWelcome, hasCompletedTour, refreshState, mode])
+  }, [hasSeenWelcome, hasCompletedTour, mode, runExchange])
+
+  const retryLast = useCallback(async () => {
+    const trimmed = lastFailedTextRef.current
+    if (!trimmed) return
+    // One retry attempt at a time. Clear the marker before dispatching so
+    // a rapid double-click can't queue two parallel exchanges.
+    lastFailedTextRef.current = null
+    const skipStateless = mode === 'support'
+    // Strip the trailing error bubble(s) so a successful retry replaces them
+    // cleanly instead of stacking. We never strip user messages — the user's
+    // turn already happened and stays in history.
+    const stripTrailingError = (prev: ChatMessage[]): ChatMessage[] => {
+      const last = prev[prev.length - 1]
+      return last?.role === 'assistant' && last.error ? prev.slice(0, -1) : prev
+    }
+    setStatewaveMessages(stripTrailingError)
+    if (!skipStateless) setStatelessMessages(stripTrailingError)
+    setIsLoading(true)
+    try {
+      await runExchange(trimmed, skipStateless)
+    } finally {
+      setIsLoading(false)
+    }
+  }, [mode, runExchange])
 
   // Preload the default persona's memory pool on page mount so the demo is
   // populated the moment a visitor opens the widget — no spinner-while-seeding
@@ -725,6 +820,7 @@ export function ChatWidgetProvider({ children }: { children: ReactNode }) {
     expandWidget,
     selectPersona,
     sendMessage,
+    retryLast,
     resetDemo,
     clearChat,
     seedFromPersona,
