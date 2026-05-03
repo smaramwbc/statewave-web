@@ -35,6 +35,12 @@ function TestWrapper({ children }: { children: React.ReactNode }) {
 function stubAllFetches() {
   return vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) => {
     const url = typeof input === 'string' ? input : (input as Request).url
+    if (url.includes('/api/demo-personas')) {
+      return new Response(
+        JSON.stringify({ available: ['support-agent', 'statewave-support'] }),
+        { status: 200, headers: { 'Content-Type': 'application/json' } },
+      )
+    }
     if (url.includes('/api/demo-state')) {
       return new Response(
         JSON.stringify({

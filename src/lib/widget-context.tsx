@@ -101,6 +101,12 @@ interface ChatWidgetState {
    *  is in the viewport — the floating launcher hides itself in that case
    *  so we don't double-up on the same affordance. */
   hasVisibleCta: boolean
+  /** Persona ids whose backing subject has data on the upstream Statewave
+   *  backend. Resolved by an on-mount call to `/api/demo-personas` (fired in
+   *  parallel with the default-persona preload). `null` while the request is
+   *  in flight or if it failed — consumers should fall back to the full
+   *  hardcoded catalog in that case. */
+  availablePersonas: string[] | null
 }
 
 interface ChatWidgetActions {
@@ -275,6 +281,11 @@ export function ChatWidgetProvider({ children }: { children: ReactNode }) {
   const [hydrationReason, setHydrationReason] = useState<'setup' | 'restore' | 'reset' | null>(null)
   const [hasSeenWelcome, setHasSeenWelcome] = useState<boolean>(() => loadOnboarding().welcomeSeenAt !== null)
   const [hasCompletedTour, setHasCompletedTour] = useState<boolean>(() => loadOnboarding().tourCompletedAt !== null)
+  // Persona ids the backend reports as having non-empty memory. `null` means
+  // "still loading or fetch failed" — consumers should fall back to the full
+  // hardcoded catalog in that case so the widget never strands the visitor
+  // with an empty picker.
+  const [availablePersonas, setAvailablePersonas] = useState<string[] | null>(null)
   // tourStep semantics:
   //   0          = no tour visible (welcome still up, or tour completed)
   //   1..TOUR_STEPS = active step; tour banner is showing
@@ -588,6 +599,26 @@ export function ChatWidgetProvider({ children }: { children: ReactNode }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  // Fire the persona-availability check on page load (in parallel with the
+  // preload above) so the dropdown filter is already resolved by the time
+  // the visitor opens the widget. Failure is non-fatal — we leave the state
+  // as `null` and the consumer falls back to showing the full catalog.
+  useEffect(() => {
+    let cancelled = false
+    void (async () => {
+      try {
+        const resp = await fetch('/api/demo-personas', { credentials: 'same-origin' })
+        if (!resp.ok) return
+        const data = (await resp.json()) as { available?: string[] }
+        if (cancelled) return
+        if (Array.isArray(data.available)) setAvailablePersonas(data.available)
+      } catch (err) {
+        console.warn('[widget] persona availability fetch failed:', err)
+      }
+    })()
+    return () => { cancelled = true }
+  }, [])
+
   // Deep-link: a visitor landing with `?ask=support` (or `?widget=support`)
   // gets the widget opened directly to the Statewave Support persona. Lets
   // docs READMEs, the GitHub front page, and external materials link straight
@@ -632,6 +663,7 @@ export function ChatWidgetProvider({ children }: { children: ReactNode }) {
     tourTotal: TOUR_STEPS,
     hasCompletedTour,
     hasVisibleCta: visibleCtaCount > 0,
+    availablePersonas,
     openWidget,
     closeWidget,
     minimizeWidget,
