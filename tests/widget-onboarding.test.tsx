@@ -88,13 +88,13 @@ describe('Widget onboarding — welcome panel', () => {
     // headline names that explicitly so first-time visitors know what they're
     // looking at.
     expect(await screen.findByText(/Ask Statewave Support/i)).toBeInTheDocument()
-    // Skip link is reachable
-    expect(screen.getByText(/skip onboarding/i)).toBeInTheDocument()
+    // The Next CTA is the only way forward from the welcome panel.
+    expect(screen.getByRole('button', { name: /^Next$/i })).toBeInTheDocument()
     // The comparison columns should NOT render yet
     expect(screen.queryByText(/Without Memory/i)).toBeNull()
   })
 
-  it('skip onboarding dismisses the panel and reveals the comparison columns', async () => {
+  it('Next dismisses the welcome panel and reveals the comparison columns', async () => {
     render(
       <TestWrapper>
         <ChatWidget />
@@ -102,10 +102,10 @@ describe('Widget onboarding — welcome panel', () => {
     )
 
     fireEvent.click(screen.getByText('Try the demo'))
-    const skip = await screen.findByText(/skip onboarding/i)
+    const next = await screen.findByRole('button', { name: /^Next$/i })
 
     act(() => {
-      fireEvent.click(skip)
+      fireEvent.click(next)
     })
 
     // Welcome is gone, columns are visible.
@@ -139,7 +139,7 @@ describe('Widget onboarding — welcome panel', () => {
     expect(screen.queryByText(/Ask Statewave Support/i)).toBeNull()
   })
 
-  it('clicking a welcome suggestion chip auto-dismisses and sends a message', async () => {
+  it('the welcome panel does not auto-send any prompt at tour first start', async () => {
     const fetchSpy = stubAllFetches()
     // Ensure no prior dismissal so the welcome shows.
     window.localStorage.clear()
@@ -151,25 +151,26 @@ describe('Widget onboarding — welcome panel', () => {
     )
 
     fireEvent.click(screen.getByText('Try the demo'))
-    // The default persona is statewave-support, so the welcome's "Try a
-    // question" chips come from the docs-grounded suggestion bank.
-    const chip = await screen.findByText(/What database does Statewave use\?/i)
+    const next = await screen.findByRole('button', { name: /^Next$/i })
 
     act(() => {
-      fireEvent.click(chip)
+      fireEvent.click(next)
     })
 
+    // Welcome dismissed → tour starts; visitor must type + submit themselves.
     await waitFor(() => {
-      // Welcome dismissed (columns visible).
       expect(screen.getByText(/Without Memory/i)).toBeInTheDocument()
     })
-    // localStorage flag set.
+    const input = screen.getByPlaceholderText(/Ask something/i) as HTMLInputElement
+    expect(input.value).toBe('')
+    // localStorage flag set (welcome marked seen → tour starts).
     expect(window.localStorage.getItem(ONBOARDING_KEY)).toBeTruthy()
-    // /api/widget-chat was called twice (stateless + statewave modes).
+    // No /api/widget-chat call should have fired — exactly the regression
+    // guard for the auto-send we removed at tour first start.
     const chatCalls = fetchSpy.mock.calls.filter(
       ([url]) => typeof url === 'string' && url.includes('/api/widget-chat'),
     )
-    expect(chatCalls.length).toBeGreaterThanOrEqual(2)
+    expect(chatCalls.length).toBe(0)
   })
 
   it('exposes a "What is this demo?" header button that re-opens the welcome', async () => {
@@ -220,9 +221,9 @@ describe('Widget onboarding — guided tour', () => {
     )
 
     fireEvent.click(screen.getByText('Try the demo'))
-    // Dismiss welcome via Skip.
+    // Dismiss welcome via the primary Next CTA.
     act(() => {
-      fireEvent.click(screen.getByText(/skip onboarding/i))
+      fireEvent.click(screen.getByRole('button', { name: /^Next$/i }))
     })
 
     // Tour banner appears at step 1. Default persona is statewave-support
@@ -243,7 +244,7 @@ describe('Widget onboarding — guided tour', () => {
 
     fireEvent.click(screen.getByText('Try the demo'))
     act(() => {
-      fireEvent.click(screen.getByText(/skip onboarding/i))
+      fireEvent.click(screen.getByRole('button', { name: /^Next$/i }))
     })
     await screen.findByTestId('tour-banner')
 
@@ -281,7 +282,7 @@ describe('Widget onboarding — guided tour', () => {
 
     fireEvent.click(screen.getByText('Try the demo'))
     act(() => {
-      fireEvent.click(screen.getByText(/skip onboarding/i))
+      fireEvent.click(screen.getByRole('button', { name: /^Next$/i }))
     })
     await screen.findByTestId('tour-banner')
 
@@ -323,7 +324,7 @@ describe('Widget onboarding — guided tour', () => {
 
     fireEvent.click(screen.getByText('Try the demo'))
     act(() => {
-      fireEvent.click(screen.getByText(/skip onboarding/i))
+      fireEvent.click(screen.getByRole('button', { name: /^Next$/i }))
     })
     await screen.findByTestId('tour-banner')
 
