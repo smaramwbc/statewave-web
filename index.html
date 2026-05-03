@@ -6,44 +6,106 @@
     <link rel="apple-touch-icon" href="/statewave_icon_dark.png" />
     <link rel="manifest" href="/site.webmanifest" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Statewave — Memory infrastructure for AI agents. Trusted context runtime with durable episodes, compiled memories, and ranked retrieval." />
+
+    <!-- Baseline metadata for the homepage. The SPA layer in src/lib/seo.tsx
+         takes over on route change and re-emits page-specific values. -->
+    <title>Statewave — Memory Infrastructure for AI Agents</title>
+    <meta
+      name="description"
+      content="Statewave is open memory infrastructure for AI agents. Retrieve the right semantic and episodic memories for each question and return them as compact, ranked context so LLM apps can remember decisions, users, projects, and sessions."
+    />
+    <meta
+      name="robots"
+      content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+    />
+    <link rel="canonical" href="https://statewave.ai" />
+
     <meta name="theme-color" content="#030712" media="(prefers-color-scheme: dark)" />
     <meta name="theme-color" content="#fafbfc" media="(prefers-color-scheme: light)" />
 
     <!-- Open Graph -->
     <meta property="og:title" content="Statewave — Memory Infrastructure for AI Agents" />
-    <meta property="og:description" content="Trusted context runtime for AI agents — durable memory infrastructure with structured episodes, compiled knowledge, ranked retrieval, and token-efficient context assembly." />
+    <meta
+      property="og:description"
+      content="Open memory infrastructure for AI agents — durable episodic and semantic memory, ranked retrieval, and token-bounded context bundles for LLM applications."
+    />
     <meta property="og:image" content="https://statewave.ai/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="Statewave — open memory infrastructure for AI agents"
+    />
     <meta property="og:url" content="https://statewave.ai" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Statewave" />
+    <meta property="og:locale" content="en_US" />
 
-    <!-- Twitter/X Card -->
+    <!-- Twitter / X Card -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Statewave — Memory Infrastructure for AI Agents" />
-    <meta name="twitter:description" content="Trusted context runtime for AI agents — durable memory infrastructure with structured episodes, compiled knowledge, ranked retrieval, and token-efficient context assembly." />
+    <meta
+      name="twitter:description"
+      content="Open memory infrastructure for AI agents — durable episodic and semantic memory, ranked retrieval, and token-bounded context bundles for LLM applications."
+    />
     <meta name="twitter:image" content="https://statewave.ai/og-image.png" />
+    <meta
+      name="twitter:image:alt"
+      content="Statewave — open memory infrastructure for AI agents"
+    />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-    <title>Statewave — Memory Infrastructure for AI Agents</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
 
-    <!-- Structured Data -->
+    <!-- Baseline structured data — Organization, WebSite, SoftwareApplication.
+         These describe the site itself and are stable across routes, so they
+         live in the static document for crawlers that don't execute JS. The
+         SPA in src/lib/seo.tsx layers per-page JSON-LD (BreadcrumbList,
+         FAQPage) on top with data-seo="managed", and never duplicates these. -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Statewave",
+      "url": "https://statewave.ai",
+      "logo": "https://statewave.ai/statewave_icon_dark.png",
+      "sameAs": [
+        "https://github.com/smaramwbc/statewave",
+        "https://github.com/smaramwbc/statewave-docs"
+      ],
+      "description": "Statewave is open memory infrastructure for AI agents. Retrieve the right semantic and episodic memories for each question and return them as compact, ranked context so LLM apps can remember decisions, users, projects, and sessions."
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Statewave",
+      "url": "https://statewave.ai",
+      "inLanguage": "en",
+      "description": "Open memory infrastructure for AI agents."
+    }
+    </script>
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "SoftwareApplication",
       "name": "Statewave",
       "applicationCategory": "DeveloperApplication",
-      "description": "Trusted context runtime for AI agents — durable memory infrastructure with structured episodes, compiled knowledge, and ranked retrieval.",
-      "url": "https://statewave.ai",
       "operatingSystem": "Linux, macOS, Windows (via Docker)",
-      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "description": "Open memory infrastructure for AI agents — durable episodic and semantic memory, ranked retrieval, and token-bounded context bundles for LLM applications.",
+      "url": "https://statewave.ai",
       "license": "https://www.gnu.org/licenses/agpl-3.0.html",
-      "codeRepository": "https://github.com/smaramwbc/statewave"
+      "codeRepository": "https://github.com/smaramwbc/statewave",
+      "softwareHelp": "https://github.com/smaramwbc/statewave-docs",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
     }
     </script>
+
     <script>
       // Resolve theme before paint to prevent FOUC
       (function() {

@@ -1,4 +1,11 @@
+# Statewave — robots.txt
+#
+# All marketing routes are public and indexable. The /api/* surface is the
+# server-to-server demo backend (visitor-cookied chat, persona seeding); it
+# returns JSON, not HTML, and there's nothing useful for a web index there.
+
 User-agent: *
 Allow: /
+Disallow: /api/
 
 Sitemap: https://statewave.ai/sitemap.xml

@@ -7,11 +7,30 @@ import { Heading } from '../components/Heading'
 import { Card } from '../components/Card'
 import { HeroBackground } from '../components/HeroBackground'
 import { usePageSEO } from '../lib/seo'
+import {
+  faqPageJsonLd,
+  organizationJsonLd,
+  softwareApplicationJsonLd,
+  websiteJsonLd,
+} from '../lib/seo-meta'
+import { FAQ_ENTRIES } from '../lib/faq'
 import { useChatWidget, useTrackDemoCta } from '../lib/widget-context'
 import { useRef } from 'react'
 
 export function HomePage() {
-  usePageSEO()
+  // The home page is the canonical landing for Organization, WebSite, and
+  // SoftwareApplication structured data — also baked into index.html for
+  // crawlers that don't execute JS. The FAQPage JSON-LD is layered on top so
+  // answer engines can consume the visible FAQ section directly.
+  usePageSEO({
+    jsonLd: [
+      organizationJsonLd(),
+      websiteJsonLd(),
+      softwareApplicationJsonLd(),
+      faqPageJsonLd(FAQ_ENTRIES),
+    ],
+    breadcrumb: false,
+  })
   return (
     <>
       <HeroSection />
@@ -22,6 +41,7 @@ export function HomePage() {
       <CapabilitiesSection />
       <ProofSection />
       <DeveloperSection />
+      <FAQSection />
       <CTASection />
     </>
   )
@@ -85,8 +105,10 @@ function HeroSection() {
             variants={fadeUp}
             className="mt-6 text-lg md:text-[1.2rem] text-theme-muted max-w-[38rem] leading-[1.7]"
           >
-            Durable memory infrastructure for AI agents — structured episodes,
-            compiled knowledge, ranked retrieval, and token-efficient context assembly.
+            Open memory infrastructure for AI agents. Statewave retrieves the
+            right semantic and episodic memories for each question and returns
+            them as compact, ranked context — so LLM apps can remember
+            decisions, users, projects, and sessions.
           </motion.p>
 
           {/* CTAs */}
@@ -666,12 +688,98 @@ console.log(ctx.assembledContext);
   )
 }
 
+function FAQSection() {
+  return (
+    <Section className="bg-surface-1/50">
+      <div className="text-center mb-14">
+        <Heading
+          id="faq"
+          className="text-3xl md:text-4xl font-bold text-theme-primary tracking-tight"
+        >
+          Frequently asked questions
+        </Heading>
+        <p className="mt-4 text-theme-muted max-w-2xl mx-auto">
+          Honest, technical answers about Statewave, AI memory infrastructure,
+          and how it fits with the rest of your stack.
+        </p>
+      </div>
+
+      {/* Semantic structure: each Q&A is a <details> so it's collapsible by
+          keyboard and assistive tech, with the question as a real <h3> inside
+          <summary> (valid per HTML spec — summary accepts one heading) and
+          the answer as a paragraph in the disclosure body. The visible HTML
+          is the same content the FAQPage JSON-LD emits, so search and
+          answer engines see one source of truth. */}
+      <div className="mx-auto max-w-3xl divide-y divide-theme-border rounded-2xl border border-theme-border bg-surface-1">
+        {FAQ_ENTRIES.map((entry, i) => (
+          <details
+            key={entry.question}
+            className="group p-6 [&_summary::-webkit-details-marker]:hidden"
+            // First item open by default so the section reads as content,
+            // not a wall of collapsed accordions, on first paint.
+            {...(i === 0 ? { open: true } : {})}
+          >
+            <summary className="flex cursor-pointer items-start justify-between gap-4 text-left">
+              <h3 className="text-base md:text-lg font-semibold text-theme-primary leading-snug">
+                {entry.question}
+              </h3>
+              <svg
+                className="mt-1 h-5 w-5 shrink-0 text-theme-muted transition-transform duration-200 group-open:rotate-180"
+                aria-hidden
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </summary>
+            <p className="mt-3 text-sm md:text-[15px] text-theme-muted leading-[1.7]">
+              {entry.answer}
+            </p>
+          </details>
+        ))}
+      </div>
+
+      <p className="mt-10 text-center text-sm text-theme-muted">
+        More questions? Read the{' '}
+        <a
+          href="https://github.com/smaramwbc/statewave-docs"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-accent hover:underline"
+        >
+          docs
+        </a>
+        , browse the{' '}
+        <Link to="/use-cases" className="text-accent hover:underline">
+          use cases
+        </Link>
+        , or open an{' '}
+        <a
+          href="https://github.com/smaramwbc/statewave/issues"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-accent hover:underline"
+        >
+          issue on GitHub
+        </a>
+        .
+      </p>
+    </Section>
+  )
+}
+
 function CTASection() {
   const { openWidget } = useChatWidget()
   const ctaDemoRef = useRef<HTMLElement>(null)
   useTrackDemoCta(ctaDemoRef)
   return (
-    <Section className="bg-surface-1/50">
+    <Section>
       <div className="text-center">
         <Heading id="give-ai-memory" className="text-3xl md:text-5xl font-bold text-theme-primary tracking-tight">
           Give your AI system memory

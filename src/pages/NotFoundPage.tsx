@@ -2,7 +2,13 @@ import { Link } from 'react-router-dom'
 import { usePageSEO } from '../lib/seo'
 
 export function NotFoundPage() {
-  usePageSEO({ title: '404 — Page Not Found — Statewave' })
+  usePageSEO({
+    title: '404 — Page Not Found — Statewave',
+    description:
+      'The page you’re looking for doesn’t exist or has been moved. Head back to the Statewave home page or browse the developer resources.',
+    robots: 'noindex, follow',
+    breadcrumb: false,
+  })
 
   return (
     <section className="min-h-[70vh] flex items-center justify-center px-6">
