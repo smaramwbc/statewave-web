@@ -32,13 +32,23 @@ export function ScrollToTopButton() {
           transition={{ duration: 0.2 }}
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
           // Centered horizontally so it doesn't fight the right-anchored
-          // chat launcher / minimized pill.
-          style={{ bottom: 24, left: '50%', x: '-50%' }}
-          className="fixed z-50 w-10 h-10 rounded-full bg-surface-2 border border-theme-border shadow-lg flex items-center justify-center text-theme-muted hover:text-theme-primary hover:bg-surface-3 transition-colors"
+          // chat launcher / minimized pill. The 24px floor uses
+          // env(safe-area-inset-bottom) so the button clears the iOS home
+          // indicator on phones with no hardware button.
+          style={{
+            bottom: 'max(env(safe-area-inset-bottom), 1rem)',
+            left: '50%',
+            x: '-50%',
+          }}
+          // Hidden on phones — the on-page CTAs (hero "Try the Demo" and
+          // section CTAs) plus the floating chat launcher already give the
+          // user enough re-entry points; a third floating control is
+          // clutter on a 375px-wide screen. Re-appears at sm: (640px+).
+          className="hidden sm:flex fixed z-50 w-11 h-11 rounded-full bg-surface-2 border border-theme-border shadow-lg items-center justify-center text-theme-muted hover:text-theme-primary hover:bg-surface-3 transition-colors"
           aria-label="Scroll to top"
           title="Back to top"
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
           </svg>
         </motion.button>

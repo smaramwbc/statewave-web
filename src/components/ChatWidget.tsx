@@ -103,8 +103,18 @@ export function ChatWidget() {
   // Support entry) vs. the comparison demo flow. Suppresses the persona
   // picker, comparison columns, marketing copy, and the guided tour.
   const isSupportMode = mode === 'support'
-  // Mobile: tabbed view for comparison (0=both, 1=stateless, 2=statewave)
-  const [mobileTab, setMobileTab] = useState<'split' | 'stateless' | 'statewave'>('split')
+  // Mobile: tabbed view for comparison. We deliberately drop the "split"
+  // option on phones — two columns of chat at ~180px wide each are
+  // unreadable; the user can't actually read either side. Mobile gets a
+  // toggle between "Without Memory" and "With Statewave" instead, defaulting
+  // to the Statewave column (the winning side of the comparison) so the
+  // first impression is the answer the visitor came to see. We derive the
+  // effective tab via a memo rather than setState-in-effect so React 19's
+  // exhaustive-deps lint stays happy and we don't trigger a cascading
+  // render on every viewport change.
+  const [mobileTabRaw, setMobileTab] = useState<'split' | 'stateless' | 'statewave'>('split')
+  const mobileTab: 'split' | 'stateless' | 'statewave' =
+    isMobile && mobileTabRaw === 'split' ? 'statewave' : mobileTabRaw
   // Track which suggestion round we're on (rotates through available suggestions)
   const [suggestionRound, setSuggestionRound] = useState(0)
   // Maximized state - expands to full browser window
@@ -391,8 +401,13 @@ export function ChatWidget() {
         onClick={() => openWidget()}
         className="fixed z-50 flex items-center gap-2.5 px-5 py-3 rounded-full shadow-xl border backdrop-blur-sm cursor-pointer"
         style={{
-          bottom: isMobile ? 16 : 24,
-          right: isMobile ? 16 : 24,
+          // Mobile: center horizontally, clear the iOS home indicator via
+          // env(safe-area-inset-bottom). Desktop keeps the corner-anchored
+          // floating affordance.
+          bottom: isMobile ? 'max(env(safe-area-inset-bottom), 1rem)' : 24,
+          ...(isMobile
+            ? { left: '50%', x: '-50%' }
+            : { right: 24 }),
           backgroundColor: isDark ? 'rgba(99, 102, 241, 0.15)' : 'rgba(99, 102, 241, 0.1)',
           borderColor: isDark ? 'rgba(99, 102, 241, 0.3)' : 'rgba(99, 102, 241, 0.2)',
           boxShadow: isDark
@@ -416,8 +431,12 @@ export function ChatWidget() {
         onClick={expandWidget}
         className="fixed z-50 flex items-center gap-2 px-4 py-2.5 rounded-full shadow-lg border backdrop-blur-sm cursor-pointer"
         style={{
-          bottom: isMobile ? 16 : 24,
-          right: isMobile ? 16 : 24,
+          // Same center-on-mobile pattern as the launcher above so both
+          // states sit in the same place — less visual jumping.
+          bottom: isMobile ? 'max(env(safe-area-inset-bottom), 1rem)' : 24,
+          ...(isMobile
+            ? { left: '50%', x: '-50%' }
+            : { right: 24 }),
           backgroundColor: isDark ? 'rgba(15, 12, 41, 0.95)' : 'rgba(255, 255, 255, 0.95)',
           borderColor: isDark ? 'rgba(99, 102, 241, 0.2)' : 'rgba(99, 102, 241, 0.15)',
         }}
@@ -447,14 +466,24 @@ export function ChatWidget() {
       }
     }
     if (isMobile) {
+      // Full-screen on mobile: the widget owns the entire viewport so the
+      // user is never reading half-visible cards through a thin gap. We
+      // honor iOS safe-area insets so the widget chrome doesn't slide
+      // under the notch / Dynamic Island / home indicator. The inset-0
+      // positioning + 100dvh height guarantees coverage even when the
+      // address bar collapses on scroll.
       return {
-        width: 'calc(100vw - 24px)',
-        maxWidth: '100%',
-        height: showInspector ? 'calc(100vh - 80px)' : 'calc(85vh - 60px)',
-        maxHeight: 'calc(100vh - 80px)',
-        bottom: 12,
-        right: 12,
-        left: 12,
+        top: 0,
+        right: 0,
+        bottom: 0,
+        left: 0,
+        width: '100vw',
+        height: '100dvh',
+        maxWidth: '100vw',
+        maxHeight: '100dvh',
+        borderRadius: 0,
+        paddingTop: 'env(safe-area-inset-top)',
+        paddingBottom: 'env(safe-area-inset-bottom)',
       }
     }
     if (isTablet) {
@@ -591,10 +620,15 @@ export function ChatWidget() {
                 {subjectId.length > 22 ? `${subjectId.slice(0, 22)}…` : subjectId}
               </span>
             )}
+            {/* "Grounded in official docs" is conveyed three different ways
+                already (persona dropdown subtitle, column body welcome card,
+                trust strip in support mode). On phones the header has no
+                room for a fourth surface — the badge was overflowing into
+                the maximize / close icons. Show it only on tablet+. */}
             {isDocsSharedPersona(persona) && !isSupportMode && (
               <span
                 data-testid="docs-grounding-badge"
-                className="text-[10px] px-1.5 py-0.5 rounded bg-accent/10 text-accent border border-accent/20 whitespace-nowrap"
+                className="hidden sm:inline-block text-[10px] px-1.5 py-0.5 rounded bg-accent/10 text-accent border border-accent/20 whitespace-nowrap"
                 title="Answers are grounded in the official Statewave documentation memory pack. The agent will say so when a question is out of scope."
               >
                 Grounded in official docs
@@ -603,6 +637,11 @@ export function ChatWidget() {
           </div>
 
           <div className="flex items-center gap-0.5 sm:gap-1 flex-shrink-0">
+            {/* On phones the widget is already full-screen, so maximize is
+                redundant and minimize is awkward (collapsing from full-
+                screen to a pill is jarring). We hide both on mobile and
+                keep help / reset / close — those still serve real
+                functions on a phone. Desktop keeps the full toolbar. */}
             {/* The "what is this demo?" replay is demo chrome — hide it in
                 support mode so the channel never re-frames itself as a demo. */}
             {!isSupportMode && (
@@ -636,24 +675,28 @@ export function ChatWidget() {
                 <TrashIcon className="w-4 h-4 text-theme-muted" />
               </button>
             )}
-            <button
-              onClick={minimizeWidget}
-              className="p-1.5 rounded-lg hover:bg-theme-border/30 transition-colors"
-              title="Minimize"
-            >
-              <MinimizeIcon className="w-4 h-4 text-theme-muted" />
-            </button>
-            <button
-              onClick={() => setIsMaximized(!isMaximized)}
-              className="p-1.5 rounded-lg hover:bg-theme-border/30 transition-colors"
-              title={isMaximized ? "Restore size" : "Maximize"}
-            >
-              {isMaximized ? (
-                <RestoreIcon className="w-4 h-4 text-theme-muted" />
-              ) : (
-                <MaximizeIcon className="w-4 h-4 text-theme-muted" />
-              )}
-            </button>
+            {!isMobile && (
+              <button
+                onClick={minimizeWidget}
+                className="p-1.5 rounded-lg hover:bg-theme-border/30 transition-colors"
+                title="Minimize"
+              >
+                <MinimizeIcon className="w-4 h-4 text-theme-muted" />
+              </button>
+            )}
+            {!isMobile && (
+              <button
+                onClick={() => setIsMaximized(!isMaximized)}
+                className="p-1.5 rounded-lg hover:bg-theme-border/30 transition-colors"
+                title={isMaximized ? "Restore size" : "Maximize"}
+              >
+                {isMaximized ? (
+                  <RestoreIcon className="w-4 h-4 text-theme-muted" />
+                ) : (
+                  <MaximizeIcon className="w-4 h-4 text-theme-muted" />
+                )}
+              </button>
+            )}
             <button
               onClick={closeWidget}
               className="p-1.5 rounded-lg hover:bg-theme-border/30 transition-colors"
@@ -738,9 +781,22 @@ export function ChatWidget() {
             ) : isDocsSharedPersona(persona) ? (
               <>
                 <p className="mt-4 text-xs sm:text-sm text-theme-muted text-center max-w-md leading-relaxed">
-                  Two AI agents, same model. The left replies with no context.
-                  The right is grounded in the official Statewave docs and
-                  cites the pages it used — no fabrication, no per-visitor memory.
+                  {isMobile ? (
+                    <>
+                      Two AI agents, same model. Switch between the
+                      <span className="font-semibold text-theme-secondary"> Without Memory </span>
+                      and
+                      <span className="font-semibold text-accent"> With Statewave </span>
+                      tabs above — the second is grounded in the official
+                      Statewave docs and cites the pages it used.
+                    </>
+                  ) : (
+                    <>
+                      Two AI agents, same model. The left replies with no context.
+                      The right is grounded in the official Statewave docs and
+                      cites the pages it used — no fabrication, no per-visitor memory.
+                    </>
+                  )}
                 </p>
                 <p className="mt-2.5 text-xs sm:text-sm text-theme-muted text-center max-w-md leading-relaxed">
                   Ask about deployment, retrieval, the SDKs, or how the runtime
@@ -751,9 +807,22 @@ export function ChatWidget() {
             ) : (
               <>
                 <p className="mt-4 text-xs sm:text-sm text-theme-muted text-center max-w-md leading-relaxed">
-                  Two AI agents, same model. The left replies with no context.
-                  The right gets ranked memory compiled live from your turns by
-                  a real Statewave server.
+                  {isMobile ? (
+                    <>
+                      Two AI agents, same model. Switch between the
+                      <span className="font-semibold text-theme-secondary"> Without Memory </span>
+                      and
+                      <span className="font-semibold text-accent"> With Statewave </span>
+                      tabs above — only the second one gets ranked memory
+                      compiled live from your turns by a real Statewave server.
+                    </>
+                  ) : (
+                    <>
+                      Two AI agents, same model. The left replies with no context.
+                      The right gets ranked memory compiled live from your turns by
+                      a real Statewave server.
+                    </>
+                  )}
                 </p>
                 <p className="mt-2.5 text-xs sm:text-sm text-theme-muted text-center max-w-md leading-relaxed">
                   This browser is remembered, so memory carries across visits.
@@ -899,15 +968,19 @@ export function ChatWidget() {
           </div>
         )}
 
-        {/* Mobile tab selector — only relevant in demo mode where we have
-            two columns to switch between. Support mode shows a single chat. */}
+        {/* Mobile tab selector — toggles between the two comparison columns.
+            Support mode shows a single chat (no toggle needed). The "Compare"
+            split is intentionally absent: two columns of chat side-by-side
+            are unreadable on a 375–430px-wide screen. */}
         {isMobile && !isSupportMode && (
           <div className="flex border-b border-theme-border/30 flex-shrink-0">
-            {(['split', 'stateless', 'statewave'] as const).map((tab) => (
+            {(['stateless', 'statewave'] as const).map((tab) => (
               <button
                 key={tab}
+                type="button"
                 onClick={() => setMobileTab(tab)}
-                className={`flex-1 py-2 text-[10px] font-semibold uppercase tracking-wider transition-colors ${
+                aria-pressed={mobileTab === tab}
+                className={`flex-1 min-h-11 py-2.5 text-[11px] font-semibold uppercase tracking-wider transition-colors ${
                   mobileTab === tab
                     ? tab === 'statewave'
                       ? 'text-accent border-b-2 border-accent'
@@ -915,7 +988,7 @@ export function ChatWidget() {
                     : 'text-theme-muted'
                 }`}
               >
-                {tab === 'split' ? 'Compare' : tab === 'stateless' ? 'No Memory' : 'Statewave'}
+                {tab === 'stateless' ? 'Without Memory' : 'With Statewave'}
               </button>
             ))}
           </div>
@@ -1169,7 +1242,13 @@ export function ChatWidget() {
             tourStep === 2 ? 'tour-pulse tour-pulse--inherit-radius' : ''
           }`}
         >
-          {/* Suggestion chips */}
+          {/* Suggestion chips. On phones long suggestions like "How do I
+              connect Statewave to my agent?" exceed the available row width
+              and were getting cut by the rounded card. We let them wrap
+              within the chip (`whitespace-normal` + `text-left`) and
+              constrain max-width so a single very long chip can't push past
+              the input column. `break-anywhere` covers extreme edge cases
+              (URLs in suggestions). */}
           {showSuggestions && (
             <div className="flex flex-wrap gap-1.5 mb-2.5">
               {suggestions.map((s, i) => (
@@ -1184,7 +1263,7 @@ export function ChatWidget() {
                     // visitor actually tries one.
                     if (tourStep === 2) nextTourStep()
                   }}
-                  className="text-[10px] sm:text-[11px] px-2.5 py-1.5 rounded-md border border-accent/30 bg-accent/10 text-accent hover:bg-accent/20 hover:border-accent/50 transition-all cursor-pointer"
+                  className="text-[10px] sm:text-[11px] px-2.5 py-1.5 rounded-md border border-accent/30 bg-accent/10 text-accent hover:bg-accent/20 hover:border-accent/50 transition-all cursor-pointer max-w-full text-left whitespace-normal leading-snug break-anywhere"
                 >
                   {s}
                 </button>

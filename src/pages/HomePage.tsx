@@ -61,7 +61,7 @@ function HeroSection() {
   }
 
   return (
-    <section className="relative min-h-[92vh] flex items-center overflow-hidden">
+    <section className="relative min-h-[88vh] sm:min-h-[92vh] flex items-center overflow-hidden">
       <HeroBackground />
 
       {/* Bottom-edge fade — only mask the final ~35% so the section blends
@@ -74,7 +74,7 @@ function HeroSection() {
         }}
       />
 
-      <div className="relative z-10 mx-auto max-w-7xl px-6 pt-36 pb-24">
+      <div className="relative z-10 w-full mx-auto max-w-7xl px-5 sm:px-6 pt-28 sm:pt-32 md:pt-36 pb-16 sm:pb-20 md:pb-24">
         <motion.div
           variants={stagger}
           initial="hidden"
@@ -89,10 +89,12 @@ function HeroSection() {
             </span>
           </motion.div>
 
-          {/* Headline */}
+          {/* Headline — clamps fluidly between 320px and desktop so the
+              hero never overflows on small phones (the previous 3.25rem
+              floor was wider than 320px after letter-spacing). */}
           <motion.h1
             variants={fadeUp}
-            className="mt-8 text-[3.25rem] md:text-[4.5rem] font-bold text-theme-primary tracking-[-0.025em] leading-[1.05]"
+            className="mt-6 sm:mt-8 text-[clamp(2.25rem,8vw,4.5rem)] font-bold text-theme-primary tracking-[-0.025em] leading-[1.08] break-anywhere"
           >
             Trusted context runtime{' '}
             <span className="bg-gradient-to-r from-accent via-brand-400 to-brand-300 bg-clip-text text-transparent">
@@ -103,7 +105,7 @@ function HeroSection() {
           {/* Subheadline */}
           <motion.p
             variants={fadeUp}
-            className="mt-6 text-lg md:text-[1.2rem] text-theme-muted max-w-[38rem] leading-[1.7]"
+            className="mt-5 sm:mt-6 text-base sm:text-lg md:text-[1.2rem] text-theme-muted max-w-[38rem] leading-[1.65] sm:leading-[1.7]"
           >
             Open memory infrastructure for AI agents. Statewave retrieves the
             right semantic and episodic memories for each question and returns
@@ -111,16 +113,17 @@ function HeroSection() {
             decisions, users, projects, and sessions.
           </motion.p>
 
-          {/* CTAs */}
-          <motion.div variants={fadeUp} className="mt-10 flex flex-wrap items-center gap-4">
+          {/* CTAs — wrap cleanly on small phones; primary stays full-width
+              up to 360px so it never collides with the secondary link. */}
+          <motion.div variants={fadeUp} className="mt-8 sm:mt-10 flex flex-wrap items-center gap-3 sm:gap-4">
             <button
               ref={heroCtaRef}
               type="button"
               onClick={() => openWidget()}
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-accent text-white text-sm font-medium hover:bg-accent-light transition-all duration-150 shadow-lg shadow-accent/20 hover:shadow-accent/30 hover:-translate-y-px"
+              className="inline-flex min-h-11 items-center justify-center gap-2 px-6 py-3 rounded-lg bg-accent text-white text-sm font-medium hover:bg-accent-light transition-all duration-150 shadow-lg shadow-accent/20 hover:shadow-accent/30 hover:-translate-y-px"
             >
               Try the Demo
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
               </svg>
             </button>
@@ -128,7 +131,7 @@ function HeroSection() {
               href="https://github.com/smaramwbc/statewave"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-5 py-3 rounded-lg text-sm font-medium text-theme-secondary hover:text-theme-primary transition-colors duration-150"
+              className="inline-flex min-h-11 items-center gap-2 px-4 sm:px-5 py-3 rounded-lg text-sm font-medium text-theme-secondary hover:text-theme-primary transition-colors duration-150"
             >
               <svg className="w-[18px] h-[18px]" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
@@ -174,8 +177,8 @@ function HeroSection() {
 function WhatSection() {
   return (
     <Section>
-      <div className="grid md:grid-cols-2 gap-16 items-center">
-        <div>
+      <div className="grid md:grid-cols-2 gap-10 md:gap-16 items-center">
+        <div className="min-w-0">
           <Heading id="memory-infrastructure" className="text-3xl md:text-4xl font-bold text-theme-primary tracking-tight">
             Memory infrastructure for AI agents
           </Heading>
@@ -207,15 +210,15 @@ function WhatSection() {
           </div>
         </div>
 
-        <div className="relative">
-          <div className="rounded-2xl border border-theme-border bg-surface-1 p-6 font-mono text-sm">
+        <div className="relative min-w-0">
+          <div className="rounded-2xl border border-theme-border bg-surface-1 p-5 sm:p-6 font-mono text-sm overflow-hidden">
             <div className="flex items-center gap-2 mb-4 text-theme-muted text-xs">
               <div className="w-3 h-3 rounded-full bg-red-500/60" />
               <div className="w-3 h-3 rounded-full bg-yellow-500/60" />
               <div className="w-3 h-3 rounded-full bg-green-500/60" />
-              <span className="ml-2">context_bundle.json</span>
+              <span className="ml-2 truncate">context_bundle.json</span>
             </div>
-            <pre className="text-theme-secondary overflow-x-auto"><code>{`{
+            <pre className="text-theme-secondary overflow-x-auto -mx-1 px-1"><code>{`{
   "subject_id": "agent-7",
   "task": "Continue code review",
   "facts": [
@@ -566,8 +569,8 @@ console.log(ctx.assembledContext);
 
   return (
     <Section>
-      <div className="grid md:grid-cols-2 gap-16 items-center">
-        <div>
+      <div className="grid md:grid-cols-2 gap-10 md:gap-16 items-center">
+        <div className="min-w-0">
           <Heading id="self-hosted" className="text-3xl md:text-4xl font-bold text-theme-primary tracking-tight">
             Self-hosted. Framework-neutral.
           </Heading>
@@ -651,17 +654,20 @@ console.log(ctx.assembledContext);
           </ul>
         </div>
 
-        <div className="rounded-2xl border border-theme-border bg-surface-1 p-6 font-mono text-sm">
-          <div className="flex items-center justify-between mb-4">
+        <div className="min-w-0 rounded-2xl border border-theme-border bg-surface-1 p-5 sm:p-6 font-mono text-sm overflow-hidden">
+          <div className="flex items-center justify-between gap-3 mb-4">
             <div className="flex items-center gap-2 text-theme-muted text-xs">
               <div className="w-3 h-3 rounded-full bg-red-500/60" />
               <div className="w-3 h-3 rounded-full bg-yellow-500/60" />
               <div className="w-3 h-3 rounded-full bg-green-500/60" />
             </div>
-            <div className="flex gap-1 rounded-lg bg-surface-2 p-0.5">
+            <div role="tablist" aria-label="SDK language" className="flex gap-1 rounded-lg bg-surface-2 p-0.5">
               <button
+                role="tab"
+                type="button"
+                aria-selected={tab === 'python'}
                 onClick={() => setTab('python')}
-                className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
+                className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
                   tab === 'python'
                     ? 'bg-surface-0 text-theme-primary shadow-sm'
                     : 'text-theme-muted hover:text-theme-secondary'
@@ -670,8 +676,11 @@ console.log(ctx.assembledContext);
                 Python
               </button>
               <button
+                role="tab"
+                type="button"
+                aria-selected={tab === 'typescript'}
                 onClick={() => setTab('typescript')}
-                className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
+                className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
                   tab === 'typescript'
                     ? 'bg-surface-0 text-theme-primary shadow-sm'
                     : 'text-theme-muted hover:text-theme-secondary'
@@ -681,7 +690,7 @@ console.log(ctx.assembledContext);
               </button>
             </div>
           </div>
-          <pre className="text-theme-secondary overflow-x-auto"><code>{tab === 'python' ? pythonCode : tsCode}</code></pre>
+          <pre className="text-theme-secondary overflow-x-auto -mx-1 px-1"><code>{tab === 'python' ? pythonCode : tsCode}</code></pre>
         </div>
       </div>
     </Section>

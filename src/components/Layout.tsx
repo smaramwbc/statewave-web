@@ -7,7 +7,7 @@ import { ChatWidget } from './ChatWidget'
 
 export function Layout() {
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen min-h-[100dvh] flex flex-col overflow-x-hidden">
       <ScrollToTop />
       <a
         href="#main-content"

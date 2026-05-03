@@ -493,7 +493,7 @@ function HeroSection() {
             'radial-gradient(60% 50% at 20% 0%, rgba(99,102,241,0.08), transparent 70%), radial-gradient(50% 40% at 80% 10%, rgba(96,165,250,0.06), transparent 70%)',
         }}
       />
-      <div className="relative mx-auto max-w-7xl px-6">
+      <div className="relative mx-auto max-w-7xl px-5 sm:px-6">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
@@ -504,13 +504,13 @@ function HeroSection() {
             <span className="w-1.5 h-1.5 rounded-full bg-accent/80" />
             {total}+ ideas to build
           </span>
-          <h1 className="mt-8 text-[2.75rem] md:text-[3.75rem] font-bold text-theme-primary tracking-[-0.025em] leading-[1.05]">
+          <h1 className="mt-6 sm:mt-8 text-[clamp(2rem,7vw,3.75rem)] font-bold text-theme-primary tracking-[-0.025em] leading-[1.08] break-anywhere">
             Build with{' '}
             <span className="bg-gradient-to-r from-accent via-brand-400 to-brand-300 bg-clip-text text-transparent">
               durable memory
             </span>
           </h1>
-          <p className="mt-6 text-lg text-theme-muted max-w-[40rem] leading-[1.7]">
+          <p className="mt-5 sm:mt-6 text-base sm:text-lg text-theme-muted max-w-[40rem] leading-[1.65] sm:leading-[1.7]">
             Statewave is trusted context infrastructure for AI systems. Support agents are the
             strongest workflow today — but the same primitives power coding copilots, account
             assistants, voice continuity, multi-agent platforms, and far more. This page is the
