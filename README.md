@@ -225,6 +225,33 @@ checklist for adding new pages.
 - Focus-visible ring on keyboard navigation
 - Escape closes mobile menu
 
+## Mobile
+
+The site is designed mobile-first and verified at common smartphone widths (320, 360, 375, 390, 414, 430).
+
+**Breakpoints (Tailwind defaults).** `sm: 640px`, `md: 768px`, `lg: 1024px`, `xl: 1280px`. All layout decisions are written mobile-first — base styles target the smallest phones and `sm:` / `md:` / `lg:` modifiers progressively layer in extra room.
+
+**Container padding.** Use `px-5 sm:px-6` on every full-width container so 320px devices have the right gutter without crowding desktop layouts. The `Section` primitive already does this.
+
+**Vertical rhythm.** `py-16 sm:py-20 md:py-28 lg:py-32` is the canonical section padding (smaller on mobile, not larger). Use the `Section` primitive instead of hand-rolling.
+
+**Type scale.** Hero headlines use `text-[clamp(2.25rem,8vw,4.5rem)]` so they shrink fluidly between 320px and the desktop maximum. Avoid arbitrary `text-[Xrem]` for body copy — prefer `text-base sm:text-lg` so light/dark and reduced-motion themes inherit correctly.
+
+**Tap targets.** The `Button` primitive enforces a 44×44 floor (`min-h-11` for `md`/`lg`, `min-h-10` for `sm`). The `.tap-target` utility in `src/index.css` is available for ad-hoc surfaces. Mobile nav links sit at `min-h-12`.
+
+**Safe areas.** Notch / home-indicator / Dynamic Island spacing is handled via the `.pt-safe`, `.pb-safe`, `.pl-safe`, `.pr-safe` utilities (declared in `src/index.css`). The fixed Navbar opts into `pt-safe`; the back-to-top button uses `max(env(safe-area-inset-bottom), 1rem)` so it clears the home indicator. Layout uses `min-h-[100dvh]` rather than `min-h-screen` to behave correctly under iOS keyboard / address-bar shifts.
+
+**Mobile drawer.** The Navbar drawer is a real `role="dialog"` with body scroll lock (driven by `[data-scroll-lock="true"]` on `<html>`), focus management (focus moves into the drawer on open, returns to the toggle on close), Escape-to-close, click-outside-to-close, and route-change-to-close. Tested in `tests/mobile-nav.test.tsx`.
+
+**Code blocks & grids.** `<pre>` blocks are wrapped in `min-w-0` parents inside any 2-col grid so they shrink instead of pushing the grid out. Use `min-w-0` on grid children that contain code, tables, or long-token text.
+
+**When adding a new section:**
+1. Use `Section` (or replicate its `py-16 sm:py-20 md:py-28 lg:py-32` + `px-5 sm:px-6` + `max-w-7xl`).
+2. Default to `grid-cols-1`, then opt into `sm:grid-cols-2` / `md:grid-cols-3` etc. — never start at 3+ columns.
+3. Add `min-w-0` to grid children that hold code, tables, or long URLs.
+4. Use `Button` with `size="md"` for primary CTAs (44px enforced).
+5. For images/screenshots: set explicit `width` / `height` and use `loading="lazy"` for anything below the fold.
+
 ## Environment variables
 
 Both production (Vercel project) and local dev (`.env.local` or shell env) read the same names — `npm run dev` pipes them into `process.env` automatically:

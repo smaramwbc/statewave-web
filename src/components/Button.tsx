@@ -23,10 +23,13 @@ export const Button = forwardRef<HTMLElement, Props>(function Button(
     ghost: 'text-theme-muted hover:text-theme-primary',
   }
 
+  // min-h-* enforces the 44px WCAG / Apple HIG tap target on mobile so
+  // visitors don't misclick adjacent CTAs on small phones. Desktop hover
+  // is unaffected — these only set a floor.
   const sizes = {
-    sm: 'px-4 py-2 text-sm gap-1.5',
-    md: 'px-6 py-3 text-sm gap-2',
-    lg: 'px-8 py-4 text-base gap-2.5',
+    sm: 'min-h-10 px-4 py-2 text-sm gap-1.5',
+    md: 'min-h-11 px-6 py-3 text-sm gap-2',
+    lg: 'min-h-12 px-7 sm:px-8 py-3.5 sm:py-4 text-base gap-2.5',
   }
 
   const cls = `${base} ${variants[variant]} ${sizes[size]} ${className}`

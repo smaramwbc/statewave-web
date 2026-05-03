@@ -9,17 +9,17 @@ export function ProductPage() {
   usePageSEO()
   return (
     <>
-      <section className="pt-32 pb-16">
-        <div className="mx-auto max-w-7xl px-6">
+      <section className="pt-24 sm:pt-28 md:pt-32 pb-12 sm:pb-16">
+        <div className="mx-auto max-w-7xl px-5 sm:px-6">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <h1 className="text-4xl md:text-5xl font-bold text-theme-primary tracking-tight">
+            <h1 className="text-[clamp(1.875rem,6vw,3rem)] font-bold text-theme-primary tracking-tight break-anywhere">
               How Statewave works
             </h1>
-            <p className="mt-6 text-lg text-theme-muted max-w-2xl">
+            <p className="mt-5 sm:mt-6 text-base sm:text-lg text-theme-muted max-w-2xl leading-[1.65] sm:leading-[1.7]">
               A clear data lifecycle: record raw events, compile durable memories,
               retrieve ranked context, govern with provenance and deletion.
             </p>
@@ -102,49 +102,69 @@ export function ProductPage() {
           Statewave is honest about what stays local and what leaves your network. Privacy depends on
           the four layers below, not just where Postgres runs.
         </p>
-        <div className="rounded-2xl border border-theme-border bg-surface-2 overflow-hidden">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-theme-border">
-                <th className="text-left p-4 text-theme-muted font-medium">Layer</th>
-                <th className="text-left p-4 text-theme-muted font-medium">Where it runs</th>
-                <th className="text-left p-4 text-theme-muted font-medium">What leaves your network</th>
-              </tr>
-            </thead>
-            <tbody className="text-theme-secondary">
-              <tr className="border-b border-theme-border">
-                <td className="p-4">Storage (Postgres + pgvector)</td>
-                <td className="p-4">Your infrastructure</td>
-                <td className="p-4">Nothing.</td>
-              </tr>
-              <tr className="border-b border-theme-border">
-                <td className="p-4">Retrieval / ranking</td>
-                <td className="p-4">Your infrastructure (Statewave server)</td>
-                <td className="p-4">Nothing — ranking is local and deterministic.</td>
-              </tr>
-              <tr className="border-b border-theme-border">
-                <td className="p-4">Compilation — heuristic</td>
-                <td className="p-4">Your infrastructure</td>
-                <td className="p-4">Nothing. Default mode.</td>
-              </tr>
-              <tr className="border-b border-theme-border">
-                <td className="p-4">Compilation — LLM</td>
-                <td className="p-4">Configured provider via LiteLLM</td>
-                <td className="p-4">Episode batches sent to the provider you choose. Self-hosted models keep this local.</td>
-              </tr>
-              <tr className="border-b border-theme-border">
-                <td className="p-4">Embeddings (optional)</td>
-                <td className="p-4">Configured provider</td>
-                <td className="p-4">Episode/memory text sent for vectorization. Use a self-hosted embedding model to avoid this.</td>
-              </tr>
-              <tr>
-                <td className="p-4">Your agent's LLM</td>
-                <td className="p-4">Wherever you host it</td>
-                <td className="p-4">Statewave returns context to your agent; what your agent sends to its model is governed by your agent, not Statewave.</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        {/* On phones a 3-col table with multi-line cell text gets right-edge
+            clipped; we render the same data as a stack of cards under md.
+            md+ keeps the original table for scannable side-by-side reading. */}
+        {(() => {
+          const rows: Array<{ layer: string; runs: string; leaves: string }> = [
+            { layer: 'Storage (Postgres + pgvector)', runs: 'Your infrastructure', leaves: 'Nothing.' },
+            { layer: 'Retrieval / ranking', runs: 'Your infrastructure (Statewave server)', leaves: 'Nothing — ranking is local and deterministic.' },
+            { layer: 'Compilation — heuristic', runs: 'Your infrastructure', leaves: 'Nothing. Default mode.' },
+            { layer: 'Compilation — LLM', runs: 'Configured provider via LiteLLM', leaves: 'Episode batches sent to the provider you choose. Self-hosted models keep this local.' },
+            { layer: 'Embeddings (optional)', runs: 'Configured provider', leaves: 'Episode/memory text sent for vectorization. Use a self-hosted embedding model to avoid this.' },
+            { layer: "Your agent's LLM", runs: 'Wherever you host it', leaves: "Statewave returns context to your agent; what your agent sends to its model is governed by your agent, not Statewave." },
+          ]
+          return (
+            <>
+              {/* Mobile: stacked cards. Each property sits on its own row
+                  (label left, value right) so the visitor can compare runs/
+                  leaves side-by-side per layer without scanning vertically
+                  through duplicate labels. The "What leaves" column tends to
+                  be longer so it wraps within its column. */}
+              <div className="md:hidden space-y-3">
+                {rows.map((r, i) => (
+                  <div key={i} className="rounded-2xl border border-theme-border bg-surface-2 p-4">
+                    <p className="text-sm font-semibold text-theme-primary mb-3 break-anywhere">{r.layer}</p>
+                    <dl className="space-y-1.5">
+                      <div className="flex items-baseline gap-3 py-0.5">
+                        <dt className="text-[10px] font-medium uppercase tracking-wider text-theme-muted w-24 flex-shrink-0">Runs</dt>
+                        <dd className="text-xs text-theme-secondary break-anywhere">{r.runs}</dd>
+                      </div>
+                      <div className="flex items-baseline gap-3 py-0.5">
+                        <dt className="text-[10px] font-medium uppercase tracking-wider text-theme-muted w-24 flex-shrink-0">Leaves net</dt>
+                        <dd className="text-xs text-theme-secondary break-anywhere">{r.leaves}</dd>
+                      </div>
+                    </dl>
+                  </div>
+                ))}
+              </div>
+
+              {/* md+: original table */}
+              <div className="hidden md:block rounded-2xl border border-theme-border bg-surface-2 overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-theme-border">
+                        <th className="text-left p-4 text-theme-muted font-medium">Layer</th>
+                        <th className="text-left p-4 text-theme-muted font-medium">Where it runs</th>
+                        <th className="text-left p-4 text-theme-muted font-medium">What leaves your network</th>
+                      </tr>
+                    </thead>
+                    <tbody className="text-theme-secondary">
+                      {rows.map((r, i) => (
+                        <tr key={i} className="border-b border-theme-border last:border-0">
+                          <td className="p-4">{r.layer}</td>
+                          <td className="p-4">{r.runs}</td>
+                          <td className="p-4">{r.leaves}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </>
+          )
+        })()}
         <p className="mt-6 text-xs text-theme-muted/80 leading-relaxed max-w-3xl">
           <strong className="text-theme-secondary">Fully local mode:</strong> heuristic compiler + a self-hosted
           embedding model (or text-only retrieval) means no Statewave-driven traffic leaves your network. Any
@@ -159,23 +179,56 @@ export function ProductPage() {
           into your token budget. Support-agent workloads apply additional session, urgency, and
           repeat-issue signals on top of the core formula below.
         </p>
-        <div className="rounded-2xl border border-theme-border bg-surface-2 overflow-hidden">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-theme-border">
-                <th className="text-left p-4 text-theme-muted font-medium">Signal</th>
-                <th className="text-left p-4 text-theme-muted font-medium">Range</th>
-                <th className="text-left p-4 text-theme-muted font-medium">Description</th>
-              </tr>
-            </thead>
-            <tbody className="text-theme-secondary">
-              <tr className="border-b border-theme-border"><td className="p-4">Kind priority</td><td className="p-4">3–10</td><td className="p-4">profile_fact=10, procedure=8, episode_summary=5, raw_episode=3</td></tr>
-              <tr className="border-b border-theme-border"><td className="p-4">Recency</td><td className="p-4">0–5</td><td className="p-4">Linear scale: most recent = max</td></tr>
-              <tr className="border-b border-theme-border"><td className="p-4">Task relevance</td><td className="p-4">0–8</td><td className="p-4">Word overlap (0–5) or cosine similarity (0–8)</td></tr>
-              <tr><td className="p-4">Temporal validity</td><td className="p-4">-4 to +3</td><td className="p-4">Currently valid = +3, expired = -4</td></tr>
-            </tbody>
-          </table>
-        </div>
+        {(() => {
+          const rows: Array<{ signal: string; range: string; description: string }> = [
+            { signal: 'Kind priority', range: '3–10', description: 'profile_fact=10, procedure=8, episode_summary=5, raw_episode=3' },
+            { signal: 'Recency', range: '0–5', description: 'Linear scale: most recent = max' },
+            { signal: 'Task relevance', range: '0–8', description: 'Word overlap (0–5) or cosine similarity (0–8)' },
+            { signal: 'Temporal validity', range: '-4 to +3', description: 'Currently valid = +3, expired = -4' },
+          ]
+          return (
+            <>
+              {/* Mobile: stacked cards. The Range pill is shown inline with
+                  the signal name to save vertical space — it's short enough
+                  to fit on one line at 320px. */}
+              <div className="md:hidden space-y-3">
+                {rows.map((r, i) => (
+                  <div key={i} className="rounded-2xl border border-theme-border bg-surface-2 p-4">
+                    <div className="flex items-baseline justify-between gap-3 mb-2">
+                      <p className="text-sm font-semibold text-theme-primary break-anywhere">{r.signal}</p>
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-surface-3 text-theme-muted whitespace-nowrap">{r.range}</span>
+                    </div>
+                    <p className="text-xs text-theme-secondary leading-relaxed break-anywhere">{r.description}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* md+: original table */}
+              <div className="hidden md:block rounded-2xl border border-theme-border bg-surface-2 overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-theme-border">
+                        <th className="text-left p-4 text-theme-muted font-medium">Signal</th>
+                        <th className="text-left p-4 text-theme-muted font-medium">Range</th>
+                        <th className="text-left p-4 text-theme-muted font-medium">Description</th>
+                      </tr>
+                    </thead>
+                    <tbody className="text-theme-secondary">
+                      {rows.map((r, i) => (
+                        <tr key={i} className="border-b border-theme-border last:border-0">
+                          <td className="p-4">{r.signal}</td>
+                          <td className="p-4">{r.range}</td>
+                          <td className="p-4">{r.description}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </>
+          )
+        })()}
         <p className="mt-6 text-xs text-theme-muted/80 leading-relaxed max-w-3xl">
           <strong className="text-theme-secondary">Customization today:</strong> the weights are fixed.
           Filter the candidate set (by kind or subject) before retrieval, or subclass the assembler in

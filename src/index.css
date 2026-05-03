@@ -101,6 +101,11 @@ html {
    * here — proximity-based scroll-snap fought trackpad momentum and made
    * the page feel sticky. */
   scroll-padding-top: 80px;
+  /* Prevents iOS Safari bouncing the body (and its rubber-band background)
+   * when the user scrolls past the top of a long page; we want the fixed
+   * header backdrop to stay solid rather than reveal the page bg behind
+   * notches. */
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
@@ -110,6 +115,52 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   transition: background-color 0.2s ease, color 0.2s ease;
+  /* Mobile menu uses .scroll-locked on <body> to freeze background scroll
+   * without the iOS Safari "scroll to top of page on close" bug that
+   * `overflow: hidden` alone causes. Position-fixed + stored scrollY is
+   * applied/cleared in Navbar via the lockBodyScroll helper. */
+}
+
+/* Body scroll lock used by the mobile drawer. The Navbar component flips
+ * `data-scroll-lock` on <html>; we reflect that into actual style here so
+ * the lock is purely CSS-driven and survives React unmounts cleanly. */
+html[data-scroll-lock="true"],
+html[data-scroll-lock="true"] body {
+  overflow: hidden;
+  /* iOS doesn't always honor overflow:hidden on <html>; the touch-action
+   * rule below blocks pan gestures from chaining to the page underneath. */
+  touch-action: none;
+  overscroll-behavior: contain;
+}
+
+/* Respect iOS notch / Dynamic Island / home-indicator areas. Components
+ * opt in via these utilities rather than each page hard-coding env(). */
+@layer utilities {
+  .pt-safe {
+    padding-top: max(env(safe-area-inset-top), 0px);
+  }
+  .pb-safe {
+    padding-bottom: max(env(safe-area-inset-bottom), 0px);
+  }
+  .pl-safe {
+    padding-left: max(env(safe-area-inset-left), 0px);
+  }
+  .pr-safe {
+    padding-right: max(env(safe-area-inset-right), 0px);
+  }
+  /* Standard 44×44 minimum touch target (WCAG 2.5.5 / Apple HIG). Used by
+   * the Button primitive and any other inline tap surface that doesn't
+   * have its own size convention. */
+  .tap-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  /* Long words in marketing copy can overflow on 320px-wide screens
+   * (e.g. URLs, "TypeScript+Postgres"). Force-break only when needed. */
+  .break-anywhere {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
 }
 
 ::selection {

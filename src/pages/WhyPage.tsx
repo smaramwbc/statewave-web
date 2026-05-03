@@ -37,39 +37,93 @@ export function WhyPage() {
       </Section>
 
       <Section className="bg-surface-1/50">
-        <Heading id="vs-alternatives" className="text-2xl font-bold text-theme-primary mb-12">Statewave vs alternatives</Heading>
-        <div className="rounded-2xl border border-theme-border bg-surface-2 overflow-hidden">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-theme-border">
-                <th className="text-left p-4 text-theme-muted font-medium">Property</th>
-                <th className="text-left p-4 text-theme-muted font-medium">Prompt stuffing</th>
-                <th className="text-left p-4 text-theme-muted font-medium">Naive RAG</th>
-                <th className="text-left p-4 text-accent font-medium">Statewave</th>
-              </tr>
-            </thead>
-            <tbody className="text-theme-secondary">
-              {[
-                ['Deterministic', '✗', '✗', '✓'],
-                ['Token-bounded', '✗', 'Truncation', '✓ Ranked packing'],
-                ['Provenance', '✗', '✗', '✓ Episode-level'],
-                ['Structured extraction', '✗', '✗', '✓ Typed memories'],
-                ['Temporal reasoning', '✗', '✗', '✓ Validity windows'],
-                ['Confidence scoring', '✗', '✗', '✓'],
-                ['Idempotent', 'N/A', 'N/A', '✓'],
-                ['Subject lifecycle', '✗', '✗', '✓ Full CRUD + delete'],
-                ['Cost at scale', 'Linear growth', 'Index bloat', 'Bounded by budget'],
-              ].map(([prop, ps, rag, sw], i) => (
-                <tr key={i} className="border-b border-theme-border last:border-0">
-                  <td className="p-4 font-medium">{prop}</td>
-                  <td className="p-4 text-theme-muted">{ps}</td>
-                  <td className="p-4 text-theme-muted">{rag}</td>
-                  <td className="p-4 text-accent">{sw}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <Heading id="vs-alternatives" className="text-2xl font-bold text-theme-primary mb-8 md:mb-12">Statewave vs alternatives</Heading>
+
+        {/* On phones a 4-column comparison table is unreadable: either the
+            content gets clipped (the "Statewave" column was being cut off)
+            or columns shrink to a single character per line. We render the
+            same data two ways:
+              - md+: the proper table for scannable side-by-side comparison
+              - <md: a stack of per-property cards with a 3-column "verdict
+                grid" inside each card. No horizontal scrolling required. */}
+        {(() => {
+          const rows: Array<[string, string, string, string]> = [
+            ['Deterministic', '✗', '✗', '✓'],
+            ['Token-bounded', '✗', 'Truncation', '✓ Ranked packing'],
+            ['Provenance', '✗', '✗', '✓ Episode-level'],
+            ['Structured extraction', '✗', '✗', '✓ Typed memories'],
+            ['Temporal reasoning', '✗', '✗', '✓ Validity windows'],
+            ['Confidence scoring', '✗', '✗', '✓'],
+            ['Idempotent', 'N/A', 'N/A', '✓'],
+            ['Subject lifecycle', '✗', '✗', '✓ Full CRUD + delete'],
+            ['Cost at scale', 'Linear growth', 'Index bloat', 'Bounded by budget'],
+          ]
+          return (
+            <>
+              {/* Mobile: stacked cards. Each comparison sits on a single
+                  row (label left, verdict right) so the eye can scan the
+                  three verdicts straight down without re-finding labels.
+                  Long verdicts ("Ranked packing", "Episode-level") wrap
+                  inside the value column rather than pushing the label. */}
+              <div className="md:hidden space-y-3">
+                {rows.map(([prop, ps, rag, sw], i) => (
+                  <div
+                    key={i}
+                    className="rounded-2xl border border-theme-border bg-surface-2 p-4"
+                  >
+                    <p className="text-sm font-semibold text-theme-primary mb-3">{prop}</p>
+                    <dl className="space-y-1.5">
+                      {[
+                        { label: 'Prompt stuffing', value: ps, accent: false },
+                        { label: 'Naive RAG', value: rag, accent: false },
+                        { label: 'Statewave', value: sw, accent: true },
+                      ].map(({ label, value, accent }) => (
+                        <div
+                          key={label}
+                          className="flex items-baseline gap-3 py-0.5"
+                        >
+                          <dt className={`text-[10px] font-medium uppercase tracking-wider w-28 flex-shrink-0 ${accent ? 'text-accent' : 'text-theme-muted'}`}>
+                            {label}
+                          </dt>
+                          <dd className={`text-xs break-anywhere ${accent ? 'text-accent' : 'text-theme-muted'}`}>
+                            {value}
+                          </dd>
+                        </div>
+                      ))}
+                    </dl>
+                  </div>
+                ))}
+              </div>
+
+              {/* md+: original table. Wrapped so any future overflow scrolls
+                  horizontally inside the card rather than the whole page. */}
+              <div className="hidden md:block rounded-2xl border border-theme-border bg-surface-2 overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-theme-border">
+                        <th className="text-left p-4 text-theme-muted font-medium">Property</th>
+                        <th className="text-left p-4 text-theme-muted font-medium">Prompt stuffing</th>
+                        <th className="text-left p-4 text-theme-muted font-medium">Naive RAG</th>
+                        <th className="text-left p-4 text-accent font-medium">Statewave</th>
+                      </tr>
+                    </thead>
+                    <tbody className="text-theme-secondary">
+                      {rows.map(([prop, ps, rag, sw], i) => (
+                        <tr key={i} className="border-b border-theme-border last:border-0">
+                          <td className="p-4 font-medium">{prop}</td>
+                          <td className="p-4 text-theme-muted">{ps}</td>
+                          <td className="p-4 text-theme-muted">{rag}</td>
+                          <td className="p-4 text-accent">{sw}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </>
+          )
+        })()}
       </Section>
 
       <Section>
@@ -195,7 +249,7 @@ function ManifestoHero() {
   const showSkeleton = copyLang === 'en' && lang !== 'en'
 
   return (
-    <section className="relative pt-32 pb-24 md:pb-32 overflow-hidden">
+    <section className="relative pt-24 sm:pt-28 md:pt-32 pb-16 sm:pb-20 md:pb-32 overflow-hidden">
       {/* Soft accent halo — barely there, just a warmth behind the words. */}
       <div
         aria-hidden
@@ -206,7 +260,7 @@ function ManifestoHero() {
         }}
       />
 
-      <div className="relative mx-auto max-w-3xl px-6">
+      <div className="relative mx-auto max-w-3xl px-5 sm:px-6">
         {/* The header row stays LTR regardless of the manifesto language —
             it carries product chrome (back-link, picker), not localized
             content. */}
@@ -251,17 +305,17 @@ function ManifestoHero() {
                 {copy.eyebrow}
               </p>
 
-              <h1 className="mt-6 text-[2.25rem] md:text-[3rem] font-semibold text-theme-primary tracking-[-0.02em] leading-[1.12]">
+              <h1 className="mt-5 sm:mt-6 text-[clamp(1.75rem,6vw,3rem)] font-semibold text-theme-primary tracking-[-0.02em] leading-[1.12] break-anywhere">
                 {copy.headline}
               </h1>
 
-              <div className="mt-10 space-y-6 text-[1.075rem] md:text-lg text-theme-secondary leading-[1.75]">
+              <div className="mt-8 md:mt-10 space-y-5 sm:space-y-6 text-base sm:text-[1.075rem] md:text-lg text-theme-secondary leading-[1.7] md:leading-[1.75]">
                 {copy.paragraphs.map((p, i) => (
                   <p key={i}>{p}</p>
                 ))}
               </div>
 
-              <p className="mt-10 text-2xl md:text-[1.875rem] font-semibold tracking-[-0.015em] leading-snug">
+              <p className="mt-8 sm:mt-10 text-xl sm:text-2xl md:text-[1.875rem] font-semibold tracking-[-0.015em] leading-snug break-anywhere">
                 {copy.closerLead}{' '}
                 <span className="bg-gradient-to-r from-accent via-brand-400 to-brand-300 bg-clip-text text-transparent">
                   {copy.closerHighlight}

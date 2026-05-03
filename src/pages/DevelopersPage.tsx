@@ -14,17 +14,17 @@ export function DevelopersPage() {
   useTrackDemoCta(liveDemoRef)
   return (
     <>
-      <section className="pt-32 pb-16">
-        <div className="mx-auto max-w-7xl px-6">
+      <section className="pt-24 sm:pt-28 md:pt-32 pb-12 sm:pb-16">
+        <div className="mx-auto max-w-7xl px-5 sm:px-6">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <h1 className="text-4xl md:text-5xl font-bold text-theme-primary tracking-tight">
+            <h1 className="text-[clamp(1.875rem,6vw,3rem)] font-bold text-theme-primary tracking-tight break-anywhere">
               Start building
             </h1>
-            <p className="mt-6 text-lg text-theme-muted max-w-2xl">
+            <p className="mt-5 sm:mt-6 text-base sm:text-lg text-theme-muted max-w-2xl leading-[1.65] sm:leading-[1.7]">
               Everything you need to integrate Statewave into your AI application.
               Running locally in under 2 minutes.
             </p>

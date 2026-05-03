@@ -218,11 +218,36 @@ function buildFromLiveData(data: LiveSubjectData[]): { subjects: Subject[]; memo
   return { subjects, memories, episodes }
 }
 
+/**
+ * Detects narrow viewports (smartphone widths) at mount and on resize.
+ *
+ * On mobile we deliberately skip the entire canvas visualization: the agent
+ * particles, labels, and provenance lines compete with the hero headline
+ * for attention and made the page hard to read on real phones. Mobile gets
+ * a calm gradient backdrop and the "Try the Demo" CTA in the hero — that's
+ * enough; the canvas is desktop-first storytelling, not core content.
+ */
+function useIsHeroCanvasSuppressed(): boolean {
+  const [suppressed, setSuppressed] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false
+    return window.matchMedia('(max-width: 639px)').matches
+  })
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const mq = window.matchMedia('(max-width: 639px)')
+    const handler = (e: MediaQueryListEvent) => setSuppressed(e.matches)
+    mq.addEventListener('change', handler)
+    return () => mq.removeEventListener('change', handler)
+  }, [])
+  return suppressed
+}
+
 export function HeroBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const { resolvedTheme } = useTheme()
   const isDark = resolvedTheme === 'dark'
   const { openWidget, isOpen: widgetOpen, isMinimized: widgetMinimized } = useChatWidget()
+  const canvasSuppressed = useIsHeroCanvasSuppressed()
   // While the chat widget is occupying the screen, the hero particles must
   // not respond to hover or click. We park the live state in a ref so the
   // window-level listeners (registered once) can read it without re-binding.
@@ -245,9 +270,13 @@ export function HeroBackground() {
 
   themeRef.current = isDark
 
-  // Fetch live data from Statewave backend (only source of truth)
+  // Fetch live data from Statewave backend (only source of truth). Skipped
+  // entirely on mobile — the canvas isn't rendered there, so we don't pay
+  // the network round-trip or memory cost on a phone where it would never
+  // become visible.
   const liveLoadedRef = useRef(false)
   useEffect(() => {
+    if (canvasSuppressed) return
     if (liveLoadedRef.current) return
     liveLoadedRef.current = true
     fetchLiveData().then((data) => {
@@ -260,7 +289,7 @@ export function HeroBackground() {
       startTimeRef.current = 0 // restart animation
       setIsLive(true)
     })
-  }, [])
+  }, [canvasSuppressed])
 
   const handleMouseMove = useCallback((e: MouseEvent) => {
     const canvas = canvasRef.current
@@ -398,13 +427,18 @@ export function HeroBackground() {
   }, [isLive])
 
   useEffect(() => {
+    // No canvas on mobile → no need to install the global hover/click
+    // handlers. They'd be no-ops anyway since `canvasRef.current` is null,
+    // but skipping the registration avoids a per-frame mouse callback on
+    // every page just for the hero canvas.
+    if (canvasSuppressed) return
     window.addEventListener('mousemove', handleMouseMove)
     window.addEventListener('click', handleClick)
     return () => {
       window.removeEventListener('mousemove', handleMouseMove)
       window.removeEventListener('click', handleClick)
     }
-  }, [handleMouseMove, handleClick])
+  }, [handleMouseMove, handleClick, canvasSuppressed])
 
   const draw = useCallback((time: number) => {
     const canvas = canvasRef.current
@@ -776,6 +810,7 @@ export function HeroBackground() {
   }, [])
 
   useEffect(() => {
+    if (canvasSuppressed) return
     const canvas = canvasRef.current
     if (!canvas) return
 
@@ -796,7 +831,25 @@ export function HeroBackground() {
       window.removeEventListener('resize', resize)
       cancelAnimationFrame(frameRef.current)
     }
-  }, [draw])
+  }, [draw, canvasSuppressed])
+
+  // On phones the agent canvas crashed into the headline and made the hero
+  // unreadable (the labels — Support Agent, Coding Assistant, etc. — sat
+  // directly on top of the H1). Mobile gets a calm brand-aligned gradient
+  // backdrop instead; the "Try the Demo" CTA in the hero is enough.
+  if (canvasSuppressed) {
+    return (
+      <div
+        aria-hidden
+        className="absolute inset-0 overflow-hidden"
+        style={{
+          background: isDark
+            ? 'radial-gradient(60% 50% at 18% 22%, rgba(99,102,241,0.18), transparent 70%), radial-gradient(50% 40% at 82% 30%, rgba(96,165,250,0.14), transparent 70%), radial-gradient(60% 50% at 50% 95%, rgba(34,211,238,0.10), transparent 70%)'
+            : 'radial-gradient(60% 50% at 18% 22%, rgba(99,102,241,0.10), transparent 70%), radial-gradient(50% 40% at 82% 30%, rgba(96,165,250,0.08), transparent 70%), radial-gradient(60% 50% at 50% 95%, rgba(6,182,212,0.06), transparent 70%)',
+        }}
+      />
+    )
+  }
 
   return (
     <div
