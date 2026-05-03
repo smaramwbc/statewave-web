@@ -126,6 +126,33 @@ export function statewaveApiPlugin(): Plugin {
         )
       }
 
+      // Re-discover routes when a new api/*.ts handler is added or removed
+      // mid-session. Without this, adding a new endpoint requires restarting
+      // the dev server — easy to miss, and the resulting 404 looks identical
+      // to a working route returning `{}`. ssrLoadModule already hot-reloads
+      // edits to existing handlers; this just keeps the route table itself
+      // in sync.
+      const refreshRoutes = async (file: string, action: 'added' | 'removed') => {
+        if (!file.startsWith(apiDir + path.sep)) return
+        const name = path.basename(file)
+        if (!name.endsWith('.ts') || name.startsWith('_')) return
+        const next = await discoverRoutes(apiDir)
+        const before = new Set(routes.map((r) => r.path))
+        const after = new Set(next.map((r) => r.path))
+        routes = next
+        const changed =
+          action === 'added'
+            ? [...after].filter((p) => !before.has(p))
+            : [...before].filter((p) => !after.has(p))
+        if (changed.length > 0) {
+          server.config.logger.info(
+            `[statewave-web-api] ${action} ${changed.join(', ')} (now ${routes.length} routes)`,
+          )
+        }
+      }
+      server.watcher.on('add', (file) => void refreshRoutes(file, 'added'))
+      server.watcher.on('unlink', (file) => void refreshRoutes(file, 'removed'))
+
       server.middlewares.use(async (req, res, next) => {
         const url = req.url ?? ''
         // Strip query string for route matching — handlers parse it themselves.

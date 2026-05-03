@@ -78,6 +78,7 @@ export function ChatWidget() {
     tourStep,
     tourTotal,
     hasVisibleCta,
+    availablePersonas,
     openWidget,
     closeWidget,
     minimizeWidget,
@@ -523,7 +524,19 @@ export function ChatWidget() {
                     <div className="px-3 py-1.5 text-[9px] uppercase tracking-wider text-theme-muted border-b border-theme-border/40">
                       Persona
                     </div>
-                    {DEMO_SUBJECTS.map((s) => (
+                    {/* Filter to personas the backend actually has memory for.
+                        Fall back to the full catalog while the availability
+                        check is still in flight (null) or if the backend
+                        returned an empty list — better to show all than to
+                        strand the visitor with an empty picker. */}
+                    {(() => {
+                      const filtered =
+                        availablePersonas && availablePersonas.length > 0
+                          ? DEMO_SUBJECTS.filter((s) => availablePersonas.includes(s.id))
+                          : DEMO_SUBJECTS
+                      const visible = filtered.length > 0 ? filtered : DEMO_SUBJECTS
+                      return visible
+                    })().map((s) => (
                       <button
                         key={s.id}
                         onClick={() => {
