@@ -31,6 +31,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useChatWidget, DEMO_SUBJECTS, isDocsSharedPersona, type DocSource } from '../lib/widget-context'
 import { useTheme } from '../lib/theme'
 import { Logo } from './Logo'
+import { MarkdownMessage } from './chat/MarkdownMessage'
 
 // Responsive breakpoints
 const useResponsive = () => {
@@ -1426,7 +1427,11 @@ export function MessageBubble({ message, side, isDark, compact, onRetry }: Messa
                 : isDark ? 'bg-white/5 text-theme-secondary' : 'bg-black/5 text-theme-secondary'
         }`}
       >
-        {message.content}
+        {/* User turns render as plain text — we never want a visitor's typed
+            text reinterpreted as Markdown (a stray `[x](javascript:...)` from
+            paste-bombing, accidental formatting, etc). Assistant turns are
+            model-authored, run through the safe MarkdownMessage renderer. */}
+        {isUser ? message.content : <MarkdownMessage content={message.content} />}
       </div>
       {isError && onRetry && (
         <button
