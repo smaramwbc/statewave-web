@@ -84,7 +84,7 @@ export function Navbar() {
           <button
             type="button"
             onClick={askSupport}
-            className="text-[12.5px] font-medium px-3 py-1.5 rounded-md border border-theme-border text-theme-secondary hover:text-theme-primary hover:border-accent/50 transition-colors duration-150"
+            className="text-[12.5px] font-medium px-3 py-1.5 rounded-md bg-accent text-white hover:bg-accent-light transition-colors duration-150 shadow-[0_4px_14px_-4px_rgba(99,102,241,0.45)]"
             title="Ask the Statewave Support agent — answers grounded in the official docs"
           >
             Ask Support
@@ -138,7 +138,7 @@ export function Navbar() {
             <button
               type="button"
               onClick={askSupport}
-              className="text-[15px] font-medium text-left text-theme-secondary hover:text-theme-primary transition-colors"
+              className="self-start text-[14px] font-medium px-4 py-2 rounded-md bg-accent text-white hover:bg-accent-light transition-colors shadow-[0_4px_14px_-4px_rgba(99,102,241,0.45)]"
             >
               Ask Support
             </button>
