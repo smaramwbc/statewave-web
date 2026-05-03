@@ -79,6 +79,7 @@ export function ChatWidget() {
     tourTotal,
     hasVisibleCta,
     availablePersonas,
+    mode,
     openWidget,
     closeWidget,
     minimizeWidget,
@@ -96,6 +97,10 @@ export function ChatWidget() {
   const [input, setInput] = useState('')
   const [showInspector, setShowInspector] = useState(false)
   const [showSubjectMenu, setShowSubjectMenu] = useState(false)
+  // Whether the widget is in the focused production support channel (Ask
+  // Support entry) vs. the comparison demo flow. Suppresses the persona
+  // picker, comparison columns, marketing copy, and the guided tour.
+  const isSupportMode = mode === 'support'
   // Mobile: tabbed view for comparison (0=both, 1=stateless, 2=statewave)
   const [mobileTab, setMobileTab] = useState<'split' | 'stateless' | 'statewave'>('split')
   // Track which suggestion round we're on (rotates through available suggestions)
@@ -219,22 +224,24 @@ export function ChatWidget() {
       ],
     ],
     // Docs-grounded persona — answers come from the official docs pack
-    // (subject `statewave-support-docs`). Suggestions cover the three
-    // response modes: documented fact, best-effort, and out-of-scope.
+    // (subject `statewave-support-docs`). The Ask Support entry routes
+    // straight to this persona, so the prompts are framed as practical
+    // questions a real Statewave user would land here with — getting
+    // started, integrating, self-hosting, comparisons.
     'statewave-support': [
-      // Round 1: product basics
+      // Round 1: getting started + core concepts
       [
-        "What database does Statewave use?",
-        "How is Statewave different from a vector DB?",
-        "Heuristic vs LLM compilation — when to pick which?",
+        "How do I get started with Statewave?",
+        "How does Statewave memory work?",
+        "How do I connect Statewave to my agent?",
       ],
-      // Round 2: deployment / ops
+      // Round 2: deployment, comparisons, licensing
       [
-        "How do I deploy Statewave on Fly.io?",
-        "What hardware do I need for production?",
-        "How do I migrate the schema safely?",
+        "Can I self-host Statewave?",
+        "How is Statewave different from vector memory?",
+        "What license should I use for my company?",
       ],
-      // Round 3: advanced + privacy
+      // Round 3: deeper / operational follow-ups
       [
         "How does context ranking work?",
         "What data leaves the box during compilation?",
@@ -489,8 +496,19 @@ export function ChatWidget() {
         {/* Header */}
         <div className="flex items-center justify-between px-3 sm:px-4 py-2.5 sm:py-3 border-b border-theme-border/50 flex-shrink-0">
           <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
-            {/* Persona selector — biases the prompt + suggestion chips. Subject
-                is the visitor's own and does not change with persona. */}
+            {/* In support mode this is a static title — no picker, no demo
+                framing. In demo mode it's the persona selector that biases
+                the prompt + suggestion chips. */}
+            {isSupportMode ? (
+              <div
+                data-testid="support-mode-title"
+                className="flex items-center gap-2 sm:gap-2.5 px-2 sm:px-3 py-1.5 rounded-lg text-xs font-medium"
+                style={{ backgroundColor: isDark ? 'rgba(99, 102, 241, 0.08)' : 'rgba(99, 102, 241, 0.05)' }}
+              >
+                <Logo variant="icon" className="!h-4 !w-4" />
+                <span className="text-theme-primary font-semibold">Statewave Support</span>
+              </div>
+            ) : (
             <div className={`relative rounded-lg ${tourStep === 1 ? 'tour-pulse tour-pulse--inherit-radius' : ''}`} data-tour-target="persona">
               <button
                 onClick={() => setShowSubjectMenu(!showSubjectMenu)}
@@ -560,13 +578,18 @@ export function ChatWidget() {
                 )}
               </AnimatePresence>
             </div>
+            )}
 
-            {!isMobile && subjectId && (
+            {/* Internal subject id is debugging chrome — only useful for the
+                demo flow where switching personas changes the subject. The
+                support channel deliberately hides it: visitors should never
+                see internal routing identifiers in a production support UI. */}
+            {!isSupportMode && !isMobile && subjectId && (
               <span className="text-[10px] text-theme-muted font-mono truncate" title={subjectId}>
                 {subjectId.length > 22 ? `${subjectId.slice(0, 22)}…` : subjectId}
               </span>
             )}
-            {isDocsSharedPersona(persona) && (
+            {isDocsSharedPersona(persona) && !isSupportMode && (
               <span
                 data-testid="docs-grounding-badge"
                 className="text-[10px] px-1.5 py-0.5 rounded bg-accent/10 text-accent border border-accent/20 whitespace-nowrap"
@@ -578,31 +601,39 @@ export function ChatWidget() {
           </div>
 
           <div className="flex items-center gap-0.5 sm:gap-1 flex-shrink-0">
-            <button
-              onClick={showWelcome}
-              className="p-1.5 rounded-lg hover:bg-theme-border/30 transition-colors"
-              title="What is this demo?"
-              aria-label="Show demo intro"
-            >
-              <HelpIcon className="w-4 h-4 text-theme-muted" />
-            </button>
-            <button
-              onClick={() => {
-                if (isResetting) return
-                if (isDocsSharedPersona(persona)) return
-                setConfirmReset(true)
-              }}
-              disabled={isResetting || isDocsSharedPersona(persona)}
-              className="p-1.5 rounded-lg hover:bg-theme-border/30 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-              title={
-                isDocsSharedPersona(persona)
-                  ? 'Statewave Support reads from the shared docs pack — there is no per-visitor memory to reset.'
-                  : "Reset demo memory (delete this browser's Statewave subject)"
-              }
-              data-testid="reset-demo-button"
-            >
-              <TrashIcon className="w-4 h-4 text-theme-muted" />
-            </button>
+            {/* The "what is this demo?" replay is demo chrome — hide it in
+                support mode so the channel never re-frames itself as a demo. */}
+            {!isSupportMode && (
+              <button
+                onClick={showWelcome}
+                className="p-1.5 rounded-lg hover:bg-theme-border/30 transition-colors"
+                title="What is this demo?"
+                aria-label="Show demo intro"
+              >
+                <HelpIcon className="w-4 h-4 text-theme-muted" />
+              </button>
+            )}
+            {/* Reset is a demo-only affordance (wipes the visitor's per-persona
+                showcase memory). Support mode hides it entirely. */}
+            {!isSupportMode && (
+              <button
+                onClick={() => {
+                  if (isResetting) return
+                  if (isDocsSharedPersona(persona)) return
+                  setConfirmReset(true)
+                }}
+                disabled={isResetting || isDocsSharedPersona(persona)}
+                className="p-1.5 rounded-lg hover:bg-theme-border/30 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                title={
+                  isDocsSharedPersona(persona)
+                    ? 'Statewave Support reads from the shared docs pack — there is no per-visitor memory to reset.'
+                    : "Reset demo memory (delete this browser's Statewave subject)"
+                }
+                data-testid="reset-demo-button"
+              >
+                <TrashIcon className="w-4 h-4 text-theme-muted" />
+              </button>
+            )}
             <button
               onClick={minimizeWidget}
               className="p-1.5 rounded-lg hover:bg-theme-border/30 transition-colors"
@@ -679,15 +710,30 @@ export function ChatWidget() {
             </div>
 
             <p className="text-[10px] uppercase tracking-[0.18em] text-accent/80 font-semibold mb-2">
-              Welcome
+              {isSupportMode ? 'Statewave Support' : 'Welcome'}
             </p>
             <h3 className="text-lg sm:text-xl font-semibold text-theme-primary text-center tracking-tight">
-              {isDocsSharedPersona(persona)
-                ? 'Ask Statewave Support'
-                : 'Try Statewave with real memory'}
+              {isSupportMode
+                ? 'How can I help?'
+                : isDocsSharedPersona(persona)
+                  ? 'Ask Statewave Support'
+                  : 'Try Statewave with real memory'}
             </h3>
 
-            {isDocsSharedPersona(persona) ? (
+            {isSupportMode ? (
+              <>
+                <p className="mt-4 text-xs sm:text-sm text-theme-muted text-center max-w-md leading-relaxed">
+                  Hi — I'm the Statewave support assistant. I can help with setup,
+                  memory concepts, integrations, self-hosting, troubleshooting,
+                  and how Statewave fits into your agent stack.
+                </p>
+                <p className="mt-2.5 text-xs sm:text-sm text-theme-muted text-center max-w-md leading-relaxed">
+                  Answers are grounded in the official Statewave docs and cite
+                  the pages they came from. I'll remember what you're exploring
+                  so follow-up questions are easier next time.
+                </p>
+              </>
+            ) : isDocsSharedPersona(persona) ? (
               <>
                 <p className="mt-4 text-xs sm:text-sm text-theme-muted text-center max-w-md leading-relaxed">
                   Two AI agents, same model. The left replies with no context.
@@ -851,8 +897,9 @@ export function ChatWidget() {
           </div>
         )}
 
-        {/* Mobile tab selector */}
-        {isMobile && (
+        {/* Mobile tab selector — only relevant in demo mode where we have
+            two columns to switch between. Support mode shows a single chat. */}
+        {isMobile && !isSupportMode && (
           <div className="flex border-b border-theme-border/30 flex-shrink-0">
             {(['split', 'stateless', 'statewave'] as const).map((tab) => (
               <button
@@ -872,10 +919,12 @@ export function ChatWidget() {
           </div>
         )}
 
-        {/* Comparison columns */}
+        {/* Comparison columns (demo) or single chat (support). The "Without
+            Memory" column is suppressed entirely in support mode — a real
+            support channel shows one answer, not a side-by-side comparison. */}
         <div className="flex-1 flex overflow-hidden min-h-0">
           {/* Stateless column */}
-          {(!isMobile || mobileTab === 'split' || mobileTab === 'stateless') && (
+          {!isSupportMode && (!isMobile || mobileTab === 'split' || mobileTab === 'stateless') && (
             <div className={`flex flex-col border-r border-theme-border/30 ${
               isMobile && mobileTab === 'split' ? 'w-1/2' : isMobile ? 'w-full' : 'flex-1'
             }`}>
@@ -912,11 +961,32 @@ export function ChatWidget() {
             </div>
           )}
 
-          {/* Statewave column */}
-          {(!isMobile || mobileTab === 'split' || mobileTab === 'statewave') && (
+          {/* Statewave column — the only column shown in support mode, where
+              it expands to fill the full width of the widget body. */}
+          {(!isMobile || mobileTab === 'split' || mobileTab === 'statewave' || isSupportMode) && (
             <div className={`flex flex-col ${
-              isMobile && mobileTab === 'split' ? 'w-1/2' : isMobile ? 'w-full' : 'flex-1'
+              isSupportMode ? 'flex-1 w-full' : isMobile && mobileTab === 'split' ? 'w-1/2' : isMobile ? 'w-full' : 'flex-1'
             }`}>
+              {/* The "WITH STATEWAVE" subheader frames the column as one half
+                  of a comparison — meaningless in support mode. Show a clean
+                  trust strip instead. */}
+              {isSupportMode ? (
+                <div className="px-3 py-1.5 sm:py-2 h-8 sm:h-9 border-b border-theme-border/30 bg-accent/5 flex-shrink-0 flex items-center justify-between">
+                  <span className="text-[9px] sm:text-[10px] text-theme-muted">
+                    Answers grounded in Statewave docs when sources are available.
+                  </span>
+                  <button
+                    onClick={() => setShowInspector(!showInspector)}
+                    className={`flex items-center gap-1 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-[9px] sm:text-[10px] font-medium transition-colors ${
+                      showInspector ? 'bg-accent/20 text-accent' : 'hover:bg-accent/10 text-theme-muted'
+                    }`}
+                    title="Show the documentation context this answer was grounded in"
+                  >
+                    <InspectIcon className="w-3 h-3" />
+                    Sources
+                  </button>
+                </div>
+              ) : (
               <div className="px-2 sm:px-3 py-1.5 sm:py-2 h-8 sm:h-9 border-b border-theme-border/30 bg-accent/5 flex-shrink-0">
                 <div className="flex items-center justify-between h-full">
                   <div className="flex items-center gap-1.5 sm:gap-2">
@@ -942,6 +1012,7 @@ export function ChatWidget() {
                   </button>
                 </div>
               </div>
+              )}
               <div
                 ref={statewaveScrollRef}
                 onScroll={() => syncScrollByIndex('statewave')}
@@ -1062,14 +1133,22 @@ export function ChatWidget() {
               Send
             </button>
           </div>
-          <p className="mt-1.5 sm:mt-2 text-[9px] sm:text-[10px] text-theme-muted text-center">
-            Same model, same prompt — different outcomes
-          </p>
-          <p className="mt-1 text-[9px] sm:text-[10px] text-theme-muted/80 text-center leading-relaxed">
-            This browser is remembered. Each Statewave turn writes a real episode to our hosted demo
-            backend; memory compiles after every turn. <button type="button" onClick={() => { if (!isResetting) setConfirmReset(true) }} className="underline hover:text-theme-secondary">Reset demo memory</button>{' '}
-            anytime.
-          </p>
+          {isSupportMode ? (
+            <p className="mt-1.5 sm:mt-2 text-[9px] sm:text-[10px] text-theme-muted/80 text-center leading-relaxed">
+              I'll remember what you're exploring so follow-up questions are easier next time.
+            </p>
+          ) : (
+          <>
+            <p className="mt-1.5 sm:mt-2 text-[9px] sm:text-[10px] text-theme-muted text-center">
+              Same model, same prompt — different outcomes
+            </p>
+            <p className="mt-1 text-[9px] sm:text-[10px] text-theme-muted/80 text-center leading-relaxed">
+              This browser is remembered. Each Statewave turn writes a real episode to our hosted demo
+              backend; memory compiles after every turn. <button type="button" onClick={() => { if (!isResetting) setConfirmReset(true) }} className="underline hover:text-theme-secondary">Reset demo memory</button>{' '}
+              anytime.
+            </p>
+          </>
+          )}
         </form>
 
         </>}

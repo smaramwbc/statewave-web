@@ -107,10 +107,27 @@ interface ChatWidgetState {
    *  in flight or if it failed — consumers should fall back to the full
    *  hardcoded catalog in that case. */
   availablePersonas: string[] | null
+  /**
+   * Which entry-point opened the widget. Drives whether the visitor sees the
+   * full demo experience (persona picker, comparison columns, marketing copy,
+   * guided tour) or a focused production support channel (single chat, no
+   * picker, support copy, no tour).
+   *   `demo`    — opened via "Try the demo" launcher / hero CTAs.
+   *   `support` — opened via "Ask Support" navbar button or `?ask=support`
+   *               deep-link. Always pinned to the `statewave-support` persona.
+   */
+  mode: 'demo' | 'support'
 }
 
 interface ChatWidgetActions {
-  openWidget: (persona?: string, personaLabel?: string) => void
+  /**
+   * Open the widget. With no args, opens the demo flow at the default
+   * persona. With `mode = 'support'`, the widget opens in the focused
+   * support channel — persona is forced to `statewave-support` regardless
+   * of the `persona` argument, and the picker / comparison / tour are
+   * suppressed by the consumer.
+   */
+  openWidget: (persona?: string, personaLabel?: string, mode?: 'demo' | 'support') => void
   closeWidget: () => void
   minimizeWidget: () => void
   expandWidget: () => void
@@ -266,6 +283,9 @@ function persistOnboarding(rec: OnboardingRecord): void {
 export function ChatWidgetProvider({ children }: { children: ReactNode }) {
   const [isOpen, setIsOpen] = useState(false)
   const [isMinimized, setIsMinimized] = useState(false)
+  // Demo by default; the Ask Support entry points flip this to 'support'.
+  // The mode flag drives picker/comparison/tour visibility — see ChatWidget.
+  const [mode, setMode] = useState<'demo' | 'support'>('demo')
   const [persona, setPersona] = useState<string>(DEFAULT_PERSONA.id)
   const [personaLabel, setPersonaLabel] = useState<string>(DEFAULT_PERSONA.label)
   const [subjectId, setSubjectId] = useState<string | null>(null)
@@ -300,9 +320,14 @@ export function ChatWidgetProvider({ children }: { children: ReactNode }) {
   const dismissWelcome = useCallback(() => {
     persistOnboarding({ welcomeSeenAt: Date.now(), tourCompletedAt: loadOnboarding().tourCompletedAt })
     setHasSeenWelcome(true)
-    // Start the tour at step 1 unless the visitor finished it on a prior visit.
+    // Start the tour at step 1 unless the visitor finished it on a prior
+    // visit, OR we're in the focused support flow — Ask Support is a
+    // production support channel, not a guided demo, so no tour ever runs
+    // there. We deliberately do NOT mark the tour completed here, so a
+    // visitor who later comes back via the demo entry still gets the tour.
+    if (mode === 'support') return
     setTourStep((prev) => (prev === 0 && !hasCompletedTour ? 1 : prev))
-  }, [hasCompletedTour])
+  }, [hasCompletedTour, mode])
 
   const showWelcome = useCallback(() => {
     // Re-running the intro from the help button: replay welcome AND the tour.
@@ -387,20 +412,32 @@ export function ChatWidgetProvider({ children }: { children: ReactNode }) {
     }
   }, [refreshState])
 
-  const openWidget = useCallback((rawPersona?: string, label?: string) => {
+  const openWidget = useCallback((rawPersona?: string, label?: string, openMode?: 'demo' | 'support') => {
     setIsOpen(true)
     setIsMinimized(false)
-    const explicit = !!rawPersona
+    // Support mode is always pinned to the docs-grounded support persona,
+    // regardless of what the caller passed — Ask Support is a single-channel
+    // entry point and must never inherit a previously-selected demo persona.
+    const resolvedMode: 'demo' | 'support' = openMode ?? 'demo'
+    setMode(resolvedMode)
+    const effectivePersona = resolvedMode === 'support' ? 'statewave-support' : rawPersona
+    const effectiveLabel = resolvedMode === 'support' ? 'Statewave Support' : label
+    const explicit = !!effectivePersona
     let chosen = persona
-    if (rawPersona) {
-      chosen = normalizePersona(rawPersona)
+    if (effectivePersona) {
+      chosen = normalizePersona(effectivePersona)
       setPersona(chosen)
-      setPersonaLabel(label ?? DEMO_PERSONAS.find((x) => x.id === chosen)?.label ?? chosen)
+      setPersonaLabel(effectiveLabel ?? DEMO_PERSONAS.find((x) => x.id === chosen)?.label ?? chosen)
     }
     // Resume the tour for visitors who saw the welcome on a prior visit but
     // never finished walking through the steps. Mid-session reopens skip
-    // this branch (tourStep > 0 already, or already completed).
-    setTourStep((prev) => (prev === 0 && hasSeenWelcome && !hasCompletedTour ? 1 : prev))
+    // this branch (tourStep > 0 already, or already completed). Support
+    // mode never runs the tour regardless of completion state.
+    if (resolvedMode !== 'support') {
+      setTourStep((prev) => (prev === 0 && hasSeenWelcome && !hasCompletedTour ? 1 : prev))
+    } else {
+      setTourStep(0)
+    }
     // Only show the hydration spinner if there's genuinely nothing to display
     // for the active persona yet. After the page-load preload (or a previous
     // open), memories are already populated; refresh in the background instead
@@ -437,6 +474,9 @@ export function ChatWidgetProvider({ children }: { children: ReactNode }) {
 
   const selectPersona = useCallback((p: string, label: string) => {
     const norm = normalizePersona(p)
+    // Picking a persona is only possible from the demo flow's dropdown, so
+    // any selectPersona call implicitly drops the widget back into demo mode.
+    setMode('demo')
     setPersona(norm)
     setPersonaLabel(label)
     // Each persona is its own memory pool — switching is exactly like
@@ -503,8 +543,11 @@ export function ChatWidgetProvider({ children }: { children: ReactNode }) {
         tourCompletedAt: loadOnboarding().tourCompletedAt,
       })
       setHasSeenWelcome(true)
-      // Sending also kicks off the tour — same trigger as clicking Skip.
-      setTourStep((prev) => (prev === 0 && !hasCompletedTour ? 1 : prev))
+      // Sending also kicks off the tour — but only in the demo flow. Support
+      // mode never runs the demo tour regardless of completion state.
+      if (mode !== 'support') {
+        setTourStep((prev) => (prev === 0 && !hasCompletedTour ? 1 : prev))
+      }
     }
     const userMsg: ChatMessage = { role: 'user', content: trimmed, timestamp: Date.now() }
     setStatelessMessages((prev) => [...prev, userMsg])
@@ -573,7 +616,7 @@ export function ChatWidgetProvider({ children }: { children: ReactNode }) {
     } finally {
       setIsLoading(false)
     }
-  }, [persona, hasSeenWelcome, hasCompletedTour, refreshState])
+  }, [persona, hasSeenWelcome, hasCompletedTour, refreshState, mode])
 
   // Preload the default persona's memory pool on page mount so the demo is
   // populated the moment a visitor opens the widget — no spinner-while-seeding
@@ -637,7 +680,7 @@ export function ChatWidgetProvider({ children }: { children: ReactNode }) {
     // Defer the open into a microtask so the setState calls happen outside
     // the effect's render cycle (avoids react-hooks/set-state-in-effect)
     // and lets the page paint before the widget animates in.
-    queueMicrotask(() => openWidget('statewave-support', 'Statewave Support'))
+    queueMicrotask(() => openWidget('statewave-support', 'Statewave Support', 'support'))
     // Run once on mount. openWidget is stable enough for this one-shot effect.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -664,6 +707,7 @@ export function ChatWidgetProvider({ children }: { children: ReactNode }) {
     hasCompletedTour,
     hasVisibleCta: visibleCtaCount > 0,
     availablePersonas,
+    mode,
     openWidget,
     closeWidget,
     minimizeWidget,

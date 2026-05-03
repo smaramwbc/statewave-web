@@ -390,3 +390,161 @@ describe('Widget onboarding — guided tour', () => {
     expect(screen.getByText(/Step 1 of 3/i)).toBeInTheDocument()
   })
 })
+
+/**
+ * Support mode — the focused production support channel opened from the
+ * "Ask Support" navbar button or `?ask=support` deep link. It must look
+ * and feel different from the demo flow: no persona picker, no comparison
+ * columns, no demo language, no guided tour.
+ */
+describe('Widget — Ask Support (support mode)', () => {
+  beforeEach(() => {
+    window.localStorage.clear()
+    stubAllFetches()
+    // Clean URL between tests so the deep-link effect runs fresh.
+    window.history.replaceState({}, '', '/')
+  })
+  afterEach(() => {
+    cleanup()
+    vi.restoreAllMocks()
+    window.history.replaceState({}, '', '/')
+  })
+
+  it('opens directly in support mode via the ?ask=support deep link', async () => {
+    window.history.replaceState({}, '', '/?ask=support')
+
+    render(
+      <TestWrapper>
+        <ChatWidget />
+      </TestWrapper>,
+    )
+
+    // Static "Statewave Support" title appears (not the persona dropdown
+    // button) — the deep link bypasses the launcher and lands the visitor
+    // straight in the support channel.
+    expect(await screen.findByTestId('support-mode-title')).toBeInTheDocument()
+  })
+
+  it('does not render the persona picker or any persona/demo choices', async () => {
+    window.history.replaceState({}, '', '/?ask=support')
+
+    render(
+      <TestWrapper>
+        <ChatWidget />
+      </TestWrapper>,
+    )
+
+    await screen.findByTestId('support-mode-title')
+
+    // The picker dropdown trigger lives under data-tour-target="persona" in
+    // demo mode. It must not render in support mode.
+    expect(document.querySelector('[data-tour-target="persona"]')).toBeNull()
+    // None of the visitor-memory persona labels should be visible (no
+    // dropdown, no chips).
+    expect(screen.queryByText(/^Support Agent$/)).toBeNull()
+    expect(screen.queryByText(/^Coding Assistant$/)).toBeNull()
+    expect(screen.queryByText(/^Sales Copilot$/)).toBeNull()
+  })
+
+  it('does not render the dual-column comparison ("Without Memory" / "With Statewave")', async () => {
+    window.history.replaceState({}, '', '/?ask=support')
+
+    render(
+      <TestWrapper>
+        <ChatWidget />
+      </TestWrapper>,
+    )
+
+    // Dismiss the support welcome so the chat surface renders — that's
+    // where the column subheaders live.
+    const next = await screen.findByRole('button', { name: /^Next$/i })
+    act(() => { fireEvent.click(next) })
+    await waitFor(() => {
+      expect(screen.queryByTestId('onboarding-welcome')).toBeNull()
+    })
+
+    // Demo-flavored comparison subheaders must be gone. Match exact header
+    // strings — loose regex would also match suggestion-chip text like
+    // "How is Statewave different from vector memory?".
+    expect(screen.queryByText('Without Memory')).toBeNull()
+    expect(screen.queryByText('With Statewave')).toBeNull()
+    // The trust strip replacing them references docs grounding.
+    expect(screen.getByText(/grounded in Statewave docs/i)).toBeInTheDocument()
+  })
+
+  it('shows support-oriented welcome copy with no demo or persona language', async () => {
+    window.history.replaceState({}, '', '/?ask=support')
+
+    render(
+      <TestWrapper>
+        <ChatWidget />
+      </TestWrapper>,
+    )
+
+    const welcome = await screen.findByTestId('onboarding-welcome')
+    // Support-oriented intro is present.
+    expect(welcome).toHaveTextContent(/Statewave support assistant/i)
+    expect(welcome).toHaveTextContent(/setup, memory concepts, integrations/i)
+    // None of the demo-flavored phrases the brief calls out should appear.
+    expect(welcome).not.toHaveTextContent(/try a demo/i)
+    expect(welcome).not.toHaveTextContent(/pick a persona/i)
+    expect(welcome).not.toHaveTextContent(/play around/i)
+    expect(welcome).not.toHaveTextContent(/only a demo/i)
+    expect(welcome).not.toHaveTextContent(/per-visitor memory persona/i)
+  })
+
+  it('does not start the guided tour after dismissing the support welcome', async () => {
+    window.history.replaceState({}, '', '/?ask=support')
+
+    render(
+      <TestWrapper>
+        <ChatWidget />
+      </TestWrapper>,
+    )
+
+    const next = await screen.findByRole('button', { name: /^Next$/i })
+    act(() => { fireEvent.click(next) })
+
+    // Welcome dismisses but the tour banner — the demo-only walkthrough —
+    // must not appear in the support channel.
+    await waitFor(() => {
+      expect(screen.queryByTestId('onboarding-welcome')).toBeNull()
+    })
+    expect(screen.queryByTestId('tour-banner')).toBeNull()
+  })
+
+  it('does not expose the internal subject id in the header', async () => {
+    window.history.replaceState({}, '', '/?ask=support')
+
+    render(
+      <TestWrapper>
+        <ChatWidget />
+      </TestWrapper>,
+    )
+
+    await screen.findByTestId('support-mode-title')
+    // The demo-flow header shows the visitor's Statewave subject id; the
+    // support channel must hide that — visitors should never see internal
+    // routing identifiers in a production support UI.
+    expect(screen.queryByText(/^demo_web_/)).toBeNull()
+    expect(screen.queryByText(/^statewave-support-docs$/)).toBeNull()
+  })
+
+  it('keeps the demo (Try the Demo) entry point separate and unaffected', async () => {
+    // No deep link this time — visitor lands and clicks the floating
+    // launcher, which should still produce the full demo experience.
+    render(
+      <TestWrapper>
+        <ChatWidget />
+      </TestWrapper>,
+    )
+
+    fireEvent.click(screen.getByText('Try the demo'))
+
+    // Demo welcome with the marketing headline.
+    expect(await screen.findByText(/Ask Statewave Support/i)).toBeInTheDocument()
+    // The support-mode static title must NOT be rendered when entering via
+    // the demo launcher — the demo flow uses the persona picker instead.
+    expect(screen.queryByTestId('support-mode-title')).toBeNull()
+  })
+})

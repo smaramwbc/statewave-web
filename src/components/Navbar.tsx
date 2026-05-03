@@ -18,7 +18,7 @@ export function Navbar() {
   const { openWidget } = useChatWidget()
 
   const askSupport = () => {
-    openWidget('statewave-support', 'Statewave Support')
+    openWidget('statewave-support', 'Statewave Support', 'support')
     setMobileOpen(false)
   }
 

@@ -122,7 +122,7 @@ function HeroSection() {
             Have a question?{' '}
             <button
               type="button"
-              onClick={() => openWidget('statewave-support', 'Statewave Support')}
+              onClick={() => openWidget('statewave-support', 'Statewave Support', 'support')}
               className="text-theme-secondary hover:text-accent underline-offset-4 hover:underline transition-colors font-medium"
             >
               Ask Statewave Support
