@@ -158,13 +158,63 @@ Three modes: `auto` (system), `light`, `dark`. Implemented via:
 
 ## SEO & metadata
 
-- Per-page `<title>`, description, canonical URL
-- Open Graph + Twitter Card tags (updated on navigation)
-- JSON-LD structured data (SoftwareApplication)
-- `robots.txt` + `sitemap.xml`
-- `site.webmanifest` for PWA/installability hints
-- OG image: `/og-image.png` (1200×630, dark gradient, brand copy)
-- Source SVG: `/og-image.svg` (editable, re-export with ImageMagick: `magick og-image.svg og-image.png`)
+The site is fully positioned and instrumented for search and AI answer
+engines. See [`docs/seo.md`](docs/seo.md) for the full architecture and the
+checklist for adding new pages.
+
+- **Type-safe per-page metadata** — [`src/lib/seo-meta.ts`](src/lib/seo-meta.ts)
+  declares `PUBLIC_ROUTES` and `PAGE_META`. Pages call `usePageSEO()` from
+  [`src/lib/seo.tsx`](src/lib/seo.tsx); the hook updates `<title>`, description,
+  canonical, robots, all Open Graph tags, all Twitter Card tags, and locale
+  on every route change.
+- **Structured data (JSON-LD)** — `Organization`, `WebSite`, and
+  `SoftwareApplication` are baked into [`index.html`](index.html) for
+  no-JS crawlers. The SPA layers a per-route `BreadcrumbList` and a
+  `FAQPage` (on the homepage) on top, marked `data-seo="managed"` so they
+  swap cleanly on navigation. Builders live in `seo-meta.ts`.
+- **Crawlability** —
+  - [`public/robots.txt`](public/robots.txt) — allows the public site,
+    disallows `/api/`, declares the sitemap.
+  - [`public/sitemap.xml`](public/sitemap.xml) — one URL per public route;
+    parity with `PUBLIC_ROUTES` enforced by tests.
+  - [`public/llms.txt`](public/llms.txt) — concise, [llms.txt-format](https://llmstxt.org/)
+    summary for AI answer engines (ChatGPT, Perplexity, Claude, Google AI
+    Overviews). Lists positioning, core concepts, public pages, docs links,
+    install commands, integrations, honest scope.
+- **FAQ** — homepage FAQ entries live in [`src/lib/faq.ts`](src/lib/faq.ts)
+  and are rendered as a real `<details>`/`<summary>` accordion *and*
+  emitted as `FAQPage` JSON-LD from the same source — no drift between the
+  visible content and the structured data.
+- **Social cards** — `/og-image.png` (1200×630, dark gradient, brand copy);
+  source SVG at `/og-image.svg` (editable, re-export with
+  `magick og-image.svg og-image.png`). All OG/Twitter tags include
+  width, height, and alt text.
+- **No-index for the 404** — [`pages/NotFoundPage.tsx`](src/pages/NotFoundPage.tsx)
+  sets `robots: 'noindex, follow'` so missing routes don't pollute search
+  results.
+- **Tests** —
+  - [`tests/seo.test.tsx`](tests/seo.test.tsx) — every public route renders
+    the right title, description, canonical, OG, Twitter; uniqueness +
+    length bounds enforced.
+  - [`tests/seo-jsonld.test.tsx`](tests/seo-jsonld.test.tsx) — the JSON-LD
+    builders return valid schema.org shapes; the homepage emits the right
+    set; navigations don't leave stale `[data-seo="managed"]` scripts.
+  - [`tests/seo-static.test.ts`](tests/seo-static.test.ts) — `robots.txt`,
+    `sitemap.xml`, `llms.txt`, and the `index.html` JSON-LD blocks are
+    structurally valid and reference every public route.
+
+### Adding a new public page
+
+`docs/seo.md` walks through it end-to-end. The short version:
+
+1. Add the route to `RouteKey` + `PUBLIC_ROUTES` and a `PAGE_META` entry
+   in `seo-meta.ts`.
+2. Add a URL block to `public/sitemap.xml`.
+3. Add the route to `App.tsx` and call `usePageSEO()` from the new page
+   component.
+4. Update `public/llms.txt` if the page is meaningful for AI crawlers.
+5. `npm run test` — the SEO tests fail loudly if any of the above is
+   missing.
 
 ## Accessibility
 
