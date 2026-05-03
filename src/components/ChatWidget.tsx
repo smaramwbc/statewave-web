@@ -30,6 +30,7 @@ import { useState, useRef, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useChatWidget, DEMO_SUBJECTS, isDocsSharedPersona, type DocSource } from '../lib/widget-context'
 import { useTheme } from '../lib/theme'
+import { Logo } from './Logo'
 
 // Responsive breakpoints
 const useResponsive = () => {
@@ -628,25 +629,54 @@ export function ChatWidget() {
         {!hasSeenWelcome && (
           <div
             data-testid="onboarding-welcome"
-            className="flex-1 flex flex-col items-center px-5 sm:px-8 py-6 sm:py-8 overflow-y-auto scroll-contain"
+            className="flex-1 flex flex-col items-center justify-center px-6 sm:px-10 py-8 sm:py-10 overflow-y-auto scroll-contain"
           >
-            <div
-              className="w-12 h-12 rounded-full flex items-center justify-center mb-4 flex-shrink-0"
-              style={{
-                backgroundColor: isDark ? 'rgba(99, 102, 241, 0.15)' : 'rgba(99, 102, 241, 0.1)',
-                border: `1px solid ${isDark ? 'rgba(99, 102, 241, 0.3)' : 'rgba(99, 102, 241, 0.2)'}`,
-              }}
-            >
-              <span className="text-accent text-xl">✦</span>
+            {/* Brand mark with a soft layered halo for a premium feel. */}
+            <div className="relative mb-6 flex-shrink-0">
+              <div
+                aria-hidden
+                className="absolute inset-0 -m-6 rounded-full blur-2xl opacity-60"
+                style={{
+                  background: isDark
+                    ? 'radial-gradient(circle, rgba(99,102,241,0.45) 0%, rgba(99,102,241,0) 70%)'
+                    : 'radial-gradient(circle, rgba(99,102,241,0.30) 0%, rgba(99,102,241,0) 70%)',
+                }}
+              />
+              <div
+                aria-hidden
+                className="absolute inset-0 -m-2 rounded-full"
+                style={{
+                  border: `1px solid ${isDark ? 'rgba(99,102,241,0.25)' : 'rgba(99,102,241,0.20)'}`,
+                }}
+              />
+              <div
+                className="relative w-16 h-16 rounded-full flex items-center justify-center"
+                style={{
+                  background: isDark
+                    ? 'linear-gradient(135deg, rgba(99,102,241,0.22) 0%, rgba(139,92,246,0.18) 100%)'
+                    : 'linear-gradient(135deg, rgba(99,102,241,0.14) 0%, rgba(139,92,246,0.10) 100%)',
+                  border: `1px solid ${isDark ? 'rgba(99,102,241,0.40)' : 'rgba(99,102,241,0.28)'}`,
+                  boxShadow: isDark
+                    ? '0 8px 32px -8px rgba(99,102,241,0.45), inset 0 1px 0 rgba(255,255,255,0.05)'
+                    : '0 8px 24px -10px rgba(99,102,241,0.35), inset 0 1px 0 rgba(255,255,255,0.6)',
+                }}
+              >
+                <Logo variant="icon" className="!h-9 !w-9" />
+              </div>
             </div>
-            <h3 className="text-base sm:text-lg font-semibold text-theme-primary text-center">
+
+            <p className="text-[10px] uppercase tracking-[0.18em] text-accent/80 font-semibold mb-2">
+              Welcome
+            </p>
+            <h3 className="text-lg sm:text-xl font-semibold text-theme-primary text-center tracking-tight">
               {isDocsSharedPersona(persona)
                 ? 'Ask Statewave Support'
                 : 'Try Statewave with real memory'}
             </h3>
+
             {isDocsSharedPersona(persona) ? (
               <>
-                <p className="mt-3 text-xs sm:text-sm text-theme-muted text-center max-w-md leading-relaxed">
+                <p className="mt-4 text-xs sm:text-sm text-theme-muted text-center max-w-md leading-relaxed">
                   Two AI agents, same model. The left replies with no context.
                   The right is grounded in the official Statewave docs and
                   cites the pages it used — no fabrication, no per-visitor memory.
@@ -659,7 +689,7 @@ export function ChatWidget() {
               </>
             ) : (
               <>
-                <p className="mt-3 text-xs sm:text-sm text-theme-muted text-center max-w-md leading-relaxed">
+                <p className="mt-4 text-xs sm:text-sm text-theme-muted text-center max-w-md leading-relaxed">
                   Two AI agents, same model. The left replies with no context.
                   The right gets ranked memory compiled live from your turns by
                   a real Statewave server.
@@ -670,35 +700,29 @@ export function ChatWidget() {
                 </p>
               </>
             )}
-            {suggestions.length > 0 && (
-              <>
-                <p className="mt-6 text-[10px] uppercase tracking-wider text-theme-muted/70 font-semibold">
-                  Try a question
-                </p>
-                <div className="mt-2 flex flex-wrap justify-center gap-1.5 max-w-md">
-                  {suggestions.map((s, i) => (
-                    <button
-                      key={i}
-                      type="button"
-                      onClick={async () => {
-                        // sendMessage auto-dismisses the welcome — no extra call needed.
-                        await sendMessage(s)
-                        setSuggestionRound((r) => r + 1)
-                      }}
-                      className="text-[11px] px-2.5 py-1.5 rounded-md border border-accent/30 bg-accent/10 text-accent hover:bg-accent/20 hover:border-accent/50 transition-all cursor-pointer"
-                    >
-                      {s}
-                    </button>
-                  ))}
-                </div>
-              </>
-            )}
+
+            <div
+              aria-hidden
+              className="mt-7 mb-6 h-px w-16"
+              style={{
+                background: isDark
+                  ? 'linear-gradient(90deg, transparent 0%, rgba(99,102,241,0.4) 50%, transparent 100%)'
+                  : 'linear-gradient(90deg, transparent 0%, rgba(99,102,241,0.3) 50%, transparent 100%)',
+              }}
+            />
+
             <button
               type="button"
               onClick={dismissWelcome}
-              className="mt-6 text-[11px] text-theme-muted hover:text-theme-secondary underline-offset-4 hover:underline transition-colors"
+              className="group relative inline-flex items-center gap-2 px-6 py-2.5 rounded-full text-sm font-medium text-white bg-accent hover:bg-accent-light transition-all"
+              style={{
+                boxShadow: isDark
+                  ? '0 8px 24px -8px rgba(99,102,241,0.55), inset 0 1px 0 rgba(255,255,255,0.12)'
+                  : '0 8px 20px -8px rgba(99,102,241,0.45), inset 0 1px 0 rgba(255,255,255,0.25)',
+              }}
             >
-              skip onboarding
+              <span>Next</span>
+              <span className="transition-transform group-hover:translate-x-0.5" aria-hidden>→</span>
             </button>
           </div>
         )}
