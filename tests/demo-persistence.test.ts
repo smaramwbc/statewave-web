@@ -289,36 +289,48 @@ describe('POST /api/demo-seed', () => {
       const url = typeof input === 'string' ? input : (input as Request).url
       const method = (init as RequestInit | undefined)?.method ?? 'GET'
       calls.push({ url, method, body: (init as RequestInit | undefined)?.body as string | undefined })
-      // First timeline call: visitor's subject (empty by default)
-      // Second: source showcase subject (has episodes)
+
+      // The seed flow makes one timeline call (pre-check the visitor
+      // subject), one starter-pack import call, then one timeline call to
+      // refresh the response payload. The import primitive copies episodes
+      // + already-compiled memories with source_episode_ids remapped, so
+      // we no longer hit /v1/episodes or /v1/memories/compile from the
+      // edge function.
       if (url.includes('/v1/timeline')) {
         const params = new URL(url).searchParams.get('subject_id') ?? ''
         if (params.startsWith('demo_web_')) {
-          // visitor subject — empty before seed, populated after writes
-          return new Response(JSON.stringify({
-            episodes: Array.from({ length: visitorEpisodeCount }, (_, i) => ({ id: `v-ep-${i}`, payload: { messages: [] }, created_at: '' })),
-            memories: visitorEpisodeCount > 0 ? [{ id: 'm-1', kind: 'profile_fact', content: 'Seeded fact', confidence: 0.7 }] : [],
-          }), { status: 200 })
-        }
-        if (params.startsWith('demo-')) {
-          // Showcase episodes use mixed payload shapes — the seed must
-          // preserve them verbatim so the compiler has structured content.
-          return new Response(JSON.stringify({
-            episodes: [
-              { id: 'src-1', source: 'support-chat', type: 'ticket_opened', payload: { channel: 'email', content: 'Sarah from Globex reported login failure', priority: 'high' }, created_at: '2026-04-01' },
-              { id: 'src-2', source: 'support-chat', type: 'agent_action',  payload: { action: 'escalate', content: 'Escalated to L2 — auth issue confirmed' }, created_at: '2026-04-02' },
-              { id: 'src-3', source: 'support-chat', type: 'conversation', payload: { messages: [{ role: 'user', content: 'I prefer email' }, { role: 'assistant', content: 'Got it' }] }, created_at: '2026-04-03' },
-            ],
-            memories: [],
-          }), { status: 200 })
+          return new Response(
+            JSON.stringify({
+              episodes: Array.from({ length: visitorEpisodeCount }, (_, i) => ({
+                id: `v-ep-${i}`,
+                payload: { messages: [] },
+                created_at: '',
+              })),
+              memories:
+                visitorEpisodeCount > 0
+                  ? [{ id: 'm-1', kind: 'profile_fact', content: 'Seeded fact', confidence: 0.7 }]
+                  : [],
+            }),
+            { status: 200 },
+          )
         }
       }
-      if (url.includes('/v1/episodes') && method === 'POST') {
-        visitorEpisodeCount += 1
-        return new Response(JSON.stringify({ id: `new-${visitorEpisodeCount}` }), { status: 201 })
-      }
-      if (url.includes('/v1/memories/compile')) {
-        return new Response(JSON.stringify({ memories_created: 1 }), { status: 200 })
+      if (url.includes('/admin/memory/starter-packs/import') && method === 'POST') {
+        // Simulate the server-side import: 3 episodes + 1 memory landed.
+        // The post-import refresh below will see this count.
+        visitorEpisodeCount = 3
+        return new Response(
+          JSON.stringify({
+            pack_id: 'demo-support-agent',
+            target_subject_id: subjectFor(VALID_UUID, 'support-agent'),
+            imported_episodes: 3,
+            imported_memories: 1,
+            imported_sources: 0,
+            conflict_strategy: 'cancel',
+            imported_at: '2026-05-04T00:00:00+00:00',
+          }),
+          { status: 200 },
+        )
       }
       throw new Error(`Unexpected fetch in seed test: ${method} ${url}`)
     })
@@ -334,7 +346,7 @@ describe('POST /api/demo-seed', () => {
     expect(resp.status).toBe(400)
   })
 
-  it('seeds an empty visitor by copying source episodes and running compile', async () => {
+  it('seeds an empty visitor by importing the persona starter pack', async () => {
     const req = makeRequest('POST', 'http://test/api/demo-seed', {
       headers: { 'content-type': 'application/json', cookie: cookieHeader(VALID_UUID) },
       body: JSON.stringify({ persona: 'support-agent' }),
@@ -345,30 +357,25 @@ describe('POST /api/demo-seed', () => {
     expect(data.seeded).toBe(true)
     expect(data.seedSource).toBe('demo-support-agent')
     expect(data.copied).toBe(3)
+    expect(data.compiledMemories).toBe(1)
     expect(data.episodeCount).toBe(3)
     expect(data.memories).toHaveLength(1)
 
-    // Verify the episode writes carry source provenance AND preserve original
-    // payload + source + type so the compiler can extract memories.
-    const episodeWrites = calls.filter((c) => c.url.includes('/v1/episodes') && c.method === 'POST')
-    expect(episodeWrites).toHaveLength(3)
-    const bodies = episodeWrites.map((c) => JSON.parse(c.body!))
-    for (const body of bodies) {
-      expect(body.subject_id).toBe(subjectFor(VALID_UUID, 'support-agent'))
-      expect(body.metadata.seeded_from).toBe('demo-support-agent')
-      expect(body.metadata.persona).toBe('support-agent')
-      expect(body.metadata.original_episode_id).toMatch(/^src-/)
-      expect(body.source).toBe('support-chat')
-    }
-    // Each preserves its original payload/type — not a stub
-    const types = bodies.map((b) => b.type).sort()
-    expect(types).toEqual(['agent_action', 'conversation', 'ticket_opened'])
-    const ticket = bodies.find((b) => b.type === 'ticket_opened')!
-    expect(ticket.payload).toEqual({ channel: 'email', content: 'Sarah from Globex reported login failure', priority: 'high' })
+    // Exactly one import call, addressed at the visitor's persona-scoped
+    // subject, opting into the reserved-prefix guard.
+    const imports = calls.filter((c) =>
+      c.url.includes('/admin/memory/starter-packs/import') && c.method === 'POST',
+    )
+    expect(imports).toHaveLength(1)
+    const importBody = JSON.parse(imports[0].body!)
+    expect(importBody.pack_id).toBe('demo-support-agent')
+    expect(importBody.target_subject_id).toBe(subjectFor(VALID_UUID, 'support-agent'))
+    expect(importBody.conflict_strategy).toBe('cancel')
+    expect(importBody.allow_reserved_target).toBe(true)
 
-    // Compile is called once after seeding
-    const compileCalls = calls.filter((c) => c.url.includes('/v1/memories/compile'))
-    expect(compileCalls).toHaveLength(1)
+    // The legacy write-and-compile path is no longer exercised by the seed.
+    expect(calls.filter((c) => c.url.includes('/v1/episodes') && c.method === 'POST')).toHaveLength(0)
+    expect(calls.filter((c) => c.url.includes('/v1/memories/compile'))).toHaveLength(0)
   })
 
   it('does NOT reseed when the visitor already has episodes', async () => {
@@ -383,9 +390,10 @@ describe('POST /api/demo-seed', () => {
     expect(data.seeded).toBe(false)
     expect(data.reason).toBe('already-populated')
     expect(data.episodeCount).toBe(5)
-    // No episode writes, no compile
-    expect(calls.filter((c) => c.url.includes('/v1/episodes') && c.method === 'POST')).toHaveLength(0)
-    expect(calls.filter((c) => c.url.includes('/v1/memories/compile'))).toHaveLength(0)
+    // No import call when the visitor already has data.
+    expect(
+      calls.filter((c) => c.url.includes('/admin/memory/starter-packs/import')),
+    ).toHaveLength(0)
   })
 
   it('issues a Set-Cookie if the visitor had no cookie', async () => {

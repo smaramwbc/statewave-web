@@ -1,29 +1,41 @@
 /**
  * POST /api/demo-seed
  *
- * Copies episodes from a showcase subject (e.g. `demo-support-agent`) into the
- * current visitor's subject and runs compile, so the visitor lands in the demo
- * with rich, interactable memory instead of an empty subject.
+ * Imports a bundled starter pack (e.g. `demo-support-agent`) into the current
+ * visitor's subject so the visitor lands in the demo with rich, interactable
+ * memory instead of an empty subject.
  *
  * Policy:
  *  - Only seeds when the visitor's subject is empty. Re-clicking a different
  *    persona later does NOT overwrite — the user must reset first. This keeps
  *    a single coherent memory pool per visitor.
- *  - Caps copied episodes to keep within the per-visitor episode budget.
- *  - Each copied episode carries metadata pointing back to its source so the
- *    provenance story stays honest.
+ *  - Each persona is mapped to its bundled starter pack, which already
+ *    contains compiled memories with provenance back to the source episodes.
+ *    The import path remaps `source_episode_ids` to the freshly-minted episode
+ *    UUIDs so provenance survives end-to-end.
+ *  - Original episode `created_at` timestamps are preserved by the import
+ *    path, so the visitor sees the showcase story arc unfolding across
+ *    realistic dates (months apart) instead of every episode looking like it
+ *    happened the moment they clicked.
+ *
+ * Why a starter-pack import (and not the previous write-episodes-then-compile):
+ *   The canonical demo subjects already ship with compiled memories baked into
+ *   the pack files. Re-running `/v1/memories/compile` under the LLM compiler
+ *   for every visitor regenerated the same memories from scratch — ~25–45s of
+ *   wasted LLM time per click. Importing the pack is a single admin call that
+ *   copies episodes + memories with id remapping in well under 2s, and yields
+ *   memory the visitor can inspect on the very first turn.
  */
 
 import {
   buildSetCookie,
-  compileMemories,
   fetchTimeline,
+  importStarterPack,
   isDocsSharedPersona,
   json,
   newVisitorId,
   parseDemoVisitor,
   subjectFor,
-  writeEpisode,
 } from './_demo'
 
 /**
@@ -42,9 +54,12 @@ function isNoSeedPersona(persona: string): boolean {
 
 export const config = { runtime: 'edge' }
 
-const SEED_EPISODE_LIMIT = 24
-
-const SEED_SOURCES: Record<string, string> = {
+/**
+ * Persona id → starter pack id. The pack id is also the canonical demo
+ * subject id used by the homepage hero — keeping them aligned means the
+ * showcase content stays in one place (`statewave/server/starter_packs/`).
+ */
+const SEED_PACKS: Record<string, string> = {
   'support-agent': 'demo-support-agent',
   'coding-assistant': 'demo-coding-assistant',
   'sales-copilot': 'demo-sales-copilot',
@@ -87,10 +102,10 @@ export default async function handler(req: Request): Promise<Response> {
     )
   }
 
-  const sourceSubject = SEED_SOURCES[persona]
-  if (!sourceSubject) {
+  const packId = SEED_PACKS[persona]
+  if (!packId) {
     return json(
-      { error: `Unknown persona "${persona}". Expected one of: ${Object.keys(SEED_SOURCES).join(', ')}` },
+      { error: `Unknown persona "${persona}". Expected one of: ${Object.keys(SEED_PACKS).join(', ')}` },
       { status: 400 },
     )
   }
@@ -100,7 +115,9 @@ export default async function handler(req: Request): Promise<Response> {
   const visitorSubject = subjectFor(visitorUuid, persona)
 
   // Don't reseed if the visitor already has chat / memory. Reset is the
-  // explicit way to start over.
+  // explicit way to start over. This pre-check also short-circuits the
+  // import call's `conflict_strategy: 'cancel'` 409 with a friendlier
+  // response shape.
   const before = await fetchTimeline(visitorSubject)
   if (before.episodes.length > 0) {
     return json(
@@ -114,42 +131,26 @@ export default async function handler(req: Request): Promise<Response> {
     )
   }
 
-  const source = await fetchTimeline(sourceSubject)
-  const sourceEpisodes = source.episodes.slice(0, SEED_EPISODE_LIMIT)
-  if (sourceEpisodes.length === 0) {
+  const result = await importStarterPack(packId, visitorSubject)
+  if (!result) {
     return json(
-      { subjectId: visitorSubject, seeded: false, reason: 'no-source-episodes' },
-      { setCookie },
+      { subjectId: visitorSubject, seeded: false, reason: 'import-failed', persona, packId },
+      { setCookie, status: 502 },
     )
   }
 
-  // Episodes are independent and idempotent appends — write them in parallel.
-  // Crucially we preserve the original payload shape, source, and type so the
-  // server's compiler sees what the showcase saw and can extract memories.
-  // Showcase shapes include {channel,content,priority}, {action,content},
-  // {messages:[...]} — passing them verbatim is what makes compile productive.
-  const writes = await Promise.all(
-    sourceEpisodes.map((ep) =>
-      writeEpisode(
-        visitorSubject,
-        ep.payload ?? {},
-        { seeded_from: sourceSubject, original_episode_id: ep.id, persona },
-        ep.source ?? 'demo-web-seed',
-        ep.type ?? 'seeded',
-      ),
-    ),
-  )
-  const copied = writes.filter(Boolean).length
-  if (copied > 0) await compileMemories(visitorSubject)
-
+  // Refresh once after import so the response carries the timeline view the
+  // client will render — same shape the previous seed flow returned, so the
+  // caller's parsing path doesn't need to change.
   const after = await fetchTimeline(visitorSubject)
   return json(
     {
       subjectId: visitorSubject,
       seeded: true,
-      seedSource: sourceSubject,
+      seedSource: packId,
       persona,
-      copied,
+      copied: result.imported_episodes,
+      compiledMemories: result.imported_memories,
       episodeCount: after.episodes.length,
       memories: after.memories
         .map((m) => ({

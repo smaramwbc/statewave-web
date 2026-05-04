@@ -276,6 +276,60 @@ export async function compileMemories(subjectId: string): Promise<void> {
   }
 }
 
+export interface StarterPackImportResult {
+  imported_episodes: number
+  imported_memories: number
+  target_subject_id: string
+}
+
+/**
+ * Copy a bundled starter pack (episodes + already-compiled memories, with
+ * `source_episode_ids` remapped to the freshly-minted episode UUIDs) into a
+ * target subject in a single admin call.
+ *
+ * This is the preferred seed primitive for the marketing demo: it is ~25–45s
+ * faster than `writeEpisode` × N + `compileMemories`, because the canonical
+ * pack already ships with compiled memories — recompiling under the LLM
+ * compiler on every visitor's clone is pure waste. Original `created_at`
+ * timestamps and provenance are preserved, so the visitor sees the showcase
+ * story arc unfolding across realistic dates instead of every episode
+ * looking like it happened "right now".
+ *
+ * `conflict_strategy: 'cancel'` makes the call 409 if the target subject
+ * already has data — callers should pre-check (or be ready to swallow the
+ * 409) so a re-clicked persona doesn't silently double-import.
+ */
+export async function importStarterPack(
+  packId: string,
+  targetSubjectId: string,
+): Promise<StarterPackImportResult | null> {
+  try {
+    const resp = await fetch(`${statewaveUrl()}/admin/memory/starter-packs/import`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-API-Key': statewaveApiKey() },
+      body: JSON.stringify({
+        pack_id: packId,
+        target_subject_id: targetSubjectId,
+        conflict_strategy: 'cancel',
+        // Visitor subjects sit in the reserved `demo_web_*` namespace by
+        // design. The admin guard exists to prevent operators from forking
+        // into that namespace by accident; the marketing seed flow is the
+        // legitimate caller, so we opt in.
+        allow_reserved_target: true,
+      }),
+    })
+    if (!resp.ok) {
+      const text = await resp.text()
+      console.warn(`[demo] starter-pack import failed: ${resp.status} ${text}`)
+      return null
+    }
+    return (await resp.json()) as StarterPackImportResult
+  } catch (err) {
+    console.warn('[demo] starter-pack import threw:', err)
+    return null
+  }
+}
+
 export async function deleteSubject(subjectId: string): Promise<boolean> {
   const resp = await fetch(`${statewaveUrl()}/v1/subjects/${encodeURIComponent(subjectId)}`, {
     method: 'DELETE',
