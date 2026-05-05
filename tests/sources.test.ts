@@ -523,6 +523,145 @@ describe('POST /api/widget-chat — admin-episodes fallback for citations', () =
   })
 })
 
+describe('POST /api/widget-chat — citations align with top-K retrieved memories', () => {
+  // Regression guard for a real production bug: `wantedEpisodeIds` was
+  // built from EVERY retrieved memory's source_episode_ids (often 40+
+  // memories). The longest doc-pack docs (backup-restore, migrations,
+  // troubleshooting) have far more episodes per doc than topical docs
+  // (getting-started, api/v1-contract). They dominated by raw episode
+  // count and the citation strip showed the same three docs regardless
+  // of question. The fix caps the walk to the TOP-K (= 5) memories so
+  // citations align with what the model actually grounded the answer in.
+
+  beforeEach(() => {
+    setEnv()
+    vi.spyOn(globalThis, 'fetch').mockImplementation(async (input, init) => {
+      const url = typeof input === 'string' ? input : (input as Request).url
+      if (url.includes('/admin/subjects/') && url.includes('/episodes')) {
+        // Return episodes for ALL doc paths the test fixture references
+        // — DB insertion order would put the noisy docs first, exactly
+        // the regression we're guarding against.
+        return new Response(
+          JSON.stringify({
+            episodes: [
+              { id: 'noise-1', source: 'docs', type: 'doc_section', payload: { breadcrumb: 'Backup' }, provenance: { doc_path: 'dev/backup-restore.md' } },
+              { id: 'noise-2', source: 'docs', type: 'doc_section', payload: { breadcrumb: 'Migrations' }, provenance: { doc_path: 'deployment/migrations.md' } },
+              { id: 'noise-3', source: 'docs', type: 'doc_section', payload: { breadcrumb: 'Troubleshooting' }, provenance: { doc_path: 'deployment/troubleshooting.md' } },
+              { id: 'top-1', source: 'docs', type: 'doc_section', payload: { breadcrumb: 'Getting started › Install SDK' }, provenance: { doc_path: 'getting-started.md' } },
+              { id: 'top-2', source: 'docs', type: 'doc_section', payload: { breadcrumb: 'API › Memories' }, provenance: { doc_path: 'api/v1-contract.md' } },
+              { id: 'top-3', source: 'docs', type: 'doc_section', payload: { breadcrumb: 'Architecture › Overview' }, provenance: { doc_path: 'architecture/overview.md' } },
+            ],
+          }),
+          { status: 200 },
+        )
+      }
+      if (url.includes('/v1/timeline')) {
+        return new Response(JSON.stringify({ episodes: [], memories: [] }), { status: 200 })
+      }
+      if (url.includes('/v1/context')) {
+        const body = init?.body ? JSON.parse(init.body as string) : {}
+        if (body.subject_id !== DOCS_SUBJECT_ID) {
+          return new Response(
+            JSON.stringify({
+              subject_id: body.subject_id,
+              task: 't',
+              facts: [],
+              procedures: [],
+              episodes: [],
+              assembled_context: '',
+              token_estimate: 0,
+            }),
+            { status: 200 },
+          )
+        }
+        // Eight ranked memories, no inline episodes. The first five
+        // (top-K) point to the *topical* docs; the last three point to
+        // the noisy docs that used to dominate citations. Production-
+        // shape: many memories per query, source_episode_ids only.
+        return new Response(
+          JSON.stringify({
+            subject_id: DOCS_SUBJECT_ID,
+            task: 't',
+            facts: [
+              { id: 'm-1', kind: 'profile_fact', content: 'Install with npm install statewave-ts.', confidence: 0.95, source_episode_ids: ['top-1'] },
+              { id: 'm-2', kind: 'profile_fact', content: 'GET /v1/memories/search returns ranked memories.', confidence: 0.92, source_episode_ids: ['top-2'] },
+              { id: 'm-3', kind: 'profile_fact', content: 'Statewave is a memory runtime for AI agents.', confidence: 0.9, source_episode_ids: ['top-3'] },
+              { id: 'm-4', kind: 'profile_fact', content: 'Statewave runs on Postgres + pgvector.', confidence: 0.88, source_episode_ids: ['top-3'] },
+              { id: 'm-5', kind: 'profile_fact', content: 'Subjects are the unit of memory organisation.', confidence: 0.85, source_episode_ids: ['top-3'] },
+              // Below the top-K cutoff — these MUST NOT show up in citations.
+              { id: 'm-6', kind: 'profile_fact', content: 'Long ops doc tangentially mentions Postgres backup.', confidence: 0.4, source_episode_ids: ['noise-1'] },
+              { id: 'm-7', kind: 'profile_fact', content: 'Migrations doc references state restore.', confidence: 0.35, source_episode_ids: ['noise-2'] },
+              { id: 'm-8', kind: 'profile_fact', content: 'Troubleshooting tip about restore failures.', confidence: 0.3, source_episode_ids: ['noise-3'] },
+            ],
+            procedures: [],
+            episodes: [],
+            assembled_context: '',
+            token_estimate: 0,
+          }),
+          { status: 200 },
+        )
+      }
+      if (url.includes('/v1/episodes')) {
+        return new Response(JSON.stringify({ id: 'ep-new' }), { status: 201 })
+      }
+      if (url.includes('/v1/memories/compile')) {
+        return new Response(JSON.stringify({ memories_created: 0, memories: [] }), { status: 200 })
+      }
+      if (url.includes('/v1/llm/complete')) {
+        return new Response(JSON.stringify({ reply: 'Use npm install statewave-ts.' }), { status: 200 })
+      }
+      throw new Error(`Unexpected fetch in citation top-K test: ${url}`)
+    })
+  })
+  afterEach(() => vi.restoreAllMocks())
+
+  it('cites only docs reached via the top-K memories (lower-ranked memories are excluded)', async () => {
+    const req = makeRequest('POST', 'http://test/api/widget-chat', {
+      headers: { 'content-type': 'application/json', cookie: cookieHeader(VALID_UUID) },
+      body: JSON.stringify({
+        messages: [{ role: 'user', content: 'How do I install with npm?' }],
+        mode: 'statewave',
+        persona: 'statewave-support',
+      }),
+    })
+    const resp = await widgetChat(req)
+    expect(resp.status).toBe(200)
+    const data = await resp.json()
+    const docPaths = (data.sources ?? []).map((s: { doc_path: string }) => s.doc_path)
+    // The top-K (= 5) memories pointed only to: getting-started.md,
+    // api/v1-contract.md, architecture/overview.md. None of the noise
+    // docs may appear, even though they're physically present in the
+    // admin episodes response.
+    expect(docPaths).toContain('getting-started.md')
+    expect(docPaths).not.toContain('dev/backup-restore.md')
+    expect(docPaths).not.toContain('deployment/migrations.md')
+    expect(docPaths).not.toContain('deployment/troubleshooting.md')
+    // Limit is 3 by default, so we expect <= 3 unique citations.
+    expect(docPaths.length).toBeGreaterThan(0)
+    expect(docPaths.length).toBeLessThanOrEqual(3)
+  })
+
+  it('orders citations by the rank of the memory that referenced them, not DB insertion order', async () => {
+    const req = makeRequest('POST', 'http://test/api/widget-chat', {
+      headers: { 'content-type': 'application/json', cookie: cookieHeader(VALID_UUID) },
+      body: JSON.stringify({
+        messages: [{ role: 'user', content: 'How do I install with npm?' }],
+        mode: 'statewave',
+        persona: 'statewave-support',
+      }),
+    })
+    const resp = await widgetChat(req)
+    const data = await resp.json()
+    const docPaths = (data.sources ?? []).map((s: { doc_path: string }) => s.doc_path)
+    // m-1 (highest score) points to getting-started.md → must be first.
+    // m-2 (next) → api/v1-contract.md → second.
+    // m-3..m-5 all point to architecture/overview.md → third.
+    expect(docPaths[0]).toBe('getting-started.md')
+    expect(docPaths[1]).toBe('api/v1-contract.md')
+    expect(docPaths[2]).toBe('architecture/overview.md')
+  })
+})
+
 describe('POST /api/widget-chat — visitor-memory persona has no sources', () => {
   beforeEach(() => {
     setEnv()
