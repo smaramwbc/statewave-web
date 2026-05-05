@@ -345,6 +345,60 @@ export interface LLMMessage {
 }
 
 /**
+ * Hard byte cap for an eval-only system-prompt override coming from the
+ * admin's Self-Healing Eval. Mirrors the cap on the admin side so a value
+ * that fits there fits here. The override is never persisted.
+ */
+export const SYSTEM_PROMPT_OVERRIDE_MAX_BYTES = 8000
+
+export interface PreparedSystemPromptOverride {
+  /** Redacted + capped text, safe to forward to the LLM. */
+  text: string
+  /** Byte length of `text` (after redaction + capping). */
+  length: number
+  /** True if the input exceeded SYSTEM_PROMPT_OVERRIDE_MAX_BYTES and was truncated. */
+  truncated: boolean
+}
+
+/**
+ * Sanitise an operator-supplied system-prompt override before forwarding it
+ * to the LLM. The admin (Self-Healing Eval) already redacts on its side; we
+ * redact again as defence-in-depth so an override that arrives here from any
+ * other client cannot leak provider keys, bearer tokens, or DB URLs into the
+ * upstream LLM call or our logs. Returns null when the input isn't a usable
+ * non-empty string.
+ */
+export function prepareSystemPromptOverride(
+  raw: unknown,
+): PreparedSystemPromptOverride | null {
+  if (typeof raw !== 'string') return null
+  const trimmed = raw.trim()
+  if (!trimmed) return null
+  let text = redactOverrideSecrets(trimmed)
+  const enc = new TextEncoder()
+  let bytes = enc.encode(text)
+  let truncated = false
+  if (bytes.length > SYSTEM_PROMPT_OVERRIDE_MAX_BYTES) {
+    truncated = true
+    bytes = bytes.slice(0, SYSTEM_PROMPT_OVERRIDE_MAX_BYTES)
+    text = new TextDecoder().decode(bytes)
+  }
+  return { text, length: bytes.length, truncated }
+}
+
+function redactOverrideSecrets(s: string): string {
+  return s
+    .replace(/sk-ant-[A-Za-z0-9_-]{16,}/g, '[REDACTED:anthropic-key]')
+    .replace(/sk-[A-Za-z0-9_-]{16,}/g, '[REDACTED:openai-key]')
+    .replace(/Bearer\s+[A-Za-z0-9._-]{20,}/gi, 'Bearer [REDACTED]')
+    .replace(/postgres(?:ql)?:\/\/[^@\s]+@\S+/gi, 'postgres://[REDACTED]@[REDACTED]')
+    .replace(
+      /(api[-_ ]?key|x-api-key|authorization)(\s*[:=]\s*)[A-Za-z0-9._-]{16,}/gi,
+      '$1$2[REDACTED]',
+    )
+}
+
+/**
  * Run a single chat completion via the Statewave server's `/v1/llm/complete`
  * endpoint. The Statewave server picks the model + provider via its own
  * LiteLLM-backed config (`STATEWAVE_LITELLM_MODEL`, etc.), so the website
@@ -501,3 +555,4 @@ export async function fetchContext(subjectId: string, task: string): Promise<Con
     return null
   }
 }
+
