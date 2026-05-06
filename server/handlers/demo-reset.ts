@@ -14,9 +14,8 @@ import {
   newVisitorId,
   parseDemoVisitor,
   subjectFor,
-} from './_demo'
+} from '../statewave-client.js'
 
-export const config = { runtime: 'edge' }
 
 export default async function handler(req: Request): Promise<Response> {
   if (req.method === 'OPTIONS') return json({}, { status: 200 })

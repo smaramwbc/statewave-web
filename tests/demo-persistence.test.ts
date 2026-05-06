@@ -21,11 +21,11 @@ import {
   buildSetCookie,
   parseDemoVisitor,
   subjectFor,
-} from '../api/_demo'
-import demoState from '../api/demo-state'
-import demoReset from '../api/demo-reset'
-import demoSeed from '../api/demo-seed'
-import widgetChat from '../api/widget-chat'
+} from '../server/statewave-client'
+import demoState from '../server/handlers/demo-state'
+import demoReset from '../server/handlers/demo-reset'
+import demoSeed from '../server/handlers/demo-seed'
+import widgetChat from '../server/handlers/widget-chat'
 
 const VALID_UUID = '11111111-2222-4333-8444-555555555555'
 

@@ -15,8 +15,8 @@ import {
   DOCS_SUBJECT_ID,
   resolveDocSources,
   type ContextBundle,
-} from '../api/_demo'
-import widgetChat from '../api/widget-chat'
+} from '../server/statewave-client'
+import widgetChat from '../server/handlers/widget-chat'
 
 const VALID_UUID = '11111111-2222-4333-8444-555555555555'
 

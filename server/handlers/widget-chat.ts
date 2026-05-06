@@ -35,9 +35,8 @@ import {
   type ContextEpisode,
   type LLMMessage,
   type PreparedSystemPromptOverride,
-} from './_demo'
+} from '../statewave-client.js'
 
-export const config = { runtime: 'edge' }
 
 type Message = LLMMessage
 
@@ -107,7 +106,7 @@ export default async function handler(req: Request): Promise<Response> {
     system_prompt_override?: string
   }
   try {
-    body = await req.json()
+    body = (await req.json()) as typeof body
   } catch {
     return json({ error: 'Invalid JSON body' }, { status: 400 })
   }

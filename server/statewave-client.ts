@@ -13,11 +13,45 @@ export const DEMO_COOKIE_MAX_AGE_S = 60 * 60 * 24 * 30 // 30 days
 export const DEMO_EPISODE_CAP = 200
 export const DEMO_MAX_MESSAGE_CHARS = 1000
 
+/**
+ * Required runtime configuration for talking to a Statewave backend.
+ *
+ * Both env vars MUST be set explicitly. Missing or empty values throw a
+ * named error at first use — never silently fall back to a default URL
+ * or run unauthenticated. Routing public traffic to whichever Statewave
+ * deployment happened to be the project's reference instance is a
+ * security/privacy hazard, and silently sending requests without an
+ * X-API-Key header is the kind of bug that only surfaces when production
+ * starts 401-ing.
+ *
+ * Operators self-hosting statewave-web set these in their hosting
+ * environment (Docker `--env-file`, Vercel project env, fly.io secrets,
+ * etc.) — the website doesn't care which.
+ */
+export class StatewaveConfigError extends Error {
+  constructor(varName: string) {
+    super(
+      `${varName} is required. Set it on your host (e.g. .env file for ` +
+        `docker compose, "vercel env add", "fly secrets set"). statewave-web ` +
+        `will not start without it.`,
+    )
+    this.name = 'StatewaveConfigError'
+  }
+}
+
 function statewaveUrl(): string {
-  return process.env.STATEWAVE_URL ?? 'https://statewave-api.fly.dev'
+  const v = process.env.STATEWAVE_URL
+  if (!v || !v.trim()) {
+    throw new StatewaveConfigError('STATEWAVE_URL')
+  }
+  return v
 }
 function statewaveApiKey(): string {
-  return process.env.STATEWAVE_API_KEY ?? ''
+  const v = process.env.STATEWAVE_API_KEY
+  if (!v || !v.trim()) {
+    throw new StatewaveConfigError('STATEWAVE_API_KEY')
+  }
+  return v
 }
 
 export interface VisitorInfo {
@@ -230,10 +264,10 @@ export async function fetchAllEpisodesAdmin(subjectId: string): Promise<Timeline
       { headers: { 'X-API-Key': statewaveApiKey() } },
     )
     if (!resp.ok) break
-    const data = await resp.json()
+    const data = (await resp.json()) as TimelineEpisode[] | { episodes?: TimelineEpisode[] }
     const page = Array.isArray(data)
-      ? (data as TimelineEpisode[])
-      : ((data?.episodes ?? []) as TimelineEpisode[])
+      ? data
+      : (data.episodes ?? [])
     if (page.length === 0) break
     out.push(...page)
     if (page.length < ADMIN_PAGE_LIMIT) break
