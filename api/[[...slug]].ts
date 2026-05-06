@@ -8,9 +8,19 @@
  * the dispatch table in `server/dispatch.ts` is the single source of
  * truth for routes.
  *
- * The catch-all glob `[[...slug]]` matches every `/api/*` path. Vercel
- * fills in `req.url` with the full path so `dispatchWeb` resolves it
- * via the route table the same way the standalone Node server does.
+ * The catch-all glob `[[...slug]]` matches every `/api/*` path. Vercel's
+ * Edge runtime gives us a Web `Request` with an absolute URL, which
+ * `dispatchWeb` resolves via the route table — the same shape the
+ * standalone Node server (`server/index.ts`) and the Vite dev plugin
+ * already use internally.
+ *
+ * `export const config = { runtime: 'edge' }` is a Vercel-only directive
+ * scoped to this Vercel-only file. Vercel's Node serverless runtime
+ * passes `(req: IncomingMessage, res: ServerResponse)` — incompatible
+ * with the Web fetch-handler shape we use everywhere else — so we ask
+ * Vercel for the Edge runtime, which natively dispatches Web fetch
+ * handlers. This directive has no effect on the standalone Node server,
+ * Docker, or the Vite dev plugin.
  *
  * Anyone self-hosting statewave-web should NOT need this file — see
  * `server/index.ts` and the `Dockerfile` for the vendor-neutral run
@@ -18,6 +28,8 @@
  */
 
 import { dispatchWeb } from '../server/dispatch.js'
+
+export const config = { runtime: 'edge' }
 
 export default async function handler(req: Request): Promise<Response> {
   const res = await dispatchWeb(req)
