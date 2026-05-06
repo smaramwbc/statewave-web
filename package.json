@@ -6,15 +6,17 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "tsc -b && vite build && tsc -p tsconfig.server.json",
+    "build:client": "tsc -b && vite build",
+    "build:server": "tsc -p tsconfig.server.json",
     "preview": "vite preview",
-    "typecheck": "tsc -b --noEmit",
+    "start": "node dist-server/server/index.js",
+    "typecheck": "tsc -b --noEmit && tsc -p tsconfig.server.json --noEmit",
     "lint": "eslint .",
     "test": "vitest run",
     "test:watch": "vitest"
   },
   "dependencies": {
-    "@vercel/speed-insights": "^2.0.0",
     "framer-motion": "^12.38.0",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",

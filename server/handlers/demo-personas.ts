@@ -15,9 +15,8 @@
  * fan-out of 6 timeline calls on every page view.
  */
 
-import { DOCS_SUBJECT_ID, fetchTimeline } from './_demo'
+import { DOCS_SUBJECT_ID, fetchTimeline } from '../statewave-client.js'
 
-export const config = { runtime: 'edge' }
 
 /**
  * Persona id → upstream Statewave subject we check for non-empty memory.

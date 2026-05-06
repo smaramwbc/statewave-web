@@ -36,7 +36,7 @@ import {
   newVisitorId,
   parseDemoVisitor,
   subjectFor,
-} from './_demo'
+} from '../statewave-client.js'
 
 /**
  * Personas the seed endpoint accepts but treats as no-op.
@@ -52,7 +52,6 @@ function isNoSeedPersona(persona: string): boolean {
   return isDocsSharedPersona(persona)
 }
 
-export const config = { runtime: 'edge' }
 
 /**
  * Persona id → starter pack id. The pack id is also the canonical demo
@@ -73,7 +72,7 @@ export default async function handler(req: Request): Promise<Response> {
 
   let body: { persona?: string }
   try {
-    body = await req.json()
+    body = (await req.json()) as { persona?: string }
   } catch {
     return json({ error: 'Invalid JSON body' }, { status: 400 })
   }

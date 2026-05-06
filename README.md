@@ -26,33 +26,83 @@ It is **not** the documentation (that's [statewave-docs](https://github.com/smar
 | CI | GitHub Actions (typecheck → lint → test → build) |
 | Deployment | Vercel (auto-deploy on push to main) |
 
+## Required environment variables
+
+Both must be set explicitly. Missing or empty values throw a named
+`StatewaveConfigError` on the first request — the website does not silently
+default to any project's hosted Statewave instance and does not run un-authenticated.
+
+| Variable | Purpose |
+|---|---|
+| `STATEWAVE_URL` | Base URL of your Statewave backend (e.g. `http://localhost:8100`) |
+| `STATEWAVE_API_KEY` | API key for that backend (`X-API-Key` header) |
+
+Optional, with defaults: `PORT` (8080), `HOST` (0.0.0.0), `WEB_STATIC_DIR` (`./dist`).
+
 ## Local development
 
 ```bash
 npm install
-npm run dev        # http://localhost:5173 — full local stack, no proxy
+cp .env.local.example .env.local   # then edit with your STATEWAVE_URL + STATEWAVE_API_KEY
+npm run dev                        # http://localhost:5173
 ```
 
-By default `npm run dev` points the website at a **local Statewave server on `http://localhost:8100`** (run [`statewave`](https://github.com/smaramwbc/statewave) via `docker compose up -d` first). The `api/*.ts` Edge handlers run in-process via a Vite middleware (`server/vite-plugin.ts`) — no `vercel dev` and no remote proxy needed.
+The dev server runs the API handlers in-process via `server/vite-plugin.ts`
+(same dispatch as the standalone server — see `server/dispatch.ts`). No
+`vercel dev`, no remote proxy.
 
-To point the website at production data instead, set `STATEWAVE_URL` in `.env.local`:
+For a fully local stack, run [`statewave`](https://github.com/smaramwbc/statewave)
+via `docker compose up -d` first, then point `.env.local` at it:
 
 ```bash
 # .env.local
-STATEWAVE_URL=https://statewave-api.fly.dev
-STATEWAVE_API_KEY=...   # optional — only if the upstream requires X-API-Key
+STATEWAVE_URL=http://localhost:8100
+STATEWAVE_API_KEY=your-local-api-key
 ```
 
-Shell env wins over `.env.local`, so a one-shot override also works: `STATEWAVE_URL=https://statewave-api.fly.dev npm run dev`.
+## Run locally without Vercel — standalone Node server
+
+The vendor-neutral run path. Builds the SPA + the Node-side server, then
+boots a plain `node:http` server that serves both:
+
+```bash
+npm install
+npm run build
+STATEWAVE_URL=http://localhost:8100 STATEWAVE_API_KEY=your-key npm start
+# → listening on http://0.0.0.0:8080
+```
+
+This is the path Docker uses, and the canonical run path for self-hosting.
+No Vercel, no Fly, no platform-specific runtime.
+
+## Run via Docker
+
+```bash
+docker build -t statewave-web .
+docker run --rm -p 8080:8080 \
+  -e STATEWAVE_URL=http://host.docker.internal:8100 \
+  -e STATEWAVE_API_KEY=your-key \
+  statewave-web
+```
+
+## Optional: deploy on Vercel
+
+A single thin adapter file (`api/[[...slug]].ts`) forwards every `/api/*`
+request into the same vendor-neutral dispatch the standalone server uses.
+No per-route shims. If you're not deploying to Vercel, you can ignore /
+delete that file — it has no effect on the standalone or Docker run paths.
 
 ## Scripts
 
 | Command | Description |
 |---------|-------------|
-| `npm run dev` | Start dev server |
-| `npm run build` | Typecheck + production build |
-| `npm run preview` | Preview production build locally |
-| `npm run typecheck` | TypeScript check only |
+| `npm run dev` | Start Vite dev server (with in-process API dispatch) |
+| `npm run build` | Build the SPA (`dist/`) and the Node server (`dist-server/`) |
+| `npm run build:client` | SPA build only |
+| `npm run build:server` | Node-server TypeScript build only |
+| `npm start` | Run the standalone Node server from `dist-server/` |
+| `npm run preview` | Preview the SPA build via Vite (no API) |
+| `npm run typecheck` | TypeScript check (both client + server configs) |
 | `npm run lint` | ESLint |
 | `npm run test` | Run tests |
 | `npm run test:watch` | Watch mode |
@@ -92,13 +142,20 @@ src/
     UseCasesPage.tsx    # Use case map — categories, status pills, connectors, frontier ideas
     DevelopersPage.tsx  # SDKs, quick install, links to docs/examples
     NotFoundPage.tsx    # 404
+server/
+  index.ts              # Standalone Node HTTP server (vendor-neutral run path)
+  dispatch.ts           # Route table + Web↔Node bridge — single source of truth for /api/*
+  statewave-client.ts   # Shared visitor cookie + Statewave fetch helpers + StatewaveConfigError
+  vite-plugin.ts        # Dev-time middleware (in-process API for `npm run dev`)
+  handlers/
+    demo-state.ts       # GET — issue/restore visitor cookie + return memory pool
+    demo-seed.ts        # POST — import a showcase pack into the visitor's persona pool
+    demo-reset.ts       # POST — wipe all of a visitor's persona subjects + reissue cookie
+    demo-personas.ts    # GET — persona registry
+    widget-chat.ts      # POST — stateless / Statewave-mode chat (writes episode + compiles)
+    hero-data.ts        # GET — proxy live hero-page data from a Statewave backend
 api/
-  _demo.ts              # Shared visitor cookie + Statewave fetch helpers
-  demo-state.ts         # GET — issue/restore visitor cookie + return memory pool
-  demo-seed.ts          # POST — copy showcase episodes into the visitor's persona pool
-  demo-reset.ts         # POST — wipe all of a visitor's persona subjects + reissue cookie
-  widget-chat.ts        # POST — stateless / Statewave-mode chat (writes episode + compiles)
-  hero-data.ts          # GET — proxy live hero-page data from Fly.io backend
+  [[...slug]].ts        # Optional Vercel adapter — forwards every /api/* into dispatch.ts
 tests/
   widget.test.tsx, widget-onboarding.test.tsx, demo-persistence.test.ts,
   smoke.test.tsx, theme.test.tsx, routes.test.tsx
@@ -106,7 +163,7 @@ tests/
 
 ## Hero visualization
 
-The hero background is a Canvas 2D particle system that fetches **live data** from the Statewave Fly.io backend (via a Vercel Edge Function proxy at `/api/hero-data`).
+The hero background is a Canvas 2D particle system that fetches **live data** from a Statewave backend (via the proxy at `/api/hero-data`, which routes through the same vendor-neutral dispatch as every other `/api/*` endpoint — no Vercel-specific runtime needed).
 
 It visualizes the 3-tier Statewave data model:
 - **Subjects** — large central nodes (one per `subject_id`)

@@ -20,8 +20,8 @@ import {
   SYSTEM_PROMPT_OVERRIDE_MAX_BYTES,
   prepareSystemPromptOverride,
   subjectFor,
-} from '../api/_demo'
-import widgetChat from '../api/widget-chat'
+} from '../server/statewave-client'
+import widgetChat from '../server/handlers/widget-chat'
 
 const VALID_UUID = '11111111-2222-4333-8444-555555555555'
 

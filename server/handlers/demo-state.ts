@@ -14,9 +14,8 @@ import {
   newVisitorId,
   parseDemoVisitor,
   subjectFor,
-} from './_demo'
+} from '../statewave-client.js'
 
-export const config = { runtime: 'edge' }
 
 interface ChatTurn {
   role: 'user' | 'assistant'
