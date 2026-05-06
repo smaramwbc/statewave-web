@@ -21,10 +21,16 @@
  */
 
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http'
-import { promises as fs } from 'node:fs'
+import { promises as fs, readFileSync } from 'node:fs'
 import { resolve, normalize, join, extname } from 'node:path'
 
-import { dispatchNode, ROUTE_PATHS } from './dispatch.js'
+import { dispatchNode, ROUTE_PATHS } from './dispatch-node.js'
+
+// Load `.env.local` then `.env` if present, so `npm start` works after a
+// plain `cp .env.local.example .env.local`. Shell / Docker `-e` /
+// `vercel env` / `fly secrets` always win because we only set keys that
+// are not already defined.
+loadEnvFiles(['.env.local', '.env'])
 
 const PORT = Number.parseInt(process.env.PORT ?? '8080', 10) || 8080
 const HOST = process.env.HOST ?? '0.0.0.0'
@@ -61,6 +67,36 @@ function send500(res: ServerResponse, err: unknown): void {
   // Surface a stable error code; full detail goes to stderr.
   res.end(JSON.stringify({ error: 'internal_error' }))
   console.error('[statewave-web] handler threw:', err)
+}
+
+// Minimal `.env` parser — no third-party dep. Skips comments / blank
+// lines, supports `KEY=value` and `KEY="value with spaces"`. Stays
+// intentionally simple; if you need full dotenv semantics, set the env
+// in your shell / docker / platform secrets instead.
+function loadEnvFiles(paths: string[]): void {
+  for (const p of paths) {
+    let raw: string
+    try {
+      raw = readFileSync(resolve(p), 'utf8')
+    } catch {
+      continue
+    }
+    for (const line of raw.split(/\r?\n/)) {
+      const trimmed = line.trim()
+      if (!trimmed || trimmed.startsWith('#')) continue
+      const eq = trimmed.indexOf('=')
+      if (eq < 1) continue
+      const key = trimmed.slice(0, eq).trim()
+      let value = trimmed.slice(eq + 1).trim()
+      if (
+        (value.startsWith('"') && value.endsWith('"')) ||
+        (value.startsWith("'") && value.endsWith("'"))
+      ) {
+        value = value.slice(1, -1)
+      }
+      if (process.env[key] === undefined) process.env[key] = value
+    }
+  }
 }
 
 async function serveStatic(req: IncomingMessage, res: ServerResponse): Promise<void> {

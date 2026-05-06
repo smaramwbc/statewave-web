@@ -9,20 +9,33 @@
  * Dispatch lives in `server/dispatch.ts` — adding a new endpoint
  * requires editing the route table there, not this plugin.
  */
-import type { Plugin, ViteDevServer } from 'vite'
+import { loadEnv, type Plugin, type ViteDevServer } from 'vite'
 import type { IncomingMessage, ServerResponse } from 'node:http'
 
 export function statewaveApiPlugin(): Plugin {
   return {
     name: 'statewave-web-api',
     async configureServer(server: ViteDevServer) {
-      // ssrLoadModule keeps `server/dispatch.ts` and the handlers it
-      // imports hot-reloadable on edit.
+      // Vite reads `.env*` for `import.meta.env.*` (client) but does NOT
+      // populate `process.env.*` (Node side). The API handlers run in this
+      // Node process and read `process.env.STATEWAVE_*`, so we load
+      // `.env*` ourselves and forward `STATEWAVE_*` keys. Shell env wins:
+      // we only set keys that are not already defined, so production
+      // / docker / `vercel env` always take precedence.
+      const env = loadEnv(server.config.mode, server.config.root, '')
+      for (const [k, v] of Object.entries(env)) {
+        if (k.startsWith('STATEWAVE_') && process.env[k] === undefined) {
+          process.env[k] = v
+        }
+      }
+
+      // ssrLoadModule keeps the dispatch modules and the handlers they
+      // import hot-reloadable on edit.
       const loadDispatch = async () => {
         const mod = await server.ssrLoadModule(
-          new URL('./dispatch.ts', import.meta.url).href,
+          new URL('./dispatch-node.ts', import.meta.url).href,
         )
-        return mod as typeof import('./dispatch.js')
+        return mod as typeof import('./dispatch-node.js')
       }
 
       server.middlewares.use(async (req, res, next) => {
