@@ -16,13 +16,13 @@ export function statewaveApiPlugin(): Plugin {
   return {
     name: 'statewave-web-api',
     async configureServer(server: ViteDevServer) {
-      // ssrLoadModule keeps `server/dispatch.ts` and the handlers it
-      // imports hot-reloadable on edit.
+      // ssrLoadModule keeps the dispatch modules and the handlers they
+      // import hot-reloadable on edit.
       const loadDispatch = async () => {
         const mod = await server.ssrLoadModule(
-          new URL('./dispatch.ts', import.meta.url).href,
+          new URL('./dispatch-node.ts', import.meta.url).href,
         )
-        return mod as typeof import('./dispatch.js')
+        return mod as typeof import('./dispatch-node.js')
       }
 
       server.middlewares.use(async (req, res, next) => {

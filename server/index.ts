@@ -24,7 +24,7 @@ import { createServer, type IncomingMessage, type ServerResponse } from 'node:ht
 import { promises as fs } from 'node:fs'
 import { resolve, normalize, join, extname } from 'node:path'
 
-import { dispatchNode, ROUTE_PATHS } from './dispatch.js'
+import { dispatchNode, ROUTE_PATHS } from './dispatch-node.js'
 
 const PORT = Number.parseInt(process.env.PORT ?? '8080', 10) || 8080
 const HOST = process.env.HOST ?? '0.0.0.0'
