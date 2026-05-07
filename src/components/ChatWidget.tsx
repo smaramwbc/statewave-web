@@ -52,6 +52,202 @@ const useResponsive = () => {
   return viewport
 }
 
+/**
+ * One quick-suggestion chip rendered above the chat input.
+ *
+ * `text` is what the visitor sees and what gets sent on click. `anchors`
+ * are short fact tokens (IDs, dates, names, numbers) that the chip is
+ * expected to make the agent recall — every anchor MUST appear in the
+ * corresponding demo pack's memories+episodes text. The alignment is
+ * pinned by tests/chip-fact-alignment.test.ts against the snapshot at
+ * tests/fixtures/demo-pack-text.json (regenerate with
+ * `node scripts/snapshot-demo-pack-text.mjs` whenever the packs in the
+ * statewave repo move).
+ */
+export interface Suggestion {
+  text: string
+  anchors: readonly string[]
+}
+
+/**
+ * Multi-round suggestion chips, keyed by persona id. Each persona has
+ * three rounds × three chips — the widget cycles to the next round when
+ * the visitor clicks one. Lives at module scope (not inside the
+ * component) so the test can import + audit it without rendering.
+ *
+ * Demo personas (`support-agent`, `coding-assistant`, …) anchor against
+ * their respective `demo-<id>` starter pack. The docs-shared persona
+ * (`statewave-support`) anchors against `statewave-support-agent`.
+ */
+export const SUGGESTIONS: Record<
+  string,
+  ReadonlyArray<ReadonlyArray<Suggestion>>
+> = {
+  // Northwind Logistics / Maya Hassan
+  'support-agent': [
+    [
+      { text: "Did the SAML cert rotation clear ticket #4821?",
+        anchors: ['#4821', 'SAML'] },
+      { text: "Is the routing-fleet subject still on the per-region split after #4937?",
+        anchors: ['routing-fleet', '#4937', 'per-region'] },
+      { text: "Has Henri Laurent been added as a decision-maker on Northwind?",
+        anchors: ['Henri Laurent', 'Northwind'] },
+    ],
+    [
+      { text: "What's Northwind's current account tier and renewal date?",
+        anchors: ['Team plan', '2026-09-15'] },
+      { text: "Did the VAT FR12345678901 update flow through to invoices?",
+        anchors: ['FR12345678901', 'VAT'] },
+      { text: "Remind me — are we still paging EU on-call directly for high-sev tickets?",
+        anchors: ['EU on-call', 'high-sev'] },
+    ],
+    [
+      { text: "What's the timeline on the per-event-type webhook filters request?",
+        anchors: ['per-event-type', 'webhook filters'] },
+      { text: "Confirm the backfill settings: 200 episodes/call, 4-wide?",
+        anchors: ['200 episodes/call', '4-wide'] },
+      { text: "Has the customs-clearance use case been logged as a follow-up?",
+        anchors: ['customs clearance'] },
+    ],
+  ],
+  // Stratus / Priya
+  'coding-assistant': [
+    [
+      { text: "Did PR #412 close out the auth-middleware refactor?",
+        anchors: ['PR #412', 'auth-middleware'] },
+      { text: "What was the fix for issue #219's intermittent 500s on the pricing endpoint?",
+        anchors: ['#219', 'pricing'] },
+      { text: "Is FLAG_DASHBOARD_V2 still at 25% in production?",
+        anchors: ['FLAG_DASHBOARD_V2', '25%'] },
+    ],
+    [
+      { text: "Remind me of the review checklist before style nits.",
+        anchors: ['review checklist'] },
+      { text: "Are we still Tailwind-only — no CSS-in-JS, no styled-components?",
+        anchors: ['Tailwind', 'CSS-in-JS'] },
+      { text: "Why did ADR-007 land on Postgres + SQLModel for the pricing service?",
+        anchors: ['ADR-007', 'Postgres', 'SQLModel'] },
+    ],
+    [
+      { text: "Was the 100-concurrent invariant test in PR #389 the session-pool race fix?",
+        anchors: ['PR #389', '100-concurrent'] },
+      { text: "Did Olu's first PR — the ADR index — get approved?",
+        anchors: ['Olu', 'ADR'] },
+      { text: "Is `@stratus/types` ready for the FE + TS SDK after pnpm install?",
+        anchors: ['@stratus/types', 'pnpm'] },
+    ],
+  ],
+  'sales-copilot': [
+    [
+      { text: "What's the status of the Acme Corp expansion deal?",
+        anchors: ['Acme'] },
+      { text: "Did Cirrus's 60-day PoC with 200 robots kick off?",
+        anchors: ['Cirrus', '200 robots', '60-day'] },
+      { text: "Is BetaTech's order form still due 2026-05-10?",
+        anchors: ['BetaTech', '2026-05-10'] },
+    ],
+    [
+      { text: "Did Acme's expansion close at +$24k ARR with the 15% discount?",
+        anchors: ['$24k', '15%'] },
+      { text: "What did David Kim ask for — SLA-breach demo + Linear handoff?",
+        anchors: ['David Kim', 'SLA-breach', 'Linear'] },
+      { text: "Has Delta Health's BAA been counter-signed before PoC kickoff?",
+        anchors: ['Delta Health', 'BAA'] },
+    ],
+    [
+      { text: "When's Sarah Chen's next 30-min Tuesday slot?",
+        anchors: ['Sarah Chen', 'Tuesday'] },
+      { text: "Remind me of our wedge vs Mem0 on Cirrus — deterministic ranking?",
+        anchors: ['Mem0', 'deterministic ranking'] },
+      { text: "Recap the Q close: $94k ARR breakdown.",
+        anchors: ['$94k'] },
+    ],
+  ],
+  // nimbus-api / Riya Patel
+  'devops-agent': [
+    [
+      { text: "Was INC-2026-03-09 fully resolved with PgBouncer + pool=50?",
+        anchors: ['INC-2026-03-09', 'PgBouncer'] },
+      { text: "Are we still tracking 99.99% against the 99.95% monthly SLA?",
+        anchors: ['99.99%', '99.95%'] },
+      { text: "Did the lhr scale-up from 1→2 machines on 2026-05-08 hold?",
+        anchors: ['lhr', '2026-05-08'] },
+    ],
+    [
+      { text: "Show me the rollback runbook — `fly deploy --image-label <previous>`?",
+        anchors: ['image-label', 'fly deploy'] },
+      { text: "What did PR #312 cap llm_in_flight at?",
+        anchors: ['PR #312', 'llm_in_flight'] },
+      { text: "When's the next 90-day secret rotation — 2026-06-12?",
+        anchors: ['2026-06-12', '90-day'] },
+    ],
+    [
+      { text: "How long did the last DR drill take? Riya led it.",
+        anchors: ['DR drill', 'Riya'] },
+      { text: "Did PR #327 add the bluegreen strategy for high-risk migrations?",
+        anchors: ['PR #327', 'bluegreen'] },
+      { text: "Is Datadog still our pick over Grafana Cloud until the 2027 bill review?",
+        anchors: ['Datadog', 'Grafana Cloud', '2027'] },
+    ],
+  ],
+  'research-assistant': [
+    [
+      { text: "Recap the April 28 experiment: 0.81 vs 0.34 vs 0.62.",
+        anchors: ['0.81', '0.34', '0.62'] },
+      { text: "Is Section 3 locked since Mei agreed on 2026-04-15?",
+        anchors: ['Section 3', 'Mei', '2026-04-15'] },
+      { text: "When's the NeurIPS abstract due — 2026-08-15?",
+        anchors: ['NeurIPS', '2026-08-15'] },
+    ],
+    [
+      { text: "Compiler-density: LLM 2× density, 1.7× recall vs heuristic — confirm?",
+        anchors: ['compiler-density', '1.7×'] },
+      { text: "Did Voigt 2026 (temporal validity) make the reading queue?",
+        anchors: ['Voigt 2026', 'temporal validity'] },
+      { text: "Was Provenance-Bound Retrieval accepted as an ICLR 2026 poster?",
+        anchors: ['ICLR 2026', 'Provenance-Bound', 'poster'] },
+    ],
+    [
+      { text: "Cite Park 2024 — Generative Agents, retrieval-time grading?",
+        anchors: ['Park 2024', 'Generative Agents'] },
+      { text: "Format reminder: Zotero + BibTeX, no Mendeley/Notion?",
+        anchors: ['Zotero', 'BibTeX', 'Mendeley'] },
+      { text: "Morning reading block still 2× 90m before 11:00 PT?",
+        anchors: ['11:00 PT', '90m'] },
+    ],
+  ],
+  // Docs-grounded persona — anchors are facts/tokens that live in the
+  // statewave-support-agent pack (the docs subject), not in a per-user
+  // memory. The Ask Support entry routes straight here, so prompts are
+  // framed as a Statewave user landing on the docs.
+  'statewave-support': [
+    [
+      { text: "How do I get started with Statewave?",
+        anchors: ['Statewave', 'Docker'] },
+      { text: "How does Statewave memory compile from raw episodes?",
+        anchors: ['compilation', 'episodes'] },
+      { text: "Which SDK should I install — Python or TypeScript?",
+        anchors: ['pip install statewave-py', 'npm install statewave-ts'] },
+    ],
+    [
+      { text: "Can I self-host Statewave?",
+        anchors: ['self-hosted'] },
+      { text: "How is Statewave different from Mem0?",
+        anchors: ['Mem0'] },
+      { text: "What license is the core server under?",
+        anchors: ['AGPL-3.0'] },
+    ],
+    [
+      { text: "What data leaves the box during heuristic compilation?",
+        anchors: ['no data egress', 'heuristic'] },
+      { text: "Can I use an email as a subject ID?",
+        anchors: ['emails', 'subject IDs'] },
+      { text: "How do I split a too-coarse subject?",
+        anchors: ['split', 'too-coarse'] },
+    ],
+  ],
+}
+
 export function ChatWidget() {
   const { resolvedTheme } = useTheme()
   const isDark = resolvedTheme === 'dark'
@@ -132,136 +328,6 @@ export function ChatWidget() {
   const inputRef = useRef<HTMLInputElement>(null)
   const expandedRef = useRef<HTMLDivElement>(null)
 
-  // Multi-round suggestions based on ACTUAL memories in the backend
-  // Each array is a round of follow-up questions that flow naturally
-  const SUGGESTIONS: Record<string, string[][]> = {
-    'support-agent': [
-      // Round 1: Initial contact
-      [
-        "I'm having that login error again on mobile",
-        "What was the AUTH-503 issue about?",
-        "Did my $50 refund go through?",
-      ],
-      // Round 2: Follow-ups
-      [
-        "Can you escalate this to L2 like last time?",
-        "I prefer email — can you send me a summary?",
-        "What's my current account tier?",
-      ],
-      // Round 3: More follow-ups
-      [
-        "Send me another password reset link",
-        "Was my billing discrepancy resolved?",
-        "I'm still getting the same error on my phone",
-      ],
-    ],
-    'coding-assistant': [
-      // Round 1: Current work
-      [
-        "I think there's another memory leak in useEffect",
-        "What was that useDebounce refactor suggestion?",
-        "Did PR #142 get merged?",
-      ],
-      // Round 2: Follow-ups
-      [
-        "Can you check the WebSocket cleanup code?",
-        "What's our current test coverage?",
-        "Is v2.4.0-rc1 still on staging?",
-      ],
-      // Round 3: More context
-      [
-        "Remind me of my coding style preferences",
-        "Help me with a Next.js + Prisma query",
-        "What was the SearchInput issue about?",
-      ],
-    ],
-    'sales-copilot': [
-      // Round 1: Deal status
-      [
-        "What's the status of the Acme Corp deal?",
-        "Did the CTO demo happen Thursday?",
-        "Any news on the legal review?",
-      ],
-      // Round 2: Follow-ups
-      [
-        "What security objections did we address?",
-        "Remind me of the pricing we proposed",
-        "What changes did legal want on data retention?",
-      ],
-      // Round 3: Next steps
-      [
-        "Who's the contact at Acme Corp?",
-        "When should I follow up on the contract?",
-        "What's the total ARR if they sign?",
-      ],
-    ],
-    'devops-agent': [
-      // Round 1: Current alerts
-      [
-        "Any issues with node-7 lately?",
-        "What triggered the last rollback?",
-        "How many replicas are running now?",
-      ],
-      // Round 2: Follow-ups
-      [
-        "What was the root cause in the post-mortem?",
-        "Show me the new runbook procedure",
-        "What's our current uptime against SLA?",
-      ],
-      // Round 3: Infrastructure
-      [
-        "How many GKE clusters do we have?",
-        "Did the HPA scaling work correctly?",
-        "Is v2.3.0 still stable after the rollback?",
-      ],
-    ],
-    'research-assistant': [
-      // Round 1: Recent papers
-      [
-        "Summarize the LoRA paper findings",
-        "How does LoRA compare to full fine-tuning?",
-        "What papers did I save to Notion?",
-      ],
-      // Round 2: Follow-ups
-      [
-        "Show me the comparison table you made",
-        "What's the citation graph for LoRA?",
-        "Explain the Attention Is All You Need paper",
-      ],
-      // Round 3: Preferences
-      [
-        "Find more arxiv papers on this topic",
-        "What parameter-efficient methods did we compare?",
-        "What's the 10x cost reduction about?",
-      ],
-    ],
-    // Docs-grounded persona — answers come from the official docs pack
-    // (subject `statewave-support-docs`). The Ask Support entry routes
-    // straight to this persona, so the prompts are framed as practical
-    // questions a real Statewave user would land here with — getting
-    // started, integrating, self-hosting, comparisons.
-    'statewave-support': [
-      // Round 1: getting started + core concepts
-      [
-        "How do I get started with Statewave?",
-        "How does Statewave memory work?",
-        "How do I connect Statewave to my agent?",
-      ],
-      // Round 2: deployment, comparisons, licensing
-      [
-        "Can I self-host Statewave?",
-        "How is Statewave different from vector memory?",
-        "What license should I use for my company?",
-      ],
-      // Round 3: deeper / operational follow-ups
-      [
-        "How does context ranking work?",
-        "What data leaves the box during compilation?",
-        "How do I back up and restore a subject?",
-      ],
-    ],
-  }
-
   // Suggestions are keyed on persona (not subject — every visitor shares one
   // subject; persona only biases the system prompt + suggestion chips).
   const personaSuggestions = SUGGESTIONS[persona] ?? []
@@ -274,12 +340,14 @@ export function ChatWidget() {
     setSuggestionRound(0)
   }, [persona])
 
-  // Auto-focus input when widget opens
+  // Auto-focus input when widget opens, and refocus once a turn finishes —
+  // the input is `disabled` while isLoading, which blurs it on submit, and
+  // browsers don't restore focus when `disabled` flips back to false.
   useEffect(() => {
-    if (isOpen && !isMinimized) {
-      setTimeout(() => inputRef.current?.focus(), 100)
-    }
-  }, [isOpen, isMinimized, persona])
+    if (!isOpen || isMinimized || isLoading) return
+    const id = window.setTimeout(() => inputRef.current?.focus(), 50)
+    return () => window.clearTimeout(id)
+  }, [isOpen, isMinimized, persona, isLoading])
 
   // Click anywhere outside the expanded widget minimizes it.
   // Defer listener registration so the same click that opened the widget
@@ -1257,7 +1325,7 @@ export function ChatWidget() {
                   type="button"
                   onClick={async () => {
                     // Send the suggestion directly and advance to next round
-                    await sendMessage(s)
+                    await sendMessage(s.text)
                     setSuggestionRound(r => r + 1)
                     // Auto-advance the tour from "try a question" once the
                     // visitor actually tries one.
@@ -1265,7 +1333,7 @@ export function ChatWidget() {
                   }}
                   className="text-[10px] sm:text-[11px] px-2.5 py-1.5 rounded-md border border-accent/30 bg-accent/10 text-accent hover:bg-accent/20 hover:border-accent/50 transition-all cursor-pointer max-w-full text-left whitespace-normal leading-snug break-anywhere"
                 >
-                  {s}
+                  {s.text}
                 </button>
               ))}
             </div>
