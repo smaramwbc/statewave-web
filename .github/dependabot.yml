@@ -9,6 +9,19 @@ updates:
       - "dependencies"
     commit-message:
       prefix: "chore(deps):"
+    # Tightly-coupled packages must move together. React enforces an
+    # equality check between `react` and `react-dom` at module load —
+    # bumping one without the other breaks every test that mounts a
+    # component (smaramwbc/statewave-web#23 vs #20). The `@types/*`
+    # packages track the runtime version too. Group them all so a
+    # patch / minor / major bump arrives as a single PR.
+    groups:
+      react:
+        patterns:
+          - "react"
+          - "react-dom"
+          - "@types/react"
+          - "@types/react-dom"
 
   - package-ecosystem: "github-actions"
     directory: "/"
