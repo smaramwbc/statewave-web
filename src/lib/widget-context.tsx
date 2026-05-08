@@ -153,7 +153,7 @@ interface ChatWidgetActions {
    * into the visitor's subject if it is empty, then refreshes state. No-op
    * for visitors that already have data.
    */
-  seedFromPersona: (persona: string) => Promise<boolean>
+  seedFromPersona: (persona: string, signal?: AbortSignal) => Promise<boolean>
   /** Internal — used by useTrackDemoCta. Increment when an on-page CTA enters
    *  the viewport, decrement when it leaves. */
   _bumpVisibleCta: (delta: 1 | -1) => void
@@ -409,12 +409,12 @@ export function ChatWidgetProvider({ children }: { children: ReactNode }) {
     completeTour()
   }, [completeTour])
 
-  const refreshState = useCallback(async (forPersona?: string) => {
+  const refreshState = useCallback(async (forPersona?: string, signal?: AbortSignal) => {
     try {
       const params = new URLSearchParams()
       if (forPersona) params.set('persona', forPersona)
       const url = `/api/demo-state${params.size ? `?${params.toString()}` : ''}`
-      const resp = await fetch(url, { credentials: 'same-origin' })
+      const resp = await fetch(url, { credentials: 'same-origin', signal })
       if (!resp.ok) return null
       const data = (await resp.json()) as DemoStateResponse
       setSubjectId(data.subjectId)
@@ -432,12 +432,13 @@ export function ChatWidgetProvider({ children }: { children: ReactNode }) {
       // session, not a wall of replayed text from earlier visits.
       return data
     } catch (err) {
+      if ((err as { name?: string })?.name === 'AbortError') return null
       console.warn('[widget] Failed to refresh demo state:', err)
       return null
     }
   }, [])
 
-  const seedFromPersona = useCallback(async (rawPersona: string): Promise<boolean> => {
+  const seedFromPersona = useCallback(async (rawPersona: string, signal?: AbortSignal): Promise<boolean> => {
     const p = normalizePersona(rawPersona)
     try {
       const resp = await fetch('/api/demo-seed', {
@@ -445,15 +446,17 @@ export function ChatWidgetProvider({ children }: { children: ReactNode }) {
         headers: { 'Content-Type': 'application/json' },
         credentials: 'same-origin',
         body: JSON.stringify({ persona: p }),
+        signal,
       })
       if (!resp.ok) return false
       const data = (await resp.json()) as { seeded?: boolean }
       // Always refresh against the persona we just seeded — even when
       // seeded=false (already populated) we want the latest counts/memories
       // on the inspector.
-      await refreshState(p)
+      await refreshState(p, signal)
       return data.seeded === true
     } catch (err) {
+      if ((err as { name?: string })?.name === 'AbortError') return false
       console.warn('[widget] seed failed:', err)
       return false
     }
@@ -731,19 +734,19 @@ export function ChatWidgetProvider({ children }: { children: ReactNode }) {
   // Docs-shared default personas (theoretical) skip seeding because their
   // pack is built upstream from official docs, not from a showcase subject.
   useEffect(() => {
-    let cancelled = false
+    const controller = new AbortController()
     void (async () => {
-      const data = await refreshState(DEFAULT_PERSONA.id)
-      if (cancelled || !data) return
+      const data = await refreshState(DEFAULT_PERSONA.id, controller.signal)
+      if (controller.signal.aborted || !data) return
       if (
         isVisitorMemoryPersona(DEFAULT_PERSONA.id) &&
         data.episodeCount === 0 &&
         data.memories.length === 0
       ) {
-        await seedFromPersona(DEFAULT_PERSONA.id)
+        await seedFromPersona(DEFAULT_PERSONA.id, controller.signal)
       }
     })()
-    return () => { cancelled = true }
+    return () => controller.abort()
     // Run once on mount. refreshState/seedFromPersona are stable callbacks.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -753,19 +756,23 @@ export function ChatWidgetProvider({ children }: { children: ReactNode }) {
   // the visitor opens the widget. Failure is non-fatal — we leave the state
   // as `null` and the consumer falls back to showing the full catalog.
   useEffect(() => {
-    let cancelled = false
+    const controller = new AbortController()
     void (async () => {
       try {
-        const resp = await fetch('/api/demo-personas', { credentials: 'same-origin' })
+        const resp = await fetch('/api/demo-personas', {
+          credentials: 'same-origin',
+          signal: controller.signal,
+        })
         if (!resp.ok) return
         const data = (await resp.json()) as { available?: string[] }
-        if (cancelled) return
+        if (controller.signal.aborted) return
         if (Array.isArray(data.available)) setAvailablePersonas(data.available)
       } catch (err) {
+        if ((err as { name?: string })?.name === 'AbortError') return
         console.warn('[widget] persona availability fetch failed:', err)
       }
     })()
-    return () => { cancelled = true }
+    return () => controller.abort()
   }, [])
 
   // Deep-link: a visitor landing with `?ask=support` (or `?widget=support`)
