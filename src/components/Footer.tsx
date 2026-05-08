@@ -1,7 +1,7 @@
 import { useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { Logo } from './Logo'
-import { useChatWidget, useTrackDemoCta } from '../lib/widget-context'
+import { useChatWidget, useTrackDemoCta } from '../lib/widget-context-api'
 
 export function Footer() {
   const { openWidget } = useChatWidget()

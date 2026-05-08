@@ -1,6 +1,6 @@
 import { useRef, useEffect, useCallback, useState } from 'react'
 import { useTheme } from '../lib/theme'
-import { useChatWidget } from '../lib/widget-context'
+import { useChatWidget } from '../lib/widget-context-api'
 import { fetchLiveData, type LiveSubjectData } from '../services/statewave-live'
 
 /**

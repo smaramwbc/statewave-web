@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useChatWidget } from '../lib/widget-context'
+import { useChatWidget } from '../lib/widget-context-api'
 
 export function ScrollToTopButton() {
   const [visible, setVisible] = useState(false)

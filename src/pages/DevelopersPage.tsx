@@ -5,7 +5,7 @@ import { Section } from '../components/Section'
 import { Button } from '../components/Button'
 import { Heading } from '../components/Heading'
 import { usePageSEO } from '../lib/seo'
-import { useChatWidget, useTrackDemoCta } from '../lib/widget-context'
+import { useChatWidget, useTrackDemoCta } from '../lib/widget-context-api'
 
 export function DevelopersPage() {
   usePageSEO()

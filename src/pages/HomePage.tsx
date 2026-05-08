@@ -14,7 +14,7 @@ import {
   websiteJsonLd,
 } from '../lib/seo-meta'
 import { FAQ_ENTRIES } from '../lib/faq'
-import { useChatWidget, useTrackDemoCta } from '../lib/widget-context'
+import { useChatWidget, useTrackDemoCta } from '../lib/widget-context-api'
 import { useRef } from 'react'
 
 export function HomePage() {

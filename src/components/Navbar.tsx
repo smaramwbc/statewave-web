@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useState, useEffect, useRef } from 'react'
 import { ThemeSwitcher } from './ThemeSwitcher'
 import { Logo } from './Logo'
-import { useChatWidget } from '../lib/widget-context'
+import { useChatWidget } from '../lib/widget-context-api'
 
 const links = [
   { to: '/product', label: 'How it works' },

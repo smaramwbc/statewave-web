@@ -13,10 +13,8 @@
 import { afterEach, describe, it, expect } from 'vitest'
 import { cleanup, render, screen } from '@testing-library/react'
 import { ThemeProvider } from '../src/lib/theme'
-import {
-  MarkdownMessage,
-  safeUrl,
-} from '../src/components/chat/MarkdownMessage'
+import { MarkdownMessage } from '../src/components/chat/MarkdownMessage'
+import { safeUrl } from '../src/components/chat/safe-url'
 import { MessageBubble } from '../src/components/ChatWidget'
 import type { ChatMessage } from '../src/lib/widget-context'
 

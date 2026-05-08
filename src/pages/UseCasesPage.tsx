@@ -4,9 +4,10 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { Section } from '../components/Section'
 import { Button } from '../components/Button'
 import { Heading } from '../components/Heading'
-import { CardAnchor, slugify } from '../components/CardAnchor'
+import { CardAnchor } from '../components/CardAnchor'
+import { slugify } from '../lib/slugify'
 import { usePageSEO } from '../lib/seo'
-import { useChatWidget, useTrackDemoCta } from '../lib/widget-context'
+import { useChatWidget, useTrackDemoCta } from '../lib/widget-context-api'
 
 /* ─── Hash-based active card highlight ───────────────────────────────────── */
 

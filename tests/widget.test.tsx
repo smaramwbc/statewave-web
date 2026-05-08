@@ -9,13 +9,13 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { BrowserRouter } from 'react-router-dom'
 import { ThemeProvider } from '../src/lib/theme'
+import { ChatWidgetProvider } from '../src/lib/widget-context'
 import {
-  ChatWidgetProvider,
   DEMO_SUBJECTS,
   isDocsSharedPersona,
   isVisitorMemoryPersona,
   personaKind,
-} from '../src/lib/widget-context'
+} from '../src/lib/widget-context-api'
 import { ChatWidget } from '../src/components/ChatWidget'
 
 // Test wrapper
