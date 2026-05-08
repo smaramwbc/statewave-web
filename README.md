@@ -1,5 +1,8 @@
 # Statewave — Marketing Website
 
+[![CI](https://github.com/smaramwbc/statewave-web/workflows/CI/badge.svg)](https://github.com/smaramwbc/statewave-web/actions/workflows/ci.yml)
+[![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
+
 The official product website for [Statewave](https://statewave.ai), the trusted context runtime for AI agents.
 
 > **Live:** [statewave.ai](https://statewave.ai)
