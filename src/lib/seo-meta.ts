@@ -117,7 +117,7 @@ export const PAGE_META: Record<RouteKey, PageMeta> = {
   '/connectors': {
     title: 'Connectors — Feed GitHub, Docs, Slack, and More into Statewave Memory',
     description:
-      'Statewave Connectors turn GitHub issues and PRs, Slack and Discord threads, support tickets, Markdown/ADRs, email, and workflow events into normalized episodes — modular packages so you install only the connectors you need.',
+      'Statewave Connectors turn GitHub issues and PRs, Slack channels and threads, n8n workflow runs, Zapier zap webhooks, Markdown/ADRs, and more into normalized episodes — modular packages so you install only the connectors you need.',
     breadcrumbLabel: 'Connectors',
     ogType: 'article',
     priority: 0.8,
