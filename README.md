@@ -1,4 +1,4 @@
-# Statewave — Marketing Website
+# Statewave Website
 
 [![CI](https://github.com/smaramwbc/statewave-web/workflows/CI/badge.svg)](https://github.com/smaramwbc/statewave-web/actions/workflows/ci.yml)
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
