@@ -326,14 +326,15 @@ Custom domain: `statewave.ai` (configure in Vercel dashboard).
 
 ## Ecosystem
 
-| Repo | Description |
-|------|-------------|
-| [statewave](https://github.com/smaramwbc/statewave) | Core server — API, domain model, DB, services |
-| [statewave-py](https://github.com/smaramwbc/statewave-py) | Python SDK |
-| [statewave-ts](https://github.com/smaramwbc/statewave-ts) | TypeScript SDK |
-| [statewave-docs](https://github.com/smaramwbc/statewave-docs) | Architecture, API contracts, ADRs |
-| [statewave-examples](https://github.com/smaramwbc/statewave-examples) | Runnable examples |
-| [statewave-admin](https://github.com/smaramwbc/statewave-admin) | Operator console (read-only) |
+| Project | Description |
+|---|---|
+| [Server](https://github.com/smaramwbc/statewave) | Core server — API, domain model, DB, services |
+| [Python SDK](https://github.com/smaramwbc/statewave-py) | `pip install statewave` |
+| [TypeScript SDK](https://github.com/smaramwbc/statewave-ts) | `npm install @statewavedev/sdk` |
+| [Connectors](https://github.com/smaramwbc/statewave-connectors) | `@statewavedev/connectors-*` |
+| [Docs](https://github.com/smaramwbc/statewave-docs) | Architecture, API contracts, ADRs |
+| [Examples](https://github.com/smaramwbc/statewave-examples) | Runnable examples |
+| [Admin](https://github.com/smaramwbc/statewave-admin) | Operator console (read-only) |
 
 ## GitHub repo settings
 

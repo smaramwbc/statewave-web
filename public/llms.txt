@@ -35,10 +35,11 @@ Statewave is a self-hostable memory runtime for LLM applications. It records raw
 
 ## Install and run
 
-- Server: clone [statewave](https://github.com/smaramwbc/statewave) and run `docker compose up -d` — full local stack on `http://localhost:8100`.
-- Python SDK: `pip install statewave` — see [statewave-py](https://github.com/smaramwbc/statewave-py).
-- TypeScript SDK: `npm install @statewavedev/sdk` — see [statewave-ts](https://github.com/smaramwbc/statewave-ts) (renamed from `statewave-ts` on npm in v0.7.0; the GitHub repo keeps its name).
-- Examples (quickstart, support agent, coding agent, eval suite, benchmarks): [statewave-examples](https://github.com/smaramwbc/statewave-examples).
+- Server: clone <https://github.com/smaramwbc/statewave> and run `docker compose up -d` — full local stack on `http://localhost:8100`.
+- Python SDK: `pip install statewave` — source at <https://github.com/smaramwbc/statewave-py>.
+- TypeScript SDK: `npm install @statewavedev/sdk` — source at <https://github.com/smaramwbc/statewave-ts>.
+- Connectors: `@statewavedev/connectors-*` for GitHub, Markdown/docs, MCP server, and more — modular packages, install only what you need; source at <https://github.com/smaramwbc/statewave-connectors>.
+- Examples (quickstart, support agent, coding agent, eval suite, benchmarks): <https://github.com/smaramwbc/statewave-examples>.
 
 ## Integrations
 
@@ -50,10 +51,11 @@ Statewave is a self-hostable memory runtime for LLM applications. It records raw
 
 ## Source repositories
 
-- [statewave](https://github.com/smaramwbc/statewave) — core server (AGPL-3.0).
-- [statewave-py](https://github.com/smaramwbc/statewave-py) — Python SDK (Apache-2.0).
-- [statewave-ts](https://github.com/smaramwbc/statewave-ts) — TypeScript SDK (Apache-2.0).
-- [statewave-docs](https://github.com/smaramwbc/statewave-docs) — architecture, API contracts, ADRs.
+- <https://github.com/smaramwbc/statewave> — core server (AGPL-3.0).
+- <https://github.com/smaramwbc/statewave-py> — Python SDK, published as `statewave` on PyPI (Apache-2.0).
+- <https://github.com/smaramwbc/statewave-ts> — TypeScript SDK, published as `@statewavedev/sdk` on npm (Apache-2.0).
+- <https://github.com/smaramwbc/statewave-connectors> — connector ecosystem, published under the `@statewavedev/*` npm scope (Apache-2.0).
+- <https://github.com/smaramwbc/statewave-docs> — architecture, API contracts, ADRs.
 - [statewave-examples](https://github.com/smaramwbc/statewave-examples) — runnable end-to-end examples.
 - [statewave-admin](https://github.com/smaramwbc/statewave-admin) — read-only operator console.
 - [statewave-web](https://github.com/smaramwbc/statewave-web) — this marketing site (Apache-2.0).

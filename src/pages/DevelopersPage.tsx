@@ -55,7 +55,7 @@ export function DevelopersPage() {
             },
             {
               title: 'TypeScript SDK',
-              desc: 'Fetch-based client with full type definitions. npm install @statewavedev/sdk (renamed from statewave-ts in v0.7.0).',
+              desc: 'Fetch-based client with full type definitions. npm install @statewavedev/sdk.',
               href: 'https://github.com/smaramwbc/statewave-ts',
               tag: 'SDK',
             },
