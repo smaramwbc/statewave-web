@@ -37,6 +37,7 @@ export function HomePage() {
       <WhatSection />
       <WhyNotSection />
       <UseCasesSection />
+      <ConnectorsTeaserSection />
       <SupportProofSection />
       <CapabilitiesSection />
       <ProofSection />
@@ -383,6 +384,94 @@ function UseCasesSection() {
   )
 }
 
+function ConnectorsTeaserSection() {
+  // Slim teaser — full detail lives at /connectors. Goal: surface "not just
+  // live chats" without bloating the home page. Six pills + one CTA.
+  const sources: ReadonlyArray<{ label: string; shape: string; status: 'available' | 'planned' }> = [
+    { label: 'GitHub', shape: 'Repo memory', status: 'available' },
+    { label: 'Markdown / docs', shape: 'Decision memory', status: 'available' },
+    { label: 'MCP', shape: 'Agent memory', status: 'available' },
+    { label: 'Slack / Discord', shape: 'Community memory', status: 'planned' },
+    { label: 'Zendesk / Intercom', shape: 'Customer memory', status: 'planned' },
+    { label: 'Gmail · n8n · Zapier', shape: 'Inbox & workflow memory', status: 'planned' },
+  ]
+
+  return (
+    <Section>
+      <div className="grid md:grid-cols-2 gap-10 md:gap-16 items-start">
+        <div className="min-w-0">
+          <Heading
+            id="connectors"
+            className="text-3xl md:text-4xl font-bold text-theme-primary tracking-tight"
+          >
+            Not just live chats — connect your tools
+          </Heading>
+          <p className="mt-5 text-theme-muted leading-relaxed">
+            Connectors feed real-world events into Statewave as durable episodic memory. Agents
+            recall projects, customers, communities, decisions, and workflows — by subject — without
+            stuffing raw history into a prompt.
+          </p>
+          <p className="mt-3 text-sm text-theme-muted/85 leading-relaxed">
+            Modular packages — install only what you need. The core stays clean; connectors are
+            optional.
+          </p>
+          <div className="mt-7 flex flex-wrap items-center gap-3">
+            <Link
+              to="/connectors"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium border border-accent/25 bg-accent/[0.06] text-accent hover:bg-accent/10 hover:border-accent/40 transition-colors"
+            >
+              Explore Statewave Connectors
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              </svg>
+            </Link>
+            <a
+              href="https://github.com/smaramwbc/statewave-docs/blob/main/connectors/index.md"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 text-sm font-medium text-theme-secondary hover:text-accent transition-colors"
+            >
+              View connector docs
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5h5v5M19 5l-9 9M5 7v12h12" />
+              </svg>
+            </a>
+          </div>
+        </div>
+
+        <div className="min-w-0 grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {sources.map((s, i) => (
+            <motion.div
+              key={s.label}
+              initial={{ opacity: 0, y: 12 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.04, duration: 0.35 }}
+              className="rounded-xl border border-theme-border bg-surface-1 p-4 flex items-start justify-between gap-3"
+            >
+              <div className="min-w-0">
+                <p className="text-[11px] font-medium uppercase tracking-wider text-accent">
+                  {s.shape}
+                </p>
+                <p className="mt-1 text-sm font-semibold text-theme-primary truncate">{s.label}</p>
+              </div>
+              <span
+                className={`shrink-0 text-[10px] font-medium uppercase tracking-wider px-2 py-0.5 rounded-full ${
+                  s.status === 'available'
+                    ? 'bg-accent/10 text-accent'
+                    : 'bg-surface-2 text-theme-muted'
+                }`}
+              >
+                {s.status === 'available' ? 'Available' : 'Coming soon'}
+              </span>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </Section>
+  )
+}
+
 function SupportProofSection() {
   return (
     <Section className="bg-surface-1/50">
@@ -537,7 +626,7 @@ function ProofSection() {
 function DeveloperSection() {
   const [tab, setTab] = React.useState<'python' | 'typescript'>('python')
 
-  const pythonCode = `$ pip install statewave-py
+  const pythonCode = `$ pip install statewave
 
 from statewave import StatewaveClient
 
@@ -552,9 +641,9 @@ ctx = sw.get_context(
 print(ctx.assembled_context)
 # → Ranked, token-bounded, provenance-traced`
 
-  const tsCode = `$ npm install statewave-ts
+  const tsCode = `$ npm install @statewavedev/sdk
 
-import { StatewaveClient } from "statewave-ts";
+import { StatewaveClient } from "@statewavedev/sdk";
 
 const sw = new StatewaveClient("http://localhost:8100");
 

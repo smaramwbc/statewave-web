@@ -21,6 +21,11 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://statewave.ai/connectors</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://statewave.ai/developers</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>

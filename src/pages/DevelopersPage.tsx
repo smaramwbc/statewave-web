@@ -49,13 +49,13 @@ export function DevelopersPage() {
             },
             {
               title: 'Python SDK',
-              desc: 'Sync + async clients, Pydantic models, retry with backoff. pip install statewave-py.',
+              desc: 'Sync + async clients, Pydantic models, retry with backoff. pip install statewave.',
               href: 'https://github.com/smaramwbc/statewave-py',
               tag: 'SDK',
             },
             {
               title: 'TypeScript SDK',
-              desc: 'Fetch-based client with full type definitions. npm install statewave-ts.',
+              desc: 'Fetch-based client with full type definitions. npm install @statewavedev/sdk (renamed from statewave-ts in v0.7.0).',
               href: 'https://github.com/smaramwbc/statewave-ts',
               tag: 'SDK',
             },
@@ -156,11 +156,11 @@ export function DevelopersPage() {
           <div className="mt-8 grid md:grid-cols-2 gap-6 max-w-3xl mx-auto">
             <div className="rounded-xl border border-theme-border bg-surface-2 p-6 text-left">
               <p className="text-xs text-theme-muted font-mono mb-3">Python</p>
-              <code className="text-sm text-theme-secondary">pip install statewave-py</code>
+              <code className="text-sm text-theme-secondary">pip install statewave</code>
             </div>
             <div className="rounded-xl border border-theme-border bg-surface-2 p-6 text-left">
               <p className="text-xs text-theme-muted font-mono mb-3">TypeScript</p>
-              <code className="text-sm text-theme-secondary">npm install statewave-ts</code>
+              <code className="text-sm text-theme-secondary">npm install @statewavedev/sdk</code>
             </div>
           </div>
           <div className="mt-12 flex flex-wrap justify-center gap-4">

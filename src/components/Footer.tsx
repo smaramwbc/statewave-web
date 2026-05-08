@@ -30,6 +30,7 @@ export function Footer() {
               <li><Link to="/product" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">How it works</Link></li>
               <li><Link to="/why" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">Why Statewave</Link></li>
               <li><Link to="/use-cases" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">Use Cases</Link></li>
+              <li><Link to="/connectors" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">Connectors</Link></li>
               <li>
                 <button
                   ref={footerDemoRef}

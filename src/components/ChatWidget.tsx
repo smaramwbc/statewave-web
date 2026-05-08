@@ -227,7 +227,7 @@ export const SUGGESTIONS: Record<
       { text: "How does Statewave memory compile from raw episodes?",
         anchors: ['compilation', 'episodes'] },
       { text: "Which SDK should I install — Python or TypeScript?",
-        anchors: ['pip install statewave-py', 'npm install statewave-ts'] },
+        anchors: ['pip install statewave', 'npm install @statewavedev/sdk'] },
     ],
     [
       { text: "Can I self-host Statewave?",

@@ -583,7 +583,7 @@ describe('POST /api/widget-chat — citations align with top-K retrieved memorie
             subject_id: DOCS_SUBJECT_ID,
             task: 't',
             facts: [
-              { id: 'm-1', kind: 'profile_fact', content: 'Install with npm install statewave-ts.', confidence: 0.95, source_episode_ids: ['top-1'] },
+              { id: 'm-1', kind: 'profile_fact', content: 'Install with npm install @statewavedev/sdk.', confidence: 0.95, source_episode_ids: ['top-1'] },
               { id: 'm-2', kind: 'profile_fact', content: 'GET /v1/memories/search returns ranked memories.', confidence: 0.92, source_episode_ids: ['top-2'] },
               { id: 'm-3', kind: 'profile_fact', content: 'Statewave is a memory runtime for AI agents.', confidence: 0.9, source_episode_ids: ['top-3'] },
               { id: 'm-4', kind: 'profile_fact', content: 'Statewave runs on Postgres + pgvector.', confidence: 0.88, source_episode_ids: ['top-3'] },
@@ -608,7 +608,7 @@ describe('POST /api/widget-chat — citations align with top-K retrieved memorie
         return new Response(JSON.stringify({ memories_created: 0, memories: [] }), { status: 200 })
       }
       if (url.includes('/v1/llm/complete')) {
-        return new Response(JSON.stringify({ reply: 'Use npm install statewave-ts.' }), { status: 200 })
+        return new Response(JSON.stringify({ reply: 'Use npm install @statewavedev/sdk.' }), { status: 200 })
       }
       throw new Error(`Unexpected fetch in citation top-K test: ${url}`)
     })

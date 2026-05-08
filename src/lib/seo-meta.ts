@@ -37,7 +37,13 @@ export const REPOS = {
 
 /* ─── Route table ────────────────────────────────────────────────────────── */
 
-export type RouteKey = '/' | '/product' | '/why' | '/use-cases' | '/developers'
+export type RouteKey =
+  | '/'
+  | '/product'
+  | '/why'
+  | '/use-cases'
+  | '/connectors'
+  | '/developers'
 
 /** Canonical, indexable public routes. Order matters — used to render the
  *  sitemap and the llms.txt index. */
@@ -46,6 +52,7 @@ export const PUBLIC_ROUTES: readonly RouteKey[] = [
   '/product',
   '/why',
   '/use-cases',
+  '/connectors',
   '/developers',
 ] as const
 
@@ -103,6 +110,15 @@ export const PAGE_META: Record<RouteKey, PageMeta> = {
     description:
       'What you can build with Statewave: support agents with durable customer memory, coding copilots with repo memory, account intelligence, voice continuity, multi-agent infrastructure, and connector patterns.',
     breadcrumbLabel: 'Use Cases',
+    ogType: 'article',
+    priority: 0.8,
+    changefreq: 'monthly',
+  },
+  '/connectors': {
+    title: 'Connectors — Feed GitHub, Docs, Slack, and More into Statewave Memory',
+    description:
+      'Statewave Connectors turn GitHub issues and PRs, Slack and Discord threads, support tickets, Markdown/ADRs, email, and workflow events into normalized episodes — modular packages so you install only the connectors you need.',
+    breadcrumbLabel: 'Connectors',
     ogType: 'article',
     priority: 0.8,
     changefreq: 'monthly',

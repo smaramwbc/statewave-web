@@ -9,6 +9,7 @@ const links = [
   { to: '/product', label: 'How it works' },
   { to: '/why', label: 'Why Statewave' },
   { to: '/use-cases', label: 'Use Cases' },
+  { to: '/connectors', label: 'Connectors' },
   { to: '/developers', label: 'Developers' },
 ]
 

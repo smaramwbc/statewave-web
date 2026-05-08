@@ -19,6 +19,7 @@ Statewave is a self-hostable memory runtime for LLM applications. It records raw
 - [How It Works](https://statewave.ai/product): the runtime data lifecycle — record, compile, retrieve, govern. Includes the privacy/data-flow table and the scoring model.
 - [Why Statewave](https://statewave.ai/why): the manifesto plus a technical comparison vs. prompt stuffing and naive RAG.
 - [Use Cases](https://statewave.ai/use-cases): support agents, coding copilots, account intelligence, voice continuity, multi-agent infrastructure, plus connector and bootstrap patterns.
+- [Connectors](https://statewave.ai/connectors): modular packages that feed real-world events (GitHub, Markdown/ADRs, MCP, Slack, Discord, Zendesk, Intercom, Freshdesk, Notion, Gmail, n8n, Zapier) into Statewave as normalized episodes — install only what you need.
 - [Developers](https://statewave.ai/developers): SDK install, links to docs, API reference, and examples.
 
 ## Documentation
@@ -35,8 +36,8 @@ Statewave is a self-hostable memory runtime for LLM applications. It records raw
 ## Install and run
 
 - Server: clone [statewave](https://github.com/smaramwbc/statewave) and run `docker compose up -d` — full local stack on `http://localhost:8100`.
-- Python SDK: `pip install statewave-py` — see [statewave-py](https://github.com/smaramwbc/statewave-py).
-- TypeScript SDK: `npm install statewave-ts` — see [statewave-ts](https://github.com/smaramwbc/statewave-ts).
+- Python SDK: `pip install statewave` — see [statewave-py](https://github.com/smaramwbc/statewave-py).
+- TypeScript SDK: `npm install @statewavedev/sdk` — see [statewave-ts](https://github.com/smaramwbc/statewave-ts) (renamed from `statewave-ts` on npm in v0.7.0; the GitHub repo keeps its name).
 - Examples (quickstart, support agent, coding agent, eval suite, benchmarks): [statewave-examples](https://github.com/smaramwbc/statewave-examples).
 
 ## Integrations

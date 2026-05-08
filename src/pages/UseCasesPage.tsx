@@ -1,6 +1,6 @@
 import { useMemo, useState, useRef } from 'react'
 import { motion } from 'framer-motion'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { Section } from '../components/Section'
 import { Button } from '../components/Button'
 import { Heading } from '../components/Heading'
@@ -40,6 +40,13 @@ interface Connector {
   title: string
   description: string
   group: 'support' | 'engineering' | 'docs' | 'crm' | 'realtime' | 'events'
+  /** When set, this card maps to a real package in the @statewavedev/connectors-* ecosystem. */
+  package?: {
+    /** 'available' = Phase-1 package shipped; 'planned' = on the connector roadmap. */
+    status: 'available' | 'planned'
+    /** Optional anchor in /connectors or external doc URL — defaults to /connectors. */
+    docHref?: string
+  }
 }
 
 /* ─── Categories ─────────────────────────────────────────────────────────── */
@@ -381,26 +388,26 @@ const CONNECTOR_GROUPS: { id: Connector['group']; label: string; description: st
 ]
 
 const CONNECTORS: Connector[] = [
-  { title: 'Zendesk ticket import', description: 'Backfill historical tickets and comments as episodes per customer subject.', group: 'support' },
-  { title: 'Intercom conversation import', description: 'Ingest closed conversations and macros to bootstrap support memory.', group: 'support' },
+  { title: 'Zendesk ticket import', description: 'Backfill historical tickets and comments as episodes per customer subject.', group: 'support', package: { status: 'planned', docHref: 'https://github.com/smaramwbc/statewave-docs/blob/main/connectors/index.md' } },
+  { title: 'Intercom conversation import', description: 'Ingest closed conversations and macros to bootstrap support memory.', group: 'support', package: { status: 'planned', docHref: 'https://github.com/smaramwbc/statewave-docs/blob/main/connectors/index.md' } },
   { title: 'Front inbox connector', description: 'Stream shared-inbox threads and tags into episodes by account.', group: 'support' },
-  { title: 'Help Scout / Freshdesk import', description: 'One-shot import of historical tickets, then incremental sync going forward.', group: 'support' },
+  { title: 'Help Scout / Freshdesk import', description: 'One-shot import of historical tickets, then incremental sync going forward.', group: 'support', package: { status: 'planned', docHref: 'https://github.com/smaramwbc/statewave-docs/blob/main/connectors/index.md' } },
   { title: 'PagerDuty incident connector', description: 'Bring incidents and post-mortems into the episode log so support agents know what broke.', group: 'support' },
 
-  { title: 'GitHub issues + PRs', description: 'Compile decisions, review comments, and resolutions as durable repo memory.', group: 'engineering' },
+  { title: 'GitHub issues + PRs', description: 'Compile decisions, review comments, and resolutions as durable repo memory.', group: 'engineering', package: { status: 'available', docHref: 'https://github.com/smaramwbc/statewave-docs/blob/main/connectors/github.md' } },
   { title: 'GitLab / Bitbucket connector', description: 'Same patterns as GitHub — issue, MR, and pipeline events as episodes.', group: 'engineering' },
   { title: 'Linear / Jira ticket sync', description: 'Per-project subjects with ticket history, owners, and resolutions.', group: 'engineering' },
   { title: 'Sentry / error stream', description: 'Errors and root-cause notes become episodes the coding agent can recall later.', group: 'engineering' },
   { title: 'Datadog / observability events', description: 'Incidents, deploys, and SLOs land in the episode log next to the tickets they caused.', group: 'engineering' },
 
-  { title: 'Notion / Confluence ingestion', description: 'Treat doc pages as episodes; recompile when pages change to keep memory fresh.', group: 'docs' },
+  { title: 'Notion / Confluence ingestion', description: 'Treat doc pages as episodes; recompile when pages change to keep memory fresh.', group: 'docs', package: { status: 'planned', docHref: 'https://github.com/smaramwbc/statewave-docs/blob/main/connectors/index.md' } },
   { title: 'Google Docs / Drive connector', description: 'Watch a folder, ingest doc revisions, compile typed memories from changelogs.', group: 'docs' },
   { title: 'Discourse / community forum', description: 'Public Q&A becomes durable knowledge memory available to the support agent.', group: 'docs' },
-  { title: 'GitHub markdown docs', description: 'Sync /docs and README content as episodes so the agent always speaks the latest API.', group: 'docs' },
+  { title: 'GitHub markdown docs', description: 'Sync /docs and README content as episodes so the agent always speaks the latest API.', group: 'docs', package: { status: 'available', docHref: 'https://github.com/smaramwbc/statewave-docs/blob/main/connectors/markdown.md' } },
 
   { title: 'Salesforce / HubSpot CRM', description: 'Account notes, opportunity history, and emails as per-account episodes.', group: 'crm' },
-  { title: 'Slack / Teams thread import', description: 'Targeted channel imports — internal conversations as searchable episodes per subject.', group: 'crm' },
-  { title: 'Email thread connector', description: 'Per-contact email history bootstrapped into episodes for sales or support recall.', group: 'crm' },
+  { title: 'Slack / Teams thread import', description: 'Targeted channel imports — internal conversations as searchable episodes per subject.', group: 'crm', package: { status: 'planned', docHref: 'https://github.com/smaramwbc/statewave-docs/blob/main/connectors/index.md' } },
+  { title: 'Email thread connector', description: 'Per-contact email history bootstrapped into episodes for sales or support recall.', group: 'crm', package: { status: 'planned', docHref: 'https://github.com/smaramwbc/statewave-docs/blob/main/connectors/index.md' } },
   { title: 'Customer.io / Segment activity', description: 'Product activity events streamed in as episodes — usage memory by account.', group: 'crm' },
 
   { title: 'Gong / Chorus call transcripts', description: 'Sales calls become episodes; compiled memories surface in the next call’s prep.', group: 'realtime' },
@@ -937,7 +944,7 @@ function UseCaseCard({ uc, index }: { uc: UseCase; index: number }) {
 function ConnectorSection() {
   return (
     <Section id="connectors">
-      <div className="max-w-2xl mb-10">
+      <div className="max-w-2xl mb-8">
         <p className="text-[11px] font-medium uppercase tracking-wider text-emerald-400">
           Connectors & bootstrap
         </p>
@@ -948,6 +955,28 @@ function ConnectorSection() {
           You don’t need to wait for a new conversation to start. Pipe existing system history into
           episodes, compile it once, and your agent walks into its first session already informed.
         </p>
+      </div>
+
+      {/* Pointer to the official ecosystem. The patterns below cover anything you can build
+          on the ingest API; some of them now ship as official Statewave Connector packages. */}
+      <div className="mb-10 flex flex-col gap-3 rounded-2xl border border-accent/20 bg-accent/[0.04] p-5 sm:p-6 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
+          <p className="text-[11px] font-medium uppercase tracking-wider text-accent">
+            Official ecosystem
+          </p>
+          <p className="mt-1 text-sm text-theme-secondary leading-relaxed">
+            Looking for ready-made connectors instead of integration recipes? <strong className="text-theme-primary">Statewave Connectors</strong> are modular packages — install only what you need. Phase 1 ships GitHub, Markdown/docs, and the MCP server.
+          </p>
+        </div>
+        <Link
+          to="/connectors"
+          className="shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium border border-accent/30 bg-accent/10 text-accent hover:bg-accent/15 hover:border-accent/50 transition-colors"
+        >
+          Explore Statewave Connectors
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+          </svg>
+        </Link>
       </div>
 
       {/* The bootstrap formula */}
@@ -995,9 +1024,21 @@ function ConnectorSection() {
       </div>
 
       <p className="mt-10 text-xs text-theme-muted/80 max-w-3xl">
-        These are integration patterns built on Statewave’s ingest API — not pre-shipped, managed
-        connectors. Most teams write a small importer in their preferred language; the SDKs make
-        the per-subject episode loop straightforward.
+        Most of the patterns above are integration recipes built on Statewave’s ingest API — write a
+        small importer in your preferred language; the SDKs make the per-subject episode loop
+        straightforward. Cards tagged{' '}
+        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-accent/10 text-accent text-[10px] font-medium uppercase tracking-wider align-middle">
+          Available
+        </span>{' '}
+        or{' '}
+        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-surface-2 text-theme-muted text-[10px] font-medium uppercase tracking-wider align-middle">
+          Coming soon
+        </span>{' '}
+        ship as official packages — see the{' '}
+        <Link to="/connectors" className="text-accent hover:underline">
+          Statewave Connectors page
+        </Link>
+        .
       </p>
     </Section>
   )
@@ -1045,21 +1086,76 @@ function Arrow() {
 function ConnectorCard({ connector }: { connector: Connector }) {
   const slug = slugify(connector.title)
   const active = useHashActive(slug)
+  const pkg = connector.package
   return (
     <div
       id={slug}
-      className={`group scroll-mt-24 p-4 rounded-xl border border-theme-border bg-surface-1 hover:border-emerald-500/25 transition-colors ${
-        active ? 'card-anchor-active' : ''
-      }`}
+      className={`group scroll-mt-24 p-4 rounded-xl border bg-surface-1 transition-colors ${
+        pkg ? 'border-accent/20 hover:border-accent/40' : 'border-theme-border hover:border-emerald-500/25'
+      } ${active ? 'card-anchor-active' : ''}`}
     >
-      <div className="flex items-center gap-2">
-        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" aria-hidden />
-        <h4 className="flex items-center gap-2 text-sm font-semibold text-theme-primary">
-          <span>{connector.title}</span>
-          <CardAnchor id={slug} />
-        </h4>
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex items-center gap-2 min-w-0">
+          <span
+            className={`w-1.5 h-1.5 rounded-full ${pkg ? 'bg-accent' : 'bg-emerald-400'}`}
+            aria-hidden
+          />
+          <h4 className="flex items-center gap-2 text-sm font-semibold text-theme-primary truncate">
+            <span className="truncate">{connector.title}</span>
+            <CardAnchor id={slug} />
+          </h4>
+        </div>
+        {pkg && (
+          <span
+            className={`shrink-0 text-[10px] font-medium uppercase tracking-wider px-2 py-0.5 rounded-full ${
+              pkg.status === 'available'
+                ? 'bg-accent/10 text-accent'
+                : 'bg-surface-2 text-theme-muted'
+            }`}
+          >
+            {pkg.status === 'available' ? 'Available' : 'Coming soon'}
+          </span>
+        )}
       </div>
       <p className="mt-2 text-xs text-theme-muted leading-relaxed">{connector.description}</p>
+      {pkg && (
+        <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] font-medium">
+          <Link
+            to="/connectors"
+            className="inline-flex items-center gap-1 text-accent hover:underline"
+          >
+            View Statewave Connector
+            <svg
+              className="w-3 h-3"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+            </svg>
+          </Link>
+          {pkg.docHref && (
+            <a
+              href={pkg.docHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-theme-muted hover:text-accent transition-colors"
+            >
+              Docs
+              <svg
+                className="w-3 h-3"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                aria-hidden
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5h5v5M19 5l-9 9M5 7v12h12" />
+              </svg>
+            </a>
+          )}
+        </div>
+      )}
     </div>
   )
 }

@@ -51,6 +51,17 @@ describe('Route rendering', () => {
     })
   })
 
+  it('renders connectors page at /connectors', async () => {
+    renderApp('/connectors')
+    await waitFor(() => {
+      expect(screen.getByRole('main')).toBeInTheDocument()
+    })
+    // Connectors page must surface the headline message and the connector cards.
+    await waitFor(() => {
+      expect(screen.getByText(/give your agents memory/i)).toBeInTheDocument()
+    })
+  })
+
   it('renders 404 for unknown routes', async () => {
     renderApp('/unknown-page')
     await waitFor(() => {
