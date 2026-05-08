@@ -239,7 +239,7 @@ export const SUGGESTIONS: Record<
     ],
     [
       { text: "What data leaves the box during heuristic compilation?",
-        anchors: ['no data egress', 'heuristic'] },
+        anchors: ['data egress', 'heuristic'] },
       { text: "Can I use an email as a subject ID?",
         anchors: ['emails', 'subject IDs'] },
       { text: "How do I split a too-coarse subject?",
