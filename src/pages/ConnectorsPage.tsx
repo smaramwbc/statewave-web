@@ -42,10 +42,34 @@ const CONNECTORS: ReadonlyArray<ConnectorCard> = [
     href: `${DOCS}/connectors/markdown.md`,
   },
   {
-    source: 'Slack / Discord',
+    source: 'Slack',
+    shape: 'Team memory',
+    description:
+      'Channel and thread history under team:<team_id>. Pull-mode against the Slack Web API; required --channels allowlist; bot-token auth.',
+    status: 'available',
+    href: 'https://github.com/smaramwbc/statewave-connectors/blob/main/packages/slack/README.md',
+  },
+  {
+    source: 'n8n',
+    shape: 'Workflow memory',
+    description:
+      'Workflow executions, failures, and per-node errors via the n8n REST API. Maps to n8n.workflow.executed, n8n.workflow.failed, n8n.node.errored.',
+    status: 'available',
+    href: 'https://github.com/smaramwbc/statewave-connectors/blob/main/packages/n8n/README.md',
+  },
+  {
+    source: 'Zapier',
+    shape: 'Workflow memory (push)',
+    description:
+      'Push-mode helper — formatZapToEpisode() for "Webhooks by Zapier → POST" payloads. Zapier doesn’t expose a public zap-history API, so this is the right shape, not a sync connector.',
+    status: 'available',
+    href: 'https://github.com/smaramwbc/statewave-connectors/blob/main/packages/zapier/README.md',
+  },
+  {
+    source: 'Discord',
     shape: 'Community memory',
     description:
-      'Shared channels, threads, and forum posts — community and team support history a stateless RAG can’t see.',
+      'Servers, channels, and forum posts — community and team support history a stateless RAG can’t see.',
     status: 'planned',
   },
   {
@@ -67,13 +91,6 @@ const CONNECTORS: ReadonlyArray<ConnectorCard> = [
     shape: 'Relationship memory',
     description:
       'Thread-level relationship memory, scoped by label or query — never “ingest the whole inbox”.',
-    status: 'planned',
-  },
-  {
-    source: 'n8n / Zapier',
-    shape: 'Workflow memory',
-    description:
-      'Workflow runs, failures, and step errors. Workflow memory without writing custom integration code.',
     status: 'planned',
   },
 ]
@@ -313,9 +330,12 @@ function PackageModelSection() {
             <div className="w-3 h-3 rounded-full bg-green-500/60" />
             <span className="ml-2 truncate">install — pick what you need</span>
           </div>
-          <pre className="text-theme-secondary overflow-x-auto -mx-1 px-1"><code>{`# Planned package names — coming soon
+          <pre className="text-theme-secondary overflow-x-auto -mx-1 px-1"><code>{`# Pick what you need — every package is independent
 npm install @statewavedev/connectors-github
 npm install @statewavedev/connectors-markdown
+npm install @statewavedev/connectors-slack
+npm install @statewavedev/connectors-n8n
+npm install @statewavedev/connectors-zapier
 npm install @statewavedev/mcp-server`}</code></pre>
           <p className="mt-4 text-[11px] text-theme-muted/85 leading-relaxed">
             Track the rollout in the{' '}
@@ -327,7 +347,7 @@ npm install @statewavedev/mcp-server`}</code></pre>
             >
               connectors roadmap
             </a>
-            . Until packages publish, install from the{' '}
+            . Source lives in the{' '}
             <a
               href={CONNECTORS_REPO}
               target="_blank"
