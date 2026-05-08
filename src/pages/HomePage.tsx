@@ -387,13 +387,24 @@ function UseCasesSection() {
 function ConnectorsTeaserSection() {
   // Slim teaser — full detail lives at /connectors. Goal: surface "not just
   // live chats" without bloating the home page. Six pills + one CTA.
-  const sources: ReadonlyArray<{ label: string; shape: string; status: 'available' | 'planned' }> = [
-    { label: 'GitHub', shape: 'Repo memory', status: 'available' },
-    { label: 'Markdown / docs', shape: 'Decision memory', status: 'available' },
-    { label: 'MCP', shape: 'Agent memory', status: 'available' },
-    { label: 'Slack / Discord', shape: 'Community memory', status: 'planned' },
-    { label: 'Zendesk / Intercom', shape: 'Customer memory', status: 'planned' },
-    { label: 'Gmail · n8n · Zapier', shape: 'Inbox & workflow memory', status: 'planned' },
+  // Each card deep-links to where you actually start: available connectors
+  // jump straight to their doc; planned ones land on /connectors so visitors
+  // can see scope and follow along.
+  const DOCS = 'https://github.com/smaramwbc/statewave-docs/blob/main'
+  const PACKAGES = 'https://github.com/smaramwbc/statewave-connectors/blob/main/packages'
+  const sources: ReadonlyArray<{
+    label: string
+    shape: string
+    status: 'available' | 'planned'
+    href: string
+    external?: boolean
+  }> = [
+    { label: 'GitHub', shape: 'Repo memory', status: 'available', href: `${DOCS}/connectors/github.md`, external: true },
+    { label: 'Markdown / docs', shape: 'Decision memory', status: 'available', href: `${DOCS}/connectors/markdown.md`, external: true },
+    { label: 'MCP', shape: 'Agent memory', status: 'available', href: `${DOCS}/connectors/mcp.md`, external: true },
+    { label: 'Slack', shape: 'Team memory', status: 'available', href: `${PACKAGES}/slack/README.md`, external: true },
+    { label: 'n8n · Zapier', shape: 'Workflow memory', status: 'available', href: `${PACKAGES}/n8n/README.md`, external: true },
+    { label: 'Zendesk / Intercom', shape: 'Customer memory', status: 'planned', href: '/connectors#connectors-by-source' },
   ]
 
   return (
@@ -440,32 +451,52 @@ function ConnectorsTeaserSection() {
         </div>
 
         <div className="min-w-0 grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {sources.map((s, i) => (
-            <motion.div
-              key={s.label}
-              initial={{ opacity: 0, y: 12 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.04, duration: 0.35 }}
-              className="rounded-xl border border-theme-border bg-surface-1 p-4 flex items-start justify-between gap-3"
-            >
-              <div className="min-w-0">
-                <p className="text-[11px] font-medium uppercase tracking-wider text-accent">
-                  {s.shape}
-                </p>
-                <p className="mt-1 text-sm font-semibold text-theme-primary truncate">{s.label}</p>
-              </div>
-              <span
-                className={`shrink-0 text-[10px] font-medium uppercase tracking-wider px-2 py-0.5 rounded-full ${
-                  s.status === 'available'
-                    ? 'bg-accent/10 text-accent'
-                    : 'bg-surface-2 text-theme-muted'
-                }`}
+          {sources.map((s, i) => {
+            const cardClass = 'rounded-xl border border-theme-border bg-surface-1 p-4 flex items-start justify-between gap-3 transition-colors hover:border-accent/30 focus-visible:border-accent/40 focus:outline-none h-full'
+            const inner = (
+              <>
+                <div className="min-w-0">
+                  <p className="text-[11px] font-medium uppercase tracking-wider text-accent">
+                    {s.shape}
+                  </p>
+                  <p className="mt-1 text-sm font-semibold text-theme-primary truncate">{s.label}</p>
+                </div>
+                <span
+                  className={`shrink-0 text-[10px] font-medium uppercase tracking-wider px-2 py-0.5 rounded-full ${
+                    s.status === 'available'
+                      ? 'bg-accent/10 text-accent'
+                      : 'bg-surface-2 text-theme-muted'
+                  }`}
+                >
+                  {s.status === 'available' ? 'Available' : 'Coming soon'}
+                </span>
+              </>
+            )
+            return (
+              <motion.div
+                key={s.label}
+                initial={{ opacity: 0, y: 12 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.04, duration: 0.35 }}
               >
-                {s.status === 'available' ? 'Available' : 'Coming soon'}
-              </span>
-            </motion.div>
-          ))}
+                {s.external ? (
+                  <a
+                    href={s.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={cardClass}
+                  >
+                    {inner}
+                  </a>
+                ) : (
+                  <Link to={s.href} className={cardClass}>
+                    {inner}
+                  </Link>
+                )}
+              </motion.div>
+            )
+          })}
         </div>
       </div>
     </Section>
@@ -623,38 +654,174 @@ function ProofSection() {
   )
 }
 
+/**
+ * Floating "Copy" button for code snippet panels. Lives top-right of the
+ * pre block, copies the given code on click, and flashes a "Copied" tag
+ * for ~1.5s. Falls back gracefully on insecure contexts where clipboard
+ * access is denied — the button still flashes feedback.
+ */
+function CodeCopyButton({ code, label }: { code: string; label: string }) {
+  const [copied, setCopied] = React.useState(false)
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(code)
+    } catch {
+      // ignored — clipboard can fail on insecure contexts or denied permissions
+    }
+    setCopied(true)
+    window.setTimeout(() => setCopied(false), 1500)
+  }
+  return (
+    <button
+      type="button"
+      onClick={handleCopy}
+      aria-label={label}
+      title={copied ? 'Copied' : label}
+      className="shrink-0 inline-flex items-center gap-1.5 rounded-md border border-transparent px-2 py-0.5 text-[10.5px] font-medium text-theme-muted/80 hover:text-accent hover:border-accent/30 focus-visible:text-accent focus:outline-none transition-colors"
+    >
+      {copied ? (
+        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.2} d="M5 13l4 4L19 7" />
+        </svg>
+      ) : (
+        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+          <rect x="9" y="9" width="11" height="11" rx="2" strokeWidth={1.8} />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M5 15V6a2 2 0 0 1 2-2h9" />
+        </svg>
+      )}
+      <span aria-live="polite">{copied ? 'Copied' : 'Copy'}</span>
+    </button>
+  )
+}
+
 function DeveloperSection() {
-  const [tab, setTab] = React.useState<'python' | 'typescript'>('python')
+  // Docker leads — the quickest path to a running Statewave is `docker compose
+  // up`. Python / TypeScript tabs are kept for visitors evaluating the SDK
+  // story. Default tab is Docker so the panel mirrors the bullet ordering.
+  const [tab, setTab] = React.useState<'docker' | 'python' | 'typescript'>('docker')
 
-  const pythonCode = `$ pip install statewave
+  // Each tab is broken into copy-able blocks so visitors can grab one command
+  // at a time (pull, compose file, start, verify) without selecting text by
+  // hand. `display` is what shows in the panel (with `$` prompts for shell
+  // lines); `copy` is what's written to the clipboard (no prompt prefix).
+  type Block = { label: string; display: string; copy: string }
 
-from statewave import StatewaveClient
+  const dockerBlocks: Block[] = [
+    {
+      label: 'Pull image',
+      display: '$ docker pull statewavedev/statewave',
+      copy: 'docker pull statewavedev/statewave',
+    },
+    {
+      label: 'docker-compose.yml — minimal, runs in 2 minutes',
+      display: `services:
+  db:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: statewave
+      POSTGRES_PASSWORD: statewave
+      POSTGRES_DB: statewave
+  api:
+    image: statewavedev/statewave:latest
+    ports: ["8100:8100"]
+    environment:
+      STATEWAVE_DATABASE_URL: postgresql+asyncpg://statewave:statewave@db:5432/statewave
+    depends_on: [db]`,
+      copy: `services:
+  db:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: statewave
+      POSTGRES_PASSWORD: statewave
+      POSTGRES_DB: statewave
+  api:
+    image: statewavedev/statewave:latest
+    ports: ["8100:8100"]
+    environment:
+      STATEWAVE_DATABASE_URL: postgresql+asyncpg://statewave:statewave@db:5432/statewave
+    depends_on: [db]
+`,
+    },
+    {
+      label: 'Start the stack',
+      display: '$ docker compose up -d',
+      copy: 'docker compose up -d',
+    },
+    {
+      label: 'Verify it is running',
+      display: `$ curl http://localhost:8100/healthz
+# → {"status":"ok"}`,
+      copy: 'curl http://localhost:8100/healthz',
+    },
+  ]
+
+  const pythonBlocks: Block[] = [
+    {
+      label: 'Install',
+      display: '$ pip install statewave',
+      copy: 'pip install statewave',
+    },
+    {
+      label: 'One call to get prompt-ready context',
+      display: `from statewave import StatewaveClient
 
 sw = StatewaveClient("http://localhost:8100")
 
-# One call to get prompt-ready context
 ctx = sw.get_context(
     "agent-7",
     task="Continue code review"
 )
 
 print(ctx.assembled_context)
-# → Ranked, token-bounded, provenance-traced`
+# → Ranked, token-bounded, provenance-traced`,
+      copy: `from statewave import StatewaveClient
 
-  const tsCode = `$ npm install @statewavedev/sdk
+sw = StatewaveClient("http://localhost:8100")
 
-import { StatewaveClient } from "@statewavedev/sdk";
+ctx = sw.get_context(
+    "agent-7",
+    task="Continue code review"
+)
+
+print(ctx.assembled_context)
+`,
+    },
+  ]
+
+  const tsBlocks: Block[] = [
+    {
+      label: 'Install',
+      display: '$ npm install @statewavedev/sdk',
+      copy: 'npm install @statewavedev/sdk',
+    },
+    {
+      label: 'One call to get prompt-ready context',
+      display: `import { StatewaveClient } from "@statewavedev/sdk";
 
 const sw = new StatewaveClient("http://localhost:8100");
 
-// One call to get prompt-ready context
 const ctx = await sw.getContext(
   "agent-7",
   { task: "Continue code review" }
 );
 
 console.log(ctx.assembledContext);
-// → Ranked, token-bounded, provenance-traced`
+// → Ranked, token-bounded, provenance-traced`,
+      copy: `import { StatewaveClient } from "@statewavedev/sdk";
+
+const sw = new StatewaveClient("http://localhost:8100");
+
+const ctx = await sw.getContext(
+  "agent-7",
+  { task: "Continue code review" }
+);
+
+console.log(ctx.assembledContext);
+`,
+    },
+  ]
+
+  const blocks = tab === 'docker' ? dockerBlocks : tab === 'python' ? pythonBlocks : tsBlocks
 
   return (
     <Section>
@@ -672,10 +839,11 @@ console.log(ctx.assembledContext);
             heuristic compiler is fully local; choosing the LLM compiler or a hosted embedding model
             sends content to that provider. <Link to="/product#privacy" className="text-accent hover:underline">See the data-flow breakdown →</Link>
           </p>
-          {/* Each bullet links to the most relevant doc / repo. The SDK row
-              splits into two inline links so Python and TypeScript each go
-              to their own GitHub repo. External links open in a new tab so
-              the visitor doesn't lose their place on the homepage. */}
+          {/* Bullets prioritize "how easy is it to run Statewave?" — Docker
+              Hub and Compose come first, then the runtime properties, then
+              integrations and SDKs. Each links to the most relevant doc /
+              registry / repo, opened in a new tab so the visitor doesn't
+              lose their place on the homepage. */}
           <ul className="mt-8 space-y-3">
             {(() => {
               const DOCS = 'https://github.com/smaramwbc/statewave-docs/blob/main'
@@ -683,8 +851,15 @@ console.log(ctx.assembledContext);
               const items: Bullet[] = [
                 {
                   node: (
-                    <a href={`${DOCS}/deployment/guide.md`} target="_blank" rel="noopener noreferrer" className="hover:text-accent transition-colors">
-                      Docker Compose — running in 2 minutes
+                    <a href="https://hub.docker.com/r/statewavedev/statewave" target="_blank" rel="noopener noreferrer" className="hover:text-accent transition-colors">
+                      Pre-built image on Docker Hub — multi-arch, signed
+                    </a>
+                  ),
+                },
+                {
+                  node: (
+                    <a href={`${DOCS}/getting-started.md`} target="_blank" rel="noopener noreferrer" className="hover:text-accent transition-colors">
+                      One-command quickstart — running in 2 minutes
                     </a>
                   ),
                 },
@@ -711,6 +886,13 @@ console.log(ctx.assembledContext);
                 },
                 {
                   node: (
+                    <a href={`${DOCS}/architecture/overview.md#middleware-stack`} target="_blank" rel="noopener noreferrer" className="hover:text-accent transition-colors">
+                      Structured logging + OpenTelemetry
+                    </a>
+                  ),
+                },
+                {
+                  node: (
                     <>
                       <a href="https://github.com/smaramwbc/statewave-py" target="_blank" rel="noopener noreferrer" className="hover:text-accent transition-colors underline-offset-2 decoration-dotted decoration-theme-border">
                         Python
@@ -721,13 +903,6 @@ console.log(ctx.assembledContext);
                       </a>
                       <span>&nbsp;SDKs</span>
                     </>
-                  ),
-                },
-                {
-                  node: (
-                    <a href={`${DOCS}/architecture/overview.md#middleware-stack`} target="_blank" rel="noopener noreferrer" className="hover:text-accent transition-colors">
-                      Structured logging + OpenTelemetry
-                    </a>
                   ),
                 },
               ]
@@ -750,7 +925,20 @@ console.log(ctx.assembledContext);
               <div className="w-3 h-3 rounded-full bg-yellow-500/60" />
               <div className="w-3 h-3 rounded-full bg-green-500/60" />
             </div>
-            <div role="tablist" aria-label="SDK language" className="flex gap-1 rounded-lg bg-surface-2 p-0.5">
+            <div role="tablist" aria-label="Quickstart" className="flex gap-1 rounded-lg bg-surface-2 p-0.5">
+              <button
+                role="tab"
+                type="button"
+                aria-selected={tab === 'docker'}
+                onClick={() => setTab('docker')}
+                className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+                  tab === 'docker'
+                    ? 'bg-surface-0 text-theme-primary shadow-sm'
+                    : 'text-theme-muted hover:text-theme-secondary'
+                }`}
+              >
+                Docker
+              </button>
               <button
                 role="tab"
                 type="button"
@@ -762,7 +950,7 @@ console.log(ctx.assembledContext);
                     : 'text-theme-muted hover:text-theme-secondary'
                 }`}
               >
-                Python
+                Python SDK
               </button>
               <button
                 role="tab"
@@ -775,11 +963,23 @@ console.log(ctx.assembledContext);
                     : 'text-theme-muted hover:text-theme-secondary'
                 }`}
               >
-                TypeScript
+                TypeScript SDK
               </button>
             </div>
           </div>
-          <pre className="text-theme-secondary overflow-x-auto -mx-1 px-1"><code>{tab === 'python' ? pythonCode : tsCode}</code></pre>
+          <div className="space-y-3">
+            {blocks.map((block) => (
+              <div key={block.label} className="rounded-lg border border-theme-border/60 bg-surface-2/40">
+                <div className="flex items-center justify-between gap-3 px-3 pt-2 pb-1">
+                  <p className="text-[10.5px] font-medium uppercase tracking-wider text-theme-muted/85">
+                    {block.label}
+                  </p>
+                  <CodeCopyButton code={block.copy} label={`Copy: ${block.label}`} />
+                </div>
+                <pre className="text-theme-secondary overflow-x-auto px-3 pb-3 text-[12.5px] leading-relaxed"><code>{block.display}</code></pre>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </Section>
