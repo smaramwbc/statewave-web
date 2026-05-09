@@ -411,7 +411,8 @@ const CONNECTORS: Connector[] = [
   { title: 'Salesforce / HubSpot CRM', description: 'Account notes, opportunity history, and emails as per-account episodes.', group: 'crm' },
   { title: 'Slack channel + thread import', description: 'Targeted channel imports — internal conversations as searchable episodes per subject.', group: 'crm', package: { status: 'available', docHref: 'https://github.com/smaramwbc/statewave-connectors/blob/main/packages/slack/README.md' } },
   { title: 'Microsoft Teams thread import', description: 'Channel + meeting-chat history per workspace subject.', group: 'crm', package: { status: 'planned', docHref: 'https://github.com/smaramwbc/statewave-docs/blob/main/connectors/index.md' } },
-  { title: 'Email thread connector', description: 'Per-contact email history bootstrapped into episodes for sales or support recall.', group: 'crm', package: { status: 'planned', docHref: 'https://github.com/smaramwbc/statewave-docs/blob/main/connectors/index.md' } },
+  { title: 'Gmail relationship memory', description: 'Pull messages matching a Gmail search query — per-contact email history scoped to relationship:<email>. Body extracted from MIME (text/plain preferred, text/html fallback). OAuth 2.0 refresh-token; gmail.readonly scope.', group: 'crm', package: { status: 'available', docHref: 'https://github.com/smaramwbc/statewave-connectors/blob/main/packages/gmail/README.md' } },
+  { title: 'Email thread connector (other providers)', description: 'Same shape as Gmail, but for Outlook, Fastmail, ProtonMail. Planned.', group: 'crm' },
   { title: 'Customer.io / Segment activity', description: 'Product activity events streamed in as episodes — usage memory by account.', group: 'crm' },
 
   { title: 'Gong / Chorus call transcripts', description: 'Sales calls become episodes; compiled memories surface in the next call’s prep.', group: 'realtime' },

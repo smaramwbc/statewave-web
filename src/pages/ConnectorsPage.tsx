@@ -106,11 +106,12 @@ const CONNECTORS: ReadonlyArray<ConnectorCard> = [
     href: 'https://github.com/smaramwbc/statewave-connectors/blob/main/packages/notion/README.md',
   },
   {
-    source: 'Gmail / email',
+    source: 'Gmail',
     shape: 'Relationship memory',
     description:
-      'Thread-level relationship memory, scoped by label or query — never “ingest the whole inbox”.',
-    status: 'planned',
+      'Messages matching a required Gmail search query, scoped per counterparty (relationship:<email>). OAuth 2.0 refresh-token auth; gmail.readonly scope; never "ingest the whole inbox".',
+    status: 'available',
+    href: 'https://github.com/smaramwbc/statewave-connectors/blob/main/packages/gmail/README.md',
   },
 ]
 
