@@ -402,7 +402,8 @@ const CONNECTORS: Connector[] = [
   { title: 'Sentry / error stream', description: 'Errors and root-cause notes become episodes the coding agent can recall later.', group: 'engineering' },
   { title: 'Datadog / observability events', description: 'Incidents, deploys, and SLOs land in the episode log next to the tickets they caused.', group: 'engineering' },
 
-  { title: 'Notion / Confluence ingestion', description: 'Treat doc pages as episodes; recompile when pages change to keep memory fresh.', group: 'docs', package: { status: 'planned', docHref: 'https://github.com/smaramwbc/statewave-docs/blob/main/connectors/index.md' } },
+  { title: 'Notion page ingestion', description: 'Treat Notion pages (and optionally their body content) as decision-memory episodes; re-pull when last_edited_time advances. Subject is operator-controlled — repo:owner/name, project:foo, or any string.', group: 'docs', package: { status: 'available', docHref: 'https://github.com/smaramwbc/statewave-connectors/blob/main/packages/notion/README.md' } },
+  { title: 'Confluence ingestion', description: 'Same shape as Notion — treat doc pages as episodes, recompile when pages change. Planned.', group: 'docs' },
   { title: 'Google Docs / Drive connector', description: 'Watch a folder, ingest doc revisions, compile typed memories from changelogs.', group: 'docs' },
   { title: 'Discourse / community forum', description: 'Public Q&A becomes durable knowledge memory available to the support agent.', group: 'docs' },
   { title: 'GitHub markdown docs', description: 'Sync /docs and README content as episodes so the agent always speaks the latest API.', group: 'docs', package: { status: 'available', docHref: 'https://github.com/smaramwbc/statewave-docs/blob/main/connectors/markdown.md' } },
