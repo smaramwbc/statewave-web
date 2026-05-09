@@ -465,7 +465,7 @@ function ConnectorsTeaserSection() {
                 <span
                   className={`shrink-0 text-[10px] font-medium uppercase tracking-wider px-2 py-0.5 rounded-full ${
                     s.status === 'available'
-                      ? 'bg-accent/10 text-accent'
+                      ? 'bg-emerald-500/10 text-emerald-300'
                       : 'bg-surface-2 text-theme-muted'
                   }`}
                 >
