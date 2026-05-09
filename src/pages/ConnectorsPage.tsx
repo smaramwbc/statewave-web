@@ -70,13 +70,22 @@ const CONNECTORS: ReadonlyArray<ConnectorCard> = [
     shape: 'Community memory',
     description:
       'Servers, channels, and forum posts — community and team support history a stateless RAG can’t see.',
-    status: 'planned',
+    status: 'available',
+    href: 'https://github.com/smaramwbc/statewave-connectors/blob/main/packages/discord/README.md',
   },
   {
-    source: 'Zendesk / Intercom / Freshdesk',
+    source: 'Zendesk',
     shape: 'Customer memory',
     description:
-      'Tickets, replies, and notes scoped per account, so agents recall what’s broken and what’s already been tried.',
+      'Tickets, public replies, and internal notes scoped per customer (organization or requester) — agents recall what’s broken, what’s already been tried, and what’s still open. API token + OAuth bearer auth supported.',
+    status: 'available',
+    href: 'https://github.com/smaramwbc/statewave-connectors/blob/main/packages/zendesk/README.md',
+  },
+  {
+    source: 'Intercom / Freshdesk',
+    shape: 'Customer memory',
+    description:
+      'Same shape as Zendesk — tickets, conversations, and notes scoped per account. Planned next in the support-tools class.',
     status: 'planned',
   },
   {
