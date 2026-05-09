@@ -121,7 +121,7 @@ export function LanguagePicker({ value, onChange }: Props) {
                 }}
                 placeholder="Search languages…"
                 aria-label="Search languages"
-                className="w-full pl-7 pr-2 py-1.5 text-[12px] rounded-md border border-theme-border bg-surface-2 text-theme-primary placeholder-theme-muted focus:outline-none focus:border-accent/40 focus:ring-1 focus:ring-accent/20"
+                className="w-full pl-7 pr-2 py-1.5 text-base sm:text-[12px] rounded-md border border-theme-border bg-surface-2 text-theme-primary placeholder-theme-muted focus:outline-none focus:border-accent/40 focus:ring-1 focus:ring-accent/20"
               />
             </div>
           </div>

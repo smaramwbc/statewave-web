@@ -49,7 +49,7 @@ export function Navbar() {
   const location = useLocation()
   const [mobileOpen, setMobileOpen] = useState(false)
   const { openWidget } = useChatWidget()
-  const closeButtonRef = useRef<HTMLButtonElement>(null)
+  const drawerRef = useRef<HTMLDivElement>(null)
   const toggleButtonRef = useRef<HTMLButtonElement>(null)
   const lockedScrollRef = useRef<number | null>(null)
 
@@ -79,7 +79,7 @@ export function Navbar() {
     const toggleNode = toggleButtonRef.current
     lockedScrollRef.current = lockBodyScroll()
     const id = requestAnimationFrame(() => {
-      closeButtonRef.current?.focus()
+      drawerRef.current?.focus()
     })
     return () => {
       cancelAnimationFrame(id)
@@ -209,25 +209,19 @@ export function Navbar() {
             />
             <motion.div
               key="drawer"
+              ref={drawerRef}
               id="mobile-nav-drawer"
               role="dialog"
               aria-modal="true"
               aria-label="Site navigation"
+              tabIndex={-1}
               initial={{ opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.2, ease: 'easeOut' }}
-              className="md:hidden fixed top-[60px] left-0 right-0 bottom-0 z-50 border-t border-theme-border bg-surface-0 backdrop-blur-xl shadow-[0_24px_48px_-12px_rgba(0,0,0,0.45)] pl-safe pr-safe"
+              className="md:hidden fixed top-[60px] left-0 right-0 bottom-0 z-50 border-t border-theme-border bg-surface-0 backdrop-blur-xl shadow-[0_24px_48px_-12px_rgba(0,0,0,0.45)] pl-safe pr-safe focus:outline-none"
             >
               <div className="h-full px-5 sm:px-6 pt-4 pb-[max(env(safe-area-inset-bottom),1.5rem)] flex flex-col gap-1 overflow-y-auto">
-                <button
-                  ref={closeButtonRef}
-                  type="button"
-                  onClick={() => setMobileOpen(false)}
-                  className="sr-only focus:not-sr-only self-end text-xs text-theme-muted px-3 py-2"
-                >
-                  Close menu
-                </button>
                 <nav aria-label="Mobile navigation" className="flex flex-col">
                   {links.map((link) => {
                     const active = location.pathname === link.to

@@ -118,8 +118,6 @@ describe('Navbar mobile drawer', () => {
     fireEvent.click(screen.getByRole('button', { name: /open menu/i }))
     await screen.findByRole('dialog', { name: /site navigation/i })
 
-    // Backdrop carries a distinct aria-label so it doesn't collide with
-    // the in-drawer screen-reader close affordance.
     const backdrop = screen.getByTestId('mobile-nav-backdrop')
     fireEvent.click(backdrop)
 
