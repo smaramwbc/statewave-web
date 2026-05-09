@@ -1,9 +1,10 @@
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { Section } from '../components/Section'
 import { Button } from '../components/Button'
 import { Heading } from '../components/Heading'
+import { CodeCopyButton } from '../components/CodeCopyButton'
 import { usePageSEO } from '../lib/seo'
 import { useChatWidget, useTrackDemoCta } from '../lib/widget-context-api'
 
@@ -150,29 +151,224 @@ export function DevelopersPage() {
         </div>
       </Section>
 
-      <Section className="bg-surface-1/50">
-        <div className="text-center">
-          <Heading id="quick-install" className="text-2xl font-bold text-theme-primary mb-4">Quick install</Heading>
-          <div className="mt-8 grid md:grid-cols-2 gap-6 max-w-3xl mx-auto">
-            <div className="rounded-xl border border-theme-border bg-surface-2 p-6 text-left">
-              <p className="text-xs text-theme-muted font-mono mb-3">Python</p>
-              <code className="text-sm text-theme-secondary">pip install statewave</code>
-            </div>
-            <div className="rounded-xl border border-theme-border bg-surface-2 p-6 text-left">
-              <p className="text-xs text-theme-muted font-mono mb-3">TypeScript</p>
-              <code className="text-sm text-theme-secondary">npm install @statewavedev/sdk</code>
-            </div>
+      <QuickInstallSection />
+    </>
+  )
+}
+
+function QuickInstallSection() {
+  // Mirrors the homepage developer panel: Docker leads (fastest path to a
+  // running Statewave), Python + TypeScript SDK tabs follow for SDK-first
+  // visitors. Each tab is broken into copy-able blocks so a visitor can
+  // grab one command at a time without selecting text by hand.
+  const [tab, setTab] = useState<'docker' | 'python' | 'typescript'>('docker')
+
+  type Block = { label: string; display: string; copy: string }
+
+  const dockerBlocks: Block[] = [
+    {
+      label: 'Pull image',
+      display: '$ docker pull statewavedev/statewave',
+      copy: 'docker pull statewavedev/statewave',
+    },
+    {
+      label: 'docker-compose.yml — minimal, runs in 2 minutes',
+      display: `services:
+  db:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: statewave
+      POSTGRES_PASSWORD: statewave
+      POSTGRES_DB: statewave
+  api:
+    image: statewavedev/statewave:latest
+    ports: ["8100:8100"]
+    environment:
+      STATEWAVE_DATABASE_URL: postgresql+asyncpg://statewave:statewave@db:5432/statewave
+    depends_on: [db]`,
+      copy: `services:
+  db:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: statewave
+      POSTGRES_PASSWORD: statewave
+      POSTGRES_DB: statewave
+  api:
+    image: statewavedev/statewave:latest
+    ports: ["8100:8100"]
+    environment:
+      STATEWAVE_DATABASE_URL: postgresql+asyncpg://statewave:statewave@db:5432/statewave
+    depends_on: [db]
+`,
+    },
+    {
+      label: 'Start the stack',
+      display: '$ docker compose up -d',
+      copy: 'docker compose up -d',
+    },
+    {
+      label: 'Verify it is running',
+      display: `$ curl http://localhost:8100/healthz
+# → {"status":"ok"}`,
+      copy: 'curl http://localhost:8100/healthz',
+    },
+  ]
+
+  const pythonBlocks: Block[] = [
+    {
+      label: 'Install',
+      display: '$ pip install statewave',
+      copy: 'pip install statewave',
+    },
+    {
+      label: 'One call to get prompt-ready context',
+      display: `from statewave import StatewaveClient
+
+sw = StatewaveClient("http://localhost:8100")
+
+ctx = sw.get_context(
+    "agent-7",
+    task="Continue code review"
+)
+
+print(ctx.assembled_context)
+# → Ranked, token-bounded, provenance-traced`,
+      copy: `from statewave import StatewaveClient
+
+sw = StatewaveClient("http://localhost:8100")
+
+ctx = sw.get_context(
+    "agent-7",
+    task="Continue code review"
+)
+
+print(ctx.assembled_context)
+`,
+    },
+  ]
+
+  const tsBlocks: Block[] = [
+    {
+      label: 'Install',
+      display: '$ npm install @statewavedev/sdk',
+      copy: 'npm install @statewavedev/sdk',
+    },
+    {
+      label: 'One call to get prompt-ready context',
+      display: `import { StatewaveClient } from "@statewavedev/sdk";
+
+const sw = new StatewaveClient("http://localhost:8100");
+
+const ctx = await sw.getContext(
+  "agent-7",
+  { task: "Continue code review" }
+);
+
+console.log(ctx.assembledContext);
+// → Ranked, token-bounded, provenance-traced`,
+      copy: `import { StatewaveClient } from "@statewavedev/sdk";
+
+const sw = new StatewaveClient("http://localhost:8100");
+
+const ctx = await sw.getContext(
+  "agent-7",
+  { task: "Continue code review" }
+);
+
+console.log(ctx.assembledContext);
+`,
+    },
+  ]
+
+  const blocks = tab === 'docker' ? dockerBlocks : tab === 'python' ? pythonBlocks : tsBlocks
+
+  return (
+    <Section className="bg-surface-1/50">
+      <div className="max-w-3xl mx-auto text-center mb-10">
+        <Heading id="quick-install" className="text-2xl md:text-3xl font-bold text-theme-primary tracking-tight">
+          Quick install
+        </Heading>
+        <p className="mt-4 text-theme-muted">
+          Three paths to a running Statewave: Docker for the fastest local stack, or pull the SDK
+          straight into your Python / TypeScript app.
+        </p>
+      </div>
+
+      <div className="max-w-3xl mx-auto rounded-2xl border border-theme-border bg-surface-1 p-5 sm:p-6 font-mono text-sm overflow-hidden">
+        <div className="flex items-center justify-between gap-3 mb-4">
+          <div className="flex items-center gap-2 text-theme-muted text-xs">
+            <div className="w-3 h-3 rounded-full bg-red-500/60" />
+            <div className="w-3 h-3 rounded-full bg-yellow-500/60" />
+            <div className="w-3 h-3 rounded-full bg-green-500/60" />
           </div>
-          <div className="mt-12 flex flex-wrap justify-center gap-4">
-            <Button href="https://github.com/smaramwbc/statewave-docs/blob/main/getting-started.md" size="lg">
-              Read the Guide
-            </Button>
-            <Button href="https://github.com/smaramwbc/statewave" variant="secondary" size="lg">
-              View Source
-            </Button>
+          <div role="tablist" aria-label="Quickstart" className="flex gap-1 rounded-lg bg-surface-2 p-0.5">
+            <button
+              role="tab"
+              type="button"
+              aria-selected={tab === 'docker'}
+              onClick={() => setTab('docker')}
+              className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+                tab === 'docker'
+                  ? 'bg-surface-0 text-theme-primary shadow-sm'
+                  : 'text-theme-muted hover:text-theme-secondary'
+              }`}
+            >
+              Docker
+            </button>
+            <button
+              role="tab"
+              type="button"
+              aria-selected={tab === 'python'}
+              onClick={() => setTab('python')}
+              className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+                tab === 'python'
+                  ? 'bg-surface-0 text-theme-primary shadow-sm'
+                  : 'text-theme-muted hover:text-theme-secondary'
+              }`}
+            >
+              Python SDK
+            </button>
+            <button
+              role="tab"
+              type="button"
+              aria-selected={tab === 'typescript'}
+              onClick={() => setTab('typescript')}
+              className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+                tab === 'typescript'
+                  ? 'bg-surface-0 text-theme-primary shadow-sm'
+                  : 'text-theme-muted hover:text-theme-secondary'
+              }`}
+            >
+              TypeScript SDK
+            </button>
           </div>
         </div>
-      </Section>
-    </>
+        <div className="space-y-3">
+          {blocks.map((block) => (
+            <div key={block.label} className="rounded-lg border border-theme-border/60 bg-surface-2/40">
+              <div className="flex items-center justify-between gap-3 px-3 pt-2 pb-1">
+                <p className="text-[10.5px] font-medium uppercase tracking-wider text-theme-muted/85">
+                  {block.label}
+                </p>
+                <CodeCopyButton code={block.copy} label={`Copy: ${block.label}`} />
+              </div>
+              <pre className="text-theme-secondary overflow-x-auto px-3 pb-3 text-[12.5px] leading-relaxed"><code>{block.display}</code></pre>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-12 flex flex-wrap justify-center gap-4">
+        <Button href="https://github.com/smaramwbc/statewave-docs/blob/main/getting-started.md" size="lg">
+          Read the Guide
+        </Button>
+        <Button href="https://hub.docker.com/r/statewavedev/statewave" variant="secondary" size="lg">
+          View on Docker Hub
+        </Button>
+        <Button href="https://github.com/smaramwbc/statewave" variant="secondary" size="lg">
+          View Source
+        </Button>
+      </div>
+    </Section>
   )
 }
