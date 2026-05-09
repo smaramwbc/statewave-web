@@ -101,8 +101,9 @@ const CONNECTORS: ReadonlyArray<ConnectorCard> = [
     source: 'Notion',
     shape: 'Decision memory',
     description:
-      'Decision docs and architecture pages, scoped to the repo or workspace they govern.',
-    status: 'planned',
+      'Pages — and optionally their body content — scoped to whichever organizational unit you care about (repo, project, team, or the default workspace:notion). Bearer auth; pinned to Notion-Version 2022-06-28.',
+    status: 'available',
+    href: 'https://github.com/smaramwbc/statewave-connectors/blob/main/packages/notion/README.md',
   },
   {
     source: 'Gmail / email',
