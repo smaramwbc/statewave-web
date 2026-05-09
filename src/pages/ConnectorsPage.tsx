@@ -93,8 +93,9 @@ const CONNECTORS: ReadonlyArray<ConnectorCard> = [
     source: 'Freshdesk',
     shape: 'Customer memory',
     description:
-      'Same shape as Zendesk and Intercom — tickets and conversations scoped per account. Planned next in the support-tools class.',
-    status: 'planned',
+      'Tickets, public replies, and private agent notes scoped per customer (company or requester). API key auth; numeric statuses normalized to typed strings.',
+    status: 'available',
+    href: 'https://github.com/smaramwbc/statewave-connectors/blob/main/packages/freshdesk/README.md',
   },
   {
     source: 'Notion',
