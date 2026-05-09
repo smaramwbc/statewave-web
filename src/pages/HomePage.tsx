@@ -940,6 +940,19 @@ console.log(ctx.assembledContext);
                 <pre className="text-theme-secondary overflow-x-auto px-3 pb-3 text-[12.5px] leading-relaxed"><code>{block.display}</code></pre>
               </div>
             ))}
+            {tab === 'docker' && (
+              <p className="pt-1 text-right text-xs text-theme-muted">
+                Building from source?{' '}
+                <a
+                  href="https://github.com/smaramwbc/statewave"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-accent hover:underline"
+                >
+                  See GitHub →
+                </a>
+              </p>
+            )}
           </div>
         </div>
       </div>
