@@ -21,9 +21,13 @@ interface HeadingProps {
 export function Heading({ id, level = 2, children, className = '' }: HeadingProps) {
   const Tag = (`h${level}` as unknown) as 'h1' | 'h2' | 'h3' | 'h4'
 
+  // flex + items-baseline + min-w-0 on the text wrapper lets the title text
+  // wrap inside its own span (instead of pushing the # button to a new line)
+  // when the heading width is tight. The button is flex-shrink-0 so it always
+  // keeps its full size and stays glued to the right of the first text line.
   return (
-    <Tag id={id} className={`group relative scroll-mt-20 ${className}`}>
-      {children}
+    <Tag id={id} className={`group flex items-baseline scroll-mt-20 ${className}`}>
+      <span className="min-w-0">{children}</span>
       <SectionAnchorCopyButton id={id} />
     </Tag>
   )
@@ -66,13 +70,19 @@ export function SectionAnchorCopyButton({ id, className = '' }: { id: string; cl
       onClick={handleCopy}
       aria-label="Copy link to this section"
       title={copied ? 'Link copied' : 'Copy link to this section'}
-      className={`ml-2 hidden sm:inline-flex items-center align-middle text-theme-muted/55 hover:text-accent focus-visible:text-accent focus:outline-none transition-colors duration-150 ${className}`}
+      className={`relative ml-2 inline-flex flex-shrink-0 items-center align-middle text-theme-muted/55 hover:text-accent focus-visible:text-accent focus:outline-none transition-colors duration-150 ${className}`}
     >
       <HashIcon className="w-[0.7em] h-[0.7em]" />
+      {/* "copied" tag is absolute so it doesn't add layout width to the button
+          (otherwise the always-rendered, opacity-0 span made the button ~80px
+          wide and overlapped heading text in tight columns).
+          Positioned ABOVE the button (bottom-full + right-0) so it never
+          overflows the viewport when the button sits at the column right edge
+          — sliding it to the right of the icon would push the label off-screen. */}
       <span
         aria-live="polite"
-        className={`ml-1.5 text-[11px] font-medium uppercase tracking-wide transition-all duration-200 ${
-          copied ? 'text-accent opacity-100 translate-x-0' : 'opacity-0 -translate-x-1 pointer-events-none'
+        className={`absolute bottom-full right-0 mb-1 text-[11px] font-medium uppercase tracking-wide whitespace-nowrap transition-all duration-200 ${
+          copied ? 'text-accent opacity-100 translate-y-0' : 'opacity-0 translate-y-1 pointer-events-none'
         }`}
       >
         copied
