@@ -66,7 +66,7 @@ export function SectionAnchorCopyButton({ id, className = '' }: { id: string; cl
       onClick={handleCopy}
       aria-label="Copy link to this section"
       title={copied ? 'Link copied' : 'Copy link to this section'}
-      className={`ml-2 inline-flex items-center align-middle text-theme-muted/55 hover:text-accent focus-visible:text-accent focus:outline-none transition-colors duration-150 ${className}`}
+      className={`ml-2 hidden sm:inline-flex items-center align-middle text-theme-muted/55 hover:text-accent focus-visible:text-accent focus:outline-none transition-colors duration-150 ${className}`}
     >
       <HashIcon className="w-[0.7em] h-[0.7em]" />
       <span
