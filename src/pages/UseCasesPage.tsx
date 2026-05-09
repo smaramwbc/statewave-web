@@ -390,7 +390,7 @@ const CONNECTOR_GROUPS: { id: Connector['group']; label: string; description: st
 
 const CONNECTORS: Connector[] = [
   { title: 'Zendesk ticket import', description: 'Backfill historical tickets and comments as episodes per customer (organization or requester) subject.', group: 'support', package: { status: 'available', docHref: 'https://github.com/smaramwbc/statewave-connectors/blob/main/packages/zendesk/README.md' } },
-  { title: 'Intercom conversation import', description: 'Ingest closed conversations and macros to bootstrap support memory.', group: 'support', package: { status: 'planned', docHref: 'https://github.com/smaramwbc/statewave-docs/blob/main/connectors/index.md' } },
+  { title: 'Intercom conversation import', description: 'Ingest conversations, public replies, and admin notes scoped per customer (primary company or contact). US/EU/AU regions.', group: 'support', package: { status: 'available', docHref: 'https://github.com/smaramwbc/statewave-connectors/blob/main/packages/intercom/README.md' } },
   { title: 'Front inbox connector', description: 'Stream shared-inbox threads and tags into episodes by account.', group: 'support' },
   { title: 'Help Scout / Freshdesk import', description: 'One-shot import of historical tickets, then incremental sync going forward.', group: 'support', package: { status: 'planned', docHref: 'https://github.com/smaramwbc/statewave-docs/blob/main/connectors/index.md' } },
   { title: 'PagerDuty incident connector', description: 'Bring incidents and post-mortems into the episode log so support agents know what broke.', group: 'support' },

@@ -82,10 +82,18 @@ const CONNECTORS: ReadonlyArray<ConnectorCard> = [
     href: 'https://github.com/smaramwbc/statewave-connectors/blob/main/packages/zendesk/README.md',
   },
   {
-    source: 'Intercom / Freshdesk',
+    source: 'Intercom',
     shape: 'Customer memory',
     description:
-      'Same shape as Zendesk — tickets, conversations, and notes scoped per account. Planned next in the support-tools class.',
+      'Conversations, public replies, and admin internal notes scoped per customer (primary company or contact). US/EU/AU regions; bearer auth (personal access token or OAuth).',
+    status: 'available',
+    href: 'https://github.com/smaramwbc/statewave-connectors/blob/main/packages/intercom/README.md',
+  },
+  {
+    source: 'Freshdesk',
+    shape: 'Customer memory',
+    description:
+      'Same shape as Zendesk and Intercom — tickets and conversations scoped per account. Planned next in the support-tools class.',
     status: 'planned',
   },
   {
