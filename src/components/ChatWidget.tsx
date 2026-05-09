@@ -1151,7 +1151,7 @@ export function ChatWidget() {
               onChange={(e) => setInput(e.target.value)}
               placeholder="Ask something..."
               disabled={isLoading}
-              className="flex-1 px-3 py-2 rounded-lg text-sm border border-theme-border/50 bg-transparent text-theme-primary placeholder:text-theme-muted/50 focus:outline-none focus:border-accent/50 transition-colors disabled:opacity-50"
+              className="flex-1 px-3 py-2 rounded-lg text-base sm:text-sm border border-theme-border/50 bg-transparent text-theme-primary placeholder:text-theme-muted/50 focus:outline-none focus:border-accent/50 transition-colors disabled:opacity-50"
             />
             <button
               type="submit"
