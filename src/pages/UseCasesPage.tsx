@@ -1030,7 +1030,7 @@ function ConnectorSection() {
         Most of the patterns above are integration recipes built on Statewave’s ingest API — write a
         small importer in your preferred language; the SDKs make the per-subject episode loop
         straightforward. Cards tagged{' '}
-        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-accent/10 text-accent text-[10px] font-medium uppercase tracking-wider align-middle">
+        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-300 text-[10px] font-medium uppercase tracking-wider align-middle">
           Available
         </span>{' '}
         or{' '}
@@ -1112,7 +1112,7 @@ function ConnectorCard({ connector }: { connector: Connector }) {
           <span
             className={`shrink-0 text-[10px] font-medium uppercase tracking-wider px-2 py-0.5 rounded-full ${
               pkg.status === 'available'
-                ? 'bg-accent/10 text-accent'
+                ? 'bg-emerald-500/10 text-emerald-300'
                 : 'bg-surface-2 text-theme-muted'
             }`}
           >
