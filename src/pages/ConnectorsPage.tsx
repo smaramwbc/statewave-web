@@ -45,7 +45,7 @@ const CONNECTORS: ReadonlyArray<ConnectorCard> = [
     source: 'Slack',
     shape: 'Team memory',
     description:
-      'Channel and thread history under team:<team_id>. Pull-mode against the Slack Web API; required --channels allowlist; bot-token auth.',
+      'Channel + thread history (pull) plus an Events-API webhook (messages, reactions, pins). Optional DMs (dm:<user>) and group DMs / mpim (mpim:<channel>) — both opt-in. Bot-token auth; required --channels allowlist (or --include-dms / --include-mpim).',
     status: 'available',
     href: 'https://github.com/smaramwbc/statewave-connectors/blob/main/packages/slack/README.md',
   },
@@ -101,7 +101,7 @@ const CONNECTORS: ReadonlyArray<ConnectorCard> = [
     source: 'Notion',
     shape: 'Decision memory',
     description:
-      'Pages — and optionally their body content — scoped to whichever organizational unit you care about (repo, project, team, or the default workspace:notion). Bearer auth; pinned to Notion-Version 2022-06-28.',
+      'Pages, optional body content, and (v0.1.1) page-level discussion comments — scoped to whichever organizational unit you care about (repo, project, team, or the default workspace:notion). Bearer auth; pinned to Notion-Version 2022-06-28.',
     status: 'available',
     href: 'https://github.com/smaramwbc/statewave-connectors/blob/main/packages/notion/README.md',
   },
