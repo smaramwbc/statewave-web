@@ -8,6 +8,7 @@ const WhyPage = lazy(() => import('./pages/WhyPage').then(m => ({ default: m.Why
 const UseCasesPage = lazy(() => import('./pages/UseCasesPage').then(m => ({ default: m.UseCasesPage })))
 const ConnectorsPage = lazy(() => import('./pages/ConnectorsPage').then(m => ({ default: m.ConnectorsPage })))
 const DevelopersPage = lazy(() => import('./pages/DevelopersPage').then(m => ({ default: m.DevelopersPage })))
+const CookiesPage = lazy(() => import('./pages/CookiesPage').then(m => ({ default: m.CookiesPage })))
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage').then(m => ({ default: m.NotFoundPage })))
 
 export default function App() {
@@ -21,6 +22,7 @@ export default function App() {
           <Route path="/use-cases" element={<UseCasesPage />} />
           <Route path="/connectors" element={<ConnectorsPage />} />
           <Route path="/developers" element={<DevelopersPage />} />
+          <Route path="/cookies" element={<CookiesPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Routes>

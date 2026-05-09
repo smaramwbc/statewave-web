@@ -19,8 +19,25 @@ interface HeadingProps {
  *   to the clipboard. A small "copied" tag fades in for ~1.5s as feedback.
  */
 export function Heading({ id, level = 2, children, className = '' }: HeadingProps) {
-  const [copied, setCopied] = useState(false)
   const Tag = (`h${level}` as unknown) as 'h1' | 'h2' | 'h3' | 'h4'
+
+  return (
+    <Tag id={id} className={`group relative scroll-mt-20 ${className}`}>
+      {children}
+      <SectionAnchorCopyButton id={id} />
+    </Tag>
+  )
+}
+
+/**
+ * Standalone "copy link" button that mirrors the Heading affordance, for
+ * cases where the surrounding heading can't be a plain `<h2>` (e.g. an
+ * animated `motion.h2` with gradient-clipped text). The container element
+ * needs `group` somewhere up the tree for the hover-reveal styling, and
+ * the `id` should match the anchor target on its scroll-margin parent.
+ */
+export function SectionAnchorCopyButton({ id, className = '' }: { id: string; className?: string }) {
+  const [copied, setCopied] = useState(false)
 
   const handleCopy = async () => {
     if (typeof window === 'undefined') return
@@ -44,26 +61,23 @@ export function Heading({ id, level = 2, children, className = '' }: HeadingProp
   }
 
   return (
-    <Tag id={id} className={`group relative scroll-mt-20 ${className}`}>
-      {children}
-      <button
-        type="button"
-        onClick={handleCopy}
-        aria-label="Copy link to this section"
-        title={copied ? 'Link copied' : 'Copy link to this section'}
-        className="ml-2 inline-flex items-center align-middle text-theme-muted/55 hover:text-accent focus-visible:text-accent focus:outline-none transition-colors duration-150"
+    <button
+      type="button"
+      onClick={handleCopy}
+      aria-label="Copy link to this section"
+      title={copied ? 'Link copied' : 'Copy link to this section'}
+      className={`ml-2 inline-flex items-center align-middle text-theme-muted/55 hover:text-accent focus-visible:text-accent focus:outline-none transition-colors duration-150 ${className}`}
+    >
+      <HashIcon className="w-[0.7em] h-[0.7em]" />
+      <span
+        aria-live="polite"
+        className={`ml-1.5 text-[11px] font-medium uppercase tracking-wide transition-all duration-200 ${
+          copied ? 'text-accent opacity-100 translate-x-0' : 'opacity-0 -translate-x-1 pointer-events-none'
+        }`}
       >
-        <HashIcon className="w-[0.7em] h-[0.7em]" />
-        <span
-          aria-live="polite"
-          className={`ml-1.5 text-[11px] font-medium uppercase tracking-wide transition-all duration-200 ${
-            copied ? 'text-accent opacity-100 translate-x-0' : 'opacity-0 -translate-x-1 pointer-events-none'
-          }`}
-        >
-          copied
-        </span>
-      </button>
-    </Tag>
+        copied
+      </span>
+    </button>
   )
 }
 

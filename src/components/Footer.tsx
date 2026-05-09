@@ -67,6 +67,10 @@ export function Footer() {
         <div className="mt-12 pt-8 border-t border-theme-border flex flex-col md:flex-row md:justify-between md:items-center gap-3 md:gap-4">
           <p className="text-xs text-theme-muted">
             © {new Date().getFullYear()} Statewave. Open source under AGPL-3.0.
+            <span className="mx-2 text-theme-border">·</span>
+            <Link to="/cookies" className="hover:text-theme-primary transition-colors">
+              Cookies
+            </Link>
           </p>
           <p className="text-xs text-theme-muted md:text-right">
             Built for teams who believe AI memory is infrastructure, not an afterthought.

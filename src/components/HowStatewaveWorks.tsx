@@ -1,6 +1,7 @@
 import { type ReactNode } from 'react'
 import { motion, useReducedMotion, type Variants } from 'framer-motion'
 import { Link } from 'react-router-dom'
+import { SectionAnchorCopyButton } from './Heading'
 
 /* ─── HowStatewaveWorks ──────────────────────────────────────────────────────
  * An animated walk-through of the Statewave runtime: the five steps that turn
@@ -60,7 +61,7 @@ export function HowStatewaveWorks({
         }}
       />
 
-      {showHeader && <FlowHeader variant={variant} reduced={reduced} />}
+      {showHeader && <FlowHeader variant={variant} reduced={reduced} id={id} />}
 
       <div className={`relative ${showHeader ? 'mt-12' : ''}`}>
         {/* Connector line behind the cards (lg+ only). The cards are grid items
@@ -125,7 +126,7 @@ const childVariants: Variants = {
 
 /* ─── Header / replay control ────────────────────────────────────────────── */
 
-function FlowHeader({ variant, reduced }: { variant: FlowVariant; reduced: boolean }) {
+function FlowHeader({ variant, reduced, id }: { variant: FlowVariant; reduced: boolean; id: string }) {
   const eyebrow = variant === 'full' ? 'Proven in production AI workflows' : 'How it works'
   const headline =
     variant === 'full'
@@ -152,7 +153,7 @@ function FlowHeader({ variant, reduced }: { variant: FlowVariant; reduced: boole
         whileInView={reduced ? undefined : { opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.55, delay: 0.05 }}
-        className="mt-4 text-3xl md:text-4xl font-bold tracking-tight text-theme-primary"
+        className="group mt-4 text-3xl md:text-4xl font-bold tracking-tight text-theme-primary"
       >
         {headline.split(/(Statewave Works|memory-aware answer)/).map((part, i) =>
           part === 'Statewave Works' || part === 'memory-aware answer' ? (
@@ -166,6 +167,7 @@ function FlowHeader({ variant, reduced }: { variant: FlowVariant; reduced: boole
             <span key={i}>{part}</span>
           ),
         )}
+        <SectionAnchorCopyButton id={id} />
       </motion.h2>
       <motion.p
         initial={reduced ? false : { opacity: 0, y: 6 }}
