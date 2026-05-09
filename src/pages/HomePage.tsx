@@ -405,7 +405,7 @@ function ConnectorsTeaserSection() {
     { label: 'MCP', shape: 'Agent memory', status: 'available', href: `${DOCS}/connectors/mcp.md`, external: true },
     { label: 'Slack', shape: 'Team memory', status: 'available', href: `${PACKAGES}/slack/README.md`, external: true },
     { label: 'n8n · Zapier', shape: 'Workflow memory', status: 'available', href: `${PACKAGES}/n8n/README.md`, external: true },
-    { label: 'Zendesk / Intercom', shape: 'Customer memory', status: 'planned', href: '/connectors#connectors-by-source' },
+    { label: 'Zendesk', shape: 'Customer memory', status: 'available', href: `${PACKAGES}/zendesk/README.md`, external: true },
   ]
 
   return (
