@@ -19,8 +19,8 @@ export function Footer() {
               </span>
             </Link>
             <p className="mt-4 text-sm text-theme-muted leading-relaxed">
-              Trusted context runtime for AI agents.<br />
-              Self-hosted. Open source. AGPL-3.0.
+              Open-source memory runtime for AI agents.<br />
+              Self-hosted on Postgres. AGPL-3.0.
             </p>
           </div>
 
