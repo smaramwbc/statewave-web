@@ -286,6 +286,19 @@ export function ChatWidgetProvider({ children }: { children: ReactNode }) {
       setPersona(chosen)
       setPersonaLabel(effectiveLabel ?? DEMO_PERSONAS.find((x) => x.id === chosen)?.label ?? chosen)
     }
+    // Each persona is its own memory pool — switching mid-session must not
+    // carry chat bubbles from the previous persona into the new one's
+    // surface. selectPersona (the in-widget listbox path) already does this;
+    // openWidget didn't, so clicking a different homepage particle / nav
+    // entry while a chat was already open showed stale bubbles. Gate on the
+    // persona actually changing so a bare `openWidget()` reopen (the
+    // floating bubble, Footer / UseCases / Developers CTAs) doesn't wipe an
+    // in-progress conversation.
+    if (effectivePersona && chosen !== persona) {
+      setStatelessMessages([])
+      setStatewaveMessages([])
+      setLastContext(null)
+    }
     // Resume the tour for visitors who saw the welcome on a prior visit but
     // never finished walking through the steps. Mid-session reopens skip
     // this branch (tourStep > 0 already, or already completed). Support
