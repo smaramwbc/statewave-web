@@ -39,9 +39,11 @@ function makeRequest(method: string, url: string, init: RequestInit = {}): Reque
 
 function setEnv() {
   // Chat completions flow through the Statewave server's /v1/llm/complete
-  // endpoint — no direct provider key in the website env.
-  process.env.STATEWAVE_API_KEY = 'test-key'
-  process.env.STATEWAVE_URL = 'https://statewave-api.test'
+  // endpoint — no direct provider key in the website env. Use vi.stubEnv
+  // so vi.unstubAllEnvs() in afterEach restores the original values and the
+  // stubs don't leak into other test files.
+  vi.stubEnv('STATEWAVE_API_KEY', 'test-key')
+  vi.stubEnv('STATEWAVE_URL', 'https://statewave-api.test')
 }
 
 describe('parseDemoVisitor', () => {
@@ -130,7 +132,10 @@ describe('GET /api/demo-state', () => {
       throw new Error(`Unexpected fetch in demo-state test: ${url}`)
     })
   })
-  afterEach(() => vi.restoreAllMocks())
+  afterEach(() => {
+    vi.restoreAllMocks()
+    vi.unstubAllEnvs()
+  })
 
   it('first visit: issues a Set-Cookie with a UUID and returns isNew=true with empty state', async () => {
     const resp = await demoState(makeRequest('GET', 'http://test/api/demo-state'))
@@ -195,7 +200,10 @@ describe('POST /api/widget-chat — statewave mode', () => {
       throw new Error(`Unexpected fetch in widget-chat test: ${url}`)
     })
   })
-  afterEach(() => vi.restoreAllMocks())
+  afterEach(() => {
+    vi.restoreAllMocks()
+    vi.unstubAllEnvs()
+  })
 
   it('writes a real episode and runs compile after a turn', async () => {
     const req = makeRequest('POST', 'http://test/api/widget-chat', {
@@ -261,7 +269,10 @@ describe('POST /api/widget-chat — stateless mode', () => {
       throw new Error(`stateless mode should not call ${url}`)
     })
   })
-  afterEach(() => vi.restoreAllMocks())
+  afterEach(() => {
+    vi.restoreAllMocks()
+    vi.unstubAllEnvs()
+  })
 
   it('does not write episodes, compile, or fetch context', async () => {
     const req = makeRequest('POST', 'http://test/api/widget-chat', {
@@ -335,7 +346,10 @@ describe('POST /api/demo-seed', () => {
       throw new Error(`Unexpected fetch in seed test: ${method} ${url}`)
     })
   })
-  afterEach(() => vi.restoreAllMocks())
+  afterEach(() => {
+    vi.restoreAllMocks()
+    vi.unstubAllEnvs()
+  })
 
   it('rejects an unknown persona', async () => {
     const req = makeRequest('POST', 'http://test/api/demo-seed', {
@@ -424,7 +438,10 @@ describe('POST /api/demo-reset', () => {
       throw new Error(`Unexpected fetch in reset test: ${url}`)
     })
   })
-  afterEach(() => vi.restoreAllMocks())
+  afterEach(() => {
+    vi.restoreAllMocks()
+    vi.unstubAllEnvs()
+  })
 
   it('deletes every persona subject for the visitor + the legacy bare one and reissues a fresh cookie', async () => {
     const req = makeRequest('POST', 'http://test/api/demo-reset', {
