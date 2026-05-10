@@ -297,13 +297,18 @@ export async function writeEpisode(
 }
 
 export async function compileMemories(subjectId: string): Promise<void> {
-  // Fire-and-forget on the latency-critical path; failure is logged but does
-  // not block the user response. Compilation is idempotent so retrying is safe.
+  // Hand the work off to the API in async mode and return as soon as the
+  // job is enqueued (202 with a job_id). The chat handler must not block on
+  // LLM-driven memory extraction — that adds 2–4s to every turn and on a
+  // freshly seeded visitor (where every starter-pack episode would be
+  // re-compiled before the cached fix landed) it stacks to ~15s on the
+  // first message. The compiled memories surface in the next demo-state
+  // refresh; the user sees the chat reply immediately.
   try {
     await fetch(`${statewaveUrl()}/v1/memories/compile`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-API-Key': statewaveApiKey() },
-      body: JSON.stringify({ subject_id: subjectId }),
+      body: JSON.stringify({ subject_id: subjectId, async: true }),
     })
   } catch (err) {
     console.warn('[demo] compile failed:', err)
