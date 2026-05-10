@@ -87,7 +87,7 @@ function HeroSection() {
           <motion.div variants={fadeUp}>
             <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-accent/20 bg-accent/[0.04] text-accent text-[11px] font-medium tracking-wide uppercase">
               <span className="w-1.5 h-1.5 rounded-full bg-accent/80" />
-              Proven in production AI workflows
+              Open source · Self-hosted · v0.7
             </span>
           </motion.div>
 
@@ -98,9 +98,9 @@ function HeroSection() {
             variants={fadeUp}
             className="mt-6 sm:mt-8 text-[clamp(2.25rem,8vw,4.5rem)] font-bold text-theme-primary tracking-[-0.025em] leading-[1.08] break-anywhere"
           >
-            Trusted context runtime{' '}
+            Open-source memory runtime{' '}
             <span className="bg-gradient-to-r from-accent via-brand-400 to-brand-300 bg-clip-text text-transparent">
-              for AI systems
+              for AI agents
             </span>
           </motion.h1>
 
@@ -109,10 +109,9 @@ function HeroSection() {
             variants={fadeUp}
             className="mt-5 sm:mt-6 text-base sm:text-lg md:text-[1.2rem] text-theme-muted max-w-[38rem] leading-[1.65] sm:leading-[1.7]"
           >
-            Open memory infrastructure for AI agents. Statewave retrieves the
-            right semantic and episodic memories for each question and returns
-            them as compact, ranked context — so LLM apps can remember
-            decisions, users, projects, and sessions.
+            Statewave compiles raw events into ranked, token-bounded context
+            bundles with full provenance — so your AI stops forgetting across
+            sessions. Self-hosted on Postgres, no vendor lock-in.
           </motion.p>
 
           {/* CTAs — wrap cleanly on small phones; primary stays full-width

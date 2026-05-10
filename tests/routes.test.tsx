@@ -26,7 +26,7 @@ describe('Route rendering', () => {
   it('renders home page at /', async () => {
     renderApp('/')
     await waitFor(() => {
-      expect(screen.getAllByText(/trusted context runtime/i).length).toBeGreaterThan(0)
+      expect(screen.getAllByText(/open-source memory runtime/i).length).toBeGreaterThan(0)
     })
   })
 

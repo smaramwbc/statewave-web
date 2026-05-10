@@ -523,7 +523,7 @@ function HeroSection() {
             </span>
           </h1>
           <p className="mt-5 sm:mt-6 text-base sm:text-lg text-theme-muted max-w-[40rem] leading-[1.65] sm:leading-[1.7]">
-            Statewave is trusted context infrastructure for AI systems. Support agents are the
+            Statewave is an open-source memory runtime for AI agents. Support agents are the
             strongest workflow today — but the same primitives power coding copilots, account
             assistants, voice continuity, multi-agent platforms, and far more. This page is the
             map.

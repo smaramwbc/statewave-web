@@ -3,7 +3,7 @@
 [![CI](https://github.com/smaramwbc/statewave-web/workflows/CI/badge.svg)](https://github.com/smaramwbc/statewave-web/actions/workflows/ci.yml)
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 
-The official product website for [Statewave](https://statewave.ai), the trusted context runtime for AI agents.
+The official product website for [Statewave](https://statewave.ai), the open-source memory runtime for AI agents.
 
 > **Live:** [statewave.ai](https://statewave.ai)
 >
@@ -342,9 +342,9 @@ Custom domain: `statewave.ai` (configure in Vercel dashboard).
 ## GitHub repo settings
 
 Recommended:
-- **Description:** `Official website for Statewave — trusted context runtime for AI agents`
+- **Description:** `Official website for Statewave — open-source memory runtime for AI agents`
 - **Website:** `https://statewave.ai`
-- **Topics:** `statewave`, `ai-agents`, `memory`, `context-runtime`, `marketing-site`, `react`, `vite`
+- **Topics:** `statewave`, `ai-agents`, `memory`, `memory-runtime`, `marketing-site`, `react`, `vite`
 
 ## License
 
