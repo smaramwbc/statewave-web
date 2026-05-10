@@ -596,7 +596,7 @@ function CompactFooter() {
   return (
     <div className="mt-10 flex justify-center">
       <Link
-        to="/developers#how-it-works"
+        to="/product#how-it-works"
         className="group inline-flex items-center gap-2 text-sm text-theme-muted hover:text-accent transition-colors"
       >
         <span className="tracking-wide">See the full architecture</span>
