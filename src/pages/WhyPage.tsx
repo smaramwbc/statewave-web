@@ -278,7 +278,7 @@ function ManifestoHero() {
             their `hidden` variant after the first switch and render invisibly.
             The keyed parent's single fade is enough; staggering each child on
             every locale change would feel busy anyway. */}
-        <AnimatePresence mode="wait" initial={false}>
+        <AnimatePresence mode="wait">
           {showSkeleton ? (
             <motion.div
               key="skeleton"
