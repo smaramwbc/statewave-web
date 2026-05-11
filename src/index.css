@@ -12,8 +12,12 @@
   --color-brand-800: #1e40af;
   --color-brand-900: #1e3a8a;
 
-  --color-accent: #6366f1;
-  --color-accent-light: #818cf8;
+  /* indigo-600. Was #6366f1 (indigo-500) but at WCAG that gave only 4.46:1
+   * contrast with white text on the primary CTAs ("Try the Demo", "Ask
+   * Support"); indigo-600 gives 5.71:1 and still reads as the same brand
+   * indigo at a glance. accent-light is the hover state. */
+  --color-accent: #4f46e5;
+  --color-accent-light: #6366f1;
 
   --color-surface-0: var(--theme-surface-0);
   --color-surface-1: var(--theme-surface-1);

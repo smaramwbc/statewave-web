@@ -25,7 +25,7 @@ export function Footer() {
           </div>
 
           <div>
-            <h4 className="text-sm font-medium text-theme-primary mb-4">Product</h4>
+            <h3 className="text-sm font-medium text-theme-primary mb-4">Product</h3>
             <ul className="space-y-2.5 sm:space-y-2">
               <li><Link to="/product" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">How it works</Link></li>
               <li><Link to="/why" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">Why Statewave</Link></li>
@@ -45,7 +45,7 @@ export function Footer() {
           </div>
 
           <div>
-            <h4 className="text-sm font-medium text-theme-primary mb-4">Developers</h4>
+            <h3 className="text-sm font-medium text-theme-primary mb-4">Developers</h3>
             <ul className="space-y-2.5 sm:space-y-2">
               <li><a href="https://github.com/smaramwbc/statewave-docs/blob/main/getting-started.md" target="_blank" rel="noopener noreferrer" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">Getting Started</a></li>
               <li><a href="https://github.com/smaramwbc/statewave-docs/blob/main/api/v1-contract.md" target="_blank" rel="noopener noreferrer" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">API Reference</a></li>
@@ -55,7 +55,7 @@ export function Footer() {
           </div>
 
           <div>
-            <h4 className="text-sm font-medium text-theme-primary mb-4">Community</h4>
+            <h3 className="text-sm font-medium text-theme-primary mb-4">Community</h3>
             <ul className="space-y-2.5 sm:space-y-2">
               <li><a href="https://github.com/smaramwbc/statewave" target="_blank" rel="noopener noreferrer" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">GitHub</a></li>
               <li><a href="https://github.com/smaramwbc/statewave-examples" target="_blank" rel="noopener noreferrer" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">Examples</a></li>

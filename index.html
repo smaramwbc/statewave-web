@@ -56,10 +56,24 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- Load Google Fonts CSS asynchronously so it doesn't render-block.
+         The 4-round-trip cost to fonts.googleapis.com was ~900ms on Slow 4G
+         in Lighthouse and was pinning LCP. With this pattern the document
+         paints immediately with system-ui fallback, then `font-display: swap`
+         (built into the css2 response) swaps in Inter once the woff2 files
+         arrive. <noscript> keeps things working with JS disabled. -->
     <link
+      rel="preload"
+      as="style"
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
-      rel="stylesheet"
+      onload="this.onload=null;this.rel='stylesheet'"
     />
+    <noscript>
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
+      />
+    </noscript>
 
     <!-- Baseline structured data — Organization, WebSite, SoftwareApplication.
          These describe the site itself and are stable across routes, so they

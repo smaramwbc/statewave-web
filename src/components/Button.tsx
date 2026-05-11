@@ -15,7 +15,11 @@ export const Button = forwardRef<HTMLElement, Props>(function Button(
   { children, href, to, onClick, variant = 'primary', size = 'md', className = '' },
   ref,
 ) {
-  const base = 'inline-flex items-center justify-center font-medium rounded-xl transition-all duration-200'
+  // Explicit property list (not `transition-all`) because `scrollbar-color`
+  // inherits from <html> and trips Lighthouse's non-composited-animations
+  // audit when included by `all`.
+  const base =
+    'inline-flex items-center justify-center font-medium rounded-xl transition-[background-color,color,border-color,box-shadow,transform] duration-200'
 
   const variants = {
     primary: 'bg-accent text-white hover:bg-accent-light shadow-lg shadow-accent/20 hover:shadow-accent/30',
