@@ -108,7 +108,7 @@ export function Navbar() {
     >
       <nav aria-label="Main navigation" className="mx-auto max-w-7xl px-5 sm:px-6 h-[60px] flex items-center justify-between">
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-2.5 shrink-0 -my-2 py-2" aria-label="Statewave home">
+        <Link to="/" className="flex items-center gap-2.5 shrink-0 -my-2 py-2">
           <Logo variant="icon" className="h-7 w-7" />
           <span className="text-[1.05rem] font-semibold tracking-tight">
             <span className="text-theme-primary">State</span><span className="bg-gradient-to-r from-brand-400 to-accent bg-clip-text text-transparent">wave</span>

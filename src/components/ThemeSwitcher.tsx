@@ -42,7 +42,7 @@ export function ThemeSwitcher() {
           onClick={() => setMode(m.value)}
           aria-label={`Switch to ${m.label} theme`}
           title={m.label}
-          className={`flex items-center justify-center w-7 h-7 rounded-full transition-all duration-200 ${
+          className={`flex items-center justify-center w-7 h-7 rounded-full transition-[background-color,color,box-shadow] duration-200 ${
             mode === m.value
               ? 'bg-accent text-white shadow-sm shadow-accent/25'
               : 'text-theme-muted hover:text-theme-primary'

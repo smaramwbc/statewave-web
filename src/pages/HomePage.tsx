@@ -61,6 +61,10 @@ function HeroSection() {
     hidden: { opacity: 0, y: 16 },
     show: { opacity: 1, y: 0, transition: { duration: 0.6 } },
   }
+  // The h1 is the LCP element on mobile; framer-motion's `initial="hidden"`
+  // adds ~1s to render delay before paint. Skip the entrance animation on the
+  // headline so it paints with the first frame, and keep the stagger fade-in
+  // on the subordinate elements (badge, subhead, CTAs).
 
   return (
     <section className="relative min-h-[88vh] sm:min-h-[92vh] flex items-center overflow-hidden">
@@ -94,25 +98,23 @@ function HeroSection() {
           {/* Headline — clamps fluidly between 320px and desktop so the
               hero never overflows on small phones (the previous 3.25rem
               floor was wider than 320px after letter-spacing). */}
-          <motion.h1
-            variants={fadeUp}
-            className="mt-6 sm:mt-8 text-[clamp(2.25rem,8vw,4.5rem)] font-bold text-theme-primary tracking-[-0.025em] leading-[1.08] break-anywhere"
-          >
+          <h1 className="mt-6 sm:mt-8 text-[clamp(2.25rem,8vw,4.5rem)] font-bold text-theme-primary tracking-[-0.025em] leading-[1.08] break-anywhere">
             Open-source memory runtime{' '}
             <span className="bg-gradient-to-r from-accent via-brand-400 to-brand-300 bg-clip-text text-transparent">
               for AI agents
             </span>
-          </motion.h1>
+          </h1>
 
-          {/* Subheadline */}
-          <motion.p
-            variants={fadeUp}
-            className="mt-5 sm:mt-6 text-base sm:text-lg md:text-[1.2rem] text-theme-muted max-w-[38rem] leading-[1.65] sm:leading-[1.7]"
-          >
+          {/* Subheadline — once the h1 paints instantly (no motion gate),
+              Lighthouse promotes this paragraph to the LCP element on mobile
+              because it's the largest remaining text block. Keeping it
+              animated re-creates the same 1s+ render delay we just removed.
+              Paint immediately; the badge + CTAs still stagger in below. */}
+          <p className="mt-5 sm:mt-6 text-base sm:text-lg md:text-[1.2rem] text-theme-muted max-w-[38rem] leading-[1.65] sm:leading-[1.7]">
             Statewave compiles raw events into ranked, token-bounded context
             bundles with full provenance — so your AI stops forgetting across
             sessions. Self-hosted on Postgres, no vendor lock-in.
-          </motion.p>
+          </p>
 
           {/* CTAs — wrap cleanly on small phones; primary stays full-width
               up to 360px so it never collides with the secondary link. */}
@@ -121,7 +123,7 @@ function HeroSection() {
               ref={heroCtaRef}
               type="button"
               onClick={() => openWidget()}
-              className="inline-flex min-h-11 items-center justify-center gap-2 px-6 py-3 rounded-lg bg-accent text-white text-sm font-medium hover:bg-accent-light transition-all duration-150 shadow-lg shadow-accent/20 hover:shadow-accent/30 hover:-translate-y-px"
+              className="inline-flex min-h-11 items-center justify-center gap-2 px-6 py-3 rounded-lg bg-accent text-white text-sm font-medium hover:bg-accent-light transition-[background-color,box-shadow,transform] duration-150 shadow-lg shadow-accent/20 hover:shadow-accent/30 hover:-translate-y-px"
             >
               Try the Demo
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
