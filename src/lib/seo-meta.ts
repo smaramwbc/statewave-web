@@ -14,9 +14,9 @@ export const DEFAULT_LOCALE = 'en_US'
 export const DEFAULT_LANG = 'en'
 export const DEFAULT_OG_IMAGE = `${BASE_URL}/og-image.png`
 export const DEFAULT_OG_IMAGE_ALT =
-  'Statewave — open memory infrastructure for AI agents'
+  'Statewave — open-source memory runtime for AI agents'
 export const DEFAULT_DESCRIPTION =
-  'Statewave is open memory infrastructure for AI agents. Retrieve the right semantic and episodic memories for each question and return them as compact, ranked context so LLM apps can remember decisions, users, projects, and sessions.'
+  'Open-source memory runtime for AI agents. Durable, structured context with provenance — so your AI stops forgetting across sessions. Self-hosted on Postgres.'
 export const DEFAULT_ROBOTS =
   'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1'
 
@@ -80,7 +80,7 @@ export interface PageMeta {
 
 export const PAGE_META: Record<RouteKey, PageMeta> = {
   '/': {
-    title: 'Statewave — Memory Infrastructure for AI Agents',
+    title: 'Statewave — Open-source memory runtime for AI agents',
     description: DEFAULT_DESCRIPTION,
     breadcrumbLabel: 'Home',
     ogType: 'website',
@@ -180,7 +180,7 @@ export function softwareApplicationJsonLd(): JsonLd {
     applicationCategory: 'DeveloperApplication',
     operatingSystem: 'Linux, macOS, Windows (via Docker)',
     description:
-      'Open memory infrastructure for AI agents — durable episodic and semantic memory, ranked retrieval, and token-bounded context bundles for LLM applications.',
+      'Open-source memory runtime for AI agents — durable episodic and semantic memory, ranked retrieval, and token-bounded context bundles for LLM applications.',
     url: BASE_URL,
     license: 'https://www.gnu.org/licenses/agpl-3.0.html',
     codeRepository: REPOS.core,
