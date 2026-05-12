@@ -63,7 +63,7 @@ describe('public/llms.txt', () => {
     expect(llms).toMatch(/^# Statewave\s/)
     // Per the llms.txt spec, the tagline is a blockquote line directly under
     // the title.
-    expect(llms).toMatch(/\n> Statewave is open memory infrastructure/)
+    expect(llms).toMatch(/\n> Statewave is an open-source memory runtime/)
   })
 
   it('describes the core concepts a crawler needs', () => {

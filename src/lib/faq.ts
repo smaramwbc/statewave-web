@@ -20,7 +20,7 @@ export const FAQ_ENTRIES: readonly FaqEntry[] = [
   {
     question: 'What is Statewave?',
     answer:
-      'Statewave is open memory infrastructure for AI agents. It records raw events as immutable episodes, compiles them into typed semantic and episodic memories with provenance, and returns ranked, token-bounded context bundles that LLM applications can drop straight into a prompt.',
+      'Statewave is an open-source memory runtime for AI agents. It records raw events as immutable episodes, compiles them into typed semantic and episodic memories with provenance, and returns ranked, token-bounded context bundles that LLM applications can drop straight into a prompt.',
     links: [
       { label: 'How it works', href: '/product' },
       {
@@ -32,7 +32,7 @@ export const FAQ_ENTRIES: readonly FaqEntry[] = [
   {
     question: 'What is AI memory infrastructure?',
     answer:
-      'AI memory infrastructure is the persistence layer between an LLM application and the long history of users, projects, and decisions it interacts with. Instead of bolting a vector database to a chat history, it stores structured memories with confidence scores, validity windows, and provenance, then assembles them into deterministic context bundles for each new question.',
+      'An AI memory runtime — sometimes called memory infrastructure — is the persistence layer between an LLM application and the long history of users, projects, and decisions it interacts with. Instead of bolting a vector database to a chat history, a memory runtime stores structured memories with confidence scores, validity windows, and provenance, then assembles them into deterministic context bundles for each new question.',
     links: [
       { label: 'Why Statewave', href: '/why' },
       { label: 'How it works', href: '/product' },

@@ -182,13 +182,13 @@ function WhatSection() {
     <Section>
       <div className="grid md:grid-cols-2 gap-10 md:gap-16 items-center">
         <div className="min-w-0">
-          <Heading id="memory-infrastructure" className="text-3xl md:text-4xl font-bold text-theme-primary tracking-tight">
-            Memory infrastructure for AI agents
+          <Heading id="memory-runtime" className="text-3xl md:text-4xl font-bold text-theme-primary tracking-tight">
+            Memory runtime for AI agents
           </Heading>
           <p className="mt-6 text-theme-muted leading-relaxed">
             Most AI applications have no memory. Every conversation starts from scratch.
-            Context is lost between sessions. Statewave treats memory as infrastructure —
-            a runtime layer that any AI system can build on.
+            Context is lost between sessions. Statewave treats memory as a runtime —
+            a durable layer any AI system can build on.
           </p>
           <div className="mt-8 space-y-4">
             {[
@@ -335,7 +335,7 @@ function UseCasesSection() {
           Built for any stateful AI workflow
         </Heading>
         <p className="mt-4 text-theme-muted max-w-2xl mx-auto">
-          Statewave is infrastructure — not a vertical product. Any AI system that needs to
+          Statewave is a runtime — not a vertical product. Any AI system that needs to
           remember across sessions can build on it.
         </p>
       </div>
@@ -972,7 +972,7 @@ function FAQSection() {
           Frequently asked questions
         </Heading>
         <p className="mt-4 text-theme-muted max-w-2xl mx-auto">
-          Honest, technical answers about Statewave, AI memory infrastructure,
+          Honest, technical answers about Statewave, AI agent memory,
           and how it fits with the rest of your stack.
         </p>
       </div>

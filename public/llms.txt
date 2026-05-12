@@ -1,6 +1,6 @@
 # Statewave
 
-> Statewave is open memory infrastructure for AI agents. It retrieves the right semantic and episodic memories for each question and returns them as compact, ranked context so LLM apps can remember decisions, users, projects, and sessions.
+> Statewave is an open-source memory runtime for AI agents. It retrieves the right semantic and episodic memories for each question and returns them as compact, ranked context so LLM apps can remember decisions, users, projects, and sessions.
 
 Statewave is a self-hostable memory runtime for LLM applications. It records raw events as immutable episodes, compiles them into typed semantic and episodic memories with provenance, and assembles ranked, token-bounded context bundles ready to splice into any prompt. The storage layer is Postgres with the pgvector extension; compilation goes through LiteLLM (100+ providers) or a fully local heuristic compiler. The Statewave server is open source under AGPL-3.0; the SDKs and marketing site are Apache-2.0.
 
@@ -62,7 +62,7 @@ Statewave is a self-hostable memory runtime for LLM applications. It records raw
 
 ## Honest scope
 
-- Statewave is self-hosted infrastructure. There is no managed Statewave cloud.
+- Statewave is a self-hosted runtime. There is no managed Statewave cloud.
 - Support-agent workflows are the most rigorously evaluated today (handoff packs, health scoring, SLA tracking, repeat-issue detection). Other use cases work on the same primitives but ship fewer pre-built helpers.
 - Ranking weights are currently fixed; per-call weight overrides are not yet exposed.
 - Horizontal scaling of the server is not yet supported.
