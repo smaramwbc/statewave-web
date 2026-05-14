@@ -21,12 +21,17 @@ interface HeadingProps {
 export function Heading({ id, level = 2, children, className = '' }: HeadingProps) {
   const Tag = (`h${level}` as unknown) as 'h1' | 'h2' | 'h3' | 'h4'
 
-  // flex + items-baseline + min-w-0 on the text wrapper lets the title text
-  // wrap inside its own span (instead of pushing the # button to a new line)
-  // when the heading width is tight. The button is flex-shrink-0 so it always
-  // keeps its full size and stays glued to the right of the first text line.
+  // inline-flex + items-baseline + min-w-0 on the text wrapper lets the title
+  // text wrap inside its own span (instead of pushing the # button to a new
+  // line) when the heading width is tight, while keeping the heading
+  // itself inline-level so a `text-center` wrapper on the parent block still
+  // centers it. (Block-level `flex` was the original fix in #46 but it broke
+  // text-align: center inheritance — text-align doesn't propagate to flex
+  // children, only `justify-content` does. inline-flex keeps the heading
+  // element responsive to parent text-align while preserving the in-line
+  // flex layout of title + # button.)
   return (
-    <Tag id={id} className={`group flex items-baseline scroll-mt-20 ${className}`}>
+    <Tag id={id} className={`group inline-flex items-baseline scroll-mt-20 ${className}`}>
       <span className="min-w-0">{children}</span>
       <SectionAnchorCopyButton id={id} />
     </Tag>
