@@ -91,7 +91,7 @@ function HeroSection() {
           <motion.div variants={fadeUp}>
             <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-accent/20 bg-accent/[0.04] text-accent text-[11px] font-medium tracking-wide uppercase">
               <span className="w-1.5 h-1.5 rounded-full bg-accent/80" />
-              Open source · Self-hosted · v0.7
+              Open source · Self-hosted · v0.8
             </span>
           </motion.div>
 
