@@ -172,6 +172,94 @@ export function ProductPage() {
         </p>
       </Section>
 
+      <Section>
+        <Heading id="audit-governance" className="text-2xl font-bold text-theme-primary mb-4">Audit &amp; governance</Heading>
+        <p className="text-theme-muted leading-relaxed mb-8 max-w-3xl">
+          v0.8 ships the governance layer: every context assembly can emit an immutable audit
+          artifact, and per-memory sensitivity labels feed a declarative policy engine that filters
+          memory access by caller identity. Both surfaces are designed for compliance review &mdash; not
+          a "trust us" log, but addressable records with byte-level integrity hashes that a reviewer
+          can verify without trusting the application that wrote them.
+        </p>
+        {(() => {
+          const rows: Array<{ feature: string; what: string; lever: string }> = [
+            {
+              feature: 'State-assembly receipts',
+              what: 'Immutable, ULID-addressable record of which memories and episodes influenced an assembled context bundle, with a SHA-256 hash of the bytes delivered to the agent. Queryable by id or by subject/time-range with a stable cursor.',
+              lever: 'emit_receipt: true per request, or tenant config receipts: always for compliance-grade tenants',
+            },
+            {
+              feature: 'Per-entry supersession status',
+              what: 'Each selected memory carries its active | superseded | tombstoned state, source episodes, and provenance hash. Stale facts, resurrected tombstones, and unresolved conflicts are detectable from the receipt alone.',
+              lever: 'No config — recorded automatically',
+            },
+            {
+              feature: 'Sensitivity labels',
+              what: 'Per-memory capability tags (pii, financial, secret, …) operators set via PATCH /v1/memories/{id}/labels. Stored as a typed TEXT[] column with a GIN index so policy filters run in milliseconds on the hot path.',
+              lever: 'Operator-supplied in v0.8; compiler/connector auto-labeling planned for v0.9',
+            },
+            {
+              feature: 'Declarative policy engine',
+              what: 'YAML or JSON policy bundles with six predicates (label match, caller_type, caller_id) and two actions (deny, redact). Bundles are content-hashed and immutable. Receipts reference the bundle hash, so "what did policy abc123 say on date Y?" is answerable forever.',
+              lever: 'POST /admin/policy/bundles to upload; receipts continue to record decisions even when policy_mode is log_only',
+            },
+            {
+              feature: 'Log-only vs enforce',
+              what: 'log_only (default) records every decision into the receipt without filtering — operators can audit a policy for days before flipping enforce. enforce drops denied memories before ranking and redacts marked ones in place.',
+              lever: 'PATCH /admin/tenants/{id}/config { policy_mode: enforce }',
+            },
+            {
+              feature: 'Mandatory caller identity',
+              what: 'caller_id and caller_type on every assembly call feed the policy evaluator. Compliance tenants can flip require_caller_identity: true so anonymous calls return 401 — making policy enforcement non-bypassable.',
+              lever: 'PATCH /admin/tenants/{id}/config { require_caller_identity: true }',
+            },
+          ]
+          return (
+            <>
+              <div className="md:hidden space-y-3">
+                {rows.map((r, i) => (
+                  <div key={i} className="rounded-2xl border border-theme-border bg-surface-2 p-4">
+                    <p className="text-sm font-semibold text-theme-primary mb-3 break-anywhere">{r.feature}</p>
+                    <p className="text-xs text-theme-secondary mb-2 break-anywhere">{r.what}</p>
+                    <p className="text-[11px] text-theme-muted break-anywhere"><strong className="text-theme-secondary">Operator lever:</strong> {r.lever}</p>
+                  </div>
+                ))}
+              </div>
+              <div className="hidden md:block rounded-2xl border border-theme-border bg-surface-2 overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-theme-border">
+                        <th className="text-left p-4 text-theme-muted font-medium w-1/4">Feature</th>
+                        <th className="text-left p-4 text-theme-muted font-medium">What it does</th>
+                        <th className="text-left p-4 text-theme-muted font-medium w-1/4">Operator lever</th>
+                      </tr>
+                    </thead>
+                    <tbody className="text-theme-secondary">
+                      {rows.map((r, i) => (
+                        <tr key={i} className="border-b border-theme-border last:border-0 align-top">
+                          <td className="p-4 font-medium text-theme-primary">{r.feature}</td>
+                          <td className="p-4 text-xs leading-relaxed">{r.what}</td>
+                          <td className="p-4 text-xs leading-relaxed text-theme-muted">{r.lever}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </>
+          )
+        })()}
+        <p className="mt-6 text-xs text-theme-muted/80 leading-relaxed max-w-3xl">
+          Receipts and labels live alongside the existing provenance + supersession primitives — the
+          governance layer was designed to extend the data model that was already there, not bolt on
+          a parallel one. Full reference:{' '}
+          <a className="text-theme-primary underline underline-offset-2" href="https://github.com/smaramwbc/statewave-docs/blob/main/receipts.md">receipts.md</a>
+          {' '}and{' '}
+          <a className="text-theme-primary underline underline-offset-2" href="https://github.com/smaramwbc/statewave-docs/blob/main/sensitivity-labels.md">sensitivity-labels.md</a>.
+        </p>
+      </Section>
+
       <Section className="bg-surface-1/50">
         <Heading id="scoring-model" className="text-2xl font-bold text-theme-primary mb-4">Scoring model</Heading>
         <p className="text-theme-muted leading-relaxed mb-8 max-w-3xl">
