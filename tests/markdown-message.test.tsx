@@ -87,11 +87,11 @@ describe('MarkdownMessage rendering', () => {
   it('does not set target=_blank on mailto: or relative links', () => {
     render(
       withTheme(
-        <MarkdownMessage content="[email me](mailto:hi@statewave.ai) or visit [pricing](/pricing)" />,
+        <MarkdownMessage content="[email me](mailto:hello@statewave.ai) or visit [pricing](/pricing)" />,
       ),
     )
     const email = screen.getByRole('link', { name: /email me/i })
-    expect(email.getAttribute('href')).toBe('mailto:hi@statewave.ai')
+    expect(email.getAttribute('href')).toBe('mailto:hello@statewave.ai')
     expect(email.getAttribute('target')).toBeNull()
 
     const pricing = screen.getByRole('link', { name: /pricing/i })
