@@ -127,7 +127,7 @@ const childVariants: Variants = {
 /* ─── Header / replay control ────────────────────────────────────────────── */
 
 function FlowHeader({ variant, reduced, id }: { variant: FlowVariant; reduced: boolean; id: string }) {
-  const eyebrow = variant === 'full' ? 'Open source · Self-hosted · v0.8' : 'How it works'
+  const eyebrow = variant === 'full' ? 'Open source · Self-hosted · Apache 2.0' : 'How it works'
   const headline =
     variant === 'full'
       ? 'How Statewave Works'
