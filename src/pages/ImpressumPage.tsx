@@ -1,6 +1,34 @@
 import { Section } from '../components/Section'
 import { Heading } from '../components/Heading'
+import { CopyButton } from '../components/CopyButton'
 import { usePageSEO } from '../lib/seo'
+
+// Plain-text copies of the operator details — defined as constants so the
+// rendered prose and the copied-to-clipboard string stay in sync, and so
+// the copied string is journalist-friendly plain text (no React entities,
+// no <br />, no HTML).
+const OPERATOR_LEGAL_NAME = 'WebConnect World SL'
+const OPERATOR_ADDRESS =
+  'Carretera San Jeronimo 15 / Piso 2, 28014 Madrid, Spain'
+const OPERATOR_EMAIL = 'office@webconnect.pro'
+const OPERATOR_CIF = 'B88379102'
+const OPERATOR_VAT = 'ESB88379102'
+const OPERATOR_CEO = 'Saber Maram'
+const PRESS_EMAIL = 'press@statewave.ai'
+const SECURITY_EMAIL = 'security@statewave.ai'
+const LICENSING_EMAIL = 'licensing@statewave.ai'
+
+const OPERATOR_FULL_BLOCK = [
+  OPERATOR_LEGAL_NAME,
+  'Carretera San Jeronimo 15 / Piso 2',
+  '28014 Madrid',
+  'Spain',
+  '',
+  `Email: ${OPERATOR_EMAIL}`,
+  `Represented by: ${OPERATOR_CEO} (CEO)`,
+  `CIF: ${OPERATOR_CIF}`,
+  `VAT-ID: ${OPERATOR_VAT}`,
+].join('\n')
 
 /**
  * /impressum — legal disclosure for the operator of statewave.ai.
@@ -41,33 +69,61 @@ export function ImpressumPage() {
           <Heading id="operator" className="text-2xl font-bold text-theme-primary mb-6">
             Operator
           </Heading>
-          <div className="rounded-2xl border border-theme-border bg-surface-1 p-5 sm:p-6">
+          <div className="relative rounded-2xl border border-theme-border bg-surface-1 p-5 sm:p-6 pr-20 sm:pr-24">
+            <div className="absolute top-3 right-3">
+              <CopyButton
+                text={OPERATOR_FULL_BLOCK}
+                label="Copy full operator block"
+                variant="card-corner"
+              />
+            </div>
             <dl className="grid grid-cols-1 sm:grid-cols-[10rem,1fr] gap-y-3 sm:gap-x-6 text-sm">
               <dt className="text-theme-muted">Legal entity</dt>
-              <dd className="text-theme-primary">WebConnect World SL</dd>
+              <dd className="text-theme-primary inline-flex items-baseline gap-1">
+                <span>{OPERATOR_LEGAL_NAME}</span>
+                <CopyButton text={OPERATOR_LEGAL_NAME} label="Copy legal entity name" />
+              </dd>
 
               <dt className="text-theme-muted">Address</dt>
               <dd className="text-theme-primary">
-                Carretera San Jeronimo 15 / Piso 2<br />
-                28014 Madrid<br />
-                Spain
+                <span className="inline-flex items-baseline gap-1">
+                  <span>
+                    Carretera San Jeronimo 15 / Piso 2<br />
+                    28014 Madrid<br />
+                    Spain
+                  </span>
+                  <CopyButton
+                    text={OPERATOR_ADDRESS}
+                    label="Copy operator postal address"
+                  />
+                </span>
               </dd>
 
               <dt className="text-theme-muted">Email</dt>
-              <dd className="text-theme-primary">
-                <a href="mailto:office@webconnect.pro" className="text-accent hover:underline">
-                  office@webconnect.pro
+              <dd className="text-theme-primary inline-flex items-baseline gap-1">
+                <a href={`mailto:${OPERATOR_EMAIL}`} className="text-accent hover:underline">
+                  {OPERATOR_EMAIL}
                 </a>
+                <CopyButton text={OPERATOR_EMAIL} label="Copy operator email address" />
               </dd>
 
               <dt className="text-theme-muted">Represented by</dt>
-              <dd className="text-theme-primary">Saber Maram (CEO)</dd>
+              <dd className="text-theme-primary inline-flex items-baseline gap-1">
+                <span>{OPERATOR_CEO} (CEO)</span>
+                <CopyButton text={OPERATOR_CEO} label="Copy CEO name" />
+              </dd>
 
               <dt className="text-theme-muted">CIF (Spanish tax ID)</dt>
-              <dd className="text-theme-primary font-mono">B88379102</dd>
+              <dd className="text-theme-primary font-mono inline-flex items-baseline gap-1">
+                <span>{OPERATOR_CIF}</span>
+                <CopyButton text={OPERATOR_CIF} label="Copy CIF" />
+              </dd>
 
               <dt className="text-theme-muted">VAT-ID (USt-IdNr.)</dt>
-              <dd className="text-theme-primary font-mono">ESB88379102</dd>
+              <dd className="text-theme-primary font-mono inline-flex items-baseline gap-1">
+                <span>{OPERATOR_VAT}</span>
+                <CopyButton text={OPERATOR_VAT} label="Copy VAT-ID" />
+              </dd>
             </dl>
           </div>
         </div>
@@ -90,27 +146,40 @@ export function ImpressumPage() {
           <Heading id="contact" className="text-2xl font-bold text-theme-primary mb-6">
             Contact
           </Heading>
-          <p className="text-sm text-theme-secondary leading-relaxed">
-            General enquiries:{' '}
-            <a href="mailto:office@webconnect.pro" className="text-accent hover:underline">
-              office@webconnect.pro
-            </a>
-            <br />
-            Press:{' '}
-            <a href="mailto:press@statewave.ai" className="text-accent hover:underline">
-              press@statewave.ai
-            </a>
-            <br />
-            Security disclosure:{' '}
-            <a href="mailto:security@statewave.ai" className="text-accent hover:underline">
-              security@statewave.ai
-            </a>
-            <br />
-            Commercial / licensing:{' '}
-            <a href="mailto:licensing@statewave.ai" className="text-accent hover:underline">
-              licensing@statewave.ai
-            </a>
-          </p>
+          <ul className="space-y-2 text-sm text-theme-secondary">
+            <li className="inline-flex items-baseline gap-1">
+              <span>General enquiries:{' '}
+                <a href={`mailto:${OPERATOR_EMAIL}`} className="text-accent hover:underline">
+                  {OPERATOR_EMAIL}
+                </a>
+              </span>
+              <CopyButton text={OPERATOR_EMAIL} label="Copy general enquiries email" />
+            </li>
+            <li className="inline-flex items-baseline gap-1">
+              <span>Press:{' '}
+                <a href={`mailto:${PRESS_EMAIL}`} className="text-accent hover:underline">
+                  {PRESS_EMAIL}
+                </a>
+              </span>
+              <CopyButton text={PRESS_EMAIL} label="Copy press email" />
+            </li>
+            <li className="inline-flex items-baseline gap-1">
+              <span>Security disclosure:{' '}
+                <a href={`mailto:${SECURITY_EMAIL}`} className="text-accent hover:underline">
+                  {SECURITY_EMAIL}
+                </a>
+              </span>
+              <CopyButton text={SECURITY_EMAIL} label="Copy security email" />
+            </li>
+            <li className="inline-flex items-baseline gap-1">
+              <span>Commercial / licensing:{' '}
+                <a href={`mailto:${LICENSING_EMAIL}`} className="text-accent hover:underline">
+                  {LICENSING_EMAIL}
+                </a>
+              </span>
+              <CopyButton text={LICENSING_EMAIL} label="Copy licensing email" />
+            </li>
+          </ul>
         </div>
       </Section>
 

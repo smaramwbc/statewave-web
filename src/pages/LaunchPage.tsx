@@ -4,13 +4,13 @@ import { Heading } from '../components/Heading'
 import { usePageSEO } from '../lib/seo'
 
 /**
- * /launch — public landing for the June 2, 2026 launch, with email
+ * /launch — public landing for the June 16, 2026 launch, with email
  * capture. Form submission is stubbed: it POSTs to `/api/launch-signup`
  * which is wired to Beehiiv / Resend separately (see statewave-launch
  * issue #6 — handled by the email-infra team).
  */
 
-const LAUNCH_AT = new Date('2026-06-02T07:01:00.000Z') // 09:01 CEST = 00:01 PT = 07:01 UTC
+const LAUNCH_AT = new Date('2026-06-16T07:01:00.000Z') // 09:01 CEST = 00:01 PT = 07:01 UTC
 
 interface FormState {
   name: string
@@ -47,9 +47,9 @@ function useCountdown(target: Date) {
 
 export function LaunchPage() {
   usePageSEO({
-    title: 'Statewave — Launching Tue June 2, 2026',
+    title: 'Statewave — Launching Tue June 16, 2026',
     description:
-      'Open-source memory runtime for AI agents launches Tue June 2, 2026 at 09:01 CEST. Drop your email to get the launch-day announcement, bench numbers, and 10 invites for early collaborators.',
+      'Open-source memory runtime for AI agents launches Tue June 16, 2026 at 09:01 CEST. Drop your email to get the launch-day announcement, bench numbers, and 10 invites for early collaborators.',
   })
 
   const { days, hours, minutes, seconds, isPast } = useCountdown(LAUNCH_AT)
@@ -89,7 +89,7 @@ export function LaunchPage() {
       <section className="relative pt-24 sm:pt-28 md:pt-32 pb-12 sm:pb-16">
         <div className="mx-auto max-w-3xl px-5 sm:px-6 text-center">
           <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-accent">
-            Launching Tuesday, June 2, 2026 · 09:01 CEST
+            Launching Tuesday, June 16, 2026 · 09:01 CEST
           </p>
           <h1 className="mt-5 text-[clamp(2rem,6vw,3.25rem)] font-semibold text-theme-primary tracking-[-0.02em] leading-[1.1]">
             Open-source memory runtime for AI agents.
@@ -137,7 +137,7 @@ export function LaunchPage() {
               Get the launch-day announcement
             </Heading>
             <p className="text-sm text-theme-secondary leading-relaxed mb-6">
-              On June 2, 2026 we ship Statewave v1.0 plus the open LoCoMo benchmark.
+              On June 16, 2026 we ship Statewave v1.0 plus the open LoCoMo benchmark.
               Drop your email and we&rsquo;ll send the announcement, the row-level bench data,
               and an invite to the first-100 supporter group. No spam, no third-party trackers.
             </p>
@@ -149,7 +149,7 @@ export function LaunchPage() {
               >
                 <p className="font-medium">You&rsquo;re on the list.</p>
                 <p className="mt-2 text-theme-secondary leading-relaxed">
-                  We&rsquo;ll send the launch-day note on Tue June 2 at 09:01 CEST.
+                  We&rsquo;ll send the launch-day note on Tue June 16 at 09:01 CEST.
                   Reply to that email if you want the early-access invite.
                 </p>
               </div>
@@ -223,7 +223,7 @@ export function LaunchPage() {
       <Section className="bg-surface-1/40">
         <div className="mx-auto max-w-3xl">
           <Heading id="what" className="text-2xl font-bold text-theme-primary mb-6">
-            What ships on June 2
+            What ships on June 16
           </Heading>
           <ul className="space-y-3 text-sm text-theme-secondary leading-relaxed">
             <li>

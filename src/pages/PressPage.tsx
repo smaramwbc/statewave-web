@@ -1,6 +1,18 @@
 import { Section } from '../components/Section'
 import { Heading } from '../components/Heading'
+import { CopyButton } from '../components/CopyButton'
 import { usePageSEO } from '../lib/seo'
+
+// Copy-button text constants — defined here so the rendered prose and the
+// copied-to-clipboard string stay in sync, and so journalists copying
+// these snippets get a clean plain-text version (no React entities).
+const BOILERPLATE_LONG =
+  'Statewave is the open-source memory runtime that gives AI agents reproducible, provenance-tagged context — without sampling-noise from query-time retrieval. It compiles raw events into deterministic context bundles per subject and assembles a ranked, token-bounded bundle on demand, with full provenance back to source episodes. Statewave is Apache-2.0 across server and SDKs, self-hosted on PostgreSQL + pgvector, and ships with a public LoCoMo-based benchmark anyone can rerun in roughly 20 minutes.'
+
+const BOILERPLATE_SHORT =
+  'Open-source memory runtime for AI agents — compiled, provenance-tagged context bundles, Apache-2.0, self-hosted on Postgres.'
+
+const PRESS_CONTACT = 'press@statewave.ai'
 
 /**
  * /press — kit for journalists, newsletter editors, and Awesome-list
@@ -37,6 +49,7 @@ export function PressPage() {
             >
               press@statewave.ai
             </a>
+            <CopyButton text={PRESS_CONTACT} label="Copy press contact email" />
             {' '}&middot; replies within 24 hours on launch week, 72 hours otherwise.
           </p>
         </div>
@@ -47,7 +60,14 @@ export function PressPage() {
           <Heading id="boilerplate" className="text-2xl font-bold text-theme-primary mb-6">
             Boilerplate
           </Heading>
-          <div className="rounded-2xl border border-theme-border bg-surface-1 p-5 sm:p-6">
+          <div className="relative rounded-2xl border border-theme-border bg-surface-1 p-5 sm:p-6 pr-20 sm:pr-24">
+            <div className="absolute top-3 right-3">
+              <CopyButton
+                text={BOILERPLATE_LONG}
+                label="Copy boilerplate paragraph"
+                variant="card-corner"
+              />
+            </div>
             <p className="text-sm text-theme-secondary leading-relaxed">
               Statewave is the open-source memory runtime that gives AI agents reproducible,
               provenance-tagged context &mdash; without sampling-noise from query-time
@@ -58,13 +78,21 @@ export function PressPage() {
               benchmark anyone can rerun in roughly 20 minutes.
             </p>
           </div>
-          <p className="mt-4 text-xs text-theme-muted">
+          <div className="mt-4 text-xs text-theme-muted">
             Free to copy verbatim. Short version (≤120 chars):
-            <em className="block mt-2 text-theme-secondary not-italic">
-              &ldquo;Open-source memory runtime for AI agents &mdash; compiled,
-              provenance-tagged context bundles, Apache-2.0, self-hosted on Postgres.&rdquo;
-            </em>
-          </p>
+            <div className="relative mt-2 rounded-xl border border-theme-border/60 bg-surface-1/40 p-3 pr-12">
+              <div className="absolute top-1.5 right-1.5">
+                <CopyButton
+                  text={BOILERPLATE_SHORT}
+                  label="Copy short boilerplate"
+                />
+              </div>
+              <em className="block text-theme-secondary not-italic">
+                &ldquo;Open-source memory runtime for AI agents &mdash; compiled,
+                provenance-tagged context bundles, Apache-2.0, self-hosted on Postgres.&rdquo;
+              </em>
+            </div>
+          </div>
         </div>
       </Section>
 
@@ -80,7 +108,7 @@ export function PressPage() {
             <Fact label="Storage" value="PostgreSQL 14+ with pgvector" />
             <Fact label="Deployment" value="Docker Compose, Helm chart, bare-metal" />
             <Fact label="Model providers" value="100+ via LiteLLM (OpenAI, Anthropic, Bedrock, Ollama, …)" />
-            <Fact label="Launch date" value="Tue June 2, 2026 (09:01 CEST)" />
+            <Fact label="Launch date" value="Tue June 16, 2026 (09:01 CEST)" />
             <Fact label="Repo" value="github.com/smaramwbc/statewave" />
             <Fact label="Open benchmark" value="github.com/smaramwbc/statewave-bench (row-level LoCoMo data)" />
             <Fact label="Live demo" value="statewave.ai/demo (no signup)" />
@@ -255,7 +283,10 @@ function Fact({ label, value }: { label: string; value: string }) {
   return (
     <div>
       <dt className="text-[10px] uppercase tracking-[0.18em] text-theme-muted">{label}</dt>
-      <dd className="mt-1 text-theme-primary">{value}</dd>
+      <dd className="mt-1 text-theme-primary inline-flex items-baseline gap-1">
+        <span>{value}</span>
+        <CopyButton text={value} label={`Copy ${label.toLowerCase()}`} />
+      </dd>
     </div>
   )
 }
