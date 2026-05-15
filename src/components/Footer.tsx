@@ -60,6 +60,8 @@ export function Footer() {
               <li><a href="https://github.com/smaramwbc/statewave" target="_blank" rel="noopener noreferrer" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">GitHub</a></li>
               <li><a href="https://github.com/smaramwbc/statewave-examples" target="_blank" rel="noopener noreferrer" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">Examples</a></li>
               <li><a href="https://github.com/smaramwbc/statewave-docs/blob/main/roadmap.md" target="_blank" rel="noopener noreferrer" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">Roadmap</a></li>
+              <li><Link to="/launch" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">Launch waitlist</Link></li>
+              <li><Link to="/press" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">Press kit</Link></li>
             </ul>
           </div>
         </div>
@@ -68,9 +70,13 @@ export function Footer() {
           <p className="text-xs text-theme-muted">
             © {new Date().getFullYear()} Statewave. Open source under Apache-2.0.
             <span className="mx-2 text-theme-border">·</span>
-            <Link to="/cookies" className="hover:text-theme-primary transition-colors">
-              Cookies
-            </Link>
+            <Link to="/privacy" className="hover:text-theme-primary transition-colors">Privacy</Link>
+            <span className="mx-2 text-theme-border">·</span>
+            <Link to="/terms" className="hover:text-theme-primary transition-colors">Terms</Link>
+            <span className="mx-2 text-theme-border">·</span>
+            <Link to="/cookies" className="hover:text-theme-primary transition-colors">Cookies</Link>
+            <span className="mx-2 text-theme-border">·</span>
+            <Link to="/impressum" className="hover:text-theme-primary transition-colors">Impressum</Link>
           </p>
           <p className="text-xs text-theme-muted md:text-right">
             Built for teams who believe AI memory is infrastructure, not an afterthought.
