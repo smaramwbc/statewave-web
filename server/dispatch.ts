@@ -26,6 +26,7 @@ import demoReset from './handlers/demo-reset.js'
 import demoSeed from './handlers/demo-seed.js'
 import demoState from './handlers/demo-state.js'
 import heroData from './handlers/hero-data.js'
+import launchSignup from './handlers/launch-signup.js'
 import widgetChat from './handlers/widget-chat.js'
 
 export type FetchHandler = (req: Request) => Promise<Response>
@@ -39,6 +40,7 @@ const ROUTES: Record<string, FetchHandler> = {
   '/api/demo-seed': demoSeed,
   '/api/demo-state': demoState,
   '/api/hero-data': heroData,
+  '/api/launch-signup': launchSignup,
   '/api/widget-chat': widgetChat,
 }
 
