@@ -131,6 +131,17 @@ function HeroSection() {
               </svg>
             </button>
             <a
+              href="https://github.com/smaramwbc/statewave-docs/blob/main/getting-started.md"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex min-h-11 items-center justify-center gap-2 px-6 py-3 rounded-lg bg-surface-2 text-theme-primary border border-theme-border text-sm font-medium hover:bg-surface-3 hover:border-theme-border transition-[background-color,border-color] duration-150"
+            >
+              Getting Started
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              </svg>
+            </a>
+            <a
               href="https://github.com/smaramwbc/statewave"
               target="_blank"
               rel="noopener noreferrer"
