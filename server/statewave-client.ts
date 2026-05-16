@@ -187,6 +187,9 @@ export function getOrIssueVisitor(req: Request): VisitorInfo {
 interface JsonResponseOptions {
   status?: number
   setCookie?: string | null
+  /** Extra response headers (e.g. `Retry-After` on a 429). Merged after
+   * the defaults so callers can't accidentally drop CORS/cache headers. */
+  headers?: Record<string, string>
 }
 
 export function json(data: unknown, opts: JsonResponseOptions = {}): Response {
@@ -199,6 +202,9 @@ export function json(data: unknown, opts: JsonResponseOptions = {}): Response {
     'Access-Control-Allow-Credentials': 'true',
   }
   const h = new Headers(headers)
+  if (opts.headers) {
+    for (const [k, v] of Object.entries(opts.headers)) h.set(k, v)
+  }
   if (opts.setCookie) h.append('Set-Cookie', opts.setCookie)
   return new Response(JSON.stringify(data), { status: opts.status ?? 200, headers: h })
 }

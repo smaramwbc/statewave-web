@@ -66,6 +66,18 @@ function nodeRequestToWeb(
       headers.set(k, v as string)
     }
   }
+  // Carry the real TCP peer address into the Web Request so the
+  // vendor-neutral rate limiter has an unspoofable key when there is no
+  // upstream proxy (bare container / local). Behind a proxy the limiter
+  // prefers Fly-Client-IP / X-Forwarded-For; this is the fallback. We
+  // overwrite any inbound value of this header name so a client can't
+  // pre-seed it to dodge the limit.
+  const socketIp = req.socket?.remoteAddress
+  if (socketIp) {
+    headers.set('x-statewave-socket-ip', socketIp)
+  } else {
+    headers.delete('x-statewave-socket-ip')
+  }
   const init: RequestInit = {
     method: req.method ?? 'GET',
     headers,

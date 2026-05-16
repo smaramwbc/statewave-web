@@ -15,6 +15,12 @@
  */
 
 import { json } from '../statewave-client.js'
+import {
+  checkRateLimit,
+  clientIp,
+  LAUNCH_SIGNUP_LIMIT,
+  LAUNCH_SIGNUP_WINDOW_MS,
+} from '../rate-limit.js'
 
 const MAX_BODY_BYTES = 8 * 1024
 const FORWARD_TIMEOUT_MS = 8000
@@ -41,6 +47,23 @@ export default async function handler(req: Request): Promise<Response> {
   if (req.method === 'OPTIONS') return json({}, { status: 200 })
   if (req.method !== 'POST') {
     return json({ error: 'Method not allowed' }, { status: 405 })
+  }
+
+  // Per-IP rate limit before doing any work. A public launch-page form
+  // WILL get hammered on T-0; this is the casual-scraping speed bump
+  // (vendor-neutral, in-process — see server/rate-limit.ts).
+  const rl = checkRateLimit(`launch-signup:${clientIp(req)}`, {
+    limit: LAUNCH_SIGNUP_LIMIT,
+    windowMs: LAUNCH_SIGNUP_WINDOW_MS,
+  })
+  if (!rl.allowed) {
+    return json(
+      { error: 'Too many signups from your network. Please try again later.' },
+      {
+        status: 429,
+        headers: { 'Retry-After': String(rl.retryAfterSec) },
+      },
+    )
   }
 
   // Bound the body before parsing — a serverless function shouldn't buffer
