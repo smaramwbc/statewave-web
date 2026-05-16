@@ -9,11 +9,19 @@
  *   3. Body cap + JSON parse + field validation
  *   4. Honeypot                   — hidden field bots fill, humans don't
  *   5. Cloudflare Turnstile       — server-side token verify (env seam)
- *   6. Forward to LAUNCH_SIGNUP_WEBHOOK (the email-infra provider, #6)
+ *   6. Forward to webhook targets (Resend + Beehiiv, #6)
  *
  * Env seams:
- *   LAUNCH_SIGNUP_WEBHOOK  — provider URL we POST the signup to (#6). Unset
- *                            → honest 503 (never a silent drop).
+ *   LAUNCH_SIGNUP_WEBHOOK_RESEND       — Resend /contacts URL. Unset → skipped.
+ *   LAUNCH_SIGNUP_WEBHOOK_RESEND_TOKEN — Resend API key (re_xxx).
+ *   LAUNCH_SIGNUP_WEBHOOK_BEEHIIV      — Beehiiv subscriptions URL (includes
+ *                                         publication ID). Unset → skipped.
+ *   LAUNCH_SIGNUP_WEBHOOK_BEEHIIV_TOKEN — Beehiiv API key.
+ *
+ *   At least one webhook URL must be set, or the handler returns 503.
+ *   Multiple targets fire in parallel (all-or-nothing): 200 only if all
+ *   succeed, 502 if any fail.
+ *
  *   TURNSTILE_SECRET_KEY   — Cloudflare Turnstile secret. Unset → bot
  *                            verification is SKIPPED and a loud warning is
  *                            logged. This is fail-open by design (form must
@@ -62,6 +70,61 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const HONEYPOT_FIELD = 'hp_company_url'
 
 type SignupField = keyof typeof LIMITS
+
+interface WebhookTarget {
+  name: string
+  url: string
+  token: string | undefined
+  payload: (signup: Record<SignupField, string>) => string
+}
+
+function webhookTargets(): WebhookTarget[] {
+  const targets: WebhookTarget[] = []
+
+  const resendUrl = process.env.LAUNCH_SIGNUP_WEBHOOK_RESEND
+  if (resendUrl) {
+    targets.push({
+      name: 'resend',
+      url: resendUrl,
+      token: process.env.LAUNCH_SIGNUP_WEBHOOK_RESEND_TOKEN,
+      payload: (signup) =>
+        JSON.stringify({
+          email: signup.email,
+          first_name: signup.name,
+          properties: {
+            role: signup.role,
+            company: signup.company,
+            what_you_would_build: signup.what_you_would_build,
+            source: 'statewave.ai/launch',
+          },
+        }),
+    })
+  }
+
+  const beehiivUrl = process.env.LAUNCH_SIGNUP_WEBHOOK_BEEHIIV
+  if (beehiivUrl) {
+    targets.push({
+      name: 'beehiiv',
+      url: beehiivUrl,
+      token: process.env.LAUNCH_SIGNUP_WEBHOOK_BEEHIIV_TOKEN,
+      payload: (signup) =>
+        JSON.stringify({
+          email: signup.email,
+          utm_source: 'statewave.ai/launch',
+          custom_fields: [
+            ...(signup.name ? [{ name: 'First Name', value: signup.name }] : []),
+            ...(signup.role ? [{ name: 'Role', value: signup.role }] : []),
+            ...(signup.company ? [{ name: 'Company', value: signup.company }] : []),
+            ...(signup.what_you_would_build
+              ? [{ name: 'What You Would Build', value: signup.what_you_would_build }]
+              : []),
+          ],
+        }),
+    })
+  }
+
+  return targets
+}
 
 function clean(value: unknown, max: number): string {
   if (typeof value !== 'string') return ''
@@ -204,47 +267,49 @@ export default async function handler(req: Request): Promise<Response> {
     )
   }
 
-  // 6. Forward to the provider.
-  const webhook = process.env.LAUNCH_SIGNUP_WEBHOOK
-  if (!webhook) {
-    // Honest failure: do NOT pretend success and drop the signup.
-    // statewave-launch #6 must set LAUNCH_SIGNUP_WEBHOOK before launch.
+  // 6. Forward to webhook targets (all-or-nothing).
+  const targets = webhookTargets()
+  if (targets.length === 0) {
     return json(
       { error: 'Signup is temporarily unavailable. Please try again shortly.' },
       { status: 503 },
     )
   }
 
-  const controller = new AbortController()
-  const timer = setTimeout(() => controller.abort(), FORWARD_TIMEOUT_MS)
   try {
-    const upstream = await fetch(webhook, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        ...signup,
-        source: 'statewave.ai/launch',
-        submitted_at: new Date().toISOString(),
+    await Promise.all(
+      targets.map(async (target) => {
+        const controller = new AbortController()
+        const timer = setTimeout(() => controller.abort(), FORWARD_TIMEOUT_MS)
+        try {
+          const res = await fetch(target.url, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              ...(target.token && { Authorization: `Bearer ${target.token}` }),
+            },
+            body: target.payload(signup),
+            signal: controller.signal,
+          })
+          if (!res.ok) {
+            console.error(`[launch-signup] ${target.name} upstream ${res.status}`)
+            throw new Error(`${target.name} HTTP ${res.status}`)
+          }
+        } catch (err) {
+          if (err instanceof Error && err.name === 'AbortError') {
+            console.error(`[launch-signup] ${target.name} timeout`)
+          }
+          throw err
+        } finally {
+          clearTimeout(timer)
+        }
       }),
-      signal: controller.signal,
-    })
-    if (!upstream.ok) {
-      // Don't leak upstream detail to the client; log a count-level note.
-      console.error(`[launch-signup] upstream ${upstream.status}`)
-      return json(
-        { error: 'Could not record signup right now. Please try again.' },
-        { status: 502 },
-      )
-    }
+    )
     return json({ ok: true }, { status: 200 })
-  } catch (err) {
-    const reason = err instanceof Error && err.name === 'AbortError' ? 'timeout' : 'error'
-    console.error(`[launch-signup] forward ${reason}`)
+  } catch {
     return json(
       { error: 'Could not record signup right now. Please try again.' },
       { status: 502 },
     )
-  } finally {
-    clearTimeout(timer)
   }
 }
