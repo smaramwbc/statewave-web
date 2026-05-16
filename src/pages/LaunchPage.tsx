@@ -1,7 +1,14 @@
-import { useEffect, useState, type ChangeEvent, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'react'
 import { Section } from '../components/Section'
 import { Heading } from '../components/Heading'
 import { usePageSEO } from '../lib/seo'
+
+// Cloudflare Turnstile public site key. Behind an env seam (same pattern as
+// the server's TURNSTILE_SECRET_KEY): when unset the widget is skipped and
+// the form still works (fail-open). statewave-launch #22 gates setting both
+// keys before launch. Privacy-preserving CAPTCHA — chosen over reCAPTCHA so
+// the site's "no third-party trackers" promise stays true.
+const TURNSTILE_SITE_KEY = (import.meta.env.VITE_TURNSTILE_SITE_KEY ?? '') as string
 
 /**
  * /launch — public landing for the June 16, 2026 launch, with email
@@ -61,6 +68,13 @@ export function LaunchPage() {
   const [state, setState] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle')
   const [fieldErrors, setFieldErrors] = useState<Partial<Record<keyof FormState, string>>>({})
   const [formError, setFormError] = useState<string>('')
+  // Hidden honeypot — real users never touch it; naive bots fill every input.
+  const [honeypot, setHoneypot] = useState('')
+  // Turnstile token + a nonce we bump to remount the widget for a fresh
+  // challenge after a failed submit (tokens are single-use).
+  const [turnstileToken, setTurnstileToken] = useState('')
+  const [turnstileNonce, setTurnstileNonce] = useState(0)
+  const turnstileEnabled = TURNSTILE_SITE_KEY !== ''
 
   function validate(values: FormState): Partial<Record<keyof FormState, string>> {
     const errs: Partial<Record<keyof FormState, string>> = {}
@@ -99,9 +113,22 @@ export function LaunchPage() {
       return
     }
 
+    // If Turnstile is configured, require a token before the round-trip.
+    if (turnstileEnabled && !turnstileToken) {
+      setState('error')
+      setFormError('Please complete the “I’m human” check above, then submit.')
+      return
+    }
+
     setFieldErrors({})
     setFormError('')
     setState('submitting')
+    const failChallenge = () => {
+      // Turnstile tokens are single-use — remount the widget so the next
+      // attempt gets a fresh challenge.
+      setTurnstileToken('')
+      setTurnstileNonce((n) => n + 1)
+    }
     try {
       const response = await fetch('/api/launch-signup', {
         method: 'POST',
@@ -112,6 +139,8 @@ export function LaunchPage() {
           role: form.role.trim(),
           company: form.company.trim(),
           what_you_would_build: form.what_you_would_build.trim(),
+          turnstile_token: turnstileToken,
+          hp_company_url: honeypot,
         }),
       })
       if (!response.ok) {
@@ -128,13 +157,17 @@ export function LaunchPage() {
               : 'We couldn’t submit that. Please check your details and try again.')
         setState('error')
         setFormError(friendly)
+        failChallenge()
         return
       }
       setState('success')
       setForm(EMPTY_FORM)
+      setHoneypot('')
+      setTurnstileToken('')
     } catch {
       setState('error')
       setFormError('Network error — please check your connection and try again.')
+      failChallenge()
     }
   }
 
@@ -248,6 +281,38 @@ export function LaunchPage() {
                   value={form.what_you_would_build}
                   onChange={(v) => handleChange('what_you_would_build', v)}
                 />
+
+                {/* Honeypot — off-screen, never shown to humans, ignored by
+                    AT. A filled value tells the server it's a bot. */}
+                <div
+                  aria-hidden="true"
+                  style={{
+                    position: 'absolute',
+                    left: '-9999px',
+                    width: 1,
+                    height: 1,
+                    overflow: 'hidden',
+                  }}
+                >
+                  <label htmlFor="hp_company_url">Company website</label>
+                  <input
+                    id="hp_company_url"
+                    name="hp_company_url"
+                    type="text"
+                    tabIndex={-1}
+                    autoComplete="off"
+                    value={honeypot}
+                    onChange={(e) => setHoneypot(e.target.value)}
+                  />
+                </div>
+
+                {turnstileEnabled ? (
+                  <Turnstile
+                    key={turnstileNonce}
+                    siteKey={TURNSTILE_SITE_KEY}
+                    onToken={setTurnstileToken}
+                  />
+                ) : null}
 
                 <button
                   type="submit"
@@ -373,4 +438,100 @@ function Field({
       ) : null}
     </div>
   )
+}
+
+// Minimal shape of the Cloudflare Turnstile global. Kept local (no global
+// augmentation) so this stays a self-contained, privacy-preserving widget.
+interface TurnstileApi {
+  render: (
+    el: HTMLElement,
+    opts: {
+      sitekey: string
+      callback: (token: string) => void
+      'expired-callback'?: () => void
+      'error-callback'?: () => void
+    },
+  ) => string
+  remove: (widgetId: string) => void
+}
+
+const TURNSTILE_SCRIPT_ID = 'cf-turnstile-script'
+const TURNSTILE_SRC =
+  'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit'
+
+function getTurnstile(): TurnstileApi | undefined {
+  return (window as unknown as { turnstile?: TurnstileApi }).turnstile
+}
+
+function loadTurnstileScript(): Promise<void> {
+  return new Promise((resolve, reject) => {
+    if (getTurnstile()) return resolve()
+    const existing = document.getElementById(TURNSTILE_SCRIPT_ID)
+    if (existing) {
+      existing.addEventListener('load', () => resolve())
+      existing.addEventListener('error', () => reject(new Error('turnstile load')))
+      return
+    }
+    const s = document.createElement('script')
+    s.id = TURNSTILE_SCRIPT_ID
+    s.src = TURNSTILE_SRC
+    s.async = true
+    s.defer = true
+    s.addEventListener('load', () => resolve())
+    s.addEventListener('error', () => reject(new Error('turnstile load')))
+    document.head.appendChild(s)
+  })
+}
+
+/**
+ * Cloudflare Turnstile — privacy-preserving CAPTCHA. Explicit render so it
+ * plays nicely with React. Remounted (via a `key` bump from the parent)
+ * after a failed submit to issue a fresh single-use token. If the script
+ * fails to load the parent's submit still works; the server enforces the
+ * token when TURNSTILE_SECRET_KEY is set.
+ */
+function Turnstile({
+  siteKey,
+  onToken,
+}: {
+  siteKey: string
+  onToken: (token: string) => void
+}) {
+  const containerRef = useRef<HTMLDivElement | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    let widgetId: string | undefined
+
+    loadTurnstileScript()
+      .then(() => {
+        if (cancelled) return
+        const api = getTurnstile()
+        const el = containerRef.current
+        if (!api || !el) return
+        widgetId = api.render(el, {
+          sitekey: siteKey,
+          callback: (token: string) => onToken(token),
+          'expired-callback': () => onToken(''),
+          'error-callback': () => onToken(''),
+        })
+      })
+      .catch(() => {
+        /* script blocked/failed — server-side check still gates when set */
+      })
+
+    return () => {
+      cancelled = true
+      const api = getTurnstile()
+      if (api && widgetId) {
+        try {
+          api.remove(widgetId)
+        } catch {
+          /* widget already gone */
+        }
+      }
+    }
+  }, [siteKey, onToken])
+
+  return <div ref={containerRef} className="mt-1" />
 }
