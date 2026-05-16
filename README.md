@@ -339,13 +339,6 @@ Custom domain: `statewave.ai` (configure in Vercel dashboard).
 | [Examples](https://github.com/smaramwbc/statewave-examples) | Runnable examples |
 | [Admin](https://github.com/smaramwbc/statewave-admin) | Operator console (read-only) |
 
-## GitHub repo settings
-
-Recommended:
-- **Description:** `Official website for Statewave — open-source memory runtime for AI agents`
-- **Website:** `https://statewave.ai`
-- **Topics:** `statewave`, `ai-agents`, `memory`, `memory-runtime`, `marketing-site`, `react`, `vite`
-
 ## License
 
 Apache-2.0
