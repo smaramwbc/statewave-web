@@ -47,6 +47,7 @@ describe('dispatchWeb — known routes', () => {
       '/api/demo-seed',
       '/api/demo-state',
       '/api/hero-data',
+      '/api/launch-signup',
       '/api/widget-chat',
     ])
   })
