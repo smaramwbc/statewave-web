@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from 'react'
+import { useEffect, useState, type ChangeEvent, type FormEvent } from 'react'
 import { Section } from '../components/Section'
 import { Heading } from '../components/Heading'
 import { usePageSEO } from '../lib/seo'
@@ -11,6 +11,10 @@ import { usePageSEO } from '../lib/seo'
  */
 
 const LAUNCH_AT = new Date('2026-06-16T07:01:00.000Z') // 09:01 CEST = 00:01 PT = 07:01 UTC
+
+// Mirror of the server-side check (server/handlers/launch-signup.ts) so the
+// client catches bad input before the network round-trip.
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 interface FormState {
   name: string
@@ -55,32 +59,82 @@ export function LaunchPage() {
   const { days, hours, minutes, seconds, isPast } = useCountdown(LAUNCH_AT)
   const [form, setForm] = useState<FormState>(EMPTY_FORM)
   const [state, setState] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle')
-  const [errorMessage, setErrorMessage] = useState<string>('')
+  const [fieldErrors, setFieldErrors] = useState<Partial<Record<keyof FormState, string>>>({})
+  const [formError, setFormError] = useState<string>('')
+
+  function validate(values: FormState): Partial<Record<keyof FormState, string>> {
+    const errs: Partial<Record<keyof FormState, string>> = {}
+    if (!values.name.trim()) {
+      errs.name = 'Please enter your name.'
+    }
+    const email = values.email.trim()
+    if (!email) {
+      errs.email = 'Please enter your email.'
+    } else if (!EMAIL_RE.test(email)) {
+      errs.email = "That doesn't look like a valid email address."
+    }
+    return errs
+  }
 
   function handleChange<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((prev) => ({ ...prev, [key]: value }))
+    // Clear a field's error the moment the user starts correcting it.
+    setFieldErrors((prev) => (prev[key] ? { ...prev, [key]: undefined } : prev))
+    if (formError) setFormError('')
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     if (state === 'submitting') return
+
+    const errs = validate(form)
+    if (Object.keys(errs).length > 0) {
+      setFieldErrors(errs)
+      setState('idle')
+      // Move focus to the first invalid field for keyboard + screen-reader users.
+      const firstInvalid = (['name', 'email'] as const).find((k) => errs[k])
+      if (firstInvalid) {
+        document.getElementById(`launch-${firstInvalid}`)?.focus()
+      }
+      return
+    }
+
+    setFieldErrors({})
+    setFormError('')
     setState('submitting')
-    setErrorMessage('')
     try {
       const response = await fetch('/api/launch-signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify({
+          name: form.name.trim(),
+          email: form.email.trim(),
+          role: form.role.trim(),
+          company: form.company.trim(),
+          what_you_would_build: form.what_you_would_build.trim(),
+        }),
       })
       if (!response.ok) {
-        const text = await response.text().catch(() => '')
-        throw new Error(text || `Signup failed (${response.status})`)
+        // Parse the JSON error cleanly — never surface raw JSON to the user.
+        const data = (await response.json().catch(() => null)) as { error?: unknown } | null
+        const serverMsg =
+          data && typeof data.error === 'string' && data.error.trim() ? data.error.trim() : ''
+        const friendly =
+          serverMsg ||
+          (response.status === 503
+            ? "Signups aren't open quite yet — please try again shortly."
+            : response.status >= 500
+              ? 'Something went wrong on our end. Please try again in a moment.'
+              : 'We couldn’t submit that. Please check your details and try again.')
+        setState('error')
+        setFormError(friendly)
+        return
       }
       setState('success')
       setForm(EMPTY_FORM)
-    } catch (err) {
+    } catch {
       setState('error')
-      setErrorMessage(err instanceof Error ? err.message : 'Signup failed. Please try again.')
+      setFormError('Network error — please check your connection and try again.')
     }
   }
 
@@ -161,6 +215,7 @@ export function LaunchPage() {
                   required
                   value={form.name}
                   onChange={(v) => handleChange('name', v)}
+                  error={fieldErrors.name}
                 />
                 <Field
                   id="launch-email"
@@ -169,6 +224,7 @@ export function LaunchPage() {
                   required
                   value={form.email}
                   onChange={(v) => handleChange('email', v)}
+                  error={fieldErrors.email}
                 />
                 <Field
                   id="launch-role"
@@ -201,13 +257,13 @@ export function LaunchPage() {
                   {state === 'submitting' ? 'Sending…' : 'Notify me on launch day'}
                 </button>
 
-                {state === 'error' ? (
-                  <p
+                {state === 'error' && formError ? (
+                  <div
                     role="alert"
-                    className="text-xs text-red-600 dark:text-red-400"
+                    className="rounded-xl border border-red-500/30 bg-red-500/5 px-4 py-3 text-sm text-red-600 dark:text-red-400"
                   >
-                    {errorMessage || 'Something went wrong. Please try again.'}
-                  </p>
+                    {formError}
+                  </div>
                 ) : null}
 
                 <p className="text-[11px] text-theme-muted leading-relaxed">
@@ -262,6 +318,7 @@ interface FieldProps {
   required?: boolean
   placeholder?: string
   multiline?: boolean
+  error?: string
 }
 
 function Field({
@@ -273,39 +330,47 @@ function Field({
   required = false,
   placeholder,
   multiline = false,
+  error,
 }: FieldProps) {
-  const sharedClass =
-    'w-full rounded-xl border border-theme-border bg-surface-0 px-4 py-3 text-sm text-theme-primary placeholder:text-theme-muted focus:outline-none focus:ring-2 focus:ring-accent/40 focus:border-accent transition-colors'
+  const hasError = Boolean(error)
+  const errorId = `${id}-error`
+  const base =
+    'w-full rounded-xl border bg-surface-0 px-4 py-3 text-sm text-theme-primary placeholder:text-theme-muted focus:outline-none focus:ring-2 transition-colors'
+  const borderClass = hasError
+    ? 'border-red-500/60 focus:ring-red-500/30 focus:border-red-500'
+    : 'border-theme-border focus:ring-accent/40 focus:border-accent'
+  const cls = `${base} ${borderClass}`
+  const shared = {
+    id,
+    name: id,
+    required,
+    placeholder,
+    value,
+    'aria-invalid': hasError || undefined,
+    'aria-describedby': hasError ? errorId : undefined,
+    onChange: (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+      onChange(e.target.value),
+    className: cls,
+  }
 
   return (
-    <label htmlFor={id} className="block">
-      <span className="block text-xs font-medium uppercase tracking-[0.16em] text-theme-muted mb-2">
-        {label}
-        {required ? <span className="text-accent ml-1">*</span> : null}
-      </span>
-      {multiline ? (
-        <textarea
-          id={id}
-          name={id}
-          required={required}
-          placeholder={placeholder}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          rows={3}
-          className={sharedClass}
-        />
-      ) : (
-        <input
-          id={id}
-          name={id}
-          type={type}
-          required={required}
-          placeholder={placeholder}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          className={sharedClass}
-        />
-      )}
-    </label>
+    <div>
+      <label htmlFor={id} className="block">
+        <span className="block text-xs font-medium uppercase tracking-[0.16em] text-theme-muted mb-2">
+          {label}
+          {required ? <span className="text-accent ml-1">*</span> : null}
+        </span>
+        {multiline ? (
+          <textarea {...shared} rows={3} />
+        ) : (
+          <input {...shared} type={type} />
+        )}
+      </label>
+      {hasError ? (
+        <p id={errorId} role="alert" className="mt-1.5 text-xs text-red-600 dark:text-red-400">
+          {error}
+        </p>
+      ) : null}
+    </div>
   )
 }
