@@ -179,12 +179,42 @@ export function useChatWidget() {
  * docs-shared personas later is a one-line registry change.
  */
 export const DEMO_PERSONAS = [
-  { id: 'support-agent', label: 'Support Agent', kind: 'visitor-memory' },
-  { id: 'coding-assistant', label: 'Coding Assistant', kind: 'visitor-memory' },
-  { id: 'sales-copilot', label: 'Sales Copilot', kind: 'visitor-memory' },
-  { id: 'devops-agent', label: 'DevOps Agent', kind: 'visitor-memory' },
-  { id: 'research-assistant', label: 'Research Assistant', kind: 'visitor-memory' },
-  { id: 'statewave-support', label: 'Statewave Support', kind: 'docs-shared' },
+  {
+    id: 'support-agent',
+    label: 'Support Agent',
+    kind: 'visitor-memory',
+    blurb: 'Remembers each customer’s account, past tickets, and preferences across chats.',
+  },
+  {
+    id: 'coding-assistant',
+    label: 'Coding Assistant',
+    kind: 'visitor-memory',
+    blurb: 'Recalls your stack, conventions, and past decisions so you stop re-explaining your codebase.',
+  },
+  {
+    id: 'sales-copilot',
+    label: 'Sales Copilot',
+    kind: 'visitor-memory',
+    blurb: 'Tracks every prospect — company, deal stage, and prior conversations.',
+  },
+  {
+    id: 'devops-agent',
+    label: 'DevOps Agent',
+    kind: 'visitor-memory',
+    blurb: 'Keeps your services, incidents, and runbooks in context across sessions.',
+  },
+  {
+    id: 'research-assistant',
+    label: 'Research Assistant',
+    kind: 'visitor-memory',
+    blurb: 'Builds on earlier findings and sources instead of restarting every session.',
+  },
+  {
+    id: 'statewave-support',
+    label: 'Statewave Support',
+    kind: 'docs-shared',
+    blurb: 'Answers grounded in the official Statewave docs, with citations to the pages used.',
+  },
 ] as const
 
 export type PersonaKind = 'visitor-memory' | 'docs-shared'
@@ -193,10 +223,23 @@ export const DEMO_SUBJECTS = DEMO_PERSONAS.map((p) => ({
   id: p.id,
   label: p.label,
   kind: p.kind as PersonaKind,
+  blurb: p.blurb,
 }))
 
 export function personaKind(id: string): PersonaKind | null {
   return DEMO_PERSONAS.find((p) => p.id === id)?.kind ?? null
+}
+
+/**
+ * One-line, visitor-facing description of what a persona's memory does.
+ * Accepts either a persona id (`support-agent`) or a hero-canvas subject id
+ * (`demo-support-agent`) — the `demo-` prefix is stripped so the particle
+ * tooltips can share the same copy as the widget. Returns `null` for unknown
+ * ids so callers can fall back to generic copy.
+ */
+export function personaBlurb(idOrSubjectId: string): string | null {
+  const id = idOrSubjectId.replace(/^demo-/, '')
+  return DEMO_PERSONAS.find((p) => p.id === id)?.blurb ?? null
 }
 
 export function isVisitorMemoryPersona(id: string): boolean {

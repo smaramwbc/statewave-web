@@ -1,6 +1,6 @@
 import { useRef, useEffect, useCallback, useState } from 'react'
 import { useTheme } from '../lib/theme'
-import { useChatWidget } from '../lib/widget-context-api'
+import { useChatWidget, personaBlurb } from '../lib/widget-context-api'
 import { fetchLiveData, type LiveSubjectData } from '../services/statewave-live'
 
 /**
@@ -266,6 +266,10 @@ export function HeroBackground() {
   const progressRef = useRef<number>(0)
   const hintSubjectIdxRef = useRef<number>(-1)
   const [hintPos, setHintPos] = useState<{ x: number; y: number } | null>(null)
+  // Agent name shown on the hint pill's second line. Ref mirrors the state so
+  // the per-frame draw loop only triggers a re-render when it actually changes.
+  const [hintLabel, setHintLabel] = useState<string | null>(null)
+  const hintLabelRef = useRef<string | null>(null)
   const [hintVisible, setHintVisible] = useState(true)
 
   themeRef.current = isDark
@@ -328,7 +332,8 @@ export function HeroBackground() {
       if (dist < hitRadius) {
         const memCount = memoriesRef.current.filter(m => m.subjectIdx === i).length
         const epCount = episodesRef.current.filter(ep => ep.subjectIdx === i).length
-        const text = `Subject anchors all data for one entity.\n${memCount} memories · ${epCount} episodes`
+        const blurb = personaBlurb(s.subjectId) ?? 'This subject anchors all data for one entity.'
+        const text = `${blurb}\n${memCount} memories · ${epCount} episodes`
         setTooltip({ x: e.clientX - rect.left, y: e.clientY - rect.top, text, type: `${s.label} · ${s.subjectId}`, group: s.group, kind: 'subject' })
         hoveredRef.current = { kind: 'subject', idx: i }
         document.body.style.cursor = 'pointer'
@@ -784,13 +789,23 @@ export function HeroBackground() {
         ctx.stroke()
       }
 
-      // Subject label (when settled)
+      // Subject label (when settled). The agent name is the one piece of
+      // canvas text visitors actually need to read, so it gets a neutral
+      // high-contrast fill plus an opposite-tone halo instead of the faint
+      // saturated group color — the latter was nearly invisible over the
+      // busy particle field and the section's edge vignette.
       if (progress > 0.7) {
-        const labelAlpha = (progress - 0.7) * 3.3 * (dark ? 0.7 : 0.8)
-        ctx.font = '500 10px Inter, system-ui, sans-serif'
-        ctx.fillStyle = groupColor(s.group, dark ? 85 : 35, labelAlpha)
+        const labelAlpha = Math.min(1, (progress - 0.7) * 4)
+        ctx.font = '600 11px Inter, system-ui, sans-serif'
         ctx.textAlign = 'center'
-        ctx.fillText(s.label, px, py + s.size + 14)
+        ctx.shadowColor = dark ? 'rgba(0, 0, 0, 0.6)' : 'rgba(255, 255, 255, 0.9)'
+        ctx.shadowBlur = 4
+        ctx.fillStyle = dark
+          ? `rgba(226, 232, 240, ${labelAlpha})`
+          : `rgba(30, 41, 59, ${labelAlpha})`
+        ctx.fillText(s.label, px, py + s.size + 15)
+        ctx.shadowBlur = 0
+        ctx.shadowColor = 'transparent'
       }
     }
 
@@ -803,6 +818,10 @@ export function HeroBackground() {
       if (!lastHintUpdate.current || now - lastHintUpdate.current > 80) {
         lastHintUpdate.current = now
         setHintPos({ x: s.x, y: s.y })
+      }
+      if (hintLabelRef.current !== s.label) {
+        hintLabelRef.current = s.label
+        setHintLabel(s.label)
       }
     }
 
@@ -923,27 +942,31 @@ export function HeroBackground() {
                   className="w-2.5 h-2.5 rounded-full"
                   style={{ backgroundColor: `hsl(${GROUP_COLORS[tooltip.group % 5].h}, 70%, 60%)` }}
                 />
-                <span className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: isDark ? '#a5b4fc' : '#6b7280' }}>
+                <span className="text-xs font-bold uppercase tracking-wide" style={{ color: isDark ? '#c7d2fe' : '#4338ca' }}>
                   {tooltip.type}
                 </span>
               </div>
               <div className="space-y-1">
                 {tooltip.text.split('\n').map((line, i) => (
-                  <p key={i} className="text-[11px] leading-relaxed" style={{ color: isDark ? '#c7d2fe' : '#374151', opacity: 0.9 - i * 0.04 }}>
+                  <p key={i} className="text-[11px] leading-relaxed" style={{ color: isDark ? '#dbe2fe' : '#1f2937', opacity: Math.max(0.82, 0.95 - i * 0.06) }}>
                     {line}
                   </p>
                 ))}
               </div>
               <div
-                className="mt-2 pt-2 border-t text-[10px] font-medium tracking-wide flex items-center gap-1"
-                style={{
-                  borderColor: isDark ? 'rgba(129, 140, 248, 0.15)' : 'rgba(99, 102, 241, 0.12)',
-                  color: isDark ? '#a5b4fc' : '#6366f1',
-                  opacity: 0.85,
-                }}
+                className="mt-2.5 pt-2.5 border-t flex items-center justify-center"
+                style={{ borderColor: isDark ? 'rgba(129, 140, 248, 0.15)' : 'rgba(99, 102, 241, 0.12)' }}
               >
-                Click to try the demo
-                <span aria-hidden>→</span>
+                <span
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-semibold tracking-wide w-full justify-center"
+                  style={{
+                    background: 'linear-gradient(135deg, #6366f1 0%, #38bdf8 55%, #22d3ee 100%)',
+                    color: '#ffffff',
+                  }}
+                >
+                  Click this agent to try the demo
+                  <span aria-hidden>→</span>
+                </span>
               </div>
             </div>
           )}
@@ -967,13 +990,17 @@ export function HeroBackground() {
           }}
         >
           <div
-            className="pointer-events-auto flex items-center gap-2 px-4 py-2.5 rounded-full text-[13px] font-semibold cursor-pointer whitespace-nowrap transition-transform duration-150 hover:scale-110"
+            className="pointer-events-auto flex items-center gap-2.5 pl-4 pr-5 py-2.5 rounded-2xl cursor-pointer whitespace-nowrap transition-transform duration-150 hover:scale-110"
             style={{
-              backgroundColor: '#6366f1',
+              // Brand gradient (indigo → sky → cyan) so the pill pops against
+              // the cool-toned particle field instead of blending into it.
+              background: 'linear-gradient(135deg, #6366f1 0%, #38bdf8 55%, #22d3ee 100%)',
               color: '#ffffff',
+              // Stronger glow ring than the old flat chip — a wider halo plus a
+              // tinted drop shadow so it reads as the primary call to action.
               boxShadow: isDark
-                ? '0 0 0 4px rgba(99, 102, 241, 0.18), 0 8px 24px -4px rgba(99, 102, 241, 0.55), 0 4px 12px -2px rgba(0, 0, 0, 0.35)'
-                : '0 0 0 4px rgba(99, 102, 241, 0.18), 0 8px 24px -4px rgba(99, 102, 241, 0.4), 0 4px 12px -2px rgba(99, 102, 241, 0.25)',
+                ? '0 0 0 5px rgba(56, 189, 248, 0.20), 0 10px 30px -4px rgba(56, 189, 248, 0.55), 0 6px 16px -2px rgba(0, 0, 0, 0.4)'
+                : '0 0 0 5px rgba(56, 189, 248, 0.18), 0 10px 30px -4px rgba(56, 189, 248, 0.45), 0 6px 16px -2px rgba(99, 102, 241, 0.3)',
               animation: 'heroHintBounce 1.4s ease-in-out infinite',
             }}
             onClick={() => {
@@ -990,18 +1017,24 @@ export function HeroBackground() {
             {/* Mouse cursor icon — direct visual cue to "interact here" */}
             <svg
               aria-hidden
-              width="14"
-              height="14"
+              width="16"
+              height="16"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
               strokeWidth="2.4"
               strokeLinecap="round"
               strokeLinejoin="round"
+              className="flex-shrink-0"
             >
               <path d="M3 3l7 19 2-8 8-2z" />
             </svg>
-            <span>Try with Memory</span>
+            <span className="flex flex-col leading-tight text-left">
+              <span className="text-[13px] font-semibold">Try with Memory</span>
+              {hintLabel && (
+                <span className="text-[11px] font-medium text-white/85">{hintLabel}</span>
+              )}
+            </span>
           </div>
         </div>
       )}

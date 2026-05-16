@@ -15,8 +15,8 @@ import {
   websiteJsonLd,
 } from '../lib/seo-meta'
 import { FAQ_ENTRIES } from '../lib/faq'
-import { useChatWidget, useTrackDemoCta } from '../lib/widget-context-api'
-import { useRef } from 'react'
+import { useChatWidget, useTrackDemoCta, DEMO_SUBJECTS } from '../lib/widget-context-api'
+import { useRef, useState, useEffect } from 'react'
 
 export function HomePage() {
   // The home page is the canonical landing for Organization, WebSite, and
@@ -50,9 +50,43 @@ export function HomePage() {
 }
 
 function HeroSection() {
-  const { openWidget } = useChatWidget()
+  const { openWidget, availablePersonas } = useChatWidget()
   const heroCtaRef = useRef<HTMLButtonElement>(null)
   useTrackDemoCta(heroCtaRef)
+
+  // Persona menu attached to the "Try the Demo" split button. The main button
+  // still launches the default persona in one click; the caret opens this so
+  // visitors can pick which agent's memory they want to try first.
+  const [personaMenuOpen, setPersonaMenuOpen] = useState(false)
+  const personaMenuRef = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    if (!personaMenuOpen) return
+    const onDocMouseDown = (e: MouseEvent) => {
+      if (!personaMenuRef.current?.contains(e.target as Node)) {
+        setPersonaMenuOpen(false)
+      }
+    }
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setPersonaMenuOpen(false)
+    }
+    document.addEventListener('mousedown', onDocMouseDown)
+    document.addEventListener('keydown', onKey)
+    return () => {
+      document.removeEventListener('mousedown', onDocMouseDown)
+      document.removeEventListener('keydown', onKey)
+    }
+  }, [personaMenuOpen])
+
+  // Same availability gating the in-widget picker uses: only offer personas
+  // the backend actually has memory for; fall back to the full catalog while
+  // the check is in flight (null) or if it returned empty.
+  const heroPersonas = (() => {
+    const filtered =
+      availablePersonas && availablePersonas.length > 0
+        ? DEMO_SUBJECTS.filter((s) => availablePersonas.includes(s.id))
+        : DEMO_SUBJECTS
+    return filtered.length > 0 ? filtered : DEMO_SUBJECTS
+  })()
   const stagger = {
     hidden: {},
     show: { transition: { staggerChildren: 0.12, delayChildren: 0.1 } },
@@ -119,17 +153,69 @@ function HeroSection() {
           {/* CTAs — wrap cleanly on small phones; primary stays full-width
               up to 360px so it never collides with the secondary link. */}
           <motion.div variants={fadeUp} className="mt-8 sm:mt-10 flex flex-wrap items-center gap-3 sm:gap-4">
-            <button
-              ref={heroCtaRef}
-              type="button"
-              onClick={() => openWidget()}
-              className="inline-flex min-h-11 items-center justify-center gap-2 px-6 py-3 rounded-lg bg-accent text-white text-sm font-medium hover:bg-accent-light transition-[background-color,box-shadow,transform] duration-150 shadow-lg shadow-accent/20 hover:shadow-accent/30 hover:-translate-y-px"
+            <div
+              ref={personaMenuRef}
+              className="relative inline-flex rounded-lg shadow-lg shadow-accent/20 hover:shadow-accent/30 transition-shadow duration-150"
             >
-              Try the Demo
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-              </svg>
-            </button>
+              {/* Main action — one-click launch of the default persona. */}
+              <button
+                ref={heroCtaRef}
+                type="button"
+                onClick={() => openWidget()}
+                className="inline-flex min-h-11 items-center justify-center gap-2 pl-6 pr-5 py-3 rounded-l-lg bg-accent text-white text-sm font-medium hover:bg-accent-light transition-colors duration-150"
+              >
+                Try the Demo
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </button>
+              {/* Caret — opens the persona menu. */}
+              <button
+                type="button"
+                onClick={() => setPersonaMenuOpen((v) => !v)}
+                aria-haspopup="menu"
+                aria-expanded={personaMenuOpen}
+                aria-label="Choose a demo persona"
+                className="inline-flex min-h-11 items-center justify-center px-2.5 rounded-r-lg bg-accent text-white hover:bg-accent-light border-l border-white/20 transition-colors duration-150"
+              >
+                <svg
+                  className={`w-4 h-4 transition-transform duration-150 ${personaMenuOpen ? 'rotate-180' : ''}`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+
+              {personaMenuOpen && (
+                <div
+                  role="menu"
+                  data-testid="hero-persona-menu"
+                  className="absolute left-0 top-full mt-2 w-72 rounded-lg border border-theme-border bg-surface-1 shadow-xl z-30 overflow-hidden"
+                >
+                  <div className="px-3 py-2 text-[10px] uppercase tracking-wider text-theme-muted border-b border-theme-border/60">
+                    Pick a persona to try
+                  </div>
+                  {heroPersonas.map((s) => (
+                    <button
+                      key={s.id}
+                      type="button"
+                      role="menuitem"
+                      onClick={() => {
+                        openWidget(s.id, s.label)
+                        setPersonaMenuOpen(false)
+                      }}
+                      className="block w-full px-3 py-2.5 text-left hover:bg-accent/10 transition-colors"
+                    >
+                      <span className="block text-sm font-medium text-theme-primary">{s.label}</span>
+                      <span className="block mt-0.5 text-xs text-theme-muted leading-snug">{s.blurb}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
             <a
               href="https://github.com/smaramwbc/statewave-docs/blob/main/getting-started.md"
               target="_blank"

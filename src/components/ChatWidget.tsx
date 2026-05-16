@@ -28,7 +28,7 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useChatWidget, DEMO_SUBJECTS, isDocsSharedPersona, type DocSource } from '../lib/widget-context-api'
+import { useChatWidget, DEMO_SUBJECTS, isDocsSharedPersona, personaBlurb, type DocSource } from '../lib/widget-context-api'
 import { useTheme } from '../lib/theme'
 import { Logo } from './Logo'
 import { MarkdownMessage } from './chat/MarkdownMessage'
@@ -437,7 +437,7 @@ export function ChatWidget() {
                     initial={{ opacity: 0, y: -8 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -8 }}
-                    className="absolute top-full left-0 mt-1 w-56 rounded-lg shadow-xl border overflow-hidden z-20"
+                    className="absolute top-full left-0 mt-1 w-72 rounded-lg shadow-xl border overflow-hidden z-20"
                     style={{
                       backgroundColor: isDark ? 'rgba(15, 12, 41, 0.98)' : 'rgba(255, 255, 255, 0.98)',
                       borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
@@ -470,12 +470,10 @@ export function ChatWidget() {
                         }`}
                         data-persona-kind={s.kind}
                       >
-                        <div>{s.label}</div>
-                        {s.kind === 'docs-shared' && (
-                          <div className="text-[10px] text-theme-muted mt-0.5">
-                            Grounded in official docs
-                          </div>
-                        )}
+                        <div className="font-medium">{s.label}</div>
+                        <div className="text-[10px] text-theme-muted mt-0.5 leading-snug">
+                          {s.blurb}
+                        </div>
                       </button>
                     ))}
                   </motion.div>
@@ -637,6 +635,31 @@ export function ChatWidget() {
                   ? 'Ask Statewave Support'
                   : 'Try Statewave with real memory'}
             </h3>
+
+            {/* Selected-persona card — tells the visitor *which* agent they're
+                about to talk to and what its memory does, before the generic
+                "how the demo works" copy below. Switching personas (header
+                dropdown / hero menu) updates this in place. */}
+            {!isSupportMode && (
+              <div
+                data-testid="welcome-persona"
+                className="mt-4 flex items-start gap-2.5 px-3.5 py-2.5 rounded-xl border max-w-md text-left"
+                style={{
+                  backgroundColor: isDark ? 'rgba(99, 102, 241, 0.08)' : 'rgba(99, 102, 241, 0.05)',
+                  borderColor: isDark ? 'rgba(129, 140, 248, 0.22)' : 'rgba(99, 102, 241, 0.18)',
+                }}
+              >
+                <span className="mt-1 w-2 h-2 rounded-full bg-accent flex-shrink-0" />
+                <span className="min-w-0">
+                  <span className="block text-xs sm:text-sm font-semibold text-theme-primary">
+                    {personaLabel}
+                  </span>
+                  <span className="block mt-0.5 text-[11px] sm:text-xs text-theme-muted leading-relaxed">
+                    {personaBlurb(persona) ?? 'A demo agent with its own Statewave memory.'}
+                  </span>
+                </span>
+              </div>
+            )}
 
             {isSupportMode ? (
               <>
