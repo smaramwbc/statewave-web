@@ -1,4 +1,5 @@
 import React from 'react'
+import { createPortal } from 'react-dom'
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { Section } from '../components/Section'
@@ -16,7 +17,7 @@ import {
 } from '../lib/seo-meta'
 import { FAQ_ENTRIES } from '../lib/faq'
 import { useChatWidget, useTrackDemoCta, DEMO_SUBJECTS } from '../lib/widget-context-api'
-import { useRef, useState, useEffect } from 'react'
+import { useRef, useState, useEffect, useCallback } from 'react'
 
 export function HomePage() {
   // The home page is the canonical landing for Organization, WebSite, and
@@ -58,11 +59,62 @@ function HeroSection() {
   // still launches the default persona in one click; the caret opens this so
   // visitors can pick which agent's memory they want to try first.
   const [personaMenuOpen, setPersonaMenuOpen] = useState(false)
-  const personaMenuRef = useRef<HTMLDivElement>(null)
+  // The split button lives inside the hero <section>, which is overflow-hidden
+  // to clip the full-bleed particle canvas + bottom fade. An absolutely
+  // positioned dropdown is a child of that section, so a tall menu gets cut
+  // off at the section edge. We render the menu in a portal (escaping the
+  // clip) and position it with `fixed` from the trigger's viewport rect.
+  const personaMenuRef = useRef<HTMLDivElement>(null) // split-button trigger
+  const personaMenuPanelRef = useRef<HTMLDivElement>(null) // portaled panel
+  const [menuPos, setMenuPos] = useState<{
+    left: number
+    top?: number
+    bottom?: number
+    maxHeight: number
+  } | null>(null)
+
+  // Measure the trigger and compute a viewport-anchored position for the
+  // portaled panel. Called from the open handler and from scroll/resize while
+  // open — never directly inside an effect, so it never reflows during render.
+  const placeMenu = useCallback(() => {
+    const el = personaMenuRef.current
+    if (!el) return
+    const MENU_W = 288 // w-72
+    const GAP = 8
+    const r = el.getBoundingClientRect()
+    const spaceBelow = window.innerHeight - r.bottom - GAP
+    const spaceAbove = r.top - GAP
+    // Prefer dropping down; flip up only when there's clearly more room
+    // above. Either way the panel scrolls internally rather than ever
+    // exceeding the viewport.
+    const openUp = spaceBelow < 260 && spaceAbove > spaceBelow
+    const left = Math.max(8, Math.min(r.left, window.innerWidth - MENU_W - 8))
+    const maxHeight = Math.max(160, (openUp ? spaceAbove : spaceBelow) - 8)
+    setMenuPos(
+      openUp
+        ? { left, bottom: window.innerHeight - r.top + GAP, maxHeight }
+        : { left, top: r.bottom + GAP, maxHeight },
+    )
+  }, [])
+
+  const togglePersonaMenu = useCallback(() => {
+    setPersonaMenuOpen((open) => {
+      const next = !open
+      if (next) placeMenu()
+      return next
+    })
+  }, [placeMenu])
+
+  // While open: keep the panel glued to the trigger on scroll/resize and
+  // close on outside click / Escape. No state is set synchronously here.
   useEffect(() => {
     if (!personaMenuOpen) return
     const onDocMouseDown = (e: MouseEvent) => {
-      if (!personaMenuRef.current?.contains(e.target as Node)) {
+      const t = e.target as Node
+      if (
+        !personaMenuRef.current?.contains(t) &&
+        !personaMenuPanelRef.current?.contains(t)
+      ) {
         setPersonaMenuOpen(false)
       }
     }
@@ -71,11 +123,17 @@ function HeroSection() {
     }
     document.addEventListener('mousedown', onDocMouseDown)
     document.addEventListener('keydown', onKey)
+    // `true` (capture) so the menu follows even when a scrollable ancestor
+    // — not just the window — moves under it.
+    window.addEventListener('scroll', placeMenu, true)
+    window.addEventListener('resize', placeMenu)
     return () => {
       document.removeEventListener('mousedown', onDocMouseDown)
       document.removeEventListener('keydown', onKey)
+      window.removeEventListener('scroll', placeMenu, true)
+      window.removeEventListener('resize', placeMenu)
     }
-  }, [personaMenuOpen])
+  }, [personaMenuOpen, placeMenu])
 
   // Same availability gating the in-widget picker uses: only offer personas
   // the backend actually has memory for; fall back to the full catalog while
@@ -172,7 +230,7 @@ function HeroSection() {
               {/* Caret — opens the persona menu. */}
               <button
                 type="button"
-                onClick={() => setPersonaMenuOpen((v) => !v)}
+                onClick={togglePersonaMenu}
                 aria-haspopup="menu"
                 aria-expanded={personaMenuOpen}
                 aria-label="Choose a demo persona"
@@ -189,13 +247,20 @@ function HeroSection() {
                 </svg>
               </button>
 
-              {personaMenuOpen && (
+              {personaMenuOpen && menuPos && createPortal(
                 <div
+                  ref={personaMenuPanelRef}
                   role="menu"
                   data-testid="hero-persona-menu"
-                  className="absolute left-0 top-full mt-2 w-72 rounded-lg border border-theme-border bg-surface-1 shadow-xl z-30 overflow-hidden"
+                  className="fixed w-72 rounded-lg border border-theme-border bg-surface-1 shadow-xl z-[60] overflow-y-auto overscroll-contain"
+                  style={{
+                    left: menuPos.left,
+                    top: menuPos.top,
+                    bottom: menuPos.bottom,
+                    maxHeight: menuPos.maxHeight,
+                  }}
                 >
-                  <div className="px-3 py-2 text-[10px] uppercase tracking-wider text-theme-muted border-b border-theme-border/60">
+                  <div className="px-3 py-2 text-[10px] uppercase tracking-wider text-theme-muted border-b border-theme-border/60 sticky top-0 bg-surface-1">
                     Pick a persona to try
                   </div>
                   {heroPersonas.map((s) => (
@@ -213,7 +278,8 @@ function HeroSection() {
                       <span className="block mt-0.5 text-xs text-theme-muted leading-snug">{s.blurb}</span>
                     </button>
                   ))}
-                </div>
+                </div>,
+                document.body,
               )}
             </div>
             <a
