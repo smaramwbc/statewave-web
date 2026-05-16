@@ -263,6 +263,13 @@ export function HeroBackground() {
   const [tooltip, setTooltip] = useState<{ x: number; y: number; text: string; type: string; group: number; kind: 'memory' | 'episode' | 'subject' } | null>(null)
   const [isLive, setIsLive] = useState(false)
   const hoveredRef = useRef<{ kind: 'memory' | 'episode' | 'subject'; idx: number } | null>(null)
+  // True while the pointer is over the hover card itself. Lets the visitor
+  // travel from a particle onto the card (to click "try the demo") without
+  // the tooltip vanishing the instant the cursor leaves the node.
+  const cardHoverRef = useRef(false)
+  // Pending "dismiss the tooltip" timer — a short grace period that bridges
+  // the dead gap between the particle and the offset card.
+  const tooltipDismissRef = useRef<number | null>(null)
   const progressRef = useRef<number>(0)
   const hintSubjectIdxRef = useRef<number>(-1)
   const [hintPos, setHintPos] = useState<{ x: number; y: number } | null>(null)
@@ -302,9 +309,17 @@ export function HeroBackground() {
     if (progressRef.current < 0.85) return
     // Suspend particle hover while the chat widget is occupying the screen —
     // no cursor changes, no tooltip, no click target underneath.
+    const cancelDismiss = () => {
+      if (tooltipDismissRef.current !== null) {
+        window.clearTimeout(tooltipDismissRef.current)
+        tooltipDismissRef.current = null
+      }
+    }
     if (widgetActiveRef.current) {
       if (hoveredRef.current) {
         hoveredRef.current = null
+        cardHoverRef.current = false
+        cancelDismiss()
         document.body.style.cursor = ''
         setTooltip(null)
       }
@@ -312,6 +327,10 @@ export function HeroBackground() {
     }
     const rect = canvas.getBoundingClientRect()
     if (e.clientX < rect.left || e.clientX > rect.right || e.clientY < rect.top || e.clientY > rect.bottom) {
+      // Keep the card up if the pointer is on it (it can sit a hair past the
+      // canvas edge); otherwise dismiss right away — the visitor left.
+      if (cardHoverRef.current) return
+      cancelDismiss()
       setTooltip(null)
       hoveredRef.current = null
       document.body.style.cursor = ''
@@ -334,6 +353,7 @@ export function HeroBackground() {
         const epCount = episodesRef.current.filter(ep => ep.subjectIdx === i).length
         const blurb = personaBlurb(s.subjectId) ?? 'This subject anchors all data for one entity.'
         const text = `${blurb}\n${memCount} memories · ${epCount} episodes`
+        cancelDismiss()
         setTooltip({ x: e.clientX - rect.left, y: e.clientY - rect.top, text, type: `${s.label} · ${s.subjectId}`, group: s.group, kind: 'subject' })
         hoveredRef.current = { kind: 'subject', idx: i }
         document.body.style.cursor = 'pointer'
@@ -356,6 +376,7 @@ export function HeroBackground() {
           ? `Compiled from ${sourceCount} episode${sourceCount === 1 ? '' : 's'}`
           : 'No source episodes linked'
         const text = `${m.label}\nkind: ${m.kind} · confidence: ${confidencePct}%\n${provenanceLine}`
+        cancelDismiss()
         setTooltip({ x: e.clientX - rect.left, y: e.clientY - rect.top, text, type: `${groupNames[m.group]} · ${m.subjectId}`, group: m.group, kind: 'memory' })
         hoveredRef.current = { kind: 'memory', idx: i }
         document.body.style.cursor = 'pointer'
@@ -380,6 +401,7 @@ export function HeroBackground() {
           ? `Cited by ${citingCount} memor${citingCount === 1 ? 'y' : 'ies'}`
           : 'Not yet compiled into a memory'
         const text = `${ep.label}\nsource: ${ep.source} · type: ${ep.type}\n${citingLine}`
+        cancelDismiss()
         setTooltip({ x: e.clientX - rect.left, y: e.clientY - rect.top, text, type: 'Episode (raw)', group: ep.group, kind: 'episode' })
         hoveredRef.current = { kind: 'episode', idx: i }
         document.body.style.cursor = 'pointer'
@@ -388,9 +410,20 @@ export function HeroBackground() {
       }
     }
 
-    hoveredRef.current = null
-    document.body.style.cursor = ''
-    setTooltip(null)
+    // Pointer left every particle. Don't yank the card immediately — the
+    // visitor is likely heading for it to click "try the demo". Keep it
+    // while the card is hovered; otherwise dismiss after a short grace
+    // window that bridges the gap between the node and the offset card.
+    if (cardHoverRef.current) return
+    if (hoveredRef.current && tooltipDismissRef.current === null) {
+      tooltipDismissRef.current = window.setTimeout(() => {
+        tooltipDismissRef.current = null
+        if (cardHoverRef.current) return
+        hoveredRef.current = null
+        document.body.style.cursor = ''
+        setTooltip(null)
+      }, 280)
+    }
   }, [])
 
   // Click handler to open chat widget for any particle
@@ -399,24 +432,31 @@ export function HeroBackground() {
     // click that lands on the visible canvas (e.g. between the widget and
     // the page edge) could re-trigger openWidget for a different persona.
     if (widgetActiveRef.current) return
-    if (hoveredRef.current?.kind === 'episode') {
-      const ep = episodesRef.current[hoveredRef.current.idx]
-      const subj = subjectsRef.current[ep.subjectIdx]
-      if (subj) {
-        openWidget(subj.subjectId, subj.label)
-      }
-    } else if (hoveredRef.current?.kind === 'memory') {
-      const mem = memoriesRef.current[hoveredRef.current.idx]
-      const subj = subjectsRef.current[mem.subjectIdx]
-      if (subj) {
-        openWidget(subj.subjectId, subj.label)
-      }
-    } else if (hoveredRef.current?.kind === 'subject') {
-      const subj = subjectsRef.current[hoveredRef.current.idx]
-      if (subj) {
-        openWidget(subj.subjectId, subj.label)
-      }
+    // hoveredRef is held alive while the pointer is on the card (the grace
+    // window in handleMouseMove), so a click on the card itself resolves to
+    // the same subject as clicking the node — no separate card handler, no
+    // double-open.
+    const h = hoveredRef.current
+    if (!h) return
+    let subj: { subjectId: string; label: string } | undefined
+    if (h.kind === 'episode') {
+      subj = subjectsRef.current[episodesRef.current[h.idx].subjectIdx]
+    } else if (h.kind === 'memory') {
+      subj = subjectsRef.current[memoriesRef.current[h.idx].subjectIdx]
+    } else {
+      subj = subjectsRef.current[h.idx]
     }
+    if (!subj) return
+    openWidget(subj.subjectId, subj.label)
+    // Tear the card down so it doesn't linger over the opening widget.
+    if (tooltipDismissRef.current !== null) {
+      window.clearTimeout(tooltipDismissRef.current)
+      tooltipDismissRef.current = null
+    }
+    cardHoverRef.current = false
+    hoveredRef.current = null
+    document.body.style.cursor = ''
+    setTooltip(null)
   }, [openWidget])
 
   // Anchor the hint chip to a random subject (the largest circle in any group),
@@ -890,10 +930,33 @@ export function HeroBackground() {
       />
       {tooltip && (
         <div
-          className="absolute pointer-events-none z-50"
+          className="absolute pointer-events-auto cursor-pointer z-50"
           style={{
             left: Math.min(tooltip.x + 16, (canvasRef.current?.getBoundingClientRect().width ?? 600) - 320),
             top: Math.max(tooltip.y - 20, 8),
+          }}
+          // Clicking the card bubbles to the window 'click' listener
+          // (handleClick), which opens the widget for the still-set
+          // hoveredRef — same target as clicking the node itself.
+          onMouseEnter={() => {
+            cardHoverRef.current = true
+            if (tooltipDismissRef.current !== null) {
+              window.clearTimeout(tooltipDismissRef.current)
+              tooltipDismissRef.current = null
+            }
+          }}
+          onMouseLeave={() => {
+            cardHoverRef.current = false
+            if (tooltipDismissRef.current !== null) {
+              window.clearTimeout(tooltipDismissRef.current)
+            }
+            tooltipDismissRef.current = window.setTimeout(() => {
+              tooltipDismissRef.current = null
+              if (cardHoverRef.current) return
+              hoveredRef.current = null
+              document.body.style.cursor = ''
+              setTooltip(null)
+            }, 200)
           }}
         >
           {tooltip.kind === 'episode' ? (
@@ -927,8 +990,8 @@ export function HeroBackground() {
             </div>
           ) : (
             /* Memory: summary card showing all group memories */
-            <div 
-              className="px-4 py-3 rounded-xl shadow-lg border backdrop-blur-md max-w-[300px]"
+            <div
+              className="group/card px-4 py-3 rounded-xl shadow-lg border backdrop-blur-md max-w-[300px]"
               style={{
                 backgroundColor: isDark ? 'rgba(15, 12, 41, 0.95)' : 'rgba(255, 255, 255, 0.97)',
                 borderColor: isDark ? 'rgba(129, 140, 248, 0.2)' : 'rgba(99, 102, 241, 0.15)',
@@ -957,13 +1020,7 @@ export function HeroBackground() {
                 className="mt-2.5 pt-2.5 border-t flex items-center justify-center"
                 style={{ borderColor: isDark ? 'rgba(129, 140, 248, 0.15)' : 'rgba(99, 102, 241, 0.12)' }}
               >
-                <span
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-semibold tracking-wide w-full justify-center"
-                  style={{
-                    background: 'linear-gradient(135deg, #6366f1 0%, #38bdf8 55%, #22d3ee 100%)',
-                    color: '#ffffff',
-                  }}
-                >
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-semibold tracking-wide w-full justify-center bg-accent text-white transition-colors duration-150 group-hover/card:bg-accent-light">
                   Click this agent to try the demo
                   <span aria-hidden>→</span>
                 </span>
@@ -992,15 +1049,16 @@ export function HeroBackground() {
           <div
             className="pointer-events-auto flex items-center gap-2.5 pl-4 pr-5 py-2.5 rounded-2xl cursor-pointer whitespace-nowrap transition-transform duration-150 hover:scale-110"
             style={{
-              // Brand gradient (indigo → sky → cyan) so the pill pops against
-              // the cool-toned particle field instead of blending into it.
-              background: 'linear-gradient(135deg, #6366f1 0%, #38bdf8 55%, #22d3ee 100%)',
-              color: '#ffffff',
-              // Stronger glow ring than the old flat chip — a wider halo plus a
-              // tinted drop shadow so it reads as the primary call to action.
+              // Warm amber against the cool indigo/cyan particle field — a
+              // deliberately *different* hue from every other CTA so the eye
+              // catches it instantly. Near-black text keeps it legible on
+              // amber (white-on-amber fails contrast).
+              backgroundColor: '#f59e0b',
+              color: '#1c1917',
+              // Amber-tinted glow ring so the halo reinforces the same accent.
               boxShadow: isDark
-                ? '0 0 0 5px rgba(56, 189, 248, 0.20), 0 10px 30px -4px rgba(56, 189, 248, 0.55), 0 6px 16px -2px rgba(0, 0, 0, 0.4)'
-                : '0 0 0 5px rgba(56, 189, 248, 0.18), 0 10px 30px -4px rgba(56, 189, 248, 0.45), 0 6px 16px -2px rgba(99, 102, 241, 0.3)',
+                ? '0 0 0 5px rgba(245, 158, 11, 0.22), 0 10px 30px -4px rgba(245, 158, 11, 0.55), 0 6px 16px -2px rgba(0, 0, 0, 0.45)'
+                : '0 0 0 5px rgba(245, 158, 11, 0.20), 0 10px 30px -4px rgba(245, 158, 11, 0.45), 0 6px 16px -2px rgba(180, 83, 9, 0.3)',
               animation: 'heroHintBounce 1.4s ease-in-out infinite',
             }}
             onClick={() => {
@@ -1030,9 +1088,9 @@ export function HeroBackground() {
               <path d="M3 3l7 19 2-8 8-2z" />
             </svg>
             <span className="flex flex-col leading-tight text-left">
-              <span className="text-[13px] font-semibold">Try with Memory</span>
+              <span className="text-[13px] font-bold">Try with Memory</span>
               {hintLabel && (
-                <span className="text-[11px] font-medium text-white/85">{hintLabel}</span>
+                <span className="text-[11px] font-medium text-black/60">{hintLabel}</span>
               )}
             </span>
           </div>
