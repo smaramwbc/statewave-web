@@ -116,6 +116,7 @@ describe('/api/launch-signup — Turnstile env seam', () => {
   it('forwards and 200s when secret is set and the token verifies', async () => {
     process.env.TURNSTILE_SECRET_KEY = 'secret'
     process.env.LAUNCH_SIGNUP_WEBHOOK_RESEND = 'https://resend.test/hook'
+    process.env.LAUNCH_SIGNUP_WEBHOOK_RESEND_TOKEN = 'resend-key'
     const fetchSpy = vi
       .spyOn(globalThis, 'fetch')
       .mockImplementation(async (input: string | URL | Request) => {
@@ -202,7 +203,9 @@ describe('/api/launch-signup — webhook fan-out', () => {
 
   it('returns 502 when one target fails (all-or-nothing)', async () => {
     process.env.LAUNCH_SIGNUP_WEBHOOK_RESEND = 'https://resend.test/hook'
+    process.env.LAUNCH_SIGNUP_WEBHOOK_RESEND_TOKEN = 'resend-key'
     process.env.LAUNCH_SIGNUP_WEBHOOK_BEEHIIV = 'https://beehiiv.test/hook'
+    process.env.LAUNCH_SIGNUP_WEBHOOK_BEEHIIV_TOKEN = 'beehiiv-key'
 
     vi.spyOn(globalThis, 'fetch').mockImplementation(
       async (input: string | URL | Request) => {
@@ -220,7 +223,9 @@ describe('/api/launch-signup — webhook fan-out', () => {
 
   it('returns 502 when both targets fail', async () => {
     process.env.LAUNCH_SIGNUP_WEBHOOK_RESEND = 'https://resend.test/hook'
+    process.env.LAUNCH_SIGNUP_WEBHOOK_RESEND_TOKEN = 'resend-key'
     process.env.LAUNCH_SIGNUP_WEBHOOK_BEEHIIV = 'https://beehiiv.test/hook'
+    process.env.LAUNCH_SIGNUP_WEBHOOK_BEEHIIV_TOKEN = 'beehiiv-key'
 
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(
       new Response('error', { status: 500 }),
@@ -230,8 +235,39 @@ describe('/api/launch-signup — webhook fan-out', () => {
     expect(res?.status).toBe(502)
   })
 
+  it('still runs every target to completion when one fails first (allSettled, no sibling abandonment)', async () => {
+    process.env.LAUNCH_SIGNUP_WEBHOOK_RESEND = 'https://resend.test/hook'
+    process.env.LAUNCH_SIGNUP_WEBHOOK_RESEND_TOKEN = 'resend-key'
+    process.env.LAUNCH_SIGNUP_WEBHOOK_BEEHIIV = 'https://beehiiv.test/hook'
+    process.env.LAUNCH_SIGNUP_WEBHOOK_BEEHIIV_TOKEN = 'beehiiv-key'
+
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation(
+      async (input: string | URL | Request) => {
+        const url = typeof input === 'string' ? input : input.toString()
+        // resend rejects immediately; with Promise.all the beehiiv call
+        // could be abandoned. allSettled must still await it.
+        if (url.includes('resend.test')) {
+          return new Response('error', { status: 500 })
+        }
+        return new Response('ok', { status: 200 })
+      },
+    )
+
+    const res = await dispatchWeb(req(VALID))
+    expect(res?.status).toBe(502)
+
+    const webhookCalls = fetchSpy.mock.calls.filter(
+      (c) => !String(c[0]).includes('siteverify'),
+    )
+    const urls = webhookCalls.map((c) => String(c[0]))
+    // Both providers were actually called — the sibling was not abandoned.
+    expect(urls).toContain('https://resend.test/hook')
+    expect(urls).toContain('https://beehiiv.test/hook')
+  })
+
   it('works with only one target configured', async () => {
     process.env.LAUNCH_SIGNUP_WEBHOOK_RESEND = 'https://resend.test/hook'
+    process.env.LAUNCH_SIGNUP_WEBHOOK_RESEND_TOKEN = 'resend-key'
 
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(
       new Response('ok', { status: 200 }),
@@ -241,8 +277,47 @@ describe('/api/launch-signup — webhook fan-out', () => {
     expect(res?.status).toBe(200)
   })
 
+  it('skips a URL whose token is missing and 503s if that leaves none', async () => {
+    process.env.LAUNCH_SIGNUP_WEBHOOK_RESEND = 'https://resend.test/hook'
+    // no LAUNCH_SIGNUP_WEBHOOK_RESEND_TOKEN
+
+    const fetchSpy = vi
+      .spyOn(globalThis, 'fetch')
+      .mockResolvedValue(new Response('ok', { status: 200 }))
+
+    const res = await dispatchWeb(req(VALID))
+    expect(res?.status).toBe(503)
+
+    const webhookCalls = fetchSpy.mock.calls.filter(
+      (c) => !String(c[0]).includes('siteverify'),
+    )
+    // The token-less target was skipped, not called with a guaranteed 401.
+    expect(webhookCalls).toHaveLength(0)
+  })
+
+  it('skips only the token-less target and still 200s via the configured one', async () => {
+    process.env.LAUNCH_SIGNUP_WEBHOOK_RESEND = 'https://resend.test/hook'
+    process.env.LAUNCH_SIGNUP_WEBHOOK_RESEND_TOKEN = 'resend-key'
+    process.env.LAUNCH_SIGNUP_WEBHOOK_BEEHIIV = 'https://beehiiv.test/hook'
+    // no LAUNCH_SIGNUP_WEBHOOK_BEEHIIV_TOKEN → beehiiv skipped
+
+    const fetchSpy = vi
+      .spyOn(globalThis, 'fetch')
+      .mockResolvedValue(new Response('ok', { status: 200 }))
+
+    const res = await dispatchWeb(req(VALID))
+    expect(res?.status).toBe(200)
+
+    const webhookCalls = fetchSpy.mock.calls.filter(
+      (c) => !String(c[0]).includes('siteverify'),
+    )
+    expect(webhookCalls).toHaveLength(1)
+    expect(String(webhookCalls[0][0])).toBe('https://resend.test/hook')
+  })
+
   it('sends Resend-shaped payload with first_name and properties', async () => {
     process.env.LAUNCH_SIGNUP_WEBHOOK_RESEND = 'https://resend.test/hook'
+    process.env.LAUNCH_SIGNUP_WEBHOOK_RESEND_TOKEN = 'resend-key'
 
     const fetchSpy = vi
       .spyOn(globalThis, 'fetch')
@@ -261,8 +336,9 @@ describe('/api/launch-signup — webhook fan-out', () => {
     expect(body.properties.source).toBe('statewave.ai/launch')
   })
 
-  it('sends Beehiiv-shaped payload with custom_fields', async () => {
+  it('sends Beehiiv-shaped payload with custom_fields and reactivate_existing', async () => {
     process.env.LAUNCH_SIGNUP_WEBHOOK_BEEHIIV = 'https://beehiiv.test/hook'
+    process.env.LAUNCH_SIGNUP_WEBHOOK_BEEHIIV_TOKEN = 'beehiiv-key'
 
     const fetchSpy = vi
       .spyOn(globalThis, 'fetch')
@@ -276,6 +352,7 @@ describe('/api/launch-signup — webhook fan-out', () => {
     const body = JSON.parse((call[1] as RequestInit).body as string)
     expect(body.email).toBe('ada@example.com')
     expect(body.utm_source).toBe('statewave.ai/launch')
+    expect(body.reactivate_existing).toBe(true)
     expect(body.custom_fields).toContainEqual({ name: 'First Name', value: 'Ada' })
     expect(body.custom_fields).toContainEqual({ name: 'Role', value: 'Engineer' })
     expect(body.custom_fields).toContainEqual({ name: 'Company', value: 'Acme' })

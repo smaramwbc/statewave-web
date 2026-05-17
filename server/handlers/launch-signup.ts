@@ -13,14 +13,23 @@
  *
  * Env seams:
  *   LAUNCH_SIGNUP_WEBHOOK_RESEND       — Resend /contacts URL. Unset → skipped.
- *   LAUNCH_SIGNUP_WEBHOOK_RESEND_TOKEN — Resend API key (re_xxx).
+ *   LAUNCH_SIGNUP_WEBHOOK_RESEND_TOKEN — Resend API key (re_xxx). Required
+ *                                         when the RESEND URL is set.
  *   LAUNCH_SIGNUP_WEBHOOK_BEEHIIV      — Beehiiv subscriptions URL (includes
  *                                         publication ID). Unset → skipped.
- *   LAUNCH_SIGNUP_WEBHOOK_BEEHIIV_TOKEN — Beehiiv API key.
+ *   LAUNCH_SIGNUP_WEBHOOK_BEEHIIV_TOKEN — Beehiiv API key. Required when the
+ *                                         BEEHIIV URL is set.
  *
- *   At least one webhook URL must be set, or the handler returns 503.
- *   Multiple targets fire in parallel (all-or-nothing): 200 only if all
- *   succeed, 502 if any fail.
+ *   A target needs BOTH its URL and token. A URL set without its token is
+ *   a guaranteed 401, so it is skipped with a loud error log (same
+ *   fail-open-with-warning stance as the Turnstile seam) rather than
+ *   turning one misconfigured target into an opaque 502 for every signup.
+ *   At least one fully-configured target must remain, or the handler
+ *   returns 503 (an honest failure — never a silent drop of all signups).
+ *   Targets fire in parallel via Promise.allSettled (every request runs
+ *   to completion even if a sibling fails first — Promise.all would
+ *   abandon the in-flight sibling on a serverless freeze). All-or-nothing
+ *   is preserved: 200 only if every target succeeds, 502 if any fail.
  *
  *   TURNSTILE_SECRET_KEY   — Cloudflare Turnstile secret. Unset → bot
  *                            verification is SKIPPED and a loud warning is
@@ -74,54 +83,77 @@ type SignupField = keyof typeof LIMITS
 interface WebhookTarget {
   name: string
   url: string
-  token: string | undefined
+  token: string
   payload: (signup: Record<SignupField, string>) => string
 }
 
 function webhookTargets(): WebhookTarget[] {
   const targets: WebhookTarget[] = []
 
-  const resendUrl = process.env.LAUNCH_SIGNUP_WEBHOOK_RESEND
-  if (resendUrl) {
-    targets.push({
-      name: 'resend',
-      url: resendUrl,
-      token: process.env.LAUNCH_SIGNUP_WEBHOOK_RESEND_TOKEN,
-      payload: (signup) =>
-        JSON.stringify({
-          email: signup.email,
-          first_name: signup.name,
-          properties: {
-            role: signup.role,
-            company: signup.company,
-            what_you_would_build: signup.what_you_would_build,
-            source: 'statewave.ai/launch',
-          },
-        }),
-    })
+  const add = (
+    name: string,
+    url: string | undefined,
+    token: string | undefined,
+    tokenVar: string,
+    payload: WebhookTarget['payload'],
+  ): void => {
+    if (!url) return // not configured — skipped by design
+    if (!token || !token.trim()) {
+      // URL configured but no credential. Both providers require Bearer
+      // auth, so a call here is a guaranteed 401. Skip with a loud log
+      // rather than let one misconfigured target opaque-502 every signup
+      // (same fail-open-with-warning stance as the Turnstile seam). If
+      // this leaves zero usable targets the caller still returns an
+      // honest 503 — never a silent drop of all signups.
+      console.error(
+        `[launch-signup] ${name} URL set but ${tokenVar} missing — skipping this target`,
+      )
+      return
+    }
+    targets.push({ name, url, token, payload })
   }
 
-  const beehiivUrl = process.env.LAUNCH_SIGNUP_WEBHOOK_BEEHIIV
-  if (beehiivUrl) {
-    targets.push({
-      name: 'beehiiv',
-      url: beehiivUrl,
-      token: process.env.LAUNCH_SIGNUP_WEBHOOK_BEEHIIV_TOKEN,
-      payload: (signup) =>
-        JSON.stringify({
-          email: signup.email,
-          utm_source: 'statewave.ai/launch',
-          custom_fields: [
-            ...(signup.name ? [{ name: 'First Name', value: signup.name }] : []),
-            ...(signup.role ? [{ name: 'Role', value: signup.role }] : []),
-            ...(signup.company ? [{ name: 'Company', value: signup.company }] : []),
-            ...(signup.what_you_would_build
-              ? [{ name: 'What You Would Build', value: signup.what_you_would_build }]
-              : []),
-          ],
-        }),
-    })
-  }
+  add(
+    'resend',
+    process.env.LAUNCH_SIGNUP_WEBHOOK_RESEND,
+    process.env.LAUNCH_SIGNUP_WEBHOOK_RESEND_TOKEN,
+    'LAUNCH_SIGNUP_WEBHOOK_RESEND_TOKEN',
+    (signup) =>
+      JSON.stringify({
+        email: signup.email,
+        first_name: signup.name,
+        properties: {
+          role: signup.role,
+          company: signup.company,
+          what_you_would_build: signup.what_you_would_build,
+          source: 'statewave.ai/launch',
+        },
+      }),
+  )
+
+  add(
+    'beehiiv',
+    process.env.LAUNCH_SIGNUP_WEBHOOK_BEEHIIV,
+    process.env.LAUNCH_SIGNUP_WEBHOOK_BEEHIIV_TOKEN,
+    'LAUNCH_SIGNUP_WEBHOOK_BEEHIIV_TOKEN',
+    (signup) =>
+      JSON.stringify({
+        email: signup.email,
+        utm_source: 'statewave.ai/launch',
+        // Documented Beehiiv param: a returning signup who had previously
+        // unsubscribed is reactivated instead of erroring — the right
+        // behavior for a launch waitlist re-submit.
+        reactivate_existing: true,
+        custom_fields: [
+          ...(signup.name ? [{ name: 'First Name', value: signup.name }] : []),
+          ...(signup.role ? [{ name: 'Role', value: signup.role }] : []),
+          ...(signup.company ? [{ name: 'Company', value: signup.company }] : []),
+          ...(signup.what_you_would_build
+            ? [{ name: 'What You Would Build', value: signup.what_you_would_build }]
+            : []),
+        ],
+      }),
+  )
 
   return targets
 }
@@ -276,40 +308,47 @@ export default async function handler(req: Request): Promise<Response> {
     )
   }
 
-  try {
-    await Promise.all(
-      targets.map(async (target) => {
-        const controller = new AbortController()
-        const timer = setTimeout(() => controller.abort(), FORWARD_TIMEOUT_MS)
-        try {
-          const res = await fetch(target.url, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              ...(target.token && { Authorization: `Bearer ${target.token}` }),
-            },
-            body: target.payload(signup),
-            signal: controller.signal,
-          })
-          if (!res.ok) {
-            console.error(`[launch-signup] ${target.name} upstream ${res.status}`)
-            throw new Error(`${target.name} HTTP ${res.status}`)
-          }
-        } catch (err) {
-          if (err instanceof Error && err.name === 'AbortError') {
-            console.error(`[launch-signup] ${target.name} timeout`)
-          }
-          throw err
-        } finally {
-          clearTimeout(timer)
+  // allSettled (not all): every target's request runs to completion even
+  // if a sibling fails first. Promise.all rejects on the first failure and,
+  // once we return the response, a serverless freeze can truncate the
+  // still-in-flight sibling. A non-2xx is a failure: neither Resend nor
+  // Beehiiv documents a distinct "already exists" status, so we do not
+  // speculatively treat an unknown 4xx as success (that would mask real
+  // failures). All-or-nothing is preserved.
+  const results = await Promise.allSettled(
+    targets.map(async (target) => {
+      const controller = new AbortController()
+      const timer = setTimeout(() => controller.abort(), FORWARD_TIMEOUT_MS)
+      try {
+        const res = await fetch(target.url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${target.token}`,
+          },
+          body: target.payload(signup),
+          signal: controller.signal,
+        })
+        if (!res.ok) {
+          console.error(`[launch-signup] ${target.name} upstream ${res.status}`)
+          throw new Error(`${target.name} HTTP ${res.status}`)
         }
-      }),
-    )
+      } catch (err) {
+        if (err instanceof Error && err.name === 'AbortError') {
+          console.error(`[launch-signup] ${target.name} timeout`)
+        }
+        throw err
+      } finally {
+        clearTimeout(timer)
+      }
+    }),
+  )
+
+  if (results.every((r) => r.status === 'fulfilled')) {
     return json({ ok: true }, { status: 200 })
-  } catch {
-    return json(
-      { error: 'Could not record signup right now. Please try again.' },
-      { status: 502 },
-    )
   }
+  return json(
+    { error: 'Could not record signup right now. Please try again.' },
+    { status: 502 },
+  )
 }
