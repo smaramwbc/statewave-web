@@ -131,7 +131,7 @@ export function Navbar() {
             </Link>
           ))}
           <a
-            href="https://github.com/smaramwbc"
+            href="https://github.com/smaramwbc/statewave"
             target="_blank"
             rel="noopener noreferrer"
             className="text-[13px] font-medium text-theme-muted hover:text-theme-primary transition-colors duration-150"
@@ -245,7 +245,7 @@ export function Navbar() {
                     )
                   })}
                   <a
-                    href="https://github.com/smaramwbc"
+                    href="https://github.com/smaramwbc/statewave"
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={() => setMobileOpen(false)}
