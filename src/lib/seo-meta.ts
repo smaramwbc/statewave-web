@@ -126,7 +126,7 @@ export const PAGE_META: Record<RouteKey, PageMeta> = {
   '/developers': {
     title: 'Developers — SDKs, API, and Self-Hosted Deployment',
     description:
-      'Get started with Statewave in under 10 minutes. Python and TypeScript SDKs, REST API, Docker Compose deployment, OpenTelemetry, LiteLLM-backed compilers, and 100+ LLM providers.',
+      'Get started with Statewave in about 5 minutes. Python and TypeScript SDKs, REST API, Docker Compose deployment, OpenTelemetry, LiteLLM-backed compilers, and 100+ LLM providers.',
     breadcrumbLabel: 'Developers',
     ogType: 'article',
     priority: 0.8,

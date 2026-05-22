@@ -38,7 +38,7 @@ export function DevelopersPage() {
           {[
             {
               title: 'Getting Started',
-              desc: 'Clone, run, ingest your first episode in under 10 minutes.',
+              desc: 'Clone, run, ingest your first episode in about 5 minutes.',
               href: 'https://github.com/smaramwbc/statewave-docs/blob/main/getting-started.md',
               tag: 'Guide',
             },

@@ -19,7 +19,7 @@ Statewave stores immutable episodes, compiles them into typed memories with prov
 
 ## Documentation
 
-- [Getting Started](https://github.com/smaramwbc/statewave-docs/blob/main/getting-started.md) — 10-minute setup.
+- [Getting Started](https://github.com/smaramwbc/statewave-docs/blob/main/getting-started.md) — 5-minute Docker Compose setup.
 - [REST API v1](https://github.com/smaramwbc/statewave-docs/blob/main/api/v1-contract.md) — API contract.
 - [Architecture](https://github.com/smaramwbc/statewave-docs/blob/main/architecture/overview.md) — system overview.
 - [Compiler Modes](https://github.com/smaramwbc/statewave-docs/blob/main/architecture/compiler-modes.md) — heuristic compiler and LLM compiler.

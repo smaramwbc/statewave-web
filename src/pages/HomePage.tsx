@@ -1319,7 +1319,7 @@ function CTASection() {
           Give your AI system memory
         </Heading>
         <p className="mt-6 text-lg text-theme-muted max-w-xl mx-auto">
-          Start building with Statewave in under 10 minutes.
+          Start building with Statewave in about 5 minutes.
           Self-hosted, open source, and proven.
         </p>
         <div className="mt-10 flex flex-wrap justify-center gap-4">

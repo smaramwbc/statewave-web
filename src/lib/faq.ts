@@ -45,7 +45,7 @@ export const FAQ_ENTRIES: readonly FaqEntry[] = [
     links: [
       { label: 'Walk-through diagram', href: '/product#how-it-works' },
       {
-        label: 'Getting started (10 minutes)',
+        label: 'Getting started (5 minutes)',
         href: 'https://github.com/smaramwbc/statewave-docs/blob/main/getting-started.md',
       },
     ],
