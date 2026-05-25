@@ -29,6 +29,18 @@ import { FAQ_ENTRIES } from '../lib/faq'
 import { useChatWidget, useTrackDemoCta, DEMO_SUBJECTS } from '../lib/widget-context-api'
 import { useRef, useState, useEffect, useCallback } from 'react'
 
+/** Single source of truth for the credibility figures the homepage
+ *  surfaces. Mirrored in both the prerendered HeroSection (so AI crawlers
+ *  and answer engines see them in the initial HTML) and the below-the-fold
+ *  ProofSection. Recompute together when the eval suite or benchmark
+ *  changes — drift between surfaces makes us look sloppy. */
+const PROOF_STATS = [
+  { value: '680', label: 'Unit tests' },
+  { value: '55', label: 'Eval assertions' },
+  { value: '8/8', label: 'Support workflow score' },
+  { value: '2/8', label: 'Naive approach score' },
+] as const
+
 export function HomePage() {
   // The home page is the canonical landing for Organization, WebSite, and
   // SoftwareApplication structured data — also baked into index.html for
@@ -370,6 +382,23 @@ function HeroSection() {
               <span className="text-theme-muted/80">No mocks — every episode, memory, and ranking is computed live.</span>
             </p>
           </motion.div>
+
+          {/* Credibility row — plain-text proof figures spelled out so AI
+              crawlers / answer engines see concrete numbers in the
+              prerendered HTML (the deeper ProofSection that shows the same
+              stats with visual emphasis sits behind ClientOnly and isn't
+              in the initial document). Lives outside any motion variant so
+              it paints with the static markup, not on a stagger delay. */}
+          <p className="mt-5 text-xs text-theme-muted">
+            <span className="font-semibold text-theme-secondary">Proven in CI:</span>{' '}
+            <span>{PROOF_STATS[0].value} unit tests</span>
+            <span className="text-theme-muted/60"> · </span>
+            <span>{PROOF_STATS[1].value} eval assertions</span>
+            <span className="text-theme-muted/60"> · </span>
+            <span>
+              {PROOF_STATS[2].value} vs {PROOF_STATS[3].value} on the support workflow benchmark
+            </span>
+          </p>
         </motion.div>
       </div>
     </section>
@@ -797,12 +826,7 @@ function CapabilitiesSection() {
 }
 
 function ProofSection() {
-  const stats = [
-    { value: '680', label: 'Unit tests' },
-    { value: '55', label: 'Eval assertions' },
-    { value: '8/8', label: 'Support workflow score' },
-    { value: '2/8', label: 'Naive approach score' },
-  ]
+  const stats = PROOF_STATS
 
   return (
     <Section className="bg-surface-1/50">
