@@ -167,6 +167,62 @@
     }
     </script>
 
+    <!-- HowTo JSON-LD for the install / quickstart steps. Google deprecated
+         HowTo rich results in the SERP in 2023, but the major answer
+         engines (ChatGPT, Claude, Perplexity, Gemini) still consume the
+         structured data when ingesting pages — and the external SEO audit
+         (Section 1 #2) flagged the absence of HowTo as a missing
+         schema-markup signal. Steps mirror statewave-docs/getting-started.md
+         (port 8100 is correct — that's what the published docker-compose
+         binds to). Recompute together if the quickstart changes. -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "HowTo",
+      "name": "Install and run Statewave locally with Docker Compose",
+      "description": "Self-host the Statewave memory runtime in about five minutes — clone the repository, boot the stack, store a memory, and retrieve it.",
+      "totalTime": "PT5M",
+      "supply": [
+        { "@type": "HowToSupply", "name": "A machine with Docker Engine 24+ and Git" }
+      ],
+      "tool": [
+        { "@type": "HowToTool", "name": "Docker" },
+        { "@type": "HowToTool", "name": "Git" },
+        { "@type": "HowToTool", "name": "curl" }
+      ],
+      "step": [
+        {
+          "@type": "HowToStep",
+          "position": 1,
+          "name": "Start the server",
+          "text": "git clone https://github.com/smaramwbc/statewave.git && cd statewave && docker compose up -d. The compose stack boots the Statewave API on port 8100 and a Postgres-with-pgvector instance.",
+          "url": "https://github.com/smaramwbc/statewave-docs/blob/main/getting-started.md#step-1--start-the-server"
+        },
+        {
+          "@type": "HowToStep",
+          "position": 2,
+          "name": "Verify the server is up",
+          "text": "curl http://localhost:8100/healthz returns {\"status\":\"ok\"} once the API process is ready. /readyz reports per-dependency status, including the Postgres handshake.",
+          "url": "https://github.com/smaramwbc/statewave-docs/blob/main/getting-started.md#step-2--verify-it-is-running"
+        },
+        {
+          "@type": "HowToStep",
+          "position": 3,
+          "name": "Store a memory",
+          "text": "POST an episode to /v1/episodes (subject + event payload), then POST to /v1/memories/compile to turn that episode into a compiled, ranked memory with provenance back to the source episode.",
+          "url": "https://github.com/smaramwbc/statewave-docs/blob/main/getting-started.md#step-3--store-a-memory"
+        },
+        {
+          "@type": "HowToStep",
+          "position": 4,
+          "name": "Retrieve a context bundle",
+          "text": "POST to /v1/context with a subject and a token budget. Statewave returns a ranked, token-bounded bundle of memories and episodes ready to drop into a prompt — with the same provenance IDs the compile step recorded.",
+          "url": "https://github.com/smaramwbc/statewave-docs/blob/main/getting-started.md#step-4--retrieve-it"
+        }
+      ]
+    }
+    </script>
+
     <script>
       // Resolve theme before paint to prevent FOUC
       (function() {
