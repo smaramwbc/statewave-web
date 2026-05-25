@@ -24,7 +24,10 @@ const distHtmlPath = resolve(here, '..', 'dist', 'index.html')
 const distBuildAvailable = existsSync(distHtmlPath)
 
 describe.runIf(distBuildAvailable)('prerendered dist/index.html', () => {
-  const html = readFileSync(distHtmlPath, 'utf8')
+  // Lazy read so the describe block can be discovered even when the
+  // build artifact is absent — `runIf(false)` still evaluates this body
+  // to collect test names; only the test cases inside are gated.
+  const html = distBuildAvailable ? readFileSync(distHtmlPath, 'utf8') : ''
 
   it('is a real prerendered page (not the empty SPA template)', () => {
     expect(html.length).toBeGreaterThan(15_000)
