@@ -120,6 +120,53 @@
     }
     </script>
 
+    <!-- Baseline FAQPage JSON-LD for non-JS crawlers (answer engines, generic
+         SEO bots). This is a stable subset; the SPA layer in src/lib/seo.tsx
+         hydrates the full FAQ_ENTRIES list on the homepage with
+         data-seo="managed". Keep these four answers in sync with
+         src/lib/faq.ts — they're the canonical entity questions and rarely
+         change. -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "What is Statewave?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Statewave is an open-source memory runtime for AI agents. It records raw events as immutable episodes, compiles them into typed semantic and episodic memories with provenance, and returns ranked, token-bounded context bundles that LLM applications can drop straight into a prompt."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How is Statewave different from a vector database?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "A vector database stores embeddings and returns nearest neighbours. Statewave is a memory runtime that uses a vector store (pgvector) underneath, but adds typed semantic and episodic memories, deterministic ranking with explainable signals, idempotent compilation, provenance back to source episodes, temporal validity windows, conflict resolution, and a token-bounded context-assembly step. It also persists raw episodes append-only so memory can be recompiled."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can Statewave be self-hosted?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. Statewave is designed to be self-hosted. The storage layer is Postgres-only with the pgvector extension. A Docker Compose setup runs the full stack locally in two minutes; production deployments target Fly.io, Railway, or any container platform. There is no managed Statewave cloud — episodes and compiled memories stay in your infrastructure."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is Statewave open source? What about commercial use?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. Statewave is open source under the Apache License 2.0 — server, Python and TypeScript SDKs, connectors, and this site. Apache-2.0 is permissive and includes an explicit patent grant, so you can use, modify, distribute, self-host, and build proprietary or commercial products with Statewave without a separate agreement. Optional enterprise support — SLA, indemnity, procurement, managed hosting, architecture review — is available as a services contract: contact licensing@statewave.ai."
+          }
+        }
+      ]
+    }
+    </script>
+
     <script>
       // Resolve theme before paint to prevent FOUC
       (function() {
