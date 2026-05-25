@@ -3,8 +3,49 @@
 # All marketing routes are public and indexable. The /api/* surface is the
 # server-to-server demo backend (visitor-cookied chat, persona seeding); it
 # returns JSON, not HTML, and there's nothing useful for a web index there.
+#
+# The wildcard `User-agent: *` block below already permits every named bot,
+# so the per-bot stanzas are technically redundant. They're spelled out
+# anyway so external SEO audits can confirm at a glance that the major AI
+# crawlers (GPTBot, ClaudeBot, PerplexityBot, Google-Extended) are welcome.
 
 User-agent: *
+Allow: /
+Disallow: /api/
+
+User-agent: GPTBot
+Allow: /
+Disallow: /api/
+
+User-agent: OAI-SearchBot
+Allow: /
+Disallow: /api/
+
+User-agent: ChatGPT-User
+Allow: /
+Disallow: /api/
+
+User-agent: ClaudeBot
+Allow: /
+Disallow: /api/
+
+User-agent: Claude-Web
+Allow: /
+Disallow: /api/
+
+User-agent: PerplexityBot
+Allow: /
+Disallow: /api/
+
+User-agent: Google-Extended
+Allow: /
+Disallow: /api/
+
+User-agent: Googlebot
+Allow: /
+Disallow: /api/
+
+User-agent: Bingbot
 Allow: /
 Disallow: /api/
 
