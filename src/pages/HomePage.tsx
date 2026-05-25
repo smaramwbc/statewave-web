@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { lazy, Suspense } from 'react'
 import { createPortal } from 'react-dom'
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
@@ -7,7 +7,16 @@ import { Button } from '../components/Button'
 import { Heading } from '../components/Heading'
 import { Card } from '../components/Card'
 import { CodeCopyButton } from '../components/CodeCopyButton'
-import { HeroBackground } from '../components/HeroBackground'
+// HeroBackground is a ~1100-line canvas component that is suppressed on
+// viewports ≤ 639px (see useIsHeroCanvasSuppressed inside the component).
+// We lazy-load it AND gate the mount on the same media query at this level,
+// so mobile visitors never download the chunk at all — shrinking the entry
+// bundle on the slowest connections, which is exactly where the LCP h1 was
+// stalling. On desktop the canvas appears a few hundred ms after first
+// paint; it's a background, so the brief delay is invisible.
+const HeroBackground = lazy(() =>
+  import('../components/HeroBackground').then((m) => ({ default: m.HeroBackground })),
+)
 import { usePageSEO } from '../lib/seo'
 import {
   faqPageJsonLd,
@@ -54,6 +63,21 @@ function HeroSection() {
   const { openWidget, availablePersonas } = useChatWidget()
   const heroCtaRef = useRef<HTMLButtonElement>(null)
   useTrackDemoCta(heroCtaRef)
+
+  // Mirror the matchMedia check inside HeroBackground so we decide whether to
+  // even mount the lazy chunk. If we mounted unconditionally, mobile would
+  // still pay the chunk download just for the component to render null.
+  const [showHeroCanvas, setShowHeroCanvas] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false
+    return !window.matchMedia('(max-width: 639px)').matches
+  })
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const mq = window.matchMedia('(max-width: 639px)')
+    const handler = (e: MediaQueryListEvent) => setShowHeroCanvas(!e.matches)
+    mq.addEventListener('change', handler)
+    return () => mq.removeEventListener('change', handler)
+  }, [])
 
   // Persona menu attached to the "Try the Demo" split button. The main button
   // still launches the default persona in one click; the caret opens this so
@@ -160,7 +184,11 @@ function HeroSection() {
 
   return (
     <section className="relative min-h-[88vh] sm:min-h-[92vh] flex items-center overflow-hidden">
-      <HeroBackground />
+      {showHeroCanvas && (
+        <Suspense fallback={null}>
+          <HeroBackground />
+        </Suspense>
+      )}
 
       {/* Bottom-edge fade — only mask the final ~35% so the section blends
           into the page below without killing the lower particles' colors. */}
