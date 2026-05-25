@@ -4,6 +4,7 @@ import { Footer } from './Footer'
 import { ScrollToTop } from './ScrollToTop'
 import { ScrollToTopButton } from './ScrollToTopButton'
 import { ChatWidget } from './ChatWidget'
+import { ClientOnly } from './ClientOnly'
 
 export function Layout() {
   return (
@@ -19,9 +20,15 @@ export function Layout() {
       <main id="main-content" className="flex-1">
         <Outlet />
       </main>
-      <Footer />
-      <ScrollToTopButton />
-      <ChatWidget />
+      {/* Footer + the floating ChatWidget pill + ScrollToTopButton are all
+          below the fold (and the chat widget is collapsed by default). Keep
+          them out of the prerendered HTML so the static payload stays
+          small — they paint on the client after hydration. */}
+      <ClientOnly>
+        <Footer />
+        <ScrollToTopButton />
+        <ChatWidget />
+      </ClientOnly>
     </div>
   )
 }

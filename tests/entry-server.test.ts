@@ -1,49 +1,50 @@
-// @vitest-environment node
 /*
- * Smoke test for the SSR/prerender output.
+ * Smoke test on the final prerendered artifact (`dist/index.html`).
  *
- * Imports the *built* SSR bundle at `dist-ssr/entry.server.js` rather than
- * the `src/entry.server.tsx` source, because vitest's module resolver
- * picks a different `react-router` entry point than Vite SSR does — the
- * source-import path errors with "useRoutes() may be used only in the
- * context of a <Router>" while the production build's bundle renders
- * cleanly. Testing the built artifact is closer to what actually ships.
+ * The real SSR-safety guard lives in `scripts/prerender.mjs`, which calls
+ * `render('/')` during the build and aborts if React fell back to client-
+ * only rendering or if the output collapses below a sanity floor. This
+ * test runs after a build and double-checks the artifact that actually
+ * ships, so a misconfigured prerender pipeline (wrong placeholder,
+ * accidental over-aggressive ClientOnly wrap, etc.) is caught in CI.
  *
- * The test is auto-skipped if the bundle isn't present (e.g. on `npm test`
- * without a prior `npm run build:ssr-bundle`). CI's `npm run build` step
- * regenerates the bundle and triggers these assertions implicitly via the
- * prerender script's own size check.
+ * Auto-skipped if `dist/index.html` isn't present (no build yet). On
+ * `npm test` after `npm run build`, it asserts the homepage's above-
+ * the-fold shell is in the static markup and the below-the-fold cluster
+ * was deliberately NOT prerendered.
  */
 
 import { describe, it, expect } from 'vitest'
 import { existsSync, readFileSync } from 'fs'
-import { resolve } from 'path'
-import { pathToFileURL } from 'url'
+import { resolve, dirname } from 'path'
+import { fileURLToPath } from 'url'
 
-const bundlePath = resolve(__dirname, '..', 'dist-ssr', 'entry.server.js')
-const builtBundleAvailable = existsSync(bundlePath)
+const here = dirname(fileURLToPath(import.meta.url))
+const distHtmlPath = resolve(here, '..', 'dist', 'index.html')
+const distBuildAvailable = existsSync(distHtmlPath)
 
-describe.runIf(builtBundleAvailable)('SSR render (built bundle)', () => {
-  let html = ''
+describe.runIf(distBuildAvailable)('prerendered dist/index.html', () => {
+  const html = readFileSync(distHtmlPath, 'utf8')
 
-  it('imports and calls render(/) without throwing', async () => {
-    const mod = await import(pathToFileURL(bundlePath).href)
-    html = mod.render('/')
-    expect(typeof html).toBe('string')
-    expect(html.length).toBeGreaterThan(10_000)
+  it('is a real prerendered page (not the empty SPA template)', () => {
+    expect(html.length).toBeGreaterThan(15_000)
+    expect(html).not.toContain('<div id="root"></div>')
   })
 
-  it('contains the hero <h1> so the browser can paint it before JS runs', () => {
+  it('contains the hero <h1> in the initial document', () => {
     expect(html).toMatch(/<h1[^>]*>[\s\S]*?memory runtime[\s\S]*?<\/h1>/i)
   })
 
-  it('renders the navbar shell (skip-to-content link)', () => {
+  it('renders the navbar shell (Skip-to-content link)', () => {
     expect(html).toContain('Skip to content')
+    expect(html).toContain('<header')
   })
 
-  it('renders both the header and footer (full app shell, not a partial)', () => {
-    expect(html).toContain('<header')
-    expect(html).toContain('<footer')
+  it('does NOT prerender the below-the-fold cluster (Footer / ChatWidget / etc)', () => {
+    // These are deferred to ClientOnly so the prerendered DOM stays small.
+    // If a future change reverses this, the bundle size + cold LCP win
+    // disappear — fail loudly.
+    expect(html).not.toContain('<footer')
   })
 
   it('did not fall back to client-only rendering', () => {
@@ -51,8 +52,8 @@ describe.runIf(builtBundleAvailable)('SSR render (built bundle)', () => {
   })
 })
 
-describe.runIf(!builtBundleAvailable)('SSR render (built bundle)', () => {
-  it('skipped — run `npm run build:ssr-bundle` first', () => {
-    expect(readFileSync(__filename, 'utf8')).toContain('SSR render')
+describe.runIf(!distBuildAvailable)('prerendered dist/index.html', () => {
+  it('skipped — run `npm run build` first to exercise the prerender pipeline', () => {
+    expect(true).toBe(true)
   })
 })

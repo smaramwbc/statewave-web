@@ -6,6 +6,7 @@ import { Section } from '../components/Section'
 import { Button } from '../components/Button'
 import { Heading } from '../components/Heading'
 import { Card } from '../components/Card'
+import { ClientOnly } from '../components/ClientOnly'
 import { CodeCopyButton } from '../components/CodeCopyButton'
 // HeroBackground is a ~1100-line canvas component that is suppressed on
 // viewports ≤ 639px (see useIsHeroCanvasSuppressed inside the component).
@@ -42,19 +43,26 @@ export function HomePage() {
     ],
     breadcrumb: false,
   })
+  // Only the HeroSection is prerendered into dist/index.html — everything
+  // else lives behind ClientOnly so the SSR payload stays small (the
+  // browser parses less DOM before first paint). Hydration is clean
+  // because server and the first client render both emit null for the
+  // wrapped subtree; an effect on mount expands it.
   return (
     <>
       <HeroSection />
-      <WhatSection />
-      <WhyNotSection />
-      <UseCasesSection />
-      <ConnectorsTeaserSection />
-      <SupportProofSection />
-      <CapabilitiesSection />
-      <ProofSection />
-      <DeveloperSection />
-      <FAQSection />
-      <CTASection />
+      <ClientOnly>
+        <WhatSection />
+        <WhyNotSection />
+        <UseCasesSection />
+        <ConnectorsTeaserSection />
+        <SupportProofSection />
+        <CapabilitiesSection />
+        <ProofSection />
+        <DeveloperSection />
+        <FAQSection />
+        <CTASection />
+      </ClientOnly>
     </>
   )
 }

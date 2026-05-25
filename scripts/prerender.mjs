@@ -61,7 +61,11 @@ async function main() {
     // page. Catch that here so the build fails loudly instead of
     // silently shipping an SPA-only homepage.
     const FALLBACK_MARKER = 'Switched to client rendering because the server rendering errored'
-    const MIN_BYTES = 10_000
+    // Floor sits above React's client-rendering-fallback template (~2.6 kB)
+    // but below the legitimate above-the-fold-only payload (~11 kB at the
+    // time this was tuned). If the homepage is intentionally shrunk further,
+    // adjust — but the FALLBACK_MARKER check below is the real guard.
+    const MIN_BYTES = 5_000
     if (appHtml.includes(FALLBACK_MARKER)) {
       throw new Error(
         `SSR errored and React fell back to client-only rendering for ${url}. ` +
