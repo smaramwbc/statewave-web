@@ -2,7 +2,7 @@
 
 > Statewave is an open-source memory runtime for AI agents. It records events, compiles them into semantic and episodic memories, and retrieves compact, ranked context bundles for LLM applications.
 
-This document is the long-form, LLM-readable reference for Statewave. For the short index, see [llms.txt](https://statewave.ai/llms.txt). For human docs, see the [statewave-docs repository](https://github.com/smaramwbc/statewave-docs).
+This document is the long-form, LLM-readable reference for Statewave. For the short index, see [llms.txt](https://www.statewave.ai/llms.txt). For human docs, see the [statewave-docs repository](https://github.com/smaramwbc/statewave-docs).
 
 Statewave is a self-hostable memory runtime for LLM apps and agents. It records raw events as immutable episodes, compiles them into typed semantic and episodic memories with provenance, and assembles ranked, token-bounded context bundles ready to splice into any prompt. Storage is Postgres with the pgvector extension. Compilation runs locally with a heuristic compiler or through LiteLLM (100+ providers, including self-hosted Ollama and vLLM).
 

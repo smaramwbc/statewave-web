@@ -86,11 +86,11 @@ describe('public/llms.txt', () => {
 
   it('links the public site, docs, and source repos', () => {
     const required = [
-      'https://statewave.ai/',
-      'https://statewave.ai/product',
-      'https://statewave.ai/why',
-      'https://statewave.ai/use-cases',
-      'https://statewave.ai/developers',
+      'https://www.statewave.ai/',
+      'https://www.statewave.ai/product',
+      'https://www.statewave.ai/why',
+      'https://www.statewave.ai/use-cases',
+      'https://www.statewave.ai/developers',
       'https://github.com/smaramwbc/statewave',
       'https://github.com/smaramwbc/statewave-py',
       'https://github.com/smaramwbc/statewave-ts',
@@ -112,7 +112,7 @@ describe('index.html baseline metadata', () => {
 
   it('contains the canonical home URL', () => {
     expect(html).toMatch(
-      /<link\s+rel="canonical"\s+href="https:\/\/statewave\.ai"/,
+      /<link\s+rel="canonical"\s+href="https:\/\/www\.statewave\.ai"/,
     )
   })
 

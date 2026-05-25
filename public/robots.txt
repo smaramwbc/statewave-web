@@ -8,4 +8,4 @@ User-agent: *
 Allow: /
 Disallow: /api/
 
-Sitemap: https://statewave.ai/sitemap.xml
+Sitemap: https://www.statewave.ai/sitemap.xml

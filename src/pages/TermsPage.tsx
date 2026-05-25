@@ -32,7 +32,7 @@ export function TermsPage() {
           </h1>
           <p className="mt-5 text-sm text-theme-muted">Last updated: 15 May 2026</p>
           <p className="mt-6 text-base text-theme-secondary leading-relaxed">
-            These terms govern your use of <a href="https://statewave.ai" className="text-accent hover:underline">statewave.ai</a>{' '}
+            These terms govern your use of <a href="https://www.statewave.ai" className="text-accent hover:underline">statewave.ai</a>{' '}
             (the &ldquo;Site&rdquo;), the live demo at <a href="/demo" className="text-accent hover:underline">/demo</a>,
             and the launch waitlist at <a href="/launch" className="text-accent hover:underline">/launch</a>. By using any
             of these you agree to these terms.

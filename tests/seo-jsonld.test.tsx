@@ -49,7 +49,7 @@ describe('JSON-LD builders', () => {
     expect(node['@context']).toBe('https://schema.org')
     expect(node['@type']).toBe('Organization')
     expect(node.name).toBe('Statewave')
-    expect(node.url).toBe('https://statewave.ai')
+    expect(node.url).toBe('https://www.statewave.ai')
     expect(Array.isArray(node.sameAs)).toBe(true)
   })
 
@@ -83,11 +83,11 @@ describe('JSON-LD builders', () => {
       '@type': 'ListItem',
       position: 1,
       name: 'Home',
-      item: 'https://statewave.ai',
+      item: 'https://www.statewave.ai',
     })
     expect(items[1]).toMatchObject({
       position: 2,
-      item: 'https://statewave.ai/use-cases',
+      item: 'https://www.statewave.ai/use-cases',
     })
   })
 

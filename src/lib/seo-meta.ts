@@ -9,7 +9,7 @@
  */
 
 export const SITE_NAME = 'Statewave'
-export const BASE_URL = 'https://statewave.ai'
+export const BASE_URL = 'https://www.statewave.ai'
 export const DEFAULT_LOCALE = 'en_US'
 export const DEFAULT_LANG = 'en'
 export const DEFAULT_OG_IMAGE = `${BASE_URL}/og-image.png`

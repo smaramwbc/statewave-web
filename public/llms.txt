@@ -2,7 +2,7 @@
 
 > Statewave is an open-source memory runtime for AI agents. It records events, compiles them into semantic and episodic memories, and retrieves compact, ranked context bundles for LLM applications.
 
-For the long-form reference (full REST API, SDK usage, and a complete agent integration flow), see https://statewave.ai/llms-full.txt.
+For the long-form reference (full REST API, SDK usage, and a complete agent integration flow), see https://www.statewave.ai/llms-full.txt.
 
 Statewave is a self-hostable memory runtime for LLM apps and agents. It helps applications remember users, decisions, projects, sessions, tool calls, and prior interactions without relying on prompt stuffing or naive chat history.
 
@@ -10,12 +10,12 @@ Statewave stores immutable episodes, compiles them into typed memories with prov
 
 ## Primary links
 
-- [Website](https://statewave.ai/) — product overview, positioning, FAQ, and launch information.
-- [How It Works](https://statewave.ai/product) — lifecycle: record, compile, retrieve, govern.
-- [Why Statewave](https://statewave.ai/why) — comparison with prompt stuffing, naive RAG, and temporary chat history.
-- [Use Cases](https://statewave.ai/use-cases) — support agents, coding copilots, account intelligence, voice continuity, and multi-agent systems.
-- [Connectors](https://statewave.ai/connectors) — GitHub, Markdown/ADRs, MCP, Slack, Discord, Zendesk, Intercom, Freshdesk, Notion, Gmail, n8n, Zapier.
-- [Developers](https://statewave.ai/developers) — SDKs, docs, API reference, and examples.
+- [Website](https://www.statewave.ai/) — product overview, positioning, FAQ, and launch information.
+- [How It Works](https://www.statewave.ai/product) — lifecycle: record, compile, retrieve, govern.
+- [Why Statewave](https://www.statewave.ai/why) — comparison with prompt stuffing, naive RAG, and temporary chat history.
+- [Use Cases](https://www.statewave.ai/use-cases) — support agents, coding copilots, account intelligence, voice continuity, and multi-agent systems.
+- [Connectors](https://www.statewave.ai/connectors) — GitHub, Markdown/ADRs, MCP, Slack, Discord, Zendesk, Intercom, Freshdesk, Notion, Gmail, n8n, Zapier.
+- [Developers](https://www.statewave.ai/developers) — SDKs, docs, API reference, and examples.
 
 ## Documentation
 

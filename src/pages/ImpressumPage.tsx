@@ -59,7 +59,7 @@ export function ImpressumPage() {
           </h1>
           <p className="mt-5 text-sm text-theme-muted">
             Information pursuant to § 5 TMG (DE) and the Spanish LSSI-CE for the operator of{' '}
-            <a href="https://statewave.ai" className="text-accent hover:underline">statewave.ai</a>.
+            <a href="https://www.statewave.ai" className="text-accent hover:underline">statewave.ai</a>.
           </p>
         </div>
       </section>
