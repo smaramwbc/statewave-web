@@ -74,15 +74,21 @@ function HeroSection() {
   useTrackDemoCta(heroCtaRef)
 
   // Mirror the matchMedia check inside HeroBackground so we decide whether to
-  // even mount the lazy chunk. If we mounted unconditionally, mobile would
-  // still pay the chunk download just for the component to render null.
-  const [showHeroCanvas, setShowHeroCanvas] = useState<boolean>(() => {
-    if (typeof window === 'undefined') return false
-    return !window.matchMedia('(max-width: 639px)').matches
-  })
+  // even mount the lazy chunk. Two-pass pattern: the initial state must be
+  // `false` on both SSR and the first client render so React's hydration
+  // sees the same tree shape on both sides — otherwise the
+  // `{showHeroCanvas && <HeroBackground />}` branch differs and triggers
+  // React error #418 (hydration mismatch at the conditional subtree). After
+  // hydration, the effect below flips the flag on desktop and the canvas
+  // mounts via a normal post-mount re-render. Brief desktop flash of "no
+  // background" is invisible because HeroBackground is decorative and the
+  // hero content paints from the prerendered HTML regardless.
+  const [showHeroCanvas, setShowHeroCanvas] = useState(false)
   useEffect(() => {
     if (typeof window === 'undefined') return
     const mq = window.matchMedia('(max-width: 639px)')
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setShowHeroCanvas(!mq.matches)
     const handler = (e: MediaQueryListEvent) => setShowHeroCanvas(!e.matches)
     mq.addEventListener('change', handler)
     return () => mq.removeEventListener('change', handler)
