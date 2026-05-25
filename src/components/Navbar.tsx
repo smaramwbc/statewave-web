@@ -11,6 +11,7 @@ const links = [
   { to: '/use-cases', label: 'Use Cases' },
   { to: '/connectors', label: 'Connectors' },
   { to: '/developers', label: 'Developers' },
+  { to: '/about', label: 'About' },
 ]
 
 /**

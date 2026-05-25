@@ -44,6 +44,7 @@ export type RouteKey =
   | '/use-cases'
   | '/connectors'
   | '/developers'
+  | '/about'
 
 /** Canonical, indexable public routes. Order matters — used to render the
  *  sitemap and the llms.txt index. */
@@ -54,6 +55,7 @@ export const PUBLIC_ROUTES: readonly RouteKey[] = [
   '/use-cases',
   '/connectors',
   '/developers',
+  '/about',
 ] as const
 
 export interface PageMeta {
@@ -130,6 +132,15 @@ export const PAGE_META: Record<RouteKey, PageMeta> = {
     breadcrumbLabel: 'Developers',
     ogType: 'article',
     priority: 0.8,
+    changefreq: 'monthly',
+  },
+  '/about': {
+    title: 'About Statewave — Open-Source Memory Runtime for AI Agents',
+    description:
+      'Statewave is an open-source, self-hosted memory runtime for AI agents — durable episodic and semantic memory with provenance, deterministic ranking, and token-bounded context bundles. Apache-2.0, framework-neutral, no managed cloud.',
+    breadcrumbLabel: 'About',
+    ogType: 'website',
+    priority: 0.6,
     changefreq: 'monthly',
   },
 }

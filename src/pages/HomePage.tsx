@@ -26,20 +26,9 @@ import {
   websiteJsonLd,
 } from '../lib/seo-meta'
 import { FAQ_ENTRIES } from '../lib/faq'
+import { PROOF_STATS } from '../lib/proof-stats'
 import { useChatWidget, useTrackDemoCta, DEMO_SUBJECTS } from '../lib/widget-context-api'
 import { useRef, useState, useEffect, useCallback } from 'react'
-
-/** Single source of truth for the credibility figures the homepage
- *  surfaces. Mirrored in both the prerendered HeroSection (so AI crawlers
- *  and answer engines see them in the initial HTML) and the below-the-fold
- *  ProofSection. Recompute together when the eval suite or benchmark
- *  changes — drift between surfaces makes us look sloppy. */
-const PROOF_STATS = [
-  { value: '680', label: 'Unit tests' },
-  { value: '55', label: 'Eval assertions' },
-  { value: '8/8', label: 'Support workflow score' },
-  { value: '2/8', label: 'Naive approach score' },
-] as const
 
 export function HomePage() {
   // The home page is the canonical landing for Organization, WebSite, and
