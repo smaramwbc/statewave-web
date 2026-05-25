@@ -7,19 +7,34 @@ const STORAGE_KEY = 'statewave-theme-mode'
 
 interface ThemeContextValue {
   mode: ThemeMode
-  resolvedTheme: ResolvedTheme
+  /** Null during SSR and the first client render — flips to the real value in
+   *  a mount effect. Consumers that conditionally render different DOM per
+   *  theme must handle null (return null or a theme-agnostic shape) or risk
+   *  a hydration mismatch. Visual correctness during the null window is
+   *  handled by the inline <script> in index.html, which sets the
+   *  `data-theme` attribute on <html> before paint — components driven by
+   *  CSS variables on that attribute look right regardless of React state. */
+  resolvedTheme: ResolvedTheme | null
   setMode: (mode: ThemeMode) => void
 }
 
 const ThemeContext = createContext<ThemeContextValue | null>(null)
 
 function getSystemTheme(): ResolvedTheme {
+  if (typeof window === 'undefined') return 'light'
   return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
 }
 
 function resolveTheme(mode: ThemeMode): ResolvedTheme {
   if (mode === 'auto') return getSystemTheme()
   return mode
+}
+
+function readStoredMode(): ThemeMode {
+  if (typeof window === 'undefined') return 'auto'
+  const stored = window.localStorage.getItem(STORAGE_KEY)
+  if (stored === 'light' || stored === 'dark' || stored === 'auto') return stored
+  return 'auto'
 }
 
 function applyTheme(resolved: ResolvedTheme) {
@@ -39,18 +54,32 @@ function applyTheme(resolved: ResolvedTheme) {
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [mode, setModeState] = useState<ThemeMode>(() => {
-    const stored = localStorage.getItem(STORAGE_KEY)
-    if (stored === 'light' || stored === 'dark' || stored === 'auto') return stored
-    return 'auto'
-  })
-
-  const [resolvedTheme, setResolved] = useState<ResolvedTheme>(() => resolveTheme(mode))
+  // SSR-safe defaults. The actual values arrive in the mount effect below,
+  // and `resolvedTheme` stays null until then so SSR and client first-render
+  // produce identical DOM (no hydration warnings).
+  const [mode, setModeState] = useState<ThemeMode>('auto')
+  const [resolvedTheme, setResolved] = useState<ResolvedTheme | null>(null)
 
   const setMode = useCallback((newMode: ThemeMode) => {
     setModeState(newMode)
-    localStorage.setItem(STORAGE_KEY, newMode)
+    window.localStorage.setItem(STORAGE_KEY, newMode)
     const resolved = resolveTheme(newMode)
+    setResolved(resolved)
+    applyTheme(resolved)
+  }, [])
+
+  // On client mount, read the persisted/system theme and reconcile React
+  // state. The inline <script> in index.html already set the right
+  // `data-theme` attribute before paint, so this effect only updates React
+  // state — no visible flash for users in dark mode. setState-in-effect is
+  // intentional here: SSR and the first client render both produce
+  // `resolvedTheme=null` for hydration parity, and only this post-mount
+  // effect can safely touch `window.matchMedia` / `localStorage`.
+  useEffect(() => {
+    const storedMode = readStoredMode()
+    const resolved = resolveTheme(storedMode)
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setModeState(storedMode)
     setResolved(resolved)
     applyTheme(resolved)
   }, [])
@@ -68,11 +97,6 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     mq.addEventListener('change', handler)
     return () => mq.removeEventListener('change', handler)
   }, [mode])
-
-  // Sync on mount
-  useEffect(() => {
-    applyTheme(resolvedTheme)
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <ThemeContext.Provider value={{ mode, resolvedTheme, setMode }}>
