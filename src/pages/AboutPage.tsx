@@ -2,6 +2,7 @@ import { Section } from '../components/Section'
 import { Heading } from '../components/Heading'
 import { usePageSEO } from '../lib/seo'
 import { PROOF_STATS } from '../lib/proof-stats'
+import { CREDIBILITY_STATS, formatCompactCount } from '../lib/credibility-stats'
 
 /* About page.
  *
@@ -44,6 +45,105 @@ const REPOS = [
   { name: 'statewave-bench', desc: 'Open evaluation harness — every published proof figure is reproducible by running these scripts.', url: 'https://github.com/smaramwbc/statewave-bench' },
   { name: 'statewave-web', desc: 'This marketing site.', url: 'https://github.com/smaramwbc/statewave-web' },
 ] as const
+
+/* Adoption-counts strip on the About page, sitting under the CI proof
+   grid. Same data source as the homepage hero's CommunityCountsRow
+   (CREDIBILITY_STATS, refreshed out-of-band) — different visual
+   treatment because there's room here for a slightly fuller layout. */
+function AdoptionStatsRow() {
+  const s = CREDIBILITY_STATS
+  // One tile per ecosystem (GitHub / Docker / PyPI / npm) — primary metric
+  // as the big number, the secondary metric folded into the label so the
+  // grid stays 4-up on desktop without crowding. Tiles drop out
+  // individually if the source field is null (rate-limited refresh, never-
+  // populated metric); the section disappears entirely if all four are
+  // null.
+  const stars = formatCompactCount(s.github_stars)
+  const forks = formatCompactCount(s.github_forks)
+  const pulls = formatCompactCount(s.docker_pulls)
+  const pypiDownloads = formatCompactCount(s.pypi_downloads_month)
+  const npmDownloads = formatCompactCount(s.npm_downloads_month)
+  const items: { key: string; value: string; label: string; href?: string }[] = []
+  if (stars !== null) {
+    items.push({
+      key: 'github',
+      value: `${stars}`,
+      label: forks !== null ? `GitHub stars · ${forks} forks` : 'GitHub stars',
+      href: 'https://github.com/smaramwbc/statewave',
+    })
+  }
+  if (pulls !== null) {
+    items.push({
+      key: 'docker',
+      value: pulls,
+      label: 'Docker pulls',
+      href: 'https://hub.docker.com/r/statewavedev/statewave',
+    })
+  }
+  if (s.pypi_version) {
+    items.push({
+      key: 'pypi',
+      value: `v${s.pypi_version}`,
+      label: pypiDownloads
+        ? `statewave on PyPI · ${pypiDownloads}/mo`
+        : 'statewave on PyPI',
+      href: 'https://pypi.org/project/statewave/',
+    })
+  }
+  if (s.npm_version) {
+    items.push({
+      key: 'npm',
+      value: `v${s.npm_version}`,
+      label: npmDownloads
+        ? '@statewavedev/sdk on npm · ' + npmDownloads + '/mo'
+        : '@statewavedev/sdk on npm',
+      href: 'https://www.npmjs.com/package/@statewavedev/sdk',
+    })
+  }
+  if (items.length === 0) return null
+  return (
+    <div className="mt-6">
+      <p className="text-xs uppercase tracking-[0.18em] text-theme-muted mb-3">
+        Live community counts
+      </p>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {items.map((it) => {
+          const inner = (
+            <>
+              <p className="text-xl md:text-2xl font-semibold text-theme-primary">
+                {it.value}
+              </p>
+              <p className="mt-1 text-xs text-theme-muted">{it.label}</p>
+            </>
+          )
+          return it.href ? (
+            <a
+              key={it.key}
+              href={it.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-center rounded-2xl border border-theme-border bg-surface-1 p-4 hover:border-accent/40 transition-colors"
+            >
+              {inner}
+            </a>
+          ) : (
+            <div
+              key={it.key}
+              className="text-center rounded-2xl border border-theme-border bg-surface-1 p-4"
+            >
+              {inner}
+            </div>
+          )
+        })}
+      </div>
+      {s.fetched_at && (
+        <p className="mt-3 text-[11px] text-theme-muted/80">
+          Counts last refreshed {new Date(s.fetched_at).toISOString().slice(0, 10)}.
+        </p>
+      )}
+    </div>
+  )
+}
 
 export function AboutPage() {
   usePageSEO({
@@ -142,6 +242,8 @@ export function AboutPage() {
               </div>
             ))}
           </div>
+
+          <AdoptionStatsRow />
         </div>
       </Section>
 

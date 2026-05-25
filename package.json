@@ -16,7 +16,8 @@
     "typecheck": "tsc -b --noEmit && tsc -p tsconfig.server.json --noEmit",
     "lint": "eslint .",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "refresh:credibility": "node scripts/refresh-credibility-stats.mjs"
   },
   "dependencies": {
     "framer-motion": "^12.39.0",
