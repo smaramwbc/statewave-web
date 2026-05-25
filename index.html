@@ -20,6 +20,28 @@
     />
     <link rel="canonical" href="https://www.statewave.ai" />
 
+    <!-- Feed-reader discovery for the blog. Three feeds are generated at
+         build time (scripts/generate-rss.mjs); RSS 2.0 is the most widely
+         supported, Atom and JSON Feed cover modern readers. -->
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title="Statewave blog (RSS)"
+      href="https://www.statewave.ai/blog/rss.xml"
+    />
+    <link
+      rel="alternate"
+      type="application/atom+xml"
+      title="Statewave blog (Atom)"
+      href="https://www.statewave.ai/blog/atom.xml"
+    />
+    <link
+      rel="alternate"
+      type="application/feed+json"
+      title="Statewave blog (JSON Feed)"
+      href="https://www.statewave.ai/blog/feed.json"
+    />
+
     <meta name="theme-color" content="#030712" media="(prefers-color-scheme: dark)" />
     <meta name="theme-color" content="#fafbfc" media="(prefers-color-scheme: light)" />
 

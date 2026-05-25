@@ -1,0 +1,122 @@
+---
+title: How to add persistent memory to your AI support agent
+slug: persistent-memory-for-ai-support-agents
+date: 2026-05-25
+description: A practical walkthrough of giving a support agent durable memory of customers across sessions — what to record, how to compile it, how to retrieve it, and what to expect from the support workflow benchmark.
+author: Statewave team
+tags:
+  - support
+  - tutorial
+  - memory
+---
+
+Support is the workload where missing memory hurts most. A customer who told you yesterday that their pipeline runs on Snowflake shouldn't have to say it again today. A subscription user shouldn't have to re-explain their plan tier to every new agent. And the agent shouldn't be guessing — it should be able to *cite* where it learned each fact.
+
+This post walks through giving a support agent persistent customer memory with Statewave. It's about 30 minutes of work end-to-end, and the result is an agent that remembers across sessions with the same audit trail a human support engineer would leave.
+
+## The four steps
+
+The mental model is the same one the [getting-started guide](https://github.com/smaramwbc/statewave-docs/blob/main/getting-started.md) covers, with a support-specific shape on each step:
+
+1. **Record** every customer turn as an episode, scoped to a stable customer ID
+2. **Compile** episodes into typed memories — profile facts, preferences, procedures, prior-issue summaries
+3. **Retrieve** a token-bounded context bundle at the top of each new conversation
+4. **Splice** the bundle into the system prompt and let the LLM respond
+
+Each step is a single HTTP call. The agent does no memory bookkeeping itself.
+
+## Step 1 — Record
+
+Every customer turn becomes an immutable episode tied to the customer subject. The subject ID should be stable across sessions — your CRM ID, account UUID, or email hash. Avoid using the chat session ID; that's per-conversation, and you want memory to outlive the conversation.
+
+```http
+POST /v1/episodes
+{
+  "subject_id": "cust_4f1a",
+  "kind": "chat.message",
+  "payload": {
+    "role": "user",
+    "content": "Our pipeline runs on Snowflake — we hit a connection timeout this morning around 9am UTC."
+  },
+  "metadata": {
+    "channel": "intercom",
+    "conversation_id": "intercom_8821"
+  }
+}
+```
+
+Record both sides of the conversation. Record tool calls the agent made. Record any decisions the human escalation team takes, if a human is in the loop. Everything goes in append-only — Statewave never edits an episode after it's stored.
+
+## Step 2 — Compile
+
+After each new batch of episodes, kick off a compile pass for the subject:
+
+```http
+POST /v1/memories/compile
+{ "subject_id": "cust_4f1a" }
+```
+
+The compiler walks the new episodes and produces typed memories: that Snowflake mention becomes a `profile.tech_stack` fact with confidence and validity. The 9am UTC timeout becomes a `decision.prior_issue` memory linked back to the source episode. The next time the user asks "did anyone look at our pipeline?", that prior-issue memory is what surfaces — not a vector-nearest chunk of the original message.
+
+Compilation is idempotent. Running it twice on the same episodes produces no duplicates. You can run it after every turn (low-latency, more API calls) or batch it on a timer (cheaper, slightly staler context). Both modes are supported.
+
+## Step 3 — Retrieve
+
+When the user starts a new conversation, fetch a context bundle before calling the LLM:
+
+```http
+POST /v1/context
+{
+  "subject_id": "cust_4f1a",
+  "query": "I'm seeing the same timeout again",
+  "token_budget": 1024
+}
+```
+
+You get back a ranked list of memories and episodes within the budget. Each item carries its provenance — `source_episode_ids` for memories, the episode itself for raw events. The ranking is deterministic: priority by kind (procedures beat casual mentions), recency-weighted, validity-filtered, similarity for tie-breaks.
+
+## Step 4 — Splice
+
+Drop the bundle into the system prompt. We recommend a section header so the model knows what it's looking at:
+
+```text
+You are a support engineer for Acme. Use the following durable memory
+about this customer when relevant:
+
+[MEMORY START]
+- Tech stack: Snowflake (confidence 0.91, observed 2026-04-12)
+- Prior issue (2026-04-14): pipeline connection timeout around 9am UTC.
+  Resolved by raising the connect_timeout setting in the Snowflake
+  connector. Source: episode ep_7a2…
+- Communication preference: terse, no marketing language. Source: ep_6b9…
+[MEMORY END]
+
+Cite the source episode IDs above when you reference a remembered fact.
+```
+
+That `Cite the source episode IDs` instruction is what turns the agent from "AI that confidently makes things up" into one that points at receipts.
+
+## What the benchmark measures
+
+The support workflow benchmark in [statewave-bench](https://github.com/smaramwbc/statewave-bench) scores an agent on eight criteria that map to real support concerns:
+
+1. Identity facts persist across sessions
+2. Preferences surface for matching tasks
+3. Token budgets are always respected
+4. Provenance traces back to source episodes
+5. Compilation is idempotent — no duplicates
+6. Session-aware ranking boosts active sessions
+7. Repeat-issue detection surfaces prior fixes
+8. Health scoring is deterministic and explainable
+
+A naive prompt-stuffing baseline (concatenate the last N turns) scores 2/8. A Statewave-backed agent scores 8/8 on the same dataset, with the same model, with no agent-side memory code. The benchmark is open — clone the harness and reproduce.
+
+## What this doesn't solve
+
+A few things the memory layer deliberately doesn't do:
+
+- **It doesn't replace your knowledge base.** Product docs, runbooks, troubleshooting articles still belong in your RAG stack. Statewave handles the *who you're talking to* layer, not the *what does the documentation say* layer.
+- **It doesn't make personally identifying information safe by itself.** Storage encryption, access control, retention policies, GDPR / CCPA flows are your platform's job. Statewave gives you the substrate; the policy is yours.
+- **It doesn't ship a routing engine.** Statewave returns ranked context. Deciding whether to escalate, hand off to a human, or close the ticket is your application logic.
+
+What it does ship is a memory layer that doesn't forget, with an audit trail you can show to a human reviewer or a compliance auditor. For a support agent, that's the difference between a demo and a deployment.

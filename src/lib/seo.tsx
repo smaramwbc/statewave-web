@@ -44,6 +44,11 @@ export interface UsePageSEOOptions {
   jsonLd?: readonly JsonLd[]
   /** Set false to skip the auto-generated breadcrumb (default true). */
   breadcrumb?: boolean
+  /** Override the Open Graph type. Defaults to the per-route value in
+   *  PAGE_META, then 'website'. Use 'article' for blog posts and other
+   *  long-form content so social-card scrapers / answer engines treat
+   *  the page as editorial rather than as a landing page. */
+  ogType?: 'website' | 'article'
 }
 
 const MANAGED_LD_ATTR = 'data-seo'
@@ -83,7 +88,7 @@ export function usePageSEO(options: UsePageSEOOptions = {}) {
     setMeta('og:image:alt', ogImageAlt, 'property')
     setMeta('og:image:width', '1200', 'property')
     setMeta('og:image:height', '630', 'property')
-    setMeta('og:type', meta.ogType ?? 'website', 'property')
+    setMeta('og:type', options.ogType ?? meta.ogType ?? 'website', 'property')
     setMeta('og:site_name', SITE_NAME, 'property')
     setMeta('og:locale', DEFAULT_LOCALE, 'property')
 

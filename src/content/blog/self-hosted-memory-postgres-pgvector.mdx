@@ -1,0 +1,71 @@
+---
+title: Self-hosted AI memory with Postgres and pgvector
+slug: self-hosted-memory-postgres-pgvector
+date: 2026-05-25
+description: Why Statewave is Postgres-only by design, what pgvector buys you over a dedicated vector database, and what the deployment shape looks like in production.
+author: Statewave team
+tags:
+  - postgres
+  - pgvector
+  - deployment
+  - self-hosted
+---
+
+There's a default architecture circulating for AI memory: stand up a managed vector database, stand up a relational database for metadata, glue them together in application code. We didn't do that. Statewave runs on Postgres with the pgvector extension. One database, one operational story, no managed cloud.
+
+This post explains why, and what the deployment shape actually looks like in production.
+
+## What pgvector actually is
+
+pgvector is a Postgres extension that adds a `vector(N)` column type, ANN indexes (IVFFlat and HNSW), and distance operators (`<->`, `<=>`, `<#>`) for cosine / L2 / inner-product. It's compiled to native code, ships as a standard Postgres extension, and runs anywhere Postgres runs — managed RDS, Aurora, Cloud SQL, Supabase, self-hosted, embedded, doesn't matter.
+
+The honest tradeoff with pgvector versus a purpose-built vector DB (Pinecone, Weaviate, Milvus, Qdrant):
+
+- **You give up**: marginal recall-vs-latency on extreme corpora (>50M vectors / sub-millisecond p99 SLAs), some advanced filtering optimizations, the vendor's prebuilt management UI.
+- **You get**: one durable substrate, transactional consistency between embeddings and the rows they describe, the entire Postgres operational toolkit (PITR, replicas, pgbouncer, observability), no second source of truth to keep in sync.
+
+For a memory runtime, the transactional consistency is the win. When a compiled memory references its source episodes, you want that reference to be enforceable as a foreign key, not a "best-effort soft pointer maintained by application code." With pgvector, it just is.
+
+## Why one database
+
+The first time we sketched Statewave, the design had a vector DB for embeddings and Postgres for everything else. We threw that away after the first prototype. Two reasons:
+
+1. **The split duplicated truth.** Every memory existed twice — as a row in Postgres with its fields, and as a vector in the vector DB with its embedding. Keeping them in sync (writes, deletes, schema migrations, restores) was 30% of the code. None of that code was about memory; it was about plumbing.
+2. **There was no transaction.** A compile pass produces N new memories and updates M existing ones. With two stores, you can't make that atomic. Crashes mid-compile leave the two stores inconsistent. With Postgres-plus-pgvector, the whole compile pass is one `BEGIN; … COMMIT;`.
+
+For a memory layer that needs to be auditable — every memory back to source episodes, every retrieval explainable — that consistency is non-negotiable. The marginal recall improvement of a dedicated vector DB doesn't justify the operational fork.
+
+## What the production shape looks like
+
+A real Statewave deployment is two processes:
+
+```
+┌─────────────────────────┐      ┌─────────────────────────┐
+│  Statewave API server   │      │  Postgres + pgvector    │
+│  (stateless, scale-out) │ ←──→ │  (your usual HA story)  │
+└─────────────────────────┘      └─────────────────────────┘
+```
+
+The API server is stateless. Scale it horizontally behind any load balancer; no sticky sessions, no in-memory cache that needs warming. All durable state — episodes, memories, embeddings — lives in Postgres.
+
+Postgres is *your* Postgres. Statewave doesn't ship a managed Postgres or require a specific version of pgvector beyond a sane minimum. You point Statewave at a `DATABASE_URL` and you're done. Backups, replicas, point-in-time recovery, monitoring, access control — all of it is whatever you already do for Postgres in your stack.
+
+For local development, the [docker-compose file in the core repo](https://github.com/smaramwbc/statewave/blob/main/docker-compose.yml) boots a single API container plus a Postgres-with-pgvector container; you have a working instance in about two minutes. For production, the [deployment guide](https://github.com/smaramwbc/statewave-docs/blob/main/deployment/guide.md) covers Fly.io, Railway, and the plain-container path on EKS/GKE/AKS.
+
+## What about scaling?
+
+The honest answer:
+
+- **API tier**: stateless, scales linearly. Memory and CPU per request are bounded — context bundles are token-budget-capped, ranking is O(N log N) over a per-subject working set, not the whole corpus.
+- **Postgres tier**: scales the way Postgres scales. Read replicas for retrieval-heavy workloads. Connection pooling via pgbouncer. Vertical scaling for write throughput up to the usual Postgres ceiling. Above that, partition by subject (every memory belongs to exactly one subject, so the sharding key is obvious).
+- **Vector recall on very large corpora**: pgvector's HNSW index is competitive with dedicated vector DBs up into the tens of millions of vectors per index. Beyond that, the standard mitigations apply — partial indexes per subject, partitioned tables, or — if you genuinely outgrow pgvector — pluggable retrieval (the ranking layer is decoupled from the vector store, so swapping in a different index later is a localized change, not a rewrite).
+
+We're public about the limit: high-RPS load testing across all four tiers (512 / 1024 / 2048 / 4096 token budgets) is in [statewave-bench](https://github.com/smaramwbc/statewave-bench) with measured numbers. We haven't bench-tested above 50M vectors in a single index. If you're at that scale, talk to us — that's exactly the workload to validate before committing.
+
+## The licensing math
+
+Apache-2.0 server, Apache-2.0 SDKs, Apache-2.0 connectors. No "community edition" with the good features locked behind an enterprise license. No open-core games. The hosted-vs-self-hosted split that creates conflict of interest in many open-source startups doesn't apply to Statewave because there's no Statewave-managed cloud to defend.
+
+What we offer commercially, separate from the code: SLA, indemnity, architecture review, managed hosting if you want us to operate Postgres-plus-Statewave for you. None of that gates features in the open source. If you can run Postgres, you can run Statewave forever, for free, with the same code we'd run for an enterprise customer.
+
+That's the deal — Postgres-only, transactional consistency, no managed-cloud lock-in. The trade is real (we're not the world's fastest vector recall) and we think it's the right one for a memory layer where the audit trail matters more than the marginal millisecond.

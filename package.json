@@ -6,10 +6,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "npm run build:client && npm run build:ssr-bundle && npm run build:prerender && npm run build:server",
+    "build": "npm run build:client && npm run build:ssr-bundle && npm run build:postbuild && npm run build:server",
     "build:client": "tsc -b && vite build",
     "build:ssr-bundle": "vite build --ssr src/entry.server.tsx --outDir dist-ssr --emptyOutDir",
-    "build:prerender": "node scripts/prerender.mjs",
+    "build:postbuild": "node scripts/post-build.mjs",
     "build:server": "tsc -p tsconfig.server.json",
     "preview": "vite preview",
     "start": "node dist-server/server/index.js",
@@ -20,12 +20,19 @@
     "refresh:credibility": "node scripts/refresh-credibility-stats.mjs"
   },
   "dependencies": {
+    "@mdx-js/react": "^3.1.1",
+    "@mdx-js/rollup": "^3.1.1",
+    "feed": "^5.2.1",
     "framer-motion": "^12.39.0",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
     "react-markdown": "^10.1.0",
     "react-router-dom": "^7.15.1",
-    "remark-gfm": "^4.0.1"
+    "rehype-autolink-headings": "^7.1.0",
+    "rehype-slug": "^6.0.0",
+    "remark-frontmatter": "^5.0.0",
+    "remark-gfm": "^4.0.1",
+    "remark-mdx-frontmatter": "^5.2.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
@@ -33,6 +40,7 @@
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",
+    "@types/mdx": "^2.0.13",
     "@types/node": "^25.9.1",
     "@types/react": "^19.2.15",
     "@types/react-dom": "^19.2.3",

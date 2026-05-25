@@ -1,0 +1,106 @@
+---
+title: "Agent memory provenance: why your LLM app needs an audit trail"
+slug: agent-memory-provenance-audit-trails
+date: 2026-05-25
+description: When an AI agent answers from memory, you need to know where it learned the answer. This post explains the provenance model in Statewave — what we store, what it costs, and what it enables for compliance, debugging, and trust.
+author: Statewave team
+tags:
+  - provenance
+  - audit
+  - compliance
+  - architecture
+---
+
+Two questions a regulator, a security reviewer, or a senior engineer will ask about an AI agent in production:
+
+1. *Where did the agent learn that?*
+2. *Can you prove it didn't make it up?*
+
+Most LLM applications can't answer either. The model "knew" it. There's no trail back to a source event. The same question asked twice may produce two different answers, with no auditable reason.
+
+A memory runtime with provenance is what closes that gap. This post explains what provenance means concretely in Statewave, what it costs, and why we built the whole runtime around it instead of bolting it on as a feature flag.
+
+## What "provenance" means in concrete terms
+
+Every compiled memory in Statewave carries `source_episode_ids` — the immutable IDs of the raw episodes the memory was derived from. Episodes are append-only and timestamped, so the chain is:
+
+```
+raw event ─► episode (immutable) ─► compiled memory ─► context bundle ─► LLM prompt
+                  ▲                       │
+                  └───── source_episode_ids ─────┘
+```
+
+When the agent answers "your pipeline timed out at 9am UTC on April 14", you can walk the chain back: which memory carried that fact, which episodes the compiler used to derive it, which conversation those episodes came from, what timestamps and channels they had. The chain is data, not log lines — queryable from the same Postgres that holds the memories themselves.
+
+## What it costs
+
+Honest accounting. Storing `source_episode_ids` per memory adds:
+
+- **Storage**: a small array of UUIDs per memory. For a million memories averaging three source episodes each, that's ~3M UUIDs — call it 50 MB. Trivial relative to the embeddings.
+- **Compute**: zero at retrieval time — the IDs are already on the memory row, no extra lookup unless you want to fetch the source episodes themselves.
+- **API surface**: one extra field on the memory shape, one optional `expand=episodes` parameter on the context endpoint for callers who want the raw events alongside the compiled facts.
+
+That's it. No separate audit-log service. No log shipping pipeline to keep alive. No retention conflict between the operational data and the audit data — they're the same data, in the same Postgres, with the same lifecycle.
+
+## What it enables
+
+Three concrete things, in roughly increasing order of importance.
+
+### 1. Debugging
+
+When the agent says something wrong, you can find out *why*. Pull the bundle the agent saw, walk to the memories in it, walk to the source episodes, see the conversation turn that planted the wrong fact. Fix the upstream signal (correct the user's contradiction, mark the episode superseded, re-compile) and the wrong fact stops surfacing. No reverse-engineering the model's reasoning — the reasoning is data.
+
+### 2. Compliance
+
+For any AI system touching user data, the regulator's question is "show me the lineage." Provenance is that lineage, by construction. A compiled memory that says "user opted out of marketing emails" links to the episode that captured the opt-out, with the timestamp and the channel. GDPR right-to-explanation, CCPA notice obligations, sector-specific requirements (HIPAA, GLBA, SOX) — the substrate is the same: a queryable chain from output back to source event.
+
+This isn't a feature you bolt on for an enterprise tier. It's the data model. The audit story works the same way whether you're running Statewave on your laptop or in a regulated production environment.
+
+### 3. Trust
+
+The thing that breaks user trust in AI agents isn't being wrong sometimes — it's being wrong *and unable to explain why*. A support agent that says "your subscription is on the Pro plan because that's what you told us on April 12" is qualitatively different from one that says "your subscription is on the Pro plan" full stop. The first is auditable. The second is confidence theater.
+
+Provenance gives the agent the language to be honest about where its knowledge came from — and gives the human reviewer the language to verify it.
+
+## The architectural choice
+
+There's a school of thought that says provenance is an enterprise feature: ship the core fast, add audit trails later when a customer demands them. We rejected that for Statewave. Three reasons:
+
+1. **Retrofitting is expensive.** A memory model without provenance throws away source linkage at compile time. Adding it back later means re-running compilation on the entire historical episode log, with no guarantee the original event order or context is preserved. The retrofit costs more than building it in.
+2. **The auditing audience is the same as the technical audience.** Engineers debugging the agent in dev want the same chain a compliance officer wants in prod. Building two paths to the same answer (a dev "trace" and a prod "audit log") doubles the surface area for bugs.
+3. **It's a forcing function for honest storage.** If every memory has to carry its sources, you can't sneak a "memory" in that isn't backed by an episode. The compiler can't hallucinate. The agent's "knowledge" is bounded by what actually happened.
+
+Provenance ends up being a constraint that makes the whole system easier to reason about, not a tax you pay for compliance theater.
+
+## What this looks like in the API
+
+A compiled memory in the retrieval response carries its sources directly:
+
+```json
+{
+  "memory_id": "mem_4a8b…",
+  "subject_id": "cust_4f1a",
+  "kind": "profile.tech_stack",
+  "value": "Snowflake (Standard tier)",
+  "confidence": 0.91,
+  "valid_from": "2026-04-12T08:14:00Z",
+  "valid_until": null,
+  "source_episode_ids": ["ep_7a2…", "ep_8c1…"]
+}
+```
+
+If you want the raw events too, ask for them:
+
+```http
+POST /v1/context
+{
+  "subject_id": "cust_4f1a",
+  "query": "What stack are they on?",
+  "token_budget": 1024,
+  "expand": ["episodes"]
+}
+```
+
+The response inlines the source episodes alongside the memory. The agent can cite them in its answer; the reviewer can walk them by hand; the regulator can take the same JSON home in an audit packet. Same shape, three audiences, one source of truth.
+
+That's the case for building memory around provenance from day one. If you want the longer version with the data model and ranking signals laid out end-to-end, the [architecture overview](https://github.com/smaramwbc/statewave-docs/blob/main/architecture/overview.md) on the docs site goes deeper. If you want to see it running, the [getting-started guide](https://github.com/smaramwbc/statewave-docs/blob/main/getting-started.md) gets you to a context bundle in five minutes.

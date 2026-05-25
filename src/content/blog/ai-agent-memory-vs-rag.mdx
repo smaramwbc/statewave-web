@@ -1,0 +1,62 @@
+---
+title: AI agent memory vs RAG — what's the difference?
+slug: ai-agent-memory-vs-rag
+date: 2026-05-25
+description: Retrieval-augmented generation and an agent memory runtime overlap at the embedding store, but they answer different questions. Here's where the two diverge and which to reach for.
+author: Statewave team
+tags:
+  - memory
+  - rag
+  - architecture
+---
+
+Most teams building on LLMs end up with two patterns in the same codebase: **RAG** for looking things up in a corpus, and some hand-rolled **memory** for remembering what the agent has done or what the user has said. The two are often confused, and the confusion costs real engineering time when one is used in place of the other.
+
+A short, accurate version: RAG retrieves *content the agent doesn't already know*; memory retrieves *context the agent has already participated in*. They share a vector store but they answer different questions, store different shapes of data, and have different correctness requirements.
+
+## The shared substrate
+
+Both patterns sit on top of an embedding store — usually pgvector or a dedicated vector database — and both use approximate-nearest-neighbour search at retrieval time. That's where the overlap ends.
+
+- **RAG** stores chunks of source documents (markdown pages, PDFs, support articles). Retrieval returns *the most semantically similar chunks* to the user's question, which are spliced into the prompt as grounding.
+- **Memory** stores typed records of what happened: episodes (raw conversation turns, tool calls, decisions) and compiled memories (typed facts derived from episodes, with provenance back to the source). Retrieval returns *the most relevant prior context for this subject*, ranked by recency, kind, validity, and similarity.
+
+If you only need to ground answers in static documentation, you need RAG. If you need the agent to *remember the user across sessions*, you need memory.
+
+## Where RAG breaks down
+
+RAG was designed to answer "what does our documentation say about X?" — not "what did this user tell us last month?" When teams stretch RAG to cover memory, three failure modes show up:
+
+1. **Embedding-nearest is not decision-relevant.** A user message "I'm allergic to peanuts" and a later question "What should I order for lunch?" don't have close embeddings. Cosine similarity will surface every restaurant chunk before the allergy note. Memory ranking needs more than similarity — it needs kind priority, temporal validity, and explicit provenance.
+2. **There's no compaction.** RAG indexes the corpus as-is. Memory has to *summarize* — turning 200 conversation turns into "user is a senior engineer at a fintech, prefers terse responses" — because the prompt budget is finite. RAG doesn't do that.
+3. **No invalidation model.** If the user's job changes, the old "works at a fintech" record needs to be marked superseded, not retrieved alongside the new one. RAG's append-only chunk store has no concept of validity windows or supersession.
+
+You can paper over each of these in your application code. Teams that do end up with a memory runtime in everything but name.
+
+## Where memory goes beyond retrieval
+
+A memory runtime adds three things on top of the vector store:
+
+- **Compilation**: a pass over raw episodes that produces typed memories — profile facts, preferences, procedures, episode summaries — with confidence scores and validity windows. This is what shrinks 200 turns into one fact.
+- **Deterministic ranking**: scoring that mixes similarity with kind priority (a procedure beats a casual mention), recency, temporal validity, and an explicit token budget. Same query → same bundle. No silent re-ordering.
+- **Provenance**: every compiled memory carries the IDs of the episodes it was derived from. When an agent answers from memory, the answer is auditable back to the raw event that produced it.
+
+None of those are properties of "RAG" in the literature sense. They're what makes memory infrastructure rather than retrieval over chat logs.
+
+## When to reach for which
+
+| | RAG | Memory |
+|---|---|---|
+| Question shape | "What does our content say about X?" | "What does this user / agent / project need to know right now?" |
+| Data shape | Document chunks | Episodes → compiled memories with provenance |
+| Ranking signal | Cosine similarity | Similarity + kind priority + recency + validity + token budget |
+| Mutability | Append-only chunks; reindex on doc update | Episodes append-only; memories supersede; compaction is idempotent |
+| Output | Top-K chunks | Token-bounded bundle ready to drop into a prompt |
+
+Most production agents need both. The grounding corpus (docs, knowledge base) lives in RAG. The user / account / project context lives in memory. Trying to make either pattern do the other's job is the common architecture mistake — and it's the one we built Statewave to stop people from making.
+
+## What Statewave is in this picture
+
+Statewave is the memory layer — episodes in, ranked context bundles out, with deterministic ranking and provenance. It uses pgvector under the hood (no separate vector DB to operate) but it's not a RAG framework: there's no document loader, no chunker, no retriever interface for grounding-over-corpora. If you want RAG, plug Statewave alongside your existing RAG stack — Statewave handles the *who you're talking to* layer, your RAG framework handles the *what does the knowledge base say* layer.
+
+The architecture page on the [docs site](https://github.com/smaramwbc/statewave-docs/blob/main/architecture/overview.md) goes deeper on the ranking signals and the compile-vs-retrieve split. The [getting-started guide](https://github.com/smaramwbc/statewave-docs/blob/main/getting-started.md) is a five-minute Docker Compose path if you want to try it side-by-side with your current RAG setup.

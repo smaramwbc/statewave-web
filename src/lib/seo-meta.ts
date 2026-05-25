@@ -45,9 +45,12 @@ export type RouteKey =
   | '/connectors'
   | '/developers'
   | '/about'
+  | '/blog'
 
 /** Canonical, indexable public routes. Order matters — used to render the
- *  sitemap and the llms.txt index. */
+ *  sitemap and the llms.txt index. /blog/<slug> entries are appended to
+ *  the sitemap dynamically at build time (see scripts/generate-sitemap.mjs);
+ *  the index page itself is enumerated here. */
 export const PUBLIC_ROUTES: readonly RouteKey[] = [
   '/',
   '/product',
@@ -56,6 +59,7 @@ export const PUBLIC_ROUTES: readonly RouteKey[] = [
   '/connectors',
   '/developers',
   '/about',
+  '/blog',
 ] as const
 
 export interface PageMeta {
@@ -142,6 +146,15 @@ export const PAGE_META: Record<RouteKey, PageMeta> = {
     ogType: 'website',
     priority: 0.6,
     changefreq: 'monthly',
+  },
+  '/blog': {
+    title: 'Blog — Notes from the Statewave project',
+    description:
+      'How agent memory works under the hood, deployment patterns, and the design choices behind a Postgres-only self-hosted memory runtime for AI agents.',
+    breadcrumbLabel: 'Blog',
+    ogType: 'website',
+    priority: 0.7,
+    changefreq: 'weekly',
   },
 }
 

@@ -17,6 +17,7 @@ Statewave stores immutable episodes, compiles them into typed memories with prov
 - [Connectors](https://www.statewave.ai/connectors) — GitHub, Markdown/ADRs, MCP, Slack, Discord, Zendesk, Intercom, Freshdesk, Notion, Gmail, n8n, Zapier.
 - [Developers](https://www.statewave.ai/developers) — SDKs, docs, API reference, and examples.
 - [About](https://www.statewave.ai/about) — what Statewave is, who it's for, the repos that ship it, and how to get in touch.
+- [Blog](https://www.statewave.ai/blog) — design notes, deployment patterns, and how the runtime works under the hood. Also at [/blog/rss.xml](https://www.statewave.ai/blog/rss.xml), [/blog/atom.xml](https://www.statewave.ai/blog/atom.xml), [/blog/feed.json](https://www.statewave.ai/blog/feed.json).
 
 ## Documentation
 
