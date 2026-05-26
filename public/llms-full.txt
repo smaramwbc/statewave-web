@@ -296,11 +296,13 @@ Main methods:
 - `get_timeline(subject_id)`
 - `delete_subject(subject_id)`
 
-Governance (v0.8):
+Governance (v0.8+):
 
 - `get_receipt(receipt_id)` — fetch the immutable audit receipt for a context call
 - `list_receipts(subject_id, limit=50, since=None, until=None, cursor=None)` — cursor-paginated
 - `set_memory_labels(memory_id, labels: list[str])` — sensitivity labels (normalized, capped at 32)
+- `verify_receipt(receipt_id)` — HMAC verification (v0.9+); returns `{valid, key_id, algorithm, reason}`
+- `replay_receipt(receipt_id)` — re-run the original retrieval against current memories with the original policy snapshot (v0.9+); raises `StatewaveUnreplayableError` on HTTP 422
 
 Async client mirrors the same API:
 

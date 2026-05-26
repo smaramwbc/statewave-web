@@ -196,7 +196,7 @@ export function ProductPage() {
             {
               feature: 'Sensitivity labels',
               what: 'Per-memory capability tags (pii, financial, secret, …) operators set via PATCH /v1/memories/{id}/labels. Stored as a typed TEXT[] column with a GIN index so policy filters run in milliseconds on the hot path.',
-              lever: 'Operator-supplied in v0.8; compiler/connector auto-labeling planned for v0.9',
+              lever: 'Operator-supplied in v0.8; compiler/connector heuristic auto-labeling shipped in v0.9 — advisory `suggested_labels` separate from authoritative `sensitivity_labels`, promotion is an explicit operator action',
             },
             {
               feature: 'Declarative policy engine',
