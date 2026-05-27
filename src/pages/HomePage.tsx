@@ -884,46 +884,16 @@ function DeveloperSection() {
   const [tab, setTab] = React.useState<'docker' | 'python' | 'typescript'>('docker')
 
   // Each tab is broken into copy-able blocks so visitors can grab one command
-  // at a time (pull, compose file, start, verify) without selecting text by
-  // hand. `display` is what shows in the panel (with `$` prompts for shell
-  // lines); `copy` is what's written to the clipboard (no prompt prefix).
+  // at a time without selecting text by hand. `display` is what shows in the
+  // panel (with `$` prompts for shell lines); `copy` is what's written to the
+  // clipboard (no prompt prefix).
   type Block = { label: string; display: string; copy: string }
 
   const dockerBlocks: Block[] = [
     {
-      label: 'Pull image',
-      display: '$ docker pull statewavedev/statewave',
-      copy: 'docker pull statewavedev/statewave',
-    },
-    {
-      label: 'docker-compose.yml — minimal, runs in 2 minutes',
-      display: `services:
-  db:
-    image: pgvector/pgvector:pg16
-    environment:
-      POSTGRES_USER: statewave
-      POSTGRES_PASSWORD: statewave
-      POSTGRES_DB: statewave
-  api:
-    image: statewavedev/statewave:latest
-    ports: ["8100:8100"]
-    environment:
-      STATEWAVE_DATABASE_URL: postgresql+asyncpg://statewave:statewave@db:5432/statewave
-    depends_on: [db]`,
-      copy: `services:
-  db:
-    image: pgvector/pgvector:pg16
-    environment:
-      POSTGRES_USER: statewave
-      POSTGRES_PASSWORD: statewave
-      POSTGRES_DB: statewave
-  api:
-    image: statewavedev/statewave:latest
-    ports: ["8100:8100"]
-    environment:
-      STATEWAVE_DATABASE_URL: postgresql+asyncpg://statewave:statewave@db:5432/statewave
-    depends_on: [db]
-`,
+      label: 'Clone the repo',
+      display: '$ git clone https://github.com/smaramwbc/statewave && cd statewave',
+      copy: 'git clone https://github.com/smaramwbc/statewave && cd statewave',
     },
     {
       label: 'Start the stack',
@@ -1164,14 +1134,23 @@ console.log(ctx.assembledContext);
             ))}
             {tab === 'docker' && (
               <p className="pt-1 text-right text-xs text-theme-muted">
-                Building from source?{' '}
+                Boots in demo mode — add an LLM key for semantic search.{' '}
+                <a
+                  href="https://github.com/smaramwbc/statewave#run-the-server"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-accent hover:underline"
+                >
+                  Docs →
+                </a>
+                <span className="text-theme-muted/60"> · </span>
                 <a
                   href="https://github.com/smaramwbc/statewave"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-accent hover:underline"
                 >
-                  See GitHub →
+                  Source →
                 </a>
               </p>
             )}

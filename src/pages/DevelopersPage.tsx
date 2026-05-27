@@ -167,39 +167,9 @@ function QuickInstallSection() {
 
   const dockerBlocks: Block[] = [
     {
-      label: 'Pull image',
-      display: '$ docker pull statewavedev/statewave',
-      copy: 'docker pull statewavedev/statewave',
-    },
-    {
-      label: 'docker-compose.yml — minimal, runs in 2 minutes',
-      display: `services:
-  db:
-    image: pgvector/pgvector:pg16
-    environment:
-      POSTGRES_USER: statewave
-      POSTGRES_PASSWORD: statewave
-      POSTGRES_DB: statewave
-  api:
-    image: statewavedev/statewave:latest
-    ports: ["8100:8100"]
-    environment:
-      STATEWAVE_DATABASE_URL: postgresql+asyncpg://statewave:statewave@db:5432/statewave
-    depends_on: [db]`,
-      copy: `services:
-  db:
-    image: pgvector/pgvector:pg16
-    environment:
-      POSTGRES_USER: statewave
-      POSTGRES_PASSWORD: statewave
-      POSTGRES_DB: statewave
-  api:
-    image: statewavedev/statewave:latest
-    ports: ["8100:8100"]
-    environment:
-      STATEWAVE_DATABASE_URL: postgresql+asyncpg://statewave:statewave@db:5432/statewave
-    depends_on: [db]
-`,
+      label: 'Clone the repo',
+      display: '$ git clone https://github.com/smaramwbc/statewave && cd statewave',
+      copy: 'git clone https://github.com/smaramwbc/statewave && cd statewave',
     },
     {
       label: 'Start the stack',
@@ -357,14 +327,23 @@ console.log(ctx.assembledContext);
           ))}
           {tab === 'docker' && (
             <p className="pt-1 text-right text-xs text-theme-muted">
-              Building from source?{' '}
+              Boots in demo mode — add an LLM key for semantic search.{' '}
+              <a
+                href="https://github.com/smaramwbc/statewave#run-the-server"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-accent hover:underline"
+              >
+                Docs →
+              </a>
+              <span className="text-theme-muted/60"> · </span>
               <a
                 href="https://github.com/smaramwbc/statewave"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-accent hover:underline"
               >
-                See GitHub →
+                Source →
               </a>
             </p>
           )}
