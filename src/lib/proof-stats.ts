@@ -7,8 +7,8 @@
  * surfaces makes us look sloppy, and the benchmark is 8/8 (not 9/9).
  */
 export const PROOF_STATS = [
-  { value: '658', label: 'Unit tests' },
-  { value: '55', label: 'Eval assertions' },
+  { value: '723', label: 'Unit tests' },
+  { value: '56', label: 'Eval assertions' },
   { value: '8/8', label: 'Support workflow score' },
   { value: '2/8', label: 'Naive approach score' },
 ] as const
