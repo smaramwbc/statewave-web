@@ -175,11 +175,13 @@ export function ProductPage() {
       <Section>
         <Heading id="audit-governance" className="text-2xl font-bold text-theme-primary mb-4">Audit &amp; governance</Heading>
         <p className="text-theme-muted leading-relaxed mb-8 max-w-3xl">
-          v0.8 ships the governance layer: every context assembly can emit an immutable audit
-          artifact, and per-memory sensitivity labels feed a declarative policy engine that filters
-          memory access by caller identity. Both surfaces are designed for compliance review &mdash; not
-          a "trust us" log, but addressable records with byte-level integrity hashes that a reviewer
-          can verify without trusting the application that wrote them.
+          The v0.8 governance layer &mdash; extended in v0.9 with HMAC-signed receipts, receipt
+          replay, detector-suggested labels (opt-in via <code>STATEWAVE_AUTO_LABELING_ENABLED</code>),
+          and per-region residency pinning &mdash; lets every context assembly emit an immutable
+          audit artifact, and per-memory sensitivity labels feed a declarative policy engine that
+          filters memory access by caller identity. Both surfaces are designed for compliance
+          review &mdash; not a "trust us" log, but addressable records with byte-level integrity
+          hashes that a reviewer can verify without trusting the application that wrote them.
         </p>
         {(() => {
           const rows: Array<{ feature: string; what: string; lever: string }> = [
