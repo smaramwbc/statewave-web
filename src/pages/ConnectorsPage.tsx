@@ -113,6 +113,22 @@ const CONNECTORS: ReadonlyArray<ConnectorCard> = [
     status: 'available',
     href: 'https://github.com/smaramwbc/statewave-connectors/blob/main/packages/gmail/README.md',
   },
+  {
+    source: 'Jira',
+    shape: 'Project memory',
+    description:
+      'Jira Cloud issues and (opt-in) comments scoped per project (project:<KEY>). Cloud REST v3, API-token auth, pull-mode; project allowlist; users by display name, never email. Preview.',
+    status: 'available',
+    href: 'https://github.com/smaramwbc/statewave-connectors/blob/main/packages/jira/README.md',
+  },
+  {
+    source: 'Database',
+    shape: 'Records memory',
+    description:
+      'Selected rows from PostgreSQL, MySQL, MariaDB, or MSSQL — read-only, allowlisted table or SELECT, chosen columns, capped rows. A source connector into Statewave memory, not a Statewave storage backend. Preview.',
+    status: 'available',
+    href: 'https://github.com/smaramwbc/statewave-connectors/blob/main/packages/database/README.md',
+  },
 ]
 
 export function ConnectorsPage() {
@@ -195,9 +211,9 @@ function ConnectorsHero() {
           </motion.div>
 
           <motion.p variants={fadeUp} className="mt-4 text-xs text-theme-muted/85">
-            Modular packages — install only what you need. Phase-1 packages
-            (core, CLI, MCP server, GitHub, Markdown) are landing in the open;
-            npm publication is a follow-up.
+            Modular packages — install only what you need. The full connector
+            lineup — including the new Jira and database source connectors — is
+            published on npm.
           </motion.p>
         </motion.div>
       </div>
@@ -352,6 +368,8 @@ function PackageModelSection() {
           </div>
           <pre className="text-theme-secondary overflow-x-auto -mx-1 px-1"><code>{`# Pick what you need — every package is independent
 npm install @statewavedev/connectors-github
+npm install @statewavedev/connectors-jira
+npm install @statewavedev/connectors-database
 npm install @statewavedev/connectors-markdown
 npm install @statewavedev/connectors-slack
 npm install @statewavedev/connectors-n8n
