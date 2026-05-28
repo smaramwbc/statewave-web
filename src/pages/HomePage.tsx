@@ -797,7 +797,7 @@ function CapabilitiesSection() {
           Core capabilities
         </Heading>
         <p className="mt-4 text-theme-muted max-w-2xl mx-auto">
-          Production-ready primitives for any AI system that needs persistent, structured memory.
+          Composable memory primitives for any AI system that needs persistent, structured memory.
         </p>
       </div>
 

@@ -768,7 +768,7 @@ function ExplorerSection() {
         <p className="mt-4 text-theme-muted leading-relaxed">
           The same memory primitives power developer copilots, workspace assistants, account
           intelligence, voice continuity, and multi-agent infrastructure. Filter by category or by
-          how production-ready each shape is today.
+          how mature each shape is today.
         </p>
       </div>
 
