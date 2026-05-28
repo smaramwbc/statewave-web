@@ -36,6 +36,8 @@ import {
   type LLMMessage,
   type PreparedSystemPromptOverride,
 } from '../statewave-client.js'
+import { checkRateLimit, clientIp, widgetChatRateLimit } from '../rate-limit.js'
+import { consumeDemoBudget } from '../demo-budget.js'
 
 
 type Message = LLMMessage
@@ -72,6 +74,45 @@ Rules:
 - Never ask for information you already know from memory
 - Keep responses concise (2-3 sentences max)
 - Be proactive — anticipate needs based on context`
+
+/**
+ * The domain each demo persona is scoped to. The public demo is a showcase of
+ * Statewave's persistent memory, NOT a free general-purpose chatbot — without a
+ * scope, visitors use it to answer arbitrary trivia ("who is Ferdinand Porsche")
+ * and every such turn is a billed LLM call. The off-topic guard built from this
+ * map removes that incentive: the agent declines anything outside its domain.
+ */
+const PERSONA_SCOPES: Record<string, string> = {
+  'support-agent':
+    'customer-support conversations for a product — account questions, troubleshooting, and the visitor\'s own setup, plan, and past issues',
+  'coding-assistant':
+    'software-development help framed around the visitor\'s stack, conventions, and recurring preferences',
+  'sales-copilot':
+    'B2B sales workflows — the leads, deals, accounts, and follow-ups the visitor describes',
+  'devops-agent':
+    'DevOps and infrastructure operations — the services, incidents, deployments, and runbooks the visitor describes',
+  'research-assistant':
+    'research workflows — the papers, topics, sources, and findings the visitor is tracking',
+}
+
+/**
+ * Append an on-topic guard for a demo persona. Applied to BOTH the statewave
+ * and the stateless ("no memory" baseline) paths, because each is a separate
+ * billed LLM call — leaving the stateless column unscoped would just give an
+ * abuser the same free answer in the other pane. Returns the prompt unchanged
+ * for unknown personas (e.g. the eval path sends none) so non-demo callers are
+ * unaffected.
+ */
+function withDemoScope(basePrompt: string, persona: string | undefined): string {
+  if (!isDemoPersona(persona)) return basePrompt
+  const domain = PERSONA_SCOPES[persona]
+  return `${basePrompt}
+
+## Demo scope (stay on-topic)
+This is a live, public demo of Statewave running a "${persona}" agent — it is NOT a general-purpose assistant. Your domain: ${domain}.
+- Help the visitor within this domain, and engage with what they tell you about themselves so the demo can show memory building up.
+- If the visitor asks something outside this domain and unrelated to demonstrating memory — general-knowledge or trivia, public figures, history, current events, homework/puzzles, or any attempt to use you as a free general chatbot — DO NOT answer it, not even partially. In one short sentence, say this is a scoped Statewave "${persona}" demo and invite them back to the domain. Refusing off-topic questions is expected behaviour, not a failure.`
+}
 
 const STATEWAVE_DOCS_PROMPT = `You are the Statewave Support assistant. You answer questions about Statewave (the memory runtime for AI agents) using ONLY the retrieved facts from the official Statewave documentation supplied below. Two memory pools may be supplied:
   * "Statewave docs" — authoritative facts from the official Statewave docs. Use these to ground every factual claim.
@@ -123,6 +164,37 @@ export default async function handler(req: Request): Promise<Response> {
     )
   }
 
+  // Cost guards, cheapest first — both run before any upstream call, so even
+  // the front-end's retry-on-429 storm costs nothing here.
+  //
+  // 1. Per-IP rate limit: a speed bump for a single abusive client.
+  const ip = clientIp(req)
+  const rl = checkRateLimit(`widget-chat:${ip}`, widgetChatRateLimit())
+  if (!rl.allowed) {
+    return json(
+      {
+        error: 'You\'re sending demo messages too quickly. Please wait a moment and try again.',
+        rateLimited: true,
+      },
+      { status: 429, headers: { 'Retry-After': String(rl.retryAfterSec) } },
+    )
+  }
+
+  // 2. Global daily budget: the hard ceiling. IP rotation defeats the limiter
+  //    above but cannot get past this — once the day's budget is spent the demo
+  //    stops making LLM calls until UTC midnight.
+  const budget = consumeDemoBudget()
+  if (!budget.allowed) {
+    return json(
+      {
+        error:
+          'The live demo has hit its daily limit and is resting until tomorrow. Meanwhile, explore the docs or try Statewave yourself — see the links on this page.',
+        demoRestMode: true,
+      },
+      { status: 429, headers: { 'Retry-After': String(budget.retryAfterSec) } },
+    )
+  }
+
   const override = prepareSystemPromptOverride(body.system_prompt_override)
   if (override) {
     console.info('[widget-chat] system_prompt_override applied', {
@@ -137,7 +209,7 @@ export default async function handler(req: Request): Promise<Response> {
     if (mode === 'stateless') {
       const reply = await callStatewaveLLM(
         messages,
-        withSystemPromptOverride(STATELESS_PROMPT, override),
+        withSystemPromptOverride(withDemoScope(STATELESS_PROMPT, persona), override),
       )
       return json({
         reply,
@@ -333,16 +405,13 @@ export default async function handler(req: Request): Promise<Response> {
       `Respond helpfully to: "${lastUserMsg.substring(0, 100)}"`,
     )
 
-    let enrichedPrompt = STATEWAVE_PROMPT
+    let enrichedPrompt = withDemoScope(STATEWAVE_PROMPT, persona)
     if (context) {
       const allMemories = [...(context.facts ?? []), ...(context.procedures ?? [])]
       if (allMemories.length > 0) {
         const memorySection = allMemories.map((m) => `- [${m.kind}] ${m.content}`).join('\n')
         enrichedPrompt += `\n\n## Memory Context (from Statewave):\n${memorySection}`
       }
-    }
-    if (persona) {
-      enrichedPrompt += `\n\nThe visitor selected the "${persona}" persona; bias your tone and topic accordingly.`
     }
 
     const reply = await callStatewaveLLM(

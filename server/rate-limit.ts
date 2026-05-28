@@ -153,3 +153,21 @@ export const LAUNCH_SIGNUP_LIMIT = Number(process.env.RATE_LIMIT_MAX || 5)
 export const LAUNCH_SIGNUP_WINDOW_MS = Number(
   process.env.RATE_LIMIT_WINDOW_MS || 10 * 60 * 1000,
 )
+
+/**
+ * Per-IP limit for the public demo chat (`/api/widget-chat`). Each demo turn
+ * fires up to two requests (the stateless + statewave comparison columns), so
+ * 40 requests / 10 min ≈ 20 turns / 10 min per IP — generous for a human
+ * exploring the demo, a speed bump for a script. The hard cost ceiling is the
+ * global daily budget (see demo-budget.ts); this just slows any single IP.
+ *
+ * Read from env at call-time (not frozen at import) so ops can tighten via
+ * `WIDGET_CHAT_RATE_LIMIT_MAX` / `WIDGET_CHAT_RATE_LIMIT_WINDOW_MS` without a
+ * logic redeploy, and so tests can set tight values per case.
+ */
+export function widgetChatRateLimit(): RateLimitOptions {
+  return {
+    limit: Number(process.env.WIDGET_CHAT_RATE_LIMIT_MAX) || 40,
+    windowMs: Number(process.env.WIDGET_CHAT_RATE_LIMIT_WINDOW_MS) || 10 * 60 * 1000,
+  }
+}
