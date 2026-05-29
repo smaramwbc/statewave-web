@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Section } from '../components/Section'
 import { Heading } from '../components/Heading'
 import { Button } from '../components/Button'
@@ -31,22 +31,23 @@ export function WhitepaperPage() {
       'Compiled Memory: a technical white paper on Statewave\'s approach to long-horizon AI agent memory — deterministic, provenance-traced, token-bounded context bundles. Free PDF.',
   })
 
-  const viewerRef = useRef<HTMLDivElement>(null)
-  const [isFullscreen, setIsFullscreen] = useState(false)
+  // "Full screen" here means filling the browser window (an in-page overlay),
+  // not the native Fullscreen API that takes over the whole monitor.
+  const [isMaximized, setIsMaximized] = useState(false)
 
   useEffect(() => {
-    const onChange = () => setIsFullscreen(document.fullscreenElement === viewerRef.current)
-    document.addEventListener('fullscreenchange', onChange)
-    return () => document.removeEventListener('fullscreenchange', onChange)
-  }, [])
-
-  const toggleFullscreen = () => {
-    if (document.fullscreenElement) {
-      void document.exitFullscreen?.()
-    } else {
-      void viewerRef.current?.requestFullscreen?.()
+    if (!isMaximized) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setIsMaximized(false)
     }
-  }
+    document.addEventListener('keydown', onKey)
+    const prevOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.removeEventListener('keydown', onKey)
+      document.body.style.overflow = prevOverflow
+    }
+  }, [isMaximized])
 
   return (
     <>
@@ -112,24 +113,33 @@ export function WhitepaperPage() {
       </Section>
 
       <Section className="bg-surface-1/40">
-        <div className="mx-auto max-w-4xl">
-          <div className="mb-6 flex items-center justify-between gap-3">
+        <div
+          className={
+            isMaximized
+              ? 'fixed inset-0 z-[100] flex flex-col bg-surface-0 p-4 sm:p-6'
+              : 'mx-auto max-w-4xl'
+          }
+        >
+          <div className="mb-4 flex items-center justify-between gap-3">
             <Heading id="read" className="text-2xl font-bold text-theme-primary">
               Read it here
             </Heading>
             <button
               type="button"
-              onClick={toggleFullscreen}
-              aria-label={isFullscreen ? 'Exit full screen' : 'View full screen'}
-              className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-theme-border bg-surface-2 px-3 py-1.5 text-xs font-medium text-theme-primary hover:bg-surface-3 transition-colors"
+              onClick={() => setIsMaximized((v) => !v)}
+              aria-label={isMaximized ? 'Exit full screen' : 'View full screen'}
+              className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-white shadow-sm shadow-accent/30 hover:bg-accent-light transition-colors"
             >
-              {isFullscreen ? 'Exit full screen' : 'Full screen'}
+              {isMaximized ? 'Exit full screen' : 'Full screen'}
               <span aria-hidden="true">⤢</span>
             </button>
           </div>
           <div
-            ref={viewerRef}
-            className="overflow-hidden rounded-2xl border border-theme-border bg-surface-1 h-[80vh] min-h-[480px] [&:fullscreen]:h-screen [&:fullscreen]:rounded-none [&:fullscreen]:border-0"
+            className={
+              isMaximized
+                ? 'min-h-0 flex-1 overflow-hidden rounded-xl border border-theme-border bg-surface-1'
+                : 'overflow-hidden rounded-2xl border border-theme-border bg-surface-1 h-[80vh] min-h-[480px]'
+            }
           >
             <object
               data={PDF_PATH}
