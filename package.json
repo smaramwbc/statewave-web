@@ -52,7 +52,7 @@
     "happy-dom": "^20.9.0",
     "tailwindcss": "^4.3.0",
     "typescript": "~6.0.2",
-    "typescript-eslint": "^8.59.4",
+    "typescript-eslint": "^8.60.1",
     "vite": "^8.0.14",
     "vitest": "^4.1.7"
   }
