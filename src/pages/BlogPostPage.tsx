@@ -93,7 +93,11 @@ export function BlogPostPage() {
               datePublished: post.meta.date,
               dateModified: post.meta.date,
               url,
-              author: { '@type': 'Organization', name: post.meta.author },
+              author: {
+                '@type': 'Organization',
+                name: post.meta.author,
+                url: `${BASE_URL}/about`,
+              },
               publisher: {
                 '@type': 'Organization',
                 name: 'Statewave',

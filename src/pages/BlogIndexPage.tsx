@@ -43,7 +43,11 @@ export function BlogIndexPage() {
           datePublished: p.meta.date,
           url: `${BASE_URL}${blogPostUrl(p.meta.slug)}`,
           description: p.meta.description,
-          author: { '@type': 'Organization', name: p.meta.author },
+          author: {
+            '@type': 'Organization',
+            name: p.meta.author,
+            url: `${BASE_URL}/about`,
+          },
         })),
       },
     ],
