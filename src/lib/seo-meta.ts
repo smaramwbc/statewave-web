@@ -209,6 +209,13 @@ export function softwareApplicationJsonLd(): JsonLd {
     license: 'https://www.apache.org/licenses/LICENSE-2.0',
     codeRepository: REPOS.core,
     softwareHelp: REPOS.docs,
+    featureList: [
+      'Episodic and semantic memory',
+      'Ranked, deterministic retrieval',
+      'Token-bounded context bundles',
+      'Full provenance tracking',
+      'Self-hosted on Postgres + pgvector',
+    ],
     offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
   }
 }
