@@ -19,29 +19,22 @@ const HeroBackground = lazy(() =>
   import('../components/HeroBackground').then((m) => ({ default: m.HeroBackground })),
 )
 import { usePageSEO } from '../lib/seo'
-import {
-  faqPageJsonLd,
-  organizationJsonLd,
-  softwareApplicationJsonLd,
-  websiteJsonLd,
-} from '../lib/seo-meta'
+import { faqPageJsonLd } from '../lib/seo-meta'
 import { FAQ_ENTRIES } from '../lib/faq'
 import { PROOF_STATS } from '../lib/proof-stats'
 import { useChatWidget, useTrackDemoCta, DEMO_SUBJECTS } from '../lib/widget-context-api'
 import { useRef, useState, useEffect, useCallback } from 'react'
 
 export function HomePage() {
-  // The home page is the canonical landing for Organization, WebSite, and
-  // SoftwareApplication structured data — also baked into index.html for
-  // crawlers that don't execute JS. The FAQPage JSON-LD is layered on top so
-  // answer engines can consume the visible FAQ section directly.
+  // Organization, WebSite, and SoftwareApplication are baked into index.html
+  // (static, site-wide) and intentionally NOT re-emitted here — duplicating
+  // them only adds noise to the rendered DOM. This layer adds the single
+  // homepage-specific node: the FAQPage, built from the full FAQ_ENTRIES list
+  // (richer than the four-question static baseline, which lib/seo removes from
+  // the DOM on render so there's exactly one FAQPage). Keeping the FAQ here
+  // also lets answer engines consume the visible FAQ section directly.
   usePageSEO({
-    jsonLd: [
-      organizationJsonLd(),
-      websiteJsonLd(),
-      softwareApplicationJsonLd(),
-      faqPageJsonLd(FAQ_ENTRIES),
-    ],
+    jsonLd: [faqPageJsonLd(FAQ_ENTRIES)],
     breadcrumb: false,
   })
   // Only the HeroSection is prerendered into dist/index.html — everything

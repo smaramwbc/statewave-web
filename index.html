@@ -150,11 +150,12 @@
     </script>
 
     <!-- Baseline FAQPage JSON-LD for non-JS crawlers (answer engines, generic
-         SEO bots). This is a stable subset; the SPA layer in src/lib/seo.tsx
-         hydrates the full FAQ_ENTRIES list on the homepage with
-         data-seo="managed". Keep these four answers in sync with
-         src/lib/faq.ts — they're the canonical entity questions and rarely
-         change. -->
+         SEO bots). This is a stable subset of the four canonical questions.
+         On the homepage the SPA layer in src/lib/seo.tsx injects the full
+         FAQ_ENTRIES list (data-seo="managed") AND removes this static block on
+         render, so a JS-rendered DOM carries exactly one FAQPage (Google flags
+         a duplicate FAQPage as invalid). Crawlers that don't run JS keep these
+         four answers — so keep them in sync with src/lib/faq.ts. -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",

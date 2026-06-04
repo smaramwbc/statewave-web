@@ -114,6 +114,17 @@ export function usePageSEO(options: UsePageSEOOptions = {}) {
     }
     if (options.jsonLd) nodes.push(...options.jsonLd)
 
+    // FAQPage must be unique per page — Google flags a second FAQPage as an
+    // invalid duplicate (unlike Organization / SoftwareApplication, which it
+    // merges). index.html ships a baseline FAQPage (the four canonical
+    // questions) for crawlers that don't run JS; when this layer injects its
+    // own, fuller FAQPage, drop the static one first so the rendered DOM
+    // carries exactly one. No-JS crawlers never reach this code and keep the
+    // static baseline.
+    if (nodes.some((node) => node['@type'] === 'FAQPage')) {
+      removeUnmanagedJsonLd('FAQPage')
+    }
+
     for (const node of nodes) injectJsonLd(node)
     // The signature line below intentionally captures `options.jsonLd`'s
     // contents without making the array identity itself a dependency.
@@ -156,6 +167,26 @@ function setLink(rel: string, href: string) {
     document.head.appendChild(el)
   }
   el.href = href
+}
+
+/** Remove static (non-managed) JSON-LD scripts of a given @type from <head>.
+ *  Used to retire the index.html baseline FAQPage once the SPA injects its
+ *  fuller, managed replacement, so no page ends up with two of a type that
+ *  search engines require to be unique. */
+function removeUnmanagedJsonLd(type: string) {
+  document
+    .querySelectorAll(
+      `script[type="application/ld+json"]:not([${MANAGED_LD_ATTR}="${MANAGED_LD_VALUE}"])`,
+    )
+    .forEach((el) => {
+      try {
+        if ((JSON.parse(el.textContent || '{}') as JsonLd)['@type'] === type) {
+          el.remove()
+        }
+      } catch {
+        /* non-JSON or malformed block — leave it untouched */
+      }
+    })
 }
 
 function injectJsonLd(data: JsonLd) {

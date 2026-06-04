@@ -110,15 +110,49 @@ describe('JSON-LD builders', () => {
 })
 
 describe('Per-page injected JSON-LD', () => {
-  it('homepage injects Organization, WebSite, SoftwareApplication, FAQPage', async () => {
+  it('homepage injects only a FAQPage (entity blocks stay static in index.html)', async () => {
     renderApp('/')
     await waitFor(() => {
       const types = readManagedJsonLd().map((n) => n['@type'])
-      expect(types).toContain('Organization')
-      expect(types).toContain('WebSite')
-      expect(types).toContain('SoftwareApplication')
       expect(types).toContain('FAQPage')
     })
+    // Organization / WebSite / SoftwareApplication live in the static
+    // index.html head site-wide; re-emitting them here would only duplicate
+    // them in the rendered DOM, so the SPA layer must not.
+    const types = readManagedJsonLd().map((n) => n['@type'])
+    expect(types).not.toContain('Organization')
+    expect(types).not.toContain('WebSite')
+    expect(types).not.toContain('SoftwareApplication')
+  })
+
+  it('homepage removes the static baseline FAQPage so only one remains', async () => {
+    // Simulate the static index.html baseline FAQPage that ships in <head>
+    // for non-JS crawlers (a non-managed, four-question subset).
+    const baseline = document.createElement('script')
+    baseline.type = 'application/ld+json'
+    baseline.textContent = JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: [{ '@type': 'Question', name: 'baseline' }],
+    })
+    document.head.appendChild(baseline)
+
+    renderApp('/')
+    await waitFor(() => {
+      const managed = readManagedJsonLd().map((n) => n['@type'])
+      expect(managed).toContain('FAQPage')
+    })
+
+    const allFaq = Array.from(
+      document.head.querySelectorAll('script[type="application/ld+json"]'),
+    )
+      .map((s) => JSON.parse(s.textContent ?? '{}') as JsonLdNode)
+      .filter((n) => n['@type'] === 'FAQPage')
+    // Exactly one FAQPage, and it's the full managed list — not the baseline.
+    expect(allFaq).toHaveLength(1)
+    expect(
+      (allFaq[0].mainEntity as unknown[]).length,
+    ).toBe(FAQ_ENTRIES.length)
   })
 
   it('homepage does NOT emit a BreadcrumbList', async () => {
