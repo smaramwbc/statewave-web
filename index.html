@@ -97,11 +97,14 @@
       />
     </noscript>
 
-    <!-- Baseline structured data — Organization, WebSite, SoftwareApplication.
-         These describe the site itself and are stable across routes, so they
-         live in the static document for crawlers that don't execute JS. The
-         SPA in src/lib/seo.tsx layers per-page JSON-LD (BreadcrumbList,
-         FAQPage) on top with data-seo="managed", and never duplicates these. -->
+    <!-- Baseline structured data — Organization and WebSite only. These are
+         the site-wide entities: they describe the site itself and are valid on
+         every route, so they live in the static document for crawlers that
+         don't execute JS. Everything route-specific — SoftwareApplication and
+         FAQPage (homepage), HowTo (/developers), BreadcrumbList, BlogPosting —
+         is emitted per route by the SPA in src/lib/seo.tsx with
+         data-seo="managed", so it never rides along on pages it doesn't
+         belong to. -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -124,132 +127,6 @@
       "url": "https://www.statewave.ai",
       "inLanguage": "en",
       "description": "Open-source memory runtime for AI agents."
-    }
-    </script>
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "SoftwareApplication",
-      "name": "Statewave",
-      "applicationCategory": "DeveloperApplication",
-      "operatingSystem": "Linux, macOS, Windows (via Docker)",
-      "description": "Open-source memory runtime for AI agents — durable episodic and semantic memory, ranked retrieval, and token-bounded context bundles for LLM applications.",
-      "url": "https://www.statewave.ai",
-      "license": "https://www.apache.org/licenses/LICENSE-2.0",
-      "codeRepository": "https://github.com/smaramwbc/statewave",
-      "softwareHelp": "https://github.com/smaramwbc/statewave-docs",
-      "featureList": [
-        "Episodic and semantic memory",
-        "Ranked, deterministic retrieval",
-        "Token-bounded context bundles",
-        "Full provenance tracking",
-        "Self-hosted on Postgres + pgvector"
-      ],
-      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
-    }
-    </script>
-
-    <!-- Baseline FAQPage JSON-LD for non-JS crawlers (answer engines, generic
-         SEO bots). This is a stable subset of the four canonical questions.
-         On the homepage the SPA layer in src/lib/seo.tsx injects the full
-         FAQ_ENTRIES list (data-seo="managed") AND removes this static block on
-         render, so a JS-rendered DOM carries exactly one FAQPage (Google flags
-         a duplicate FAQPage as invalid). Crawlers that don't run JS keep these
-         four answers — so keep them in sync with src/lib/faq.ts. -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      "mainEntity": [
-        {
-          "@type": "Question",
-          "name": "What is Statewave?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Statewave is an open-source memory runtime for AI agents. It records raw events as immutable episodes, compiles them into typed semantic and episodic memories with provenance, and returns ranked, token-bounded context bundles that LLM applications can drop straight into a prompt."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "How is Statewave different from a vector database?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "A vector database stores embeddings and returns nearest neighbours. Statewave is a memory runtime that uses a vector store (pgvector) underneath, but adds typed semantic and episodic memories, deterministic ranking with explainable signals, idempotent compilation, provenance back to source episodes, temporal validity windows, conflict resolution, and a token-bounded context-assembly step. It also persists raw episodes append-only so memory can be recompiled."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "Can Statewave be self-hosted?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Yes. Statewave is designed to be self-hosted. The storage layer is Postgres-only with the pgvector extension. A Docker Compose setup runs the full stack locally in two minutes; production deployments target Fly.io, Railway, or any container platform. There is no managed Statewave cloud — episodes and compiled memories stay in your infrastructure."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "Is Statewave open source? What about commercial use?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Yes. Statewave is open source under the Apache License 2.0 — server, Python and TypeScript SDKs, connectors, and this site. Apache-2.0 is permissive and includes an explicit patent grant, so you can use, modify, distribute, self-host, and build proprietary or commercial products with Statewave without a separate agreement. Optional enterprise support — SLA, indemnity, procurement, managed hosting, architecture review — is available as a services contract: contact licensing@statewave.ai."
-          }
-        }
-      ]
-    }
-    </script>
-
-    <!-- HowTo JSON-LD for the install / quickstart steps. Google deprecated
-         HowTo rich results in the SERP in 2023, but the major answer
-         engines (ChatGPT, Claude, Perplexity, Gemini) still consume the
-         structured data when ingesting pages — and the external SEO audit
-         (Section 1 #2) flagged the absence of HowTo as a missing
-         schema-markup signal. Steps mirror statewave-docs/getting-started.md
-         (port 8100 is correct — that's what the published docker-compose
-         binds to). Recompute together if the quickstart changes. -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "HowTo",
-      "name": "Install and run Statewave locally with Docker Compose",
-      "description": "Self-host the Statewave memory runtime in about five minutes — clone the repository, boot the stack, store a memory, and retrieve it.",
-      "totalTime": "PT5M",
-      "supply": [
-        { "@type": "HowToSupply", "name": "A machine with Docker Engine 24+ and Git" }
-      ],
-      "tool": [
-        { "@type": "HowToTool", "name": "Docker" },
-        { "@type": "HowToTool", "name": "Git" },
-        { "@type": "HowToTool", "name": "curl" }
-      ],
-      "step": [
-        {
-          "@type": "HowToStep",
-          "position": 1,
-          "name": "Start the server",
-          "text": "git clone https://github.com/smaramwbc/statewave.git && cd statewave && docker compose up -d. The compose stack boots the Statewave API on port 8100 and a Postgres-with-pgvector instance.",
-          "url": "https://github.com/smaramwbc/statewave-docs/blob/main/getting-started.md#step-1--start-the-server"
-        },
-        {
-          "@type": "HowToStep",
-          "position": 2,
-          "name": "Verify the server is up",
-          "text": "curl http://localhost:8100/healthz returns {\"status\":\"ok\"} once the API process is ready. /readyz reports per-dependency status, including the Postgres handshake.",
-          "url": "https://github.com/smaramwbc/statewave-docs/blob/main/getting-started.md#step-2--verify-it-is-running"
-        },
-        {
-          "@type": "HowToStep",
-          "position": 3,
-          "name": "Store a memory",
-          "text": "POST an episode to /v1/episodes (subject + event payload), then POST to /v1/memories/compile to turn that episode into a compiled, ranked memory with provenance back to the source episode.",
-          "url": "https://github.com/smaramwbc/statewave-docs/blob/main/getting-started.md#step-3--store-a-memory"
-        },
-        {
-          "@type": "HowToStep",
-          "position": 4,
-          "name": "Retrieve a context bundle",
-          "text": "POST to /v1/context with a subject and a token budget. Statewave returns a ranked, token-bounded bundle of memories and episodes ready to drop into a prompt — with the same provenance IDs the compile step recorded.",
-          "url": "https://github.com/smaramwbc/statewave-docs/blob/main/getting-started.md#step-4--retrieve-it"
-        }
-      ]
     }
     </script>
 

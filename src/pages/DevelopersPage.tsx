@@ -6,10 +6,14 @@ import { Button } from '../components/Button'
 import { Heading } from '../components/Heading'
 import { CodeCopyButton } from '../components/CodeCopyButton'
 import { usePageSEO } from '../lib/seo'
+import { howToJsonLd } from '../lib/seo-meta'
 import { useChatWidget, useTrackDemoCta } from '../lib/widget-context-api'
 
 export function DevelopersPage() {
-  usePageSEO()
+  // The install/quickstart HowTo lives here, where the actual steps are
+  // shown — not statically in index.html, where it would ride along on every
+  // route. Google retired HowTo rich results, but answer engines still read it.
+  usePageSEO({ jsonLd: [howToJsonLd()] })
   const { openWidget } = useChatWidget()
   const liveDemoRef = useRef<HTMLButtonElement>(null)
   useTrackDemoCta(liveDemoRef)

@@ -132,10 +132,14 @@ describe('index.html baseline metadata', () => {
     )
   })
 
-  it('embeds Organization, WebSite, and SoftwareApplication JSON-LD', () => {
+  it('embeds only the site-wide Organization and WebSite JSON-LD', () => {
     expect(html).toContain('"@type": "Organization"')
     expect(html).toContain('"@type": "WebSite"')
-    expect(html).toContain('"@type": "SoftwareApplication"')
+    // Route-specific schema is emitted by the SPA per route, never statically,
+    // so it doesn't ride along on pages where it doesn't belong.
+    expect(html).not.toContain('"@type": "SoftwareApplication"')
+    expect(html).not.toContain('"@type": "FAQPage"')
+    expect(html).not.toContain('"@type": "HowTo"')
   })
 
   it('every embedded JSON-LD block is valid JSON', () => {
@@ -147,6 +151,6 @@ describe('index.html baseline metadata', () => {
       blocks++
       expect(() => JSON.parse(m[1])).not.toThrow()
     }
-    expect(blocks).toBeGreaterThanOrEqual(3)
+    expect(blocks).toBeGreaterThanOrEqual(2)
   })
 })

@@ -7,6 +7,7 @@ import App from '../src/App'
 import {
   breadcrumbJsonLd,
   faqPageJsonLd,
+  howToJsonLd,
   organizationJsonLd,
   softwareApplicationJsonLd,
   websiteJsonLd,
@@ -66,6 +67,17 @@ describe('JSON-LD builders', () => {
     expect(node.codeRepository).toBe('https://github.com/smaramwbc/statewave')
   })
 
+  it('HowTo is valid schema.org HowTo with ordered steps', () => {
+    const node = howToJsonLd()
+    expect(node['@type']).toBe('HowTo')
+    const steps = node.step as Array<{ '@type': string; position: number }>
+    expect(steps.length).toBeGreaterThan(0)
+    steps.forEach((s, i) => {
+      expect(s['@type']).toBe('HowToStep')
+      expect(s.position).toBe(i + 1)
+    })
+  })
+
   it('BreadcrumbList builds valid ListItem entries', () => {
     const node = breadcrumbJsonLd([
       { name: 'Home', path: '/' },
@@ -110,49 +122,29 @@ describe('JSON-LD builders', () => {
 })
 
 describe('Per-page injected JSON-LD', () => {
-  it('homepage injects only a FAQPage (entity blocks stay static in index.html)', async () => {
+  it('homepage injects SoftwareApplication + FAQPage (route-specific), not the site-wide entities', async () => {
     renderApp('/')
     await waitFor(() => {
       const types = readManagedJsonLd().map((n) => n['@type'])
       expect(types).toContain('FAQPage')
+      expect(types).toContain('SoftwareApplication')
     })
-    // Organization / WebSite / SoftwareApplication live in the static
-    // index.html head site-wide; re-emitting them here would only duplicate
-    // them in the rendered DOM, so the SPA layer must not.
+    // Organization / WebSite are the site-wide entities and live statically in
+    // index.html; the SPA must not re-emit them (that would duplicate them).
     const types = readManagedJsonLd().map((n) => n['@type'])
     expect(types).not.toContain('Organization')
     expect(types).not.toContain('WebSite')
-    expect(types).not.toContain('SoftwareApplication')
+    // The homepage FAQPage carries the full entry list.
+    const faq = readManagedJsonLd().find((n) => n['@type'] === 'FAQPage')
+    expect((faq?.mainEntity as unknown[]).length).toBe(FAQ_ENTRIES.length)
   })
 
-  it('homepage removes the static baseline FAQPage so only one remains', async () => {
-    // Simulate the static index.html baseline FAQPage that ships in <head>
-    // for non-JS crawlers (a non-managed, four-question subset).
-    const baseline = document.createElement('script')
-    baseline.type = 'application/ld+json'
-    baseline.textContent = JSON.stringify({
-      '@context': 'https://schema.org',
-      '@type': 'FAQPage',
-      mainEntity: [{ '@type': 'Question', name: 'baseline' }],
-    })
-    document.head.appendChild(baseline)
-
-    renderApp('/')
+  it('the /developers route injects a HowTo', async () => {
+    renderApp('/developers')
     await waitFor(() => {
-      const managed = readManagedJsonLd().map((n) => n['@type'])
-      expect(managed).toContain('FAQPage')
+      const types = readManagedJsonLd().map((n) => n['@type'])
+      expect(types).toContain('HowTo')
     })
-
-    const allFaq = Array.from(
-      document.head.querySelectorAll('script[type="application/ld+json"]'),
-    )
-      .map((s) => JSON.parse(s.textContent ?? '{}') as JsonLdNode)
-      .filter((n) => n['@type'] === 'FAQPage')
-    // Exactly one FAQPage, and it's the full managed list — not the baseline.
-    expect(allFaq).toHaveLength(1)
-    expect(
-      (allFaq[0].mainEntity as unknown[]).length,
-    ).toBe(FAQ_ENTRIES.length)
   })
 
   it('homepage does NOT emit a BreadcrumbList', async () => {

@@ -220,6 +220,65 @@ export function softwareApplicationJsonLd(): JsonLd {
   }
 }
 
+/** HowTo for the install / quickstart. Google retired HowTo rich results in
+ *  2023, but answer engines still consume the structured data, and it's a
+ *  natural fit for the /developers quickstart. Emitted on that route only —
+ *  not site-wide — so it isn't attached to pages that have no instructions.
+ *  Steps mirror statewave-docs/getting-started.md (port 8100 is what the
+ *  published docker-compose binds to). Recompute together if the quickstart
+ *  changes. */
+export function howToJsonLd(): JsonLd {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'HowTo',
+    name: 'Install and run Statewave locally with Docker Compose',
+    description:
+      'Self-host the Statewave memory runtime in about five minutes — clone the repository, boot the stack, store a memory, and retrieve it.',
+    totalTime: 'PT5M',
+    supply: [
+      {
+        '@type': 'HowToSupply',
+        name: 'A machine with Docker Engine 24+ and Git',
+      },
+    ],
+    tool: [
+      { '@type': 'HowToTool', name: 'Docker' },
+      { '@type': 'HowToTool', name: 'Git' },
+      { '@type': 'HowToTool', name: 'curl' },
+    ],
+    step: [
+      {
+        '@type': 'HowToStep',
+        position: 1,
+        name: 'Start the server',
+        text: 'git clone https://github.com/smaramwbc/statewave.git && cd statewave && docker compose up -d. The compose stack boots the Statewave API on port 8100 and a Postgres-with-pgvector instance.',
+        url: `${REPOS.docs}/blob/main/getting-started.md#step-1--start-the-server`,
+      },
+      {
+        '@type': 'HowToStep',
+        position: 2,
+        name: 'Verify the server is up',
+        text: 'curl http://localhost:8100/healthz returns {"status":"ok"} once the API process is ready. /readyz reports per-dependency status, including the Postgres handshake.',
+        url: `${REPOS.docs}/blob/main/getting-started.md#step-2--verify-it-is-running`,
+      },
+      {
+        '@type': 'HowToStep',
+        position: 3,
+        name: 'Store a memory',
+        text: 'POST an episode to /v1/episodes (subject + event payload), then POST to /v1/memories/compile to turn that episode into a compiled, ranked memory with provenance back to the source episode.',
+        url: `${REPOS.docs}/blob/main/getting-started.md#step-3--store-a-memory`,
+      },
+      {
+        '@type': 'HowToStep',
+        position: 4,
+        name: 'Retrieve a context bundle',
+        text: 'POST to /v1/context with a subject and a token budget. Statewave returns a ranked, token-bounded bundle of memories and episodes ready to drop into a prompt — with the same provenance IDs the compile step recorded.',
+        url: `${REPOS.docs}/blob/main/getting-started.md#step-4--retrieve-it`,
+      },
+    ],
+  }
+}
+
 export interface BreadcrumbItem {
   name: string
   path: string

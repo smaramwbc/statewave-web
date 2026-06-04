@@ -2,11 +2,10 @@
  *
  * The site is a single-page Vite + React app (no SSR), so every page-level
  * head mutation happens here on route change. The static index.html carries
- * a baseline SoftwareApplication / Organization / WebSite JSON-LD for
- * crawlers that don't execute JavaScript; this hook layers per-page metadata
- * + JSON-LD on top by managing scripts marked with `data-seo="managed"` so
- * they can be cleanly replaced on navigation without duplicating the static
- * fallback.
+ * only the site-wide Organization / WebSite JSON-LD for crawlers that don't
+ * execute JavaScript; this hook layers all route-specific metadata + JSON-LD
+ * on top by managing scripts marked with `data-seo="managed"` so they can be
+ * cleanly replaced on navigation.
  *
  * Pure data and JSON-LD builders live in ./seo-meta. Re-exported here for
  * call-site convenience — most pages can import everything from `lib/seo`.
@@ -99,8 +98,10 @@ export function usePageSEO(options: UsePageSEOOptions = {}) {
     setMeta('twitter:image:alt', ogImageAlt)
 
     // Replace all SPA-managed JSON-LD with the page's set. The static
-    // SoftwareApplication / Organization / WebSite blocks in index.html have
-    // no data-seo attribute and are intentionally left untouched.
+    // Organization / WebSite blocks in index.html have no data-seo attribute
+    // and are intentionally left untouched (they're the only site-wide
+    // entities; everything route-specific — SoftwareApplication, FAQPage,
+    // HowTo, BreadcrumbList, BlogPosting — is emitted here per route).
     document
       .querySelectorAll(
         `script[type="application/ld+json"][${MANAGED_LD_ATTR}="${MANAGED_LD_VALUE}"]`,
@@ -113,17 +114,6 @@ export function usePageSEO(options: UsePageSEOOptions = {}) {
       if (crumb) nodes.push(crumb)
     }
     if (options.jsonLd) nodes.push(...options.jsonLd)
-
-    // FAQPage must be unique per page — Google flags a second FAQPage as an
-    // invalid duplicate (unlike Organization / SoftwareApplication, which it
-    // merges). index.html ships a baseline FAQPage (the four canonical
-    // questions) for crawlers that don't run JS; when this layer injects its
-    // own, fuller FAQPage, drop the static one first so the rendered DOM
-    // carries exactly one. No-JS crawlers never reach this code and keep the
-    // static baseline.
-    if (nodes.some((node) => node['@type'] === 'FAQPage')) {
-      removeUnmanagedJsonLd('FAQPage')
-    }
 
     for (const node of nodes) injectJsonLd(node)
     // The signature line below intentionally captures `options.jsonLd`'s
@@ -167,26 +157,6 @@ function setLink(rel: string, href: string) {
     document.head.appendChild(el)
   }
   el.href = href
-}
-
-/** Remove static (non-managed) JSON-LD scripts of a given @type from <head>.
- *  Used to retire the index.html baseline FAQPage once the SPA injects its
- *  fuller, managed replacement, so no page ends up with two of a type that
- *  search engines require to be unique. */
-function removeUnmanagedJsonLd(type: string) {
-  document
-    .querySelectorAll(
-      `script[type="application/ld+json"]:not([${MANAGED_LD_ATTR}="${MANAGED_LD_VALUE}"])`,
-    )
-    .forEach((el) => {
-      try {
-        if ((JSON.parse(el.textContent || '{}') as JsonLd)['@type'] === type) {
-          el.remove()
-        }
-      } catch {
-        /* non-JSON or malformed block — leave it untouched */
-      }
-    })
 }
 
 function injectJsonLd(data: JsonLd) {
