@@ -207,7 +207,9 @@ export function softwareApplicationJsonLd(): JsonLd {
       'Open-source memory runtime for AI agents — durable episodic and semantic memory, ranked retrieval, and token-bounded context bundles for LLM applications.',
     url: BASE_URL,
     license: 'https://www.apache.org/licenses/LICENSE-2.0',
-    codeRepository: REPOS.core,
+    // No codeRepository here — it's a SoftwareSourceCode property, not a
+    // SoftwareApplication one, and Google's validator flags it as unrecognised.
+    // The repo is already linked from the Organization node's sameAs.
     softwareHelp: REPOS.docs,
     featureList: [
       'Episodic and semantic memory',

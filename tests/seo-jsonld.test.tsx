@@ -64,7 +64,9 @@ describe('JSON-LD builders', () => {
     const node = softwareApplicationJsonLd()
     expect(node['@type']).toBe('SoftwareApplication')
     expect(node.applicationCategory).toBe('DeveloperApplication')
-    expect(node.codeRepository).toBe('https://github.com/smaramwbc/statewave')
+    // codeRepository is a SoftwareSourceCode property, not a valid
+    // SoftwareApplication one — Google's validator flags it. Keep it out.
+    expect(node.codeRepository).toBeUndefined()
   })
 
   it('HowTo is valid schema.org HowTo with ordered steps', () => {
