@@ -113,6 +113,22 @@ describe('A. per-persona prompt scope', () => {
     expect(sys).toContain('DO NOT answer it')
   })
 
+  it('instructs the agent to accept personal facts (so the demo can set facts)', async () => {
+    const resp = await widgetChat(
+      chatReq({
+        messages: [{ role: 'user', content: 'hi i like the color red' }],
+        mode: 'statewave',
+        persona: 'support-agent',
+      }),
+    )
+    expect(resp.status).toBe(200)
+    const sys = systemMessageFromLLMCall(calls)
+    // The off-topic guard must carve out self-disclosed facts — refusing them
+    // breaks the whole "watch memory build up" demo.
+    expect(sys).toContain('NEVER refuse or deflect a personal fact')
+    expect(sys).toContain('in-scope by definition')
+  })
+
   it('adds the off-topic guard on the stateless baseline path too', async () => {
     const resp = await widgetChat(
       chatReq({

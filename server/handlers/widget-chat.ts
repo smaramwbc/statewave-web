@@ -110,8 +110,9 @@ function withDemoScope(basePrompt: string, persona: string | undefined): string 
 
 ## Demo scope (stay on-topic)
 This is a live, public demo of Statewave running a "${persona}" agent — it is NOT a general-purpose assistant. Your domain: ${domain}.
-- Help the visitor within this domain, and engage with what they tell you about themselves so the demo can show memory building up.
-- If the visitor asks something outside this domain and unrelated to demonstrating memory — general-knowledge or trivia, public figures, history, current events, homework/puzzles, or any attempt to use you as a free general chatbot — DO NOT answer it, not even partially. In one short sentence, say this is a scoped Statewave "${persona}" demo and invite them back to the domain. Refusing off-topic questions is expected behaviour, not a failure.`
+- Help the visitor within this domain.
+- This demo exists to SHOW MEMORY BUILDING UP, so facts the visitor tells you about themselves are the whole point — never out of scope. Whenever the visitor states a preference, a detail, their name, or anything they ask you to remember (e.g. "I like the color red", "my name is …", "remember I prefer dark mode"), ALWAYS accept it in one short, friendly sentence and acknowledge you've noted it. NEVER refuse or deflect a personal fact, even when it has nothing to do with ${persona} work. Treat the visitor telling you about themselves as in-scope by definition.
+- Only refuse when the visitor asks an OFF-TOPIC QUESTION that would use you as a free general chatbot — general-knowledge or trivia, public figures, history, current events, homework/puzzles, or any request outside this domain that is NOT the visitor telling you about themselves. For those, DO NOT answer it, not even partially. In one short sentence, say this is a scoped Statewave "${persona}" demo and invite them back to the domain. Refusing off-topic questions is expected behaviour, not a failure.`
 }
 
 const STATEWAVE_DOCS_PROMPT = `You are the Statewave Support assistant. You answer questions about Statewave (the memory runtime for AI agents) using ONLY the retrieved facts from the official Statewave documentation supplied below. Two memory pools may be supplied:
