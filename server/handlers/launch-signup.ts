@@ -126,7 +126,12 @@ function webhookTargets(): WebhookTarget[] {
           role: signup.role,
           company: signup.company,
           what_you_would_build: signup.what_you_would_build,
-          source: 'statewave.ai/launch',
+          // Consent-separation marker. New /launch submissions are ongoing-
+          // newsletter consent and are tagged `statewave.ai/newsletter` so they
+          // are reliably separable from the pre-v1.0 launch-notification cohort
+          // (which carries the old `statewave.ai/launch` source). Do not send
+          // recurring newsletters to the launch cohort without fresh consent.
+          source: 'statewave.ai/newsletter',
         },
       }),
   )
@@ -139,10 +144,20 @@ function webhookTargets(): WebhookTarget[] {
     (signup) =>
       JSON.stringify({
         email: signup.email,
-        utm_source: 'statewave.ai/launch',
-        // Documented Beehiiv param: a returning signup who had previously
-        // unsubscribed is reactivated instead of erroring — the right
-        // behavior for a newsletter re-subscribe.
+        // Consent-separation markers. New /launch submissions are ongoing-
+        // newsletter consent, tagged so they are reliably separable from the
+        // pre-v1.0 launch-notification cohort (old `statewave.ai/launch`).
+        // The platform must segment sends on this (or use a dedicated audience)
+        // — the launch cohort must not receive recurring updates without
+        // fresh re-consent.
+        utm_source: 'statewave.ai/newsletter',
+        utm_medium: 'newsletter',
+        // Documented Beehiiv param: a returning subscriber who had previously
+        // unsubscribed is reactivated instead of erroring. This only ever fires
+        // on a *voluntary* new-form submission (the user actively enters and
+        // submits their address with the newsletter consent copy visible), so
+        // it constitutes fresh consent — it never reactivates anyone without a
+        // new submission.
         reactivate_existing: true,
         custom_fields: [
           ...(signup.name ? [{ name: 'First Name', value: signup.name }] : []),

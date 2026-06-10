@@ -349,7 +349,7 @@ describe('/api/launch-signup — webhook fan-out', () => {
     expect(body.first_name).toBe('Ada')
     expect(body.properties.role).toBe('Engineer')
     expect(body.properties.company).toBe('Acme')
-    expect(body.properties.source).toBe('statewave.ai/launch')
+    expect(body.properties.source).toBe('statewave.ai/newsletter')
   })
 
   it('sends Beehiiv-shaped payload with custom_fields and reactivate_existing', async () => {
@@ -367,7 +367,8 @@ describe('/api/launch-signup — webhook fan-out', () => {
     const call = fetchSpy.mock.calls.find((c) => String(c[0]).includes('beehiiv'))!
     const body = JSON.parse((call[1] as RequestInit).body as string)
     expect(body.email).toBe('ada@example.com')
-    expect(body.utm_source).toBe('statewave.ai/launch')
+    expect(body.utm_source).toBe('statewave.ai/newsletter')
+    expect(body.utm_medium).toBe('newsletter')
     expect(body.reactivate_existing).toBe(true)
     expect(body.custom_fields).toContainEqual({ name: 'First Name', value: 'Ada' })
     expect(body.custom_fields).toContainEqual({ name: 'Role', value: 'Engineer' })
