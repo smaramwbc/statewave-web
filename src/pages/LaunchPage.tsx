@@ -1,72 +1,41 @@
-import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { Section } from '../components/Section'
 import { Heading } from '../components/Heading'
 import { usePageSEO } from '../lib/seo'
 
 // Cloudflare Turnstile public site key. Behind an env seam (same pattern as
 // the server's TURNSTILE_SECRET_KEY): when unset the widget is skipped and
-// the form still works (fail-open). statewave-launch #22 gates setting both
-// keys before launch. Privacy-preserving CAPTCHA — chosen over reCAPTCHA so
-// the site's "no third-party trackers" promise stays true.
+// the form still works (fail-open). Privacy-preserving CAPTCHA — chosen over
+// reCAPTCHA so the site's "no third-party trackers" promise stays true.
 const TURNSTILE_SITE_KEY = (import.meta.env.VITE_TURNSTILE_SITE_KEY ?? '') as string
 
 /**
- * /launch — public landing for the June 16, 2026 launch, with email
- * capture. Form submission is stubbed: it POSTs to `/api/launch-signup`
- * which is wired to Beehiiv / Resend separately (see statewave-launch
- * issue #6 — handled by the email-infra team).
+ * /launch — the permanent Statewave updates / newsletter registration page.
+ *
+ * Statewave v1.0 has shipped; this route is no longer a launch waitlist. It
+ * is kept at /launch to preserve existing inbound links, bookmarks, and
+ * indexing, and now collects email addresses for occasional project updates.
+ *
+ * Submission POSTs to `/api/launch-signup` (an internal route name retained to
+ * avoid a backend/list migration — tracked as tech debt), which forwards the
+ * address to the configured Resend + Beehiiv audiences. Only the email is
+ * required; no profiling fields are collected.
  */
-
-const LAUNCH_AT = new Date('2026-06-16T07:01:00.000Z') // 09:01 CEST = 00:01 PT = 07:01 UTC
 
 // Mirror of the server-side check (server/handlers/launch-signup.ts) so the
 // client catches bad input before the network round-trip.
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
-interface FormState {
-  name: string
-  email: string
-  role: string
-  company: string
-  what_you_would_build: string
-}
-
-const EMPTY_FORM: FormState = {
-  name: '',
-  email: '',
-  role: '',
-  company: '',
-  what_you_would_build: '',
-}
-
-function useCountdown(target: Date) {
-  const [now, setNow] = useState(() => Date.now())
-
-  useEffect(() => {
-    const id = window.setInterval(() => setNow(Date.now()), 1000)
-    return () => window.clearInterval(id)
-  }, [])
-
-  const remaining = Math.max(0, target.getTime() - now)
-  const seconds = Math.floor(remaining / 1000) % 60
-  const minutes = Math.floor(remaining / (60 * 1000)) % 60
-  const hours = Math.floor(remaining / (60 * 60 * 1000)) % 24
-  const days = Math.floor(remaining / (24 * 60 * 60 * 1000))
-
-  return { days, hours, minutes, seconds, isPast: remaining === 0 }
-}
-
 export function LaunchPage() {
   usePageSEO({
-    title: 'Statewave — Launching Tue June 16, 2026',
+    title: 'Statewave updates — subscribe to the newsletter',
     description:
-      'Open-source memory runtime for AI agents launches Tue June 16, 2026 at 09:01 CEST. Drop your email to get the launch-day announcement, bench numbers, and 10 invites for early collaborators.',
+      'Statewave v1.0 is available. Subscribe for occasional updates on releases, connectors, SDKs, benchmarks, governance features, and important project news. Unsubscribe anytime.',
   })
 
-  const { days, hours, minutes, seconds, isPast } = useCountdown(LAUNCH_AT)
-  const [form, setForm] = useState<FormState>(EMPTY_FORM)
+  const [email, setEmail] = useState('')
   const [state, setState] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle')
-  const [fieldErrors, setFieldErrors] = useState<Partial<Record<keyof FormState, string>>>({})
+  const [emailError, setEmailError] = useState<string>('')
   const [formError, setFormError] = useState<string>('')
   // Hidden honeypot — real users never touch it; naive bots fill every input.
   const [honeypot, setHoneypot] = useState('')
@@ -76,24 +45,9 @@ export function LaunchPage() {
   const [turnstileNonce, setTurnstileNonce] = useState(0)
   const turnstileEnabled = TURNSTILE_SITE_KEY !== ''
 
-  function validate(values: FormState): Partial<Record<keyof FormState, string>> {
-    const errs: Partial<Record<keyof FormState, string>> = {}
-    if (!values.name.trim()) {
-      errs.name = 'Please enter your name.'
-    }
-    const email = values.email.trim()
-    if (!email) {
-      errs.email = 'Please enter your email.'
-    } else if (!EMAIL_RE.test(email)) {
-      errs.email = "That doesn't look like a valid email address."
-    }
-    return errs
-  }
-
-  function handleChange<K extends keyof FormState>(key: K, value: FormState[K]) {
-    setForm((prev) => ({ ...prev, [key]: value }))
-    // Clear a field's error the moment the user starts correcting it.
-    setFieldErrors((prev) => (prev[key] ? { ...prev, [key]: undefined } : prev))
+  function handleEmailChange(value: string) {
+    setEmail(value)
+    if (emailError) setEmailError('')
     if (formError) setFormError('')
   }
 
@@ -101,15 +55,15 @@ export function LaunchPage() {
     event.preventDefault()
     if (state === 'submitting') return
 
-    const errs = validate(form)
-    if (Object.keys(errs).length > 0) {
-      setFieldErrors(errs)
-      setState('idle')
-      // Move focus to the first invalid field for keyboard + screen-reader users.
-      const firstInvalid = (['name', 'email'] as const).find((k) => errs[k])
-      if (firstInvalid) {
-        document.getElementById(`launch-${firstInvalid}`)?.focus()
-      }
+    const trimmed = email.trim()
+    if (!trimmed) {
+      setEmailError('Please enter your email.')
+      document.getElementById('newsletter-email')?.focus()
+      return
+    }
+    if (!EMAIL_RE.test(trimmed)) {
+      setEmailError("That doesn't look like a valid email address.")
+      document.getElementById('newsletter-email')?.focus()
       return
     }
 
@@ -120,7 +74,7 @@ export function LaunchPage() {
       return
     }
 
-    setFieldErrors({})
+    setEmailError('')
     setFormError('')
     setState('submitting')
     const failChallenge = () => {
@@ -134,11 +88,7 @@ export function LaunchPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          name: form.name.trim(),
-          email: form.email.trim(),
-          role: form.role.trim(),
-          company: form.company.trim(),
-          what_you_would_build: form.what_you_would_build.trim(),
+          email: trimmed,
           turnstile_token: turnstileToken,
           hp_company_url: honeypot,
         }),
@@ -151,17 +101,17 @@ export function LaunchPage() {
         const friendly =
           serverMsg ||
           (response.status === 503
-            ? "Signups aren't open quite yet — please try again shortly."
+            ? "Subscriptions aren't available right now — please try again shortly."
             : response.status >= 500
               ? 'Something went wrong on our end. Please try again in a moment.'
-              : 'We couldn’t submit that. Please check your details and try again.')
+              : 'We couldn’t subscribe that address. Please check it and try again.')
         setState('error')
         setFormError(friendly)
         failChallenge()
         return
       }
       setState('success')
-      setForm(EMPTY_FORM)
+      setEmail('')
       setHoneypot('')
       setTurnstileToken('')
     } catch {
@@ -176,43 +126,21 @@ export function LaunchPage() {
       <section className="relative pt-24 sm:pt-28 md:pt-32 pb-12 sm:pb-16">
         <div className="mx-auto max-w-3xl px-5 sm:px-6 text-center">
           <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-accent">
-            Launching Tuesday, June 16, 2026 · 09:01 CEST
+            Statewave newsletter
           </p>
           <h1 className="mt-5 text-[clamp(2rem,6vw,3.25rem)] font-semibold text-theme-primary tracking-[-0.02em] leading-[1.1]">
-            Open-source memory runtime for AI agents.
+            Stay current with Statewave.
           </h1>
           <p className="mt-5 text-base sm:text-lg text-theme-secondary leading-relaxed">
-            Reproducible, provenance-tagged context bundles instead of query-time retrieval.
-            Apache-2.0 across server and SDKs. Self-hosted on Postgres + pgvector.
+            Statewave v1.0 — the open-source memory runtime for AI agents — is available.
+            Subscribe for occasional updates on releases, connectors, SDKs, benchmarks,
+            governance features, and important project news.
           </p>
-
-          <div className="mt-10 mb-2">
-            {isPast ? (
-              <p className="text-base text-theme-primary font-medium">
-                We&rsquo;re live. <a href="/" className="text-accent hover:underline">Open the repo &rarr;</a>
-              </p>
-            ) : (
-              <div className="grid grid-cols-4 gap-3 sm:gap-4 max-w-md mx-auto">
-                {[
-                  { label: 'days', value: days },
-                  { label: 'hrs', value: hours },
-                  { label: 'min', value: minutes },
-                  { label: 'sec', value: seconds },
-                ].map((unit) => (
-                  <div
-                    key={unit.label}
-                    className="rounded-2xl border border-theme-border bg-surface-1 px-3 py-4 sm:px-4 sm:py-5"
-                  >
-                    <div className="text-[clamp(1.5rem,4vw,2rem)] font-semibold tabular-nums text-theme-primary leading-none">
-                      {String(unit.value).padStart(2, '0')}
-                    </div>
-                    <div className="mt-2 text-[10px] uppercase tracking-[0.18em] text-theme-muted">
-                      {unit.label}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm">
+            <a href="/" className="text-accent hover:underline">Get started &rarr;</a>
+            <a href="https://github.com/smaramwbc/statewave" className="text-accent hover:underline">GitHub</a>
+            <a href="https://github.com/smaramwbc/statewave-docs" className="text-accent hover:underline">Documentation</a>
+            <a href="https://github.com/smaramwbc/statewave/releases/tag/v1.0.0" className="text-accent hover:underline">v1.0 release notes</a>
           </div>
         </div>
       </section>
@@ -221,12 +149,12 @@ export function LaunchPage() {
         <div className="mx-auto max-w-2xl">
           <div className="rounded-3xl border border-theme-border bg-surface-1 p-6 sm:p-8 md:p-10">
             <Heading id="signup" className="text-2xl font-bold text-theme-primary mb-3">
-              Get the launch-day announcement
+              Subscribe to Statewave updates
             </Heading>
             <p className="text-sm text-theme-secondary leading-relaxed mb-6">
-              On June 16, 2026 we ship Statewave v1.0 plus the open LoCoMo benchmark.
-              Drop your email and we&rsquo;ll send the announcement, the row-level bench data,
-              and an invite to the first-100 supporter group. No spam, no third-party trackers.
+              Occasional emails — major releases, new connectors and SDK changes, benchmarks and
+              research, governance features, and meaningful project news. No spam, no third-party
+              trackers, and we never share your email.
             </p>
 
             {state === 'success' ? (
@@ -234,65 +162,49 @@ export function LaunchPage() {
                 role="status"
                 className="rounded-2xl border border-accent/30 bg-accent/5 p-5 text-sm text-theme-primary"
               >
-                <p className="font-medium">You&rsquo;re on the list.</p>
+                <p className="font-medium">You&rsquo;re subscribed.</p>
                 <p className="mt-2 text-theme-secondary leading-relaxed">
-                  We&rsquo;ll send the launch-day note on Tue June 16 at 09:01 CEST.
-                  Reply to that email if you want the early-access invite.
+                  Thanks — we&rsquo;ll be in touch when there&rsquo;s something worth sharing.
+                  Every email includes a one-click unsubscribe.
                 </p>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-                <Field
-                  id="launch-name"
-                  label="Name"
-                  required
-                  value={form.name}
-                  onChange={(v) => handleChange('name', v)}
-                  error={fieldErrors.name}
-                />
-                <Field
-                  id="launch-email"
-                  label="Email"
-                  type="email"
-                  required
-                  value={form.email}
-                  onChange={(v) => handleChange('email', v)}
-                  error={fieldErrors.email}
-                />
-                <Field
-                  id="launch-role"
-                  label="Role"
-                  placeholder="e.g. Staff Eng, ML Eng, Founder, Researcher"
-                  value={form.role}
-                  onChange={(v) => handleChange('role', v)}
-                />
-                <Field
-                  id="launch-company"
-                  label="Company"
-                  placeholder="optional"
-                  value={form.company}
-                  onChange={(v) => handleChange('company', v)}
-                />
-                <Field
-                  id="launch-what"
-                  label="What would you build with agent memory?"
-                  placeholder="one sentence is fine"
-                  multiline
-                  value={form.what_you_would_build}
-                  onChange={(v) => handleChange('what_you_would_build', v)}
-                />
+                <div>
+                  <label htmlFor="newsletter-email" className="block">
+                    <span className="block text-xs font-medium uppercase tracking-[0.16em] text-theme-muted mb-2">
+                      Email<span className="text-accent ml-1">*</span>
+                    </span>
+                    <input
+                      id="newsletter-email"
+                      name="email"
+                      type="email"
+                      required
+                      autoComplete="email"
+                      placeholder="you@example.com"
+                      value={email}
+                      aria-invalid={emailError ? true : undefined}
+                      aria-describedby={emailError ? 'newsletter-email-error' : undefined}
+                      onChange={(e) => handleEmailChange(e.target.value)}
+                      className={`w-full rounded-xl border bg-surface-0 px-4 py-3 text-sm text-theme-primary placeholder:text-theme-muted focus:outline-none focus:ring-2 transition-colors ${
+                        emailError
+                          ? 'border-red-500/60 focus:ring-red-500/30 focus:border-red-500'
+                          : 'border-theme-border focus:ring-accent/40 focus:border-accent'
+                      }`}
+                    />
+                  </label>
+                  {emailError ? (
+                    <p id="newsletter-email-error" role="alert" className="mt-1.5 text-xs text-red-600 dark:text-red-400">
+                      {emailError}
+                    </p>
+                  ) : null}
+                </div>
 
                 {/* Honeypot — off-screen, never shown to humans, ignored by
                     AT. A filled value tells the server it's a bot. */}
                 <div
                   aria-hidden="true"
-                  style={{
-                    position: 'absolute',
-                    left: '-9999px',
-                    width: 1,
-                    height: 1,
-                    overflow: 'hidden',
-                  }}
+                  style={{ position: 'absolute', left: '-9999px', width: 1, height: 1, overflow: 'hidden' }}
                 >
                   <label htmlFor="hp_company_url">Company website</label>
                   <input
@@ -319,7 +231,7 @@ export function LaunchPage() {
                   disabled={state === 'submitting'}
                   className="mt-2 w-full rounded-xl bg-accent px-5 py-3 text-sm font-medium text-white hover:bg-accent/90 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
                 >
-                  {state === 'submitting' ? 'Sending…' : 'Notify me on launch day'}
+                  {state === 'submitting' ? 'Subscribing…' : 'Subscribe'}
                 </button>
 
                 {state === 'error' && formError ? (
@@ -332,8 +244,10 @@ export function LaunchPage() {
                 ) : null}
 
                 <p className="text-[11px] text-theme-muted leading-relaxed">
-                  By submitting you agree to receive the launch-day note plus at most three
-                  follow-up emails over the launch month. Unsubscribe in one click on the first email.
+                  By subscribing you agree to receive occasional Statewave project updates at the
+                  address above. We use your email only to send these updates; unsubscribe in one
+                  click from any email. See our{' '}
+                  <a href="/privacy" className="underline hover:text-theme-secondary">Privacy Policy</a>.
                 </p>
               </form>
             )}
@@ -344,99 +258,35 @@ export function LaunchPage() {
       <Section className="bg-surface-1/40">
         <div className="mx-auto max-w-3xl">
           <Heading id="what" className="text-2xl font-bold text-theme-primary mb-6">
-            What ships on June 16
+            What you&rsquo;ll receive
           </Heading>
           <ul className="space-y-3 text-sm text-theme-secondary leading-relaxed">
             <li>
-              <strong className="text-theme-primary">Statewave v1.0</strong> &mdash; the
-              open-source runtime, Apache-2.0, Postgres + pgvector, Python + TypeScript SDKs.
+              <strong className="text-theme-primary">Releases</strong> &mdash; new Statewave
+              versions and what changed, the way developers want to read it.
             </li>
             <li>
-              <strong className="text-theme-primary">Open LoCoMo benchmark</strong> &mdash;
-              row-level JSONL comparing Statewave against Mem0, Zep, and naive context-dumping.
-              Anyone can rerun it in roughly 20 minutes against their own API keys.
+              <strong className="text-theme-primary">Connectors &amp; SDKs</strong> &mdash; new
+              integrations and notable Python / TypeScript SDK changes.
             </li>
             <li>
-              <strong className="text-theme-primary">9 official connectors</strong> &mdash;
-              GitHub, Slack, Notion, Discord, Markdown/ADRs, Zendesk/Intercom/Freshdesk, Gmail,
-              n8n, Zapier &mdash; plus an MCP server.
+              <strong className="text-theme-primary">Benchmarks &amp; research</strong> &mdash;
+              reproducible numbers and technical write-ups when we publish them.
             </li>
             <li>
-              <strong className="text-theme-primary">Self-host or try hosted</strong> &mdash;
-              Docker Compose, Helm chart, or bare-metal. The hosted demo at{' '}
-              <a href="/demo" className="text-accent hover:underline">statewave.ai/demo</a> runs
-              against a live Statewave instance with no signup required.
+              <strong className="text-theme-primary">Governance &amp; project news</strong> &mdash;
+              meaningful governance features and important community announcements.
             </li>
           </ul>
+          <p className="mt-6 text-sm text-theme-secondary leading-relaxed">
+            Prefer to follow along directly? Star and watch{' '}
+            <a href="https://github.com/smaramwbc/statewave" className="text-accent hover:underline">the repository</a>{' '}
+            on GitHub, or read the{' '}
+            <a href="https://github.com/smaramwbc/statewave-docs" className="text-accent hover:underline">documentation</a>.
+          </p>
         </div>
       </Section>
     </>
-  )
-}
-
-interface FieldProps {
-  id: string
-  label: string
-  value: string
-  onChange: (value: string) => void
-  type?: string
-  required?: boolean
-  placeholder?: string
-  multiline?: boolean
-  error?: string
-}
-
-function Field({
-  id,
-  label,
-  value,
-  onChange,
-  type = 'text',
-  required = false,
-  placeholder,
-  multiline = false,
-  error,
-}: FieldProps) {
-  const hasError = Boolean(error)
-  const errorId = `${id}-error`
-  const base =
-    'w-full rounded-xl border bg-surface-0 px-4 py-3 text-sm text-theme-primary placeholder:text-theme-muted focus:outline-none focus:ring-2 transition-colors'
-  const borderClass = hasError
-    ? 'border-red-500/60 focus:ring-red-500/30 focus:border-red-500'
-    : 'border-theme-border focus:ring-accent/40 focus:border-accent'
-  const cls = `${base} ${borderClass}`
-  const shared = {
-    id,
-    name: id,
-    required,
-    placeholder,
-    value,
-    'aria-invalid': hasError || undefined,
-    'aria-describedby': hasError ? errorId : undefined,
-    onChange: (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
-      onChange(e.target.value),
-    className: cls,
-  }
-
-  return (
-    <div>
-      <label htmlFor={id} className="block">
-        <span className="block text-xs font-medium uppercase tracking-[0.16em] text-theme-muted mb-2">
-          {label}
-          {required ? <span className="text-accent ml-1">*</span> : null}
-        </span>
-        {multiline ? (
-          <textarea {...shared} rows={3} />
-        ) : (
-          <input {...shared} type={type} />
-        )}
-      </label>
-      {hasError ? (
-        <p id={errorId} role="alert" className="mt-1.5 text-xs text-red-600 dark:text-red-400">
-          {error}
-        </p>
-      ) : null}
-    </div>
   )
 }
 

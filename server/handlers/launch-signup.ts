@@ -142,7 +142,7 @@ function webhookTargets(): WebhookTarget[] {
         utm_source: 'statewave.ai/launch',
         // Documented Beehiiv param: a returning signup who had previously
         // unsubscribed is reactivated instead of erroring — the right
-        // behavior for a launch waitlist re-submit.
+        // behavior for a newsletter re-subscribe.
         reactivate_existing: true,
         custom_fields: [
           ...(signup.name ? [{ name: 'First Name', value: signup.name }] : []),
@@ -282,9 +282,8 @@ export default async function handler(req: Request): Promise<Response> {
     signup[field] = clean(parsed[field], LIMITS[field])
   }
 
-  if (!signup.name) {
-    return json({ error: 'Name is required' }, { status: 400 })
-  }
+  // Newsletter signup collects only the email address (the minimum needed).
+  // Name and other fields are optional and forwarded when present.
   if (!signup.email || !EMAIL_RE.test(signup.email)) {
     return json({ error: 'A valid email is required' }, { status: 400 })
   }

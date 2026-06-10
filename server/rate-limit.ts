@@ -146,7 +146,7 @@ function normaliseIp(ip: string): string {
   return v.startsWith('::ffff:') ? v.slice('::ffff:'.length) : v
 }
 
-// Defaults for the /launch waitlist form: 5 submissions per IP per 10
+// Defaults for the /launch newsletter form: 5 submissions per IP per 10
 // minutes. Generous for a human, useless for a scraper. Overridable via
 // env so ops can tighten without a redeploy of logic.
 export const LAUNCH_SIGNUP_LIMIT = Number(process.env.RATE_LIMIT_MAX || 5)

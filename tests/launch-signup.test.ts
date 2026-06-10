@@ -84,6 +84,22 @@ describe('/api/launch-signup — same-origin', () => {
   })
 })
 
+describe('/api/launch-signup — newsletter (email only)', () => {
+  it('accepts an email-only signup (name no longer required) and forwards it', async () => {
+    process.env.LAUNCH_SIGNUP_WEBHOOK_RESEND = 'https://resend.test/hook'
+    process.env.LAUNCH_SIGNUP_WEBHOOK_RESEND_TOKEN = 'resend-key'
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('ok', { status: 200 }))
+    const res = await dispatchWeb(req({ email: 'ada@example.com' }))
+    expect(res?.status).toBe(200)
+    expect(await res?.json()).toEqual({ ok: true })
+  })
+
+  it('still rejects an invalid email with 400', async () => {
+    const res = await dispatchWeb(req({ email: 'not-an-email' }))
+    expect(res?.status).toBe(400)
+  })
+})
+
 describe('/api/launch-signup — honeypot', () => {
   it('returns a fake 200 and does NOT forward when the honeypot is filled', async () => {
     const fetchSpy = vi.spyOn(globalThis, 'fetch')

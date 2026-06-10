@@ -7,7 +7,7 @@ import { usePageSEO } from '../lib/seo'
  *
  * NOTE FOR REVIEWERS: this draft is generic-OSS-friendly and reflects
  * the actual data flows of statewave.ai (no analytics, one strictly
- * necessary cookie, the launch waitlist, the demo widget). Before
+ * necessary cookie, the newsletter, the demo widget). Before
  * publishing, get a DE/EU lawyer to vet the language — especially the
  * Article 6 lawful-basis claims and the third-party processor list.
  */
@@ -28,7 +28,7 @@ export function PrivacyPage() {
           <h1 className="mt-5 text-[clamp(1.75rem,5vw,2.5rem)] font-semibold text-theme-primary tracking-[-0.02em] leading-[1.15]">
             Privacy Policy
           </h1>
-          <p className="mt-5 text-sm text-theme-muted">Last updated: 15 May 2026</p>
+          <p className="mt-5 text-sm text-theme-muted">Last updated: 10 June 2026</p>
           <p className="mt-6 text-base text-theme-secondary leading-relaxed">
             statewave.ai is the marketing site for the Statewave open-source memory
             runtime. This policy describes what personal data we collect on this
@@ -78,16 +78,19 @@ export function PrivacyPage() {
               </p>
             </div>
             <div>
-              <h3 className="text-theme-primary font-medium mb-2">Launch waitlist (/launch)</h3>
+              <h3 className="text-theme-primary font-medium mb-2">Newsletter (/launch)</h3>
               <p>
-                When you submit the form on{' '}
+                When you subscribe via the form on{' '}
                 <a href="/launch" className="text-accent hover:underline">/launch</a>{' '}
-                we store your name, email address, optional role, optional company,
-                and optional answer to &ldquo;what would you build&rdquo;. We use this
-                to send the launch-day announcement and up to three follow-up emails
-                during the launch month (Art. 6(1)(a) GDPR &mdash; consent). You can
-                withdraw consent at any time via the one-click unsubscribe link in
-                every email; we erase the record within 7 days of withdrawal.
+                we store your email address. We use it only to send occasional
+                Statewave project updates &mdash; releases, connectors, SDK changes,
+                benchmarks, governance features, and important project news (Art.
+                6(1)(a) GDPR &mdash; consent). You can withdraw consent at any time via
+                the one-click unsubscribe link in every email; we erase the record
+                within 7 days of withdrawal. Email addresses collected before the v1.0
+                release under the earlier launch-notification consent remain governed by
+                that original consent until those subscribers opt into the ongoing
+                newsletter.
               </p>
             </div>
             <div>
@@ -132,7 +135,7 @@ export function PrivacyPage() {
             <li>
               <strong className="text-theme-primary">Hosting / CDN:</strong> Vercel Inc. (US;
               EU&ndash;US Data Privacy Framework) &mdash; serves static assets and the
-              API for the launch waitlist form.
+              API for the newsletter signup form.
             </li>
             <li>
               <strong className="text-theme-primary">App hosting:</strong> Fly.io
@@ -142,12 +145,12 @@ export function PrivacyPage() {
             <li>
               <strong className="text-theme-primary">Email delivery:</strong> Resend
               (US; standard contractual clauses) &mdash; transactional emails
-              (signup confirmations, password reset) and the launch waitlist newsletter.
+              (signup confirmations, password reset) and the newsletter.
             </li>
             <li>
-              <strong className="text-theme-primary">Waitlist storage:</strong> Beehiiv
-              or Resend Audiences (depending on the channel) &mdash; the launch
-              waitlist record itself.
+              <strong className="text-theme-primary">Newsletter storage:</strong> Beehiiv
+              or Resend Audiences (depending on the channel) &mdash; the newsletter
+              subscription record itself.
             </li>
             <li>
               <strong className="text-theme-primary">LLM API providers:</strong> Demo
@@ -197,7 +200,7 @@ export function PrivacyPage() {
           <p className="text-sm text-theme-secondary leading-relaxed">
             If we materially change how we handle personal data we&rsquo;ll update
             this page and the &ldquo;Last updated&rdquo; date at the top. If the change
-            broadens what we collect or how we use it we&rsquo;ll notify waitlist
+            broadens what we collect or how we use it we&rsquo;ll notify newsletter
             subscribers by email before the new terms apply.
           </p>
         </div>

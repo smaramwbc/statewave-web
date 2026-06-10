@@ -10,7 +10,7 @@ Statewave stores immutable episodes, compiles them into typed memories with prov
 
 ## Primary links
 
-- [Website](https://www.statewave.ai/) — product overview, positioning, FAQ, and launch information.
+- [Website](https://www.statewave.ai/) — product overview, positioning, FAQ, and project updates.
 - [How It Works](https://www.statewave.ai/product) — lifecycle: record, compile, retrieve, govern.
 - [Why Statewave](https://www.statewave.ai/why) — comparison with prompt stuffing, naive RAG, and temporary chat history.
 - [Use Cases](https://www.statewave.ai/use-cases) — support agents, coding copilots, account intelligence, voice continuity, and multi-agent systems.

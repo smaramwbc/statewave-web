@@ -63,7 +63,7 @@ export function Footer() {
               <li><a href="https://github.com/smaramwbc/statewave-docs/blob/main/roadmap.md" target="_blank" rel="noopener noreferrer" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">Roadmap</a></li>
               <li><Link to="/blog" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">Blog</Link></li>
               <li><Link to="/about" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">About</Link></li>
-              <li><Link to="/launch" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">Launch waitlist</Link></li>
+              <li><Link to="/launch" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">Newsletter</Link></li>
               <li><Link to="/press" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">Press kit</Link></li>
             </ul>
           </div>

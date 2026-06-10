@@ -7,7 +7,7 @@ import { usePageSEO } from '../lib/seo'
  * the hosted demo.
  *
  * NOTE FOR REVIEWERS: this draft covers what statewave.ai actually
- * does today: marketing site + hosted demo + launch waitlist. It does
+ * does today: marketing site + hosted demo + newsletter. It does
  * NOT cover a paid product or self-hosted Statewave (those are
  * governed separately — Apache-2.0 for the OSS, individual contracts
  * for any future hosted plan). Get a lawyer to vet before publishing,
@@ -17,7 +17,7 @@ export function TermsPage() {
   usePageSEO({
     title: 'Statewave — Terms of Service',
     description:
-      'Terms of Service for the statewave.ai marketing site, the hosted live demo, and the launch waitlist.',
+      'Terms of Service for the statewave.ai marketing site, the hosted live demo, and the newsletter.',
     robots: 'noindex, follow',
     breadcrumb: false,
   })
@@ -30,11 +30,11 @@ export function TermsPage() {
           <h1 className="mt-5 text-[clamp(1.75rem,5vw,2.5rem)] font-semibold text-theme-primary tracking-[-0.02em] leading-[1.15]">
             Terms of Service
           </h1>
-          <p className="mt-5 text-sm text-theme-muted">Last updated: 15 May 2026</p>
+          <p className="mt-5 text-sm text-theme-muted">Last updated: 10 June 2026</p>
           <p className="mt-6 text-base text-theme-secondary leading-relaxed">
             These terms govern your use of <a href="https://www.statewave.ai" className="text-accent hover:underline">statewave.ai</a>{' '}
             (the &ldquo;Site&rdquo;), the live demo at <a href="/demo" className="text-accent hover:underline">/demo</a>,
-            and the launch waitlist at <a href="/launch" className="text-accent hover:underline">/launch</a>. By using any
+            and the newsletter at <a href="/launch" className="text-accent hover:underline">/launch</a>. By using any
             of these you agree to these terms.
           </p>
           <p className="mt-3 text-sm text-theme-muted leading-relaxed">
@@ -78,7 +78,7 @@ export function TermsPage() {
             <li>submit content that is unlawful, harassing, defamatory, or that infringes third-party rights;</li>
             <li>attempt to circumvent technical access controls, identify other demo users, or impersonate others;</li>
             <li>use the demo to process personal data of third parties for whom you do not have a lawful basis;</li>
-            <li>misuse the launch waitlist (e.g. submitting fictitious or third-party emails without consent).</li>
+            <li>misuse the newsletter signup (e.g. submitting fictitious or third-party emails without consent).</li>
           </ul>
           <p className="mt-4 text-sm text-theme-secondary leading-relaxed">
             We may rate-limit, temporarily block, or permanently ban access (without
@@ -108,15 +108,15 @@ export function TermsPage() {
 
       <Section className="bg-surface-1/40">
         <div className="mx-auto max-w-3xl">
-          <Heading id="waitlist" className="text-2xl font-bold text-theme-primary mb-6">
-            Launch waitlist
+          <Heading id="newsletter" className="text-2xl font-bold text-theme-primary mb-6">
+            Newsletter
           </Heading>
           <p className="text-sm text-theme-secondary leading-relaxed">
-            By submitting the form on <a href="/launch" className="text-accent hover:underline">/launch</a>{' '}
-            you consent to receive the launch-day announcement plus at most three follow-up
-            emails over the launch month. You can withdraw consent at any time via the
-            one-click unsubscribe link in every email. Details of the data we collect,
-            how long we keep it, and our processor stack are in the{' '}
+            By subscribing via the form on <a href="/launch" className="text-accent hover:underline">/launch</a>{' '}
+            you consent to receive occasional Statewave project updates by email. You can
+            withdraw consent at any time via the one-click unsubscribe link in every email.
+            Details of the data we collect, how long we keep it, and our processor stack are
+            in the{' '}
             <a href="/privacy" className="text-accent hover:underline">Privacy Policy</a>.
           </p>
         </div>
@@ -161,7 +161,7 @@ export function TermsPage() {
             Warranty disclaimer
           </Heading>
           <p className="text-sm text-theme-secondary leading-relaxed">
-            The Site, the demo, and the waitlist are provided <strong>&ldquo;as is&rdquo;</strong>{' '}
+            The Site, the demo, and the newsletter are provided <strong>&ldquo;as is&rdquo;</strong>{' '}
             and <strong>&ldquo;as available&rdquo;</strong>, without warranty of any kind,
             express or implied, including but not limited to warranties of
             merchantability, fitness for a particular purpose, non-infringement, or
@@ -180,7 +180,7 @@ export function TermsPage() {
             To the maximum extent permitted by applicable law, in no event will the
             Operator be liable for any indirect, incidental, special, consequential, or
             punitive damages, or any loss of profits or revenue, arising out of or in
-            connection with your use of the Site, demo, or waitlist &mdash; whether
+            connection with your use of the Site, demo, or newsletter &mdash; whether
             based on warranty, contract, tort, or any other legal theory. Nothing in
             these terms excludes or limits liability for fraud, gross negligence, or
             wilful misconduct, or any liability that cannot be excluded under

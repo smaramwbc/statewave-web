@@ -108,7 +108,7 @@ export function PressPage() {
             <Fact label="Storage" value="PostgreSQL 14+ with pgvector" />
             <Fact label="Deployment" value="Docker Compose, Helm chart, bare-metal" />
             <Fact label="Model providers" value="100+ via LiteLLM (OpenAI, Anthropic, Bedrock, Ollama, …)" />
-            <Fact label="Launch date" value="Tue June 16, 2026 (09:01 CEST)" />
+            <Fact label="v1.0 released" value="June 9, 2026" />
             <Fact label="Repo" value="github.com/smaramwbc/statewave" />
             <Fact label="Open benchmark" value="github.com/smaramwbc/statewave-bench (row-level LoCoMo data)" />
             <Fact label="Live demo" value="statewave.ai/demo (no signup)" />
