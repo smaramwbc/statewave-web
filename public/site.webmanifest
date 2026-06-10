@@ -1,7 +1,7 @@
 {
   "name": "Statewave",
   "short_name": "Statewave",
-  "description": "Trusted context runtime for AI agents",
+  "description": "Open-source memory runtime for AI agents",
   "start_url": "/",
   "display": "browser",
   "background_color": "#030712",

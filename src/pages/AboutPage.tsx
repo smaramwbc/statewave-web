@@ -40,7 +40,7 @@ const REPOS = [
   { name: 'statewave-ts', desc: 'TypeScript SDK.', url: 'https://github.com/smaramwbc/statewave-ts' },
   { name: 'statewave-docs', desc: 'Architecture, API contracts, ADRs, deployment guides.', url: 'https://github.com/smaramwbc/statewave-docs' },
   { name: 'statewave-examples', desc: 'Runnable examples and end-to-end agent flows.', url: 'https://github.com/smaramwbc/statewave-examples' },
-  { name: 'statewave-connectors', desc: 'GitHub, Markdown/ADRs, MCP, Slack, Discord, Zendesk, Intercom, Freshdesk, Notion, Gmail, n8n, Zapier connectors.', url: 'https://github.com/smaramwbc/statewave-connectors' },
+  { name: 'statewave-connectors', desc: 'GitHub, Jira, Slack, Notion, Discord, Zendesk, Intercom, Freshdesk, Gmail, n8n, Zapier, databases, Markdown/ADRs, MCP, and more — a suite of modular connector packages.', url: 'https://github.com/smaramwbc/statewave-connectors' },
   { name: 'statewave-admin', desc: 'Read-only operator console for inspecting subjects, episodes, memories, and bundles in a running instance.', url: 'https://github.com/smaramwbc/statewave-admin' },
   { name: 'statewave-bench', desc: 'Open evaluation harness — every published proof figure is reproducible by running these scripts.', url: 'https://github.com/smaramwbc/statewave-bench' },
   { name: 'statewave-web', desc: 'This marketing site.', url: 'https://github.com/smaramwbc/statewave-web' },

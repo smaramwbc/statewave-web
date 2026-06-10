@@ -99,7 +99,8 @@ Create an immutable episode.
   "type": "conversation",
   "payload": { "messages": [{"role": "user", "content": "Hello"}] },
   "metadata": {},
-  "provenance": {}
+  "provenance": {},
+  "session_id": "sess-123"
 }
 ```
 
@@ -259,6 +260,14 @@ Permanent deletion of all episodes and memories for a subject.
 { "subject_id": "user-42", "episodes_deleted": 5, "memories_deleted": 12 }
 ```
 
+### GET /v1/version
+
+Public, unauthenticated version discovery — no auth, tenant, or rate limit applies. Returns the running server version and the API contract id.
+
+```json
+{ "version": "1.0.0", "api_contract": "v1" }
+```
+
 ### GET /healthz and GET /readyz
 
 Liveness and readiness probes. `/readyz` returns per-component checks: database, queue, LLM provider.
@@ -287,7 +296,7 @@ sw = StatewaveClient(
 
 Main methods:
 
-- `create_episode(subject_id, source, type, payload, metadata={}, provenance={})`
+- `create_episode(subject_id, source, type, payload, metadata={}, provenance={}, session_id=None)`
 - `create_episodes_batch(episodes: list[dict])` — up to 100 per call
 - `compile_memories(subject_id)` — returns `CompileResult` with `memories_created` and `memories`
 - `get_context(subject_id, task, max_tokens, session_id=None, emit_receipt=False, caller_id=None, caller_type=None)` — returns `ContextBundle`
@@ -303,6 +312,8 @@ Governance (v0.8+):
 - `set_memory_labels(memory_id, labels: list[str])` — sensitivity labels (normalized, capped at 32)
 - `verify_receipt(receipt_id)` — HMAC verification (v0.9+); returns `{valid, key_id, algorithm, reason}`
 - `replay_receipt(receipt_id)` — re-run the original retrieval against current memories with the original policy snapshot (v0.9+); raises `StatewaveUnreplayableError` on HTTP 422
+- `list_suggested_labels(tenant_id=None, subject_id=None, label=None, limit=50, offset=0)` — the review surface for memories carrying auto-derived suggested labels (v1.0; sync and async)
+- `promote_suggested_labels(memory_id, labels, tenant_id=None)` — promote reviewed suggested labels into authoritative `sensitivity_labels` (v1.0; sync and async)
 
 Async client mirrors the same API:
 

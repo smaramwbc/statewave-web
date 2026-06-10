@@ -8,9 +8,9 @@ import { usePageSEO } from '../lib/seo'
  * /whitepaper — landing page for the Statewave technical white paper.
  *
  * The PDF (public/whitepaper/compiled-memory.pdf) is generated and kept in
- * sync by the private statewave-launch repo's CI; this page presents it.
- * Wrapper copy stays in the neutral brand voice per the launch rule — the
- * author byline lives in the PDF itself, not in marketing copy here.
+ * sync out-of-band; this page presents it. Wrapper copy stays in the neutral
+ * brand voice — the author byline lives in the PDF itself, not in marketing
+ * copy here.
  */
 
 const PDF_PATH = '/whitepaper/compiled-memory.pdf'

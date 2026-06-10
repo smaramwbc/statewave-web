@@ -24,7 +24,7 @@ It is **not** the documentation (that's [statewave-docs](https://github.com/smar
 | Framework | Vite 8 + React 19 + TypeScript 6 |
 | Styling | Tailwind CSS v4 (CSS-first config) |
 | Animation | Framer Motion + Canvas 2D (hero) |
-| Routing | React Router (SPA, 5 routes + 404 catch-all) |
+| Routing | React Router (SPA, 15+ routes + 404 catch-all) |
 | Testing | Vitest + Testing Library + happy-dom |
 | CI | GitHub Actions (typecheck → lint → test → build) |
 | Deployment | Vercel (auto-deploy on push to main) |
@@ -235,8 +235,9 @@ checklist for adding new pages.
 - **Crawlability** —
   - [`public/robots.txt`](public/robots.txt) — allows the public site,
     disallows `/api/`, declares the sitemap.
-  - [`public/sitemap.xml`](public/sitemap.xml) — one URL per public route;
-    parity with `PUBLIC_ROUTES` enforced by tests.
+  - `sitemap.xml` — generated at build time into `dist/` from `PUBLIC_ROUTES`
+    plus the published blog posts ([`scripts/generate-sitemap.mjs`](scripts/generate-sitemap.mjs));
+    parity with the route table enforced by tests.
   - [`public/llms.txt`](public/llms.txt) — concise, [llms.txt-format](https://llmstxt.org/)
     summary for AI answer engines (ChatGPT, Perplexity, Claude, Google AI
     Overviews). Lists positioning, core concepts, public pages, docs links,
@@ -268,12 +269,11 @@ checklist for adding new pages.
 `docs/seo.md` walks through it end-to-end. The short version:
 
 1. Add the route to `RouteKey` + `PUBLIC_ROUTES` and a `PAGE_META` entry
-   in `seo-meta.ts`.
-2. Add a URL block to `public/sitemap.xml`.
-3. Add the route to `App.tsx` and call `usePageSEO()` from the new page
+   in `seo-meta.ts` — the build-time sitemap generator picks it up from here.
+2. Add the route to `App.tsx` and call `usePageSEO()` from the new page
    component.
-4. Update `public/llms.txt` if the page is meaningful for AI crawlers.
-5. `npm run test` — the SEO tests fail loudly if any of the above is
+3. Update `public/llms.txt` if the page is meaningful for AI crawlers.
+4. `npm run test` — the SEO tests fail loudly if any of the above is
    missing.
 
 ## Accessibility

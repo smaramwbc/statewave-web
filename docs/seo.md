@@ -13,7 +13,7 @@ files documented below.
 | [`src/lib/seo.tsx`](../src/lib/seo.tsx) | The `usePageSEO` React hook. Updates `document.title`, meta tags, canonical, OG/Twitter, and the per-page JSON-LD bundle on route change. |
 | [`src/lib/faq.ts`](../src/lib/faq.ts) | The FAQ entries rendered by the homepage **and** emitted as `FAQPage` JSON-LD. Single source of truth so visible content and structured data never drift. |
 | [`public/robots.txt`](../public/robots.txt) | Allows the public site, disallows `/api/`, points to the sitemap. |
-| [`public/sitemap.xml`](../public/sitemap.xml) | One entry per `PUBLIC_ROUTES` URL. Verified by `tests/seo-static.test.ts`. |
+| [`scripts/generate-sitemap.mjs`](../scripts/generate-sitemap.mjs) | Generates `dist/sitemap.xml` at build time from `PUBLIC_ROUTES` + the published blog posts. Verified by `tests/seo-static.test.ts`. |
 | [`public/llms.txt`](../public/llms.txt) | AI-crawler / answer-engine summary in the [llms.txt](https://llmstxt.org/) format. Lists positioning, core concepts, public pages, docs, install commands, and integrations. |
 | [`public/og-image.png`](../public/og-image.png) | Default OG/Twitter card (1200×630). Source SVG: [`og-image.svg`](../public/og-image.svg). |
 
@@ -40,17 +40,19 @@ files documented below.
    `breadcrumbLabel`, `ogType`, `priority`, `changefreq`. Keep titles
    ≤ 75 characters and descriptions between 80 and 320 characters — the
    tests in [`seo.test.tsx`](../tests/seo.test.tsx) enforce this.
-3. **Append a URL block to [`public/sitemap.xml`](../public/sitemap.xml)**.
-   The static parity test verifies sitemap ↔ `PUBLIC_ROUTES` equality.
-4. **Add the route to the React Router config in
-   [`src/App.tsx`](../src/App.tsx)** and write the page component.
-5. **Call `usePageSEO()`** at the top of the page component. With no args,
+3. **Add the route to the React Router config in
+   [`src/App.tsx`](../src/App.tsx)** and write the page component. The
+   sitemap is generated from `PUBLIC_ROUTES` at build time
+   ([`scripts/generate-sitemap.mjs`](../scripts/generate-sitemap.mjs)), so
+   there is no `sitemap.xml` to edit by hand; the static parity test verifies
+   the generated sitemap ↔ `PUBLIC_ROUTES` equality.
+4. **Call `usePageSEO()`** at the top of the page component. With no args,
    the hook reads `PAGE_META`, sets all metadata, and emits a default
    `Home → Page` `BreadcrumbList`. Pass `jsonLd: [...]` to layer extra
    structured data (e.g. an `Article`, additional `FAQPage`).
-6. **Update [`public/llms.txt`](../public/llms.txt)** if the new page is
+5. **Update [`public/llms.txt`](../public/llms.txt)** if the new page is
    important enough to surface to AI crawlers — typically yes.
-7. **Run `npm run test`** — the SEO tests will fail loudly if any of the
+6. **Run `npm run test`** — the SEO tests will fail loudly if any of the
    above is missing.
 
 ### Example — page-specific JSON-LD

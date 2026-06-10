@@ -181,7 +181,7 @@ export function WhyPage() {
                 'Need a hosted SaaS (Statewave is self-hosted infrastructure)',
                 'Just need a vector database (use pgvector/Pinecone directly)',
                 'Building chatbots with no multi-session requirement',
-                'Need horizontal scaling today (not yet supported)',
+                'Need verified high-throughput scale today (multi-replica API is supported, but not load-tested beyond 10k subjects; single Postgres, no cross-region clustering)',
                 'Looking for a complete agent framework',
               ].map((item, i) => (
                 <li key={i} className="flex items-start gap-2">
