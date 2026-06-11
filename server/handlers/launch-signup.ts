@@ -113,28 +113,14 @@ function webhookTargets(): WebhookTarget[] {
     targets.push({ name, url, token, payload })
   }
 
-  add(
-    'resend',
-    process.env.LAUNCH_SIGNUP_WEBHOOK_RESEND,
-    process.env.LAUNCH_SIGNUP_WEBHOOK_RESEND_TOKEN,
-    'LAUNCH_SIGNUP_WEBHOOK_RESEND_TOKEN',
-    (signup) =>
-      JSON.stringify({
-        email: signup.email,
-        first_name: signup.name,
-        properties: {
-          role: signup.role,
-          company: signup.company,
-          what_you_would_build: signup.what_you_would_build,
-          // Consent-separation marker. New /launch submissions are ongoing-
-          // newsletter consent and are tagged `statewave.ai/newsletter` so they
-          // are reliably separable from the pre-v1.0 launch-notification cohort
-          // (which carries the old `statewave.ai/launch` source). Do not send
-          // recurring newsletters to the launch cohort without fresh consent.
-          source: 'statewave.ai/newsletter',
-        },
-      }),
-  )
+  // Beehiiv is the AUTHORITATIVE newsletter subscriber store. We deliberately
+  // do NOT also write the subscriber to Resend as a marketing contact:
+  // maintaining two independent recurring-marketing lists would split consent
+  // and unsubscribe state (an unsubscribe in one would not propagate to the
+  // other). Resend remains available for transactional mail only, wired
+  // separately if/when needed — it is intentionally not a second marketing
+  // audience. The Beehiiv target below is therefore the sole newsletter
+  // subscription write, and the all-or-nothing success check gates on it alone.
 
   add(
     'beehiiv',
@@ -313,7 +299,9 @@ export default async function handler(req: Request): Promise<Response> {
     )
   }
 
-  // 6. Forward to webhook targets (all-or-nothing).
+  // 6. Forward to the Beehiiv newsletter target (the authoritative store).
+  // If Beehiiv is unconfigured there are zero targets and we return an honest
+  // 503 — never a silent success that drops the subscription.
   const targets = webhookTargets()
   if (targets.length === 0) {
     return json(
@@ -322,13 +310,12 @@ export default async function handler(req: Request): Promise<Response> {
     )
   }
 
-  // allSettled (not all): every target's request runs to completion even
-  // if a sibling fails first. Promise.all rejects on the first failure and,
-  // once we return the response, a serverless freeze can truncate the
-  // still-in-flight sibling. A non-2xx is a failure: neither Resend nor
-  // Beehiiv documents a distinct "already exists" status, so we do not
-  // speculatively treat an unknown 4xx as success (that would mask real
-  // failures). All-or-nothing is preserved.
+  // allSettled (not all): the request runs to completion even if it fails,
+  // so a serverless freeze after we return cannot truncate an in-flight call.
+  // A non-2xx is a failure: Beehiiv documents no distinct "already exists"
+  // status, so we do not speculatively treat an unknown 4xx as success (that
+  // would mask real failures and falsely report a subscription). Success is
+  // reported only when the Beehiiv write actually succeeds.
   const results = await Promise.allSettled(
     targets.map(async (target) => {
       const controller = new AbortController()
