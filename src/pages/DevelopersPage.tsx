@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { Section } from '../components/Section'
@@ -165,17 +165,45 @@ export function DevelopersPage() {
  * Compose, auto-detects/configures the visitor's MCP clients, optional LLM key,
  * seeds the repo. Content (one-liner, ports 8100/8080, default LiteLLM model,
  * detected clients, teardown) must stay accurate to
- * statewave-connectors/packages/cli/src/commands/quickstart.ts. */
-const QUICKSTART_ONE_LINER = 'npx @statewavedev/connectors-cli quickstart'
+ * statewave-connectors/packages/cli/src/commands/quickstart.ts.
+ *
+ * /install → statewave-connectors/scripts/bootstrap.sh  (macOS / Linux)
+ * /install.ps1 → statewave-connectors/scripts/bootstrap.ps1  (Windows)
+ * Both are Vercel redirects — no Node.js required on the visitor's machine. */
+const INSTALL_UNIX = 'curl -fsSL https://statewave.ai/install | sh'
+const INSTALL_WIN  = 'irm https://statewave.ai/install.ps1 | iex'
+const NPX_FALLBACK = 'npx @statewavedev/connectors-cli quickstart'
 
 function QuickstartCommand() {
+  const [os, setOs] = useState<'unix' | 'windows'>('unix')
+  const cmd = os === 'unix' ? INSTALL_UNIX : INSTALL_WIN
+  const prompt = os === 'unix' ? '$' : '>'
   return (
-    <div className="flex items-center gap-3 rounded-xl border border-theme-border bg-surface-2 px-4 py-3 font-mono text-sm sm:text-base">
-      <span className="select-none text-accent">$</span>
-      <code className="flex-1 overflow-x-auto whitespace-nowrap text-theme-primary">
-        {QUICKSTART_ONE_LINER}
-      </code>
-      <CodeCopyButton code={QUICKSTART_ONE_LINER} label="Copy the quickstart command" />
+    <div>
+      <div className="flex gap-1 mb-2">
+        {(['unix', 'windows'] as const).map((id) => (
+          <button
+            key={id}
+            type="button"
+            onClick={() => setOs(id)}
+            className={[
+              'px-3 py-1 rounded-lg text-xs font-medium transition-colors',
+              os === id
+                ? 'bg-accent/10 text-accent'
+                : 'text-theme-muted hover:text-theme-secondary',
+            ].join(' ')}
+          >
+            {id === 'unix' ? 'macOS / Linux' : 'Windows'}
+          </button>
+        ))}
+      </div>
+      <div className="flex items-center gap-3 rounded-xl border border-theme-border bg-surface-2 px-4 py-3 font-mono text-sm sm:text-base">
+        <span className="select-none text-accent">{prompt}</span>
+        <code className="flex-1 overflow-x-auto whitespace-nowrap text-theme-primary">
+          {cmd}
+        </code>
+        <CodeCopyButton code={cmd} label="Copy install command" />
+      </div>
     </div>
   )
 }
@@ -236,8 +264,7 @@ function QuickstartLead() {
           <div className="mt-6">
             <QuickstartCommand />
             <p className="mt-2 font-mono text-xs text-theme-muted">
-              Already installed? Just{' '}
-              <span className="text-theme-secondary">statewave-connectors quickstart</span>
+              Have Node.js 20+? <span className="text-theme-secondary">{NPX_FALLBACK}</span>
             </p>
           </div>
           <p className="mt-5 text-xs text-theme-muted">
