@@ -37,6 +37,8 @@ export function DevelopersPage() {
         </div>
       </section>
 
+      <QuickstartLead />
+
       <Section>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[
@@ -157,6 +159,101 @@ export function DevelopersPage() {
 
       <QuickInstallSection />
     </>
+  )
+}
+
+/* One-command quickstart — the fastest path to a running, MCP-wired Statewave.
+ *
+ * Mirrors statewave-connectors quickstart: boots api + admin + db via Docker
+ * Compose, auto-detects/configures the visitor's MCP clients, optional LLM key,
+ * seeds the repo. Content (one-liner, ports 8100/8080, default LiteLLM model,
+ * detected clients, teardown) must stay accurate to
+ * statewave-connectors/packages/cli/src/commands/quickstart.ts. */
+const QUICKSTART_ONE_LINER = 'npx @statewavedev/connectors-cli quickstart'
+
+function QuickstartCommand() {
+  return (
+    <div className="flex items-center gap-3 rounded-xl border border-theme-border bg-surface-2 px-4 py-3 font-mono text-sm sm:text-base">
+      <span className="select-none text-accent">$</span>
+      <code className="flex-1 overflow-x-auto whitespace-nowrap text-theme-primary">
+        {QUICKSTART_ONE_LINER}
+      </code>
+      <CodeCopyButton code={QUICKSTART_ONE_LINER} label="Copy the quickstart command" />
+    </div>
+  )
+}
+
+/* Faithful, condensed render of the real CLI output. Theme-aware: structure
+ * uses surface/border/text tokens that flip with [data-theme], and the
+ * semantic accents (emerald-600 success, brand-500 links) are chosen to read
+ * on both the light and dark surface-1 panel. The window dots stay their
+ * literal traffic-light colors (at reduced opacity) in both themes, matching
+ * the existing Quick-install terminal. */
+function QuickstartTerminal() {
+  return (
+    <div className="overflow-hidden rounded-2xl border border-theme-border bg-surface-1 shadow-xl shadow-black/10">
+      <div className="flex items-center gap-2 border-b border-theme-border px-4 py-3">
+        <span className="h-3 w-3 rounded-full bg-red-500/70" />
+        <span className="h-3 w-3 rounded-full bg-yellow-500/70" />
+        <span className="h-3 w-3 rounded-full bg-green-500/70" />
+        <span className="ml-3 font-mono text-xs text-theme-muted">statewave-connectors quickstart</span>
+      </div>
+      <pre className="overflow-x-auto px-4 py-4 font-mono text-[12.5px] leading-relaxed text-theme-secondary">
+        <span className="text-theme-muted">Which MCP clients should I set up?</span>
+        {'\n'}  1. Claude Code              <span className="text-emerald-600">✓ detected</span>
+        {'\n'}  2. Claude Desktop           <span className="text-emerald-600">✓ detected</span>
+        {'\n'}  3. Cursor                   <span className="text-emerald-600">✓ detected</span>
+        {'\n'}  4. VS Code (GitHub Copilot) <span className="text-emerald-600">✓ detected</span>
+        {'\n'}  5. Codex CLI                <span className="text-emerald-600">✓ detected</span>
+        {'\n'}  <span className="text-theme-muted">Enter = detected, 'a' = all, 'n' = none:</span> <span className="text-brand-500">a</span>
+        {'\n\n'}<span className="text-theme-muted">Optional — an LLM API key sharpens the memory:</span>
+        {'\n'}  Paste an LLM API key, or press Enter to skip:
+        {'\n\n'}Starting Statewave (api + admin + db) via docker compose…
+        {'\n'} <span className="text-emerald-600">✔</span> Container statewave-quickstart-db-1     <span className="text-emerald-600">Healthy</span>
+        {'\n'} <span className="text-emerald-600">✔</span> Container statewave-quickstart-api-1    <span className="text-emerald-600">Started</span>
+        {'\n'} <span className="text-emerald-600">✔</span> Container statewave-quickstart-admin-1  <span className="text-emerald-600">Started</span>
+        {'\n'}<span className="text-emerald-600">✓</span> Server healthy at <span className="text-brand-500">http://localhost:8100</span>.
+        {'\n\n'}<span className="text-emerald-600">✓</span> Configured Claude Code <span className="text-theme-muted">(server id: statewave)</span>
+        {'\n'}<span className="text-emerald-600">✓</span> Configured Cursor · VS Code (Copilot) · Codex CLI
+        {'\n\n'}Seeding repo:your-project from this repo…
+        {'\n'}<span className="text-emerald-600">✓</span> ingested 139/139 episodes — compiled: <span className="text-emerald-600">yes</span>
+        {'\n\n'}<span className="text-theme-muted">Admin console: </span><span className="text-brand-500">http://localhost:8080</span>
+      </pre>
+    </div>
+  )
+}
+
+function QuickstartLead() {
+  return (
+    <Section className="!pt-0">
+      <div className="grid gap-10 lg:grid-cols-2 lg:items-start">
+        <div>
+          <span className="block text-[10px] font-medium uppercase tracking-wider text-accent">Fastest start</span>
+          <Heading id="one-command" className="mt-2 text-2xl md:text-3xl font-bold text-theme-primary tracking-tight">
+            Zero to memory in one command
+          </Heading>
+          <p className="mt-4 text-theme-muted leading-relaxed">
+            One line boots a local Statewave, wires it into your MCP clients, and
+            seeds your repo — self-hosted, offline, no account.
+          </p>
+          <div className="mt-6">
+            <QuickstartCommand />
+            <p className="mt-2 font-mono text-xs text-theme-muted">
+              Already installed? Just{' '}
+              <span className="text-theme-secondary">statewave-connectors quickstart</span>
+            </p>
+          </div>
+          <p className="mt-5 text-xs text-theme-muted">
+            Tear it down with{' '}
+            <span className="font-mono text-theme-secondary">statewave-connectors quickstart --down</span>.
+            Manual Docker &amp; SDK paths are below.
+          </p>
+        </div>
+        <div className="lg:pl-4">
+          <QuickstartTerminal />
+        </div>
+      </div>
+    </Section>
   )
 }
 
