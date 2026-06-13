@@ -162,19 +162,18 @@ function HeroSection() {
             <HeroInstallCommand />
           </motion.div>
 
-          {/* Hidden demo trigger — keeps ref/tracking wired without showing a button */}
-          <button
-            ref={heroCtaRef}
-            type="button"
-            onClick={() => openWidget()}
-            className="sr-only"
-            tabIndex={-1}
-            aria-hidden="true"
-          >
-            Try the demo
-          </button>
-
-          <motion.div variants={fadeUp} className="mt-5">
+          <motion.div variants={fadeUp} className="mt-5 flex flex-wrap items-center gap-3">
+            <button
+              ref={heroCtaRef}
+              type="button"
+              onClick={() => openWidget()}
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-surface-2 text-theme-primary border border-theme-border text-sm font-medium hover:bg-surface-3 hover:border-theme-border transition-[background-color,border-color] duration-150"
+            >
+              <svg className="w-3.5 h-3.5 text-theme-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+              </svg>
+              Try the agent demo
+            </button>
             <a
               href="https://github.com/smaramwbc/statewave"
               target="_blank"
