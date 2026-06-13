@@ -82,6 +82,16 @@ Any LiteLLM identifier works. Self-hosted models (Ollama, vLLM) keep compilation
 - **Hosted extract, local vectors.** LLM compiler against a self-hosted model + self-hosted embeddings. Nothing leaves if both run in your VPC.
 - **Default cloud setup.** LLM compiler + hosted embeddings. Episode batches and embedding text leave for the configured provider(s).
 
+## Quickstart (run locally)
+
+One command boots a local Statewave — API + read-only admin console + Postgres (pgvector) via Docker Compose — auto-configures your MCP clients (Claude Code, Claude Desktop, Cursor, VS Code Copilot, Codex CLI), and seeds a repo. Self-hosted, offline, no account.
+
+- macOS / Linux: `curl -fsSL https://www.statewave.ai/install | sh`
+- Windows (PowerShell): `powershell -Command "irm https://www.statewave.ai/install.ps1 | iex"`
+- Node.js 20+ alternative: `npx @statewavedev/connectors-cli quickstart`
+
+The API comes up at `http://localhost:8100` and the admin console at `http://localhost:8080`. Tear it down with `statewave-connectors quickstart --down`. For a manual setup, clone `https://github.com/smaramwbc/statewave` and run `docker compose up -d`.
+
 ## REST API v1
 
 Base URL: `http://localhost:8100` (default Docker Compose). All endpoints accept and return JSON.

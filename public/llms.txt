@@ -52,7 +52,12 @@ Statewave stores immutable episodes, compiles them into typed memories with prov
 
 ## Install
 
-- Server: clone `https://github.com/smaramwbc/statewave` and run `docker compose up -d`.
+- Quickstart (one command) — boots a local Statewave (API + admin console + Postgres via Docker Compose), auto-configures your MCP clients (Claude Code, Claude Desktop, Cursor, VS Code Copilot, Codex CLI), and seeds a repo. Self-hosted, offline, no account.
+  - macOS / Linux: `curl -fsSL https://www.statewave.ai/install | sh`
+  - Windows: `powershell -Command "irm https://www.statewave.ai/install.ps1 | iex"`
+  - Node.js 20+ alternative: `npx @statewavedev/connectors-cli quickstart`
+  - API at `http://localhost:8100`, admin at `http://localhost:8080`; tear down with `statewave-connectors quickstart --down`.
+- Server (manual): clone `https://github.com/smaramwbc/statewave` and run `docker compose up -d`.
 - Python SDK: `pip install statewave`.
 - TypeScript SDK: `npm install @statewavedev/sdk`.
 
