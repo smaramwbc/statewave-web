@@ -341,6 +341,13 @@ function HeroSection() {
             </a>
           </motion.div>
 
+          {/* One-liner install — compact hero variant of the Developers page
+              quickstart. OS tab auto-selects from userAgent; copy button lets
+              visitors grab it without scrolling to /developers. */}
+          <motion.div variants={fadeUp} className="mt-6">
+            <HeroInstallCommand />
+          </motion.div>
+
           {/* Secondary affordance for visitors who came with a question rather
               than wanting the comparison demo. Opens the widget directly to the
               docs-grounded Statewave Support persona. */}
@@ -389,6 +396,54 @@ function HeroSection() {
         </motion.div>
       </div>
     </section>
+  )
+}
+
+const INSTALL_UNIX = 'curl -fsSL https://www.statewave.ai/install | sh'
+const INSTALL_WIN  = 'powershell -Command "irm https://www.statewave.ai/install.ps1 | iex"'
+
+function HeroInstallCommand() {
+  const [os, setOs] = useState<'unix' | 'windows'>(() =>
+    typeof navigator !== 'undefined' && /Win/i.test(navigator.userAgent) ? 'windows' : 'unix'
+  )
+  const cmd = os === 'unix' ? INSTALL_UNIX : INSTALL_WIN
+  const prompt = os === 'unix' ? '$' : '>'
+  return (
+    <div>
+      {/* OS tab strip */}
+      <div className="flex gap-1 mb-1.5">
+        {(['unix', 'windows'] as const).map((id) => (
+          <button
+            key={id}
+            type="button"
+            onClick={() => setOs(id)}
+            className={[
+              'px-2.5 py-0.5 rounded text-[11px] font-medium transition-colors',
+              os === id
+                ? 'bg-accent/10 text-accent'
+                : 'text-theme-muted hover:text-theme-secondary',
+            ].join(' ')}
+          >
+            {id === 'unix' ? 'macOS / Linux' : 'Windows'}
+          </button>
+        ))}
+      </div>
+
+      {/* Command pill */}
+      <div className="inline-flex items-center gap-2 rounded-lg border border-theme-border/70 bg-surface-2/70 backdrop-blur-sm px-3.5 py-2 font-mono text-xs sm:text-sm max-w-full">
+        <span className="select-none text-accent/70 shrink-0">{prompt}</span>
+        <code className="overflow-x-auto whitespace-nowrap text-theme-secondary">{cmd}</code>
+        <CodeCopyButton code={cmd} label="Copy install command" />
+      </div>
+
+      {/* Nudge to Developers page */}
+      <p className="mt-1.5 text-[11px] text-theme-muted/70">
+        Boots a local server + wires your MCP clients in one step.{' '}
+        <Link to="/developers" className="text-theme-muted hover:text-accent transition-colors underline-offset-2 hover:underline">
+          Full guide →
+        </Link>
+      </p>
+    </div>
   )
 }
 
