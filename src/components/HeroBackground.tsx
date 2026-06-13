@@ -520,6 +520,10 @@ export function HeroBackground({ contentZoneRef }: { contentZoneRef?: React.RefO
       ? 2 * rawProgress * rawProgress
       : 1 - Math.pow(-2 * rawProgress + 2, 2) / 2
     progressRef.current = progress
+    // Zone clamping blends in over the last 30% of the settle animation so
+    // particles can fly freely through the text on their initial flight and
+    // only get pushed aside as they approach their resting positions.
+    const zoneStrength = exclusionZone ? Math.max(0, (progress - 0.7) / 0.3) : 0
 
     // Clear
     ctx.save()
@@ -572,9 +576,10 @@ export function HeroBackground({ contentZoneRef }: { contentZoneRef?: React.RefO
       const gc = groupCenters[s.group]
       s.x = s.startX + (gc.x - s.startX) * progress + Math.sin(t * 0.15 + s.phase) * 0.003 * progress
       s.y = s.startY + (gc.y - s.startY) * progress + Math.cos(t * 0.12 + s.phase) * 0.003 * progress
-      if (exclusionZone) {
-        const cz = pushOutsideZone(s.x, s.y, exclusionZone)
-        s.x = cz.x; s.y = cz.y
+      if (zoneStrength > 0) {
+        const cz = pushOutsideZone(s.x, s.y, exclusionZone!)
+        s.x = s.x + (cz.x - s.x) * zoneStrength
+        s.y = s.y + (cz.y - s.y) * zoneStrength
       }
     }
 
@@ -596,9 +601,10 @@ export function HeroBackground({ contentZoneRef }: { contentZoneRef?: React.RefO
       const chaos = (1 - progress) * 0.025
       m.x = baseX + Math.sin(t * 0.3 + m.phase * 3) * chaos + Math.sin(t * 0.15 + m.phase) * 0.003 * progress
       m.y = baseY + Math.cos(t * 0.25 + m.phase * 2) * chaos + Math.cos(t * 0.12 + m.phase * 1.3) * 0.002 * progress
-      if (exclusionZone) {
-        const cz = pushOutsideZone(m.x, m.y, exclusionZone)
-        m.x = cz.x; m.y = cz.y
+      if (zoneStrength > 0) {
+        const cz = pushOutsideZone(m.x, m.y, exclusionZone!)
+        m.x = m.x + (cz.x - m.x) * zoneStrength
+        m.y = m.y + (cz.y - m.y) * zoneStrength
       }
     }
 
@@ -646,9 +652,10 @@ export function HeroBackground({ contentZoneRef }: { contentZoneRef?: React.RefO
       const chaos = (1 - progress) * 0.04
       e.x = baseX + Math.sin(t * 0.5 + e.phase * 4) * chaos + Math.sin(t * 0.2 + e.phase) * 0.002 * progress
       e.y = baseY + Math.cos(t * 0.4 + e.phase * 3) * chaos + Math.cos(t * 0.15 + e.phase * 1.5) * 0.002 * progress
-      if (exclusionZone) {
-        const cz = pushOutsideZone(e.x, e.y, exclusionZone)
-        e.x = cz.x; e.y = cz.y
+      if (zoneStrength > 0) {
+        const cz = pushOutsideZone(e.x, e.y, exclusionZone!)
+        e.x = e.x + (cz.x - e.x) * zoneStrength
+        e.y = e.y + (cz.y - e.y) * zoneStrength
       }
     }
 
