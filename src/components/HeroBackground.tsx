@@ -218,24 +218,27 @@ function buildFromLiveData(data: LiveSubjectData[]): { subjects: Subject[]; memo
   return { subjects, memories, episodes }
 }
 
-// Pushes a normalized (0-1) point outside `zone` if it lands inside.
-// Finds the nearest edge and moves the point to it so clusters stay clear
-// of the hero text area without any visual gap or snap artifact.
-function pushOutsideZone(
+// Fade buffer: how far outside the zone boundary the fade starts (normalized).
+const ZONE_FADE_BUFFER = 0.04
+
+// Returns an alpha multiplier (0-1) for a particle at normalized (x, y).
+// Inside the zone: (1 - strength). Within ZONE_FADE_BUFFER outside: eases in.
+// Fully outside: 1 (no change).
+function zoneFade(
   x: number,
   y: number,
-  zone: { l: number; r: number; t: number; b: number },
-): { x: number; y: number } {
-  if (x < zone.l || x > zone.r || y < zone.t || y > zone.b) return { x, y }
-  const dLeft = x - zone.l
-  const dRight = zone.r - x
-  const dTop = y - zone.t
-  const dBottom = zone.b - y
-  const min = Math.min(dLeft, dRight, dTop, dBottom)
-  if (min === dLeft) return { x: zone.l, y }
-  if (min === dRight) return { x: zone.r, y }
-  if (min === dTop) return { x, y: zone.t }
-  return { x, y: zone.b }
+  zone: { l: number; r: number; t: number; b: number } | null,
+  strength: number,
+): number {
+  if (!zone || strength <= 0) return 1
+  const inX = x >= zone.l && x <= zone.r
+  const inY = y >= zone.t && y <= zone.b
+  if (inX && inY) return 1 - strength
+  const dx = Math.max(zone.l - x, x - zone.r, 0)
+  const dy = Math.max(zone.t - y, y - zone.b, 0)
+  const dist = Math.sqrt(dx * dx + dy * dy)
+  if (dist >= ZONE_FADE_BUFFER) return 1
+  return 1 - strength * (1 - dist / ZONE_FADE_BUFFER)
 }
 
 /**
@@ -282,6 +285,8 @@ export function HeroBackground({ contentZoneRef }: { contentZoneRef?: React.RefO
   const tooltipDismissRef = useRef<number | null>(null)
   const themeRef = useRef(isDark)
   const startTimeRef = useRef<number>(0)
+  const exclusionZoneRef = useRef<{ l: number; r: number; t: number; b: number } | null>(null)
+  const zoneStrengthRef = useRef(0)
   const [tooltip, setTooltip] = useState<{ x: number; y: number; text: string; type: string; group: number; kind: 'memory' | 'episode' | 'subject' } | null>(null)
   const hoveredRef = useRef<{ kind: 'memory' | 'episode' | 'subject'; idx: number } | null>(null)
   // True while the pointer is over the hover card itself. Lets the visitor
@@ -352,8 +357,11 @@ export function HeroBackground({ contentZoneRef }: { contentZoneRef?: React.RefO
     // Check subjects first (largest circles)
     const canvasW = canvas.width ?? 1000
     const canvasH = canvas.height ?? 600
+    const hoverZone = exclusionZoneRef.current
+    const hoverZoneStrength = zoneStrengthRef.current
     for (let i = 0; i < subjectsRef.current.length; i++) {
       const s = subjectsRef.current[i]
+      if (hoverZone && hoverZoneStrength > 0.5 && zoneFade(s.x, s.y, hoverZone, 1) < 0.5) continue
       const dx = s.x - mx
       const dy = s.y - my
       const dist = Math.sqrt(dx * dx + dy * dy)
@@ -374,6 +382,7 @@ export function HeroBackground({ contentZoneRef }: { contentZoneRef?: React.RefO
     // Check memories
     for (let i = 0; i < memoriesRef.current.length; i++) {
       const m = memoriesRef.current[i]
+      if (hoverZone && hoverZoneStrength > 0.5 && zoneFade(m.x, m.y, hoverZone, 1) < 0.5) continue
       const dx = m.x - mx
       const dy = m.y - my
       const dist = Math.sqrt(dx * dx + dy * dy)
@@ -397,6 +406,7 @@ export function HeroBackground({ contentZoneRef }: { contentZoneRef?: React.RefO
     // Check episodes
     for (let i = 0; i < episodesRef.current.length; i++) {
       const ep = episodesRef.current[i]
+      if (hoverZone && hoverZoneStrength > 0.5 && zoneFade(ep.x, ep.y, hoverZone, 1) < 0.5) continue
       const dx = ep.x - mx
       const dy = ep.y - my
       const dist = Math.sqrt(dx * dx + dy * dy)
@@ -520,10 +530,12 @@ export function HeroBackground({ contentZoneRef }: { contentZoneRef?: React.RefO
       ? 2 * rawProgress * rawProgress
       : 1 - Math.pow(-2 * rawProgress + 2, 2) / 2
     progressRef.current = progress
-    // Zone clamping blends in over the last 30% of the settle animation so
+    // Zone fade blends in over the last 30% of the settle animation so
     // particles can fly freely through the text on their initial flight and
-    // only get pushed aside as they approach their resting positions.
+    // only fade out as they approach their resting positions.
     const zoneStrength = exclusionZone ? Math.max(0, (progress - 0.7) / 0.3) : 0
+    exclusionZoneRef.current = exclusionZone
+    zoneStrengthRef.current = zoneStrength
 
     // Clear
     ctx.save()
@@ -576,11 +588,6 @@ export function HeroBackground({ contentZoneRef }: { contentZoneRef?: React.RefO
       const gc = groupCenters[s.group]
       s.x = s.startX + (gc.x - s.startX) * progress + Math.sin(t * 0.15 + s.phase) * 0.003 * progress
       s.y = s.startY + (gc.y - s.startY) * progress + Math.cos(t * 0.12 + s.phase) * 0.003 * progress
-      if (zoneStrength > 0) {
-        const cz = pushOutsideZone(s.x, s.y, exclusionZone!)
-        s.x = s.x + (cz.x - s.x) * zoneStrength
-        s.y = s.y + (cz.y - s.y) * zoneStrength
-      }
     }
 
     // Update memory positions (orbit around their subject)
@@ -601,11 +608,6 @@ export function HeroBackground({ contentZoneRef }: { contentZoneRef?: React.RefO
       const chaos = (1 - progress) * 0.025
       m.x = baseX + Math.sin(t * 0.3 + m.phase * 3) * chaos + Math.sin(t * 0.15 + m.phase) * 0.003 * progress
       m.y = baseY + Math.cos(t * 0.25 + m.phase * 2) * chaos + Math.cos(t * 0.12 + m.phase * 1.3) * 0.002 * progress
-      if (zoneStrength > 0) {
-        const cz = pushOutsideZone(m.x, m.y, exclusionZone!)
-        m.x = m.x + (cz.x - m.x) * zoneStrength
-        m.y = m.y + (cz.y - m.y) * zoneStrength
-      }
     }
 
     // Update episode positions.
@@ -652,11 +654,6 @@ export function HeroBackground({ contentZoneRef }: { contentZoneRef?: React.RefO
       const chaos = (1 - progress) * 0.04
       e.x = baseX + Math.sin(t * 0.5 + e.phase * 4) * chaos + Math.sin(t * 0.2 + e.phase) * 0.002 * progress
       e.y = baseY + Math.cos(t * 0.4 + e.phase * 3) * chaos + Math.cos(t * 0.15 + e.phase * 1.5) * 0.002 * progress
-      if (zoneStrength > 0) {
-        const cz = pushOutsideZone(e.x, e.y, exclusionZone!)
-        e.x = e.x + (cz.x - e.x) * zoneStrength
-        e.y = e.y + (cz.y - e.y) * zoneStrength
-      }
     }
 
     // Episodes reach the subject through the memories that cite them.
@@ -674,6 +671,11 @@ export function HeroBackground({ contentZoneRef }: { contentZoneRef?: React.RefO
         const e = episodes[ei]
         const subj = subjects[e.subjectIdx]
         if (!subj) continue
+        const lf = Math.min(
+          zoneFade(e.x, e.y, exclusionZone, zoneStrength),
+          zoneFade(subj.x, subj.y, exclusionZone, zoneStrength),
+        )
+        if (lf < 0.01) continue
         const ex = e.x * w
         const ey = e.y * h
         const sx = subj.x * w
@@ -681,7 +683,7 @@ export function HeroBackground({ contentZoneRef }: { contentZoneRef?: React.RefO
         ctx.beginPath()
         ctx.moveTo(ex, ey)
         ctx.lineTo(sx, sy)
-        ctx.strokeStyle = groupColor(e.group, dark ? 60 : 50, orphanAlpha)
+        ctx.strokeStyle = groupColor(e.group, dark ? 60 : 50, orphanAlpha * lf)
         ctx.lineWidth = 0.6
         ctx.stroke()
       }
@@ -699,12 +701,17 @@ export function HeroBackground({ contentZoneRef }: { contentZoneRef?: React.RefO
         for (const epIdx of m.sourceEpisodeIdxs) {
           const e = episodes[epIdx]
           if (!e) continue
+          const lf = Math.min(
+            zoneFade(m.x, m.y, exclusionZone, zoneStrength),
+            zoneFade(e.x, e.y, exclusionZone, zoneStrength),
+          )
+          if (lf < 0.01) continue
           const ex = e.x * w
           const ey = e.y * h
           ctx.beginPath()
           ctx.moveTo(mx, my)
           ctx.lineTo(ex, ey)
-          ctx.strokeStyle = groupColor(m.group, dark ? 70 : 45, provenanceAlpha)
+          ctx.strokeStyle = groupColor(m.group, dark ? 70 : 45, provenanceAlpha * lf)
           ctx.lineWidth = 0.9
           ctx.stroke()
         }
@@ -722,14 +729,20 @@ export function HeroBackground({ contentZoneRef }: { contentZoneRef?: React.RefO
       const maxDist = 220
 
       if (dist < maxDist && progress > 0.2) {
-        const strength = (1 - dist / maxDist) * progress
-        const alpha = strength * (dark ? 0.3 : 0.22)
-        ctx.beginPath()
-        ctx.moveTo(mx, my)
-        ctx.lineTo(sx, sy)
-        ctx.strokeStyle = groupColor(m.group, dark ? 72 : 45, alpha)
-        ctx.lineWidth = Math.max(0.7, strength * 1.6)
-        ctx.stroke()
+        const lf = Math.min(
+          zoneFade(m.x, m.y, exclusionZone, zoneStrength),
+          zoneFade(subj.x, subj.y, exclusionZone, zoneStrength),
+        )
+        if (lf >= 0.01) {
+          const strength = (1 - dist / maxDist) * progress
+          const alpha = strength * (dark ? 0.3 : 0.22) * lf
+          ctx.beginPath()
+          ctx.moveTo(mx, my)
+          ctx.lineTo(sx, sy)
+          ctx.strokeStyle = groupColor(m.group, dark ? 72 : 45, alpha)
+          ctx.lineWidth = Math.max(0.7, strength * 1.6)
+          ctx.stroke()
+        }
       }
     }
 
@@ -737,12 +750,16 @@ export function HeroBackground({ contentZoneRef }: { contentZoneRef?: React.RefO
     const hovered = hoveredRef.current
     for (let ei = 0; ei < episodes.length; ei++) {
       const e = episodes[ei]
+      const ef = zoneFade(e.x, e.y, exclusionZone, zoneStrength)
+      if (ef < 0.01) continue
       const px = e.x * w
       const py = e.y * h
       const isHovered = hovered?.kind === 'episode' && hovered.idx === ei
       const alpha = isHovered ? 1 : (dark ? 0.65 + progress * 0.25 : 0.7 + progress * 0.25)
       const radius = isHovered ? e.size * 2 : e.size
 
+      ctx.save()
+      ctx.globalAlpha = ef
       if (isHovered) {
         ctx.beginPath()
         ctx.arc(px, py, radius + 4, 0, Math.PI * 2)
@@ -757,15 +774,20 @@ export function HeroBackground({ contentZoneRef }: { contentZoneRef?: React.RefO
         ? groupColor(e.group, dark ? 85 : 32, 0.98)
         : groupColor(e.group, dark ? 68 : 38, alpha)
       ctx.fill()
+      ctx.restore()
     }
 
     // Draw memories (larger nodes with glow — colored per group)
     for (let mi = 0; mi < memories.length; mi++) {
       const m = memories[mi]
+      const mf = zoneFade(m.x, m.y, exclusionZone, zoneStrength)
+      if (mf < 0.01) continue
       const px = m.x * w
       const py = m.y * h
       const isHovered = hovered?.kind === 'memory' && hovered.idx === mi
       const alpha = isHovered ? 1 : (dark ? 0.7 + progress * 0.2 : 0.5 + progress * 0.2)
+      ctx.save()
+      ctx.globalAlpha = mf
 
       // Glow
       if (progress > 0.2) {
@@ -806,13 +828,18 @@ export function HeroBackground({ contentZoneRef }: { contentZoneRef?: React.RefO
         ctx.lineWidth = 0.8
         ctx.stroke()
       }
+      ctx.restore()
     }
 
     // Draw subject nodes (largest — center of each group)
     for (const s of subjects) {
+      const sf = zoneFade(s.x, s.y, exclusionZone, zoneStrength)
+      if (sf < 0.01) continue
       const px = s.x * w
       const py = s.y * h
       const alpha = dark ? 0.8 + progress * 0.2 : 0.6 + progress * 0.3
+      ctx.save()
+      ctx.globalAlpha = sf
 
       // Pulsing attention ring (radiates outward)
       if (progress > 0.5) {
@@ -880,9 +907,8 @@ export function HeroBackground({ contentZoneRef }: { contentZoneRef?: React.RefO
         ctx.shadowBlur = 0
         ctx.shadowColor = 'transparent'
       }
+      ctx.restore()
     }
-
-
 
     frameRef.current = requestAnimationFrame(draw)
   }, [])
