@@ -43,7 +43,7 @@ describe('ChatWidget', () => {
       </TestWrapper>
     )
 
-    expect(screen.getByText('Try the demo')).toBeInTheDocument()
+    expect(screen.getByText('Ask Support')).toBeInTheDocument()
   })
 })
 

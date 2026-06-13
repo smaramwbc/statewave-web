@@ -13,6 +13,7 @@ import { render, screen, fireEvent, act, waitFor, cleanup } from '@testing-libra
 import { BrowserRouter } from 'react-router-dom'
 import { ThemeProvider } from '../src/lib/theme'
 import { ChatWidgetProvider } from '../src/lib/widget-context'
+import { useChatWidget } from '../src/lib/widget-context-api'
 import { ChatWidget } from '../src/components/ChatWidget'
 
 const ONBOARDING_KEY = 'statewave-demo-onboarding-v1'
@@ -25,6 +26,14 @@ function TestWrapper({ children }: { children: React.ReactNode }) {
       </ThemeProvider>
     </BrowserRouter>
   )
+}
+
+/** Opens the widget in demo mode (no args = visitor-memory persona selector).
+ *  The floating launcher is now the support entry point; use this helper in
+ *  tests that exercise demo-only features like the guided tour. */
+function DemoModeOpener() {
+  const { openWidget } = useChatWidget()
+  return <button type="button" onClick={() => openWidget()}>Open Demo</button>
 }
 
 /**
@@ -87,38 +96,39 @@ describe('Widget onboarding — welcome panel', () => {
       </TestWrapper>,
     )
 
-    // Click the floating launcher to open the widget.
-    fireEvent.click(screen.getByText('Try the demo'))
+    // Click the floating launcher — now the support entry point.
+    fireEvent.click(screen.getByText('Ask Support'))
 
-    // The default persona is the docs-grounded Statewave Support — its welcome
-    // headline names that explicitly so first-time visitors know what they're
-    // looking at.
-    expect(await screen.findByText(/Ask Statewave Support/i)).toBeInTheDocument()
+    // Support-mode welcome panel appears with the support-oriented heading.
+    expect(await screen.findByTestId('onboarding-welcome')).toBeInTheDocument()
+    expect(screen.getByText(/How can I help\?/i)).toBeInTheDocument()
     // The Next CTA is the only way forward from the welcome panel.
     expect(screen.getByRole('button', { name: /^Next$/i })).toBeInTheDocument()
-    // The comparison columns should NOT render yet
+    // Comparison columns (demo-only) must not render in support mode.
     expect(screen.queryByText(/Without Memory/i)).toBeNull()
   })
 
-  it('Next dismisses the welcome panel and reveals the comparison columns', async () => {
+  it('Next dismisses the welcome panel and reveals the support chat surface', async () => {
     render(
       <TestWrapper>
         <ChatWidget />
       </TestWrapper>,
     )
 
-    fireEvent.click(screen.getByText('Try the demo'))
+    fireEvent.click(screen.getByText('Ask Support'))
     const next = await screen.findByRole('button', { name: /^Next$/i })
 
     act(() => {
       fireEvent.click(next)
     })
 
-    // Welcome is gone, columns are visible.
+    // Welcome is gone; support-mode header and chat surface are visible.
     await waitFor(() => {
-      expect(screen.queryByText(/Ask Statewave Support/i)).toBeNull()
+      expect(screen.queryByTestId('onboarding-welcome')).toBeNull()
     })
-    expect(screen.getByText(/Without Memory/i)).toBeInTheDocument()
+    expect(screen.getByTestId('support-mode-title')).toBeInTheDocument()
+    // Demo comparison columns are suppressed in support mode.
+    expect(screen.queryByText(/Without Memory/i)).toBeNull()
     // localStorage flag persisted.
     const raw = window.localStorage.getItem(ONBOARDING_KEY)
     expect(raw).toBeTruthy()
@@ -138,14 +148,15 @@ describe('Widget onboarding — welcome panel', () => {
       </TestWrapper>,
     )
 
-    fireEvent.click(screen.getByText('Try the demo'))
+    fireEvent.click(screen.getByText('Ask Support'))
 
-    // Comparison columns appear immediately, no welcome.
-    expect(await screen.findByText(/Without Memory/i)).toBeInTheDocument()
-    expect(screen.queryByText(/Ask Statewave Support/i)).toBeNull()
+    // Support chat surface appears immediately — no welcome panel.
+    expect(await screen.findByTestId('support-mode-title')).toBeInTheDocument()
+    expect(screen.queryByTestId('onboarding-welcome')).toBeNull()
+    expect(screen.queryByText(/How can I help\?/i)).toBeNull()
   })
 
-  it('the welcome panel does not auto-send any prompt at tour first start', async () => {
+  it('the welcome panel does not auto-send any prompt on dismiss', async () => {
     const fetchSpy = stubAllFetches()
     // Ensure no prior dismissal so the welcome shows.
     window.localStorage.clear()
@@ -156,31 +167,31 @@ describe('Widget onboarding — welcome panel', () => {
       </TestWrapper>,
     )
 
-    fireEvent.click(screen.getByText('Try the demo'))
+    fireEvent.click(screen.getByText('Ask Support'))
     const next = await screen.findByRole('button', { name: /^Next$/i })
 
     act(() => {
       fireEvent.click(next)
     })
 
-    // Welcome dismissed → tour starts; visitor must type + submit themselves.
+    // Welcome dismissed; support chat surface appears with empty input.
     await waitFor(() => {
-      expect(screen.getByText(/Without Memory/i)).toBeInTheDocument()
+      expect(screen.queryByTestId('onboarding-welcome')).toBeNull()
     })
     const input = screen.getByPlaceholderText(/Ask something/i) as HTMLInputElement
     expect(input.value).toBe('')
-    // localStorage flag set (welcome marked seen → tour starts).
+    // localStorage flag set (welcome marked seen).
     expect(window.localStorage.getItem(ONBOARDING_KEY)).toBeTruthy()
-    // No /api/widget-chat call should have fired — exactly the regression
-    // guard for the auto-send we removed at tour first start.
+    // No /api/widget-chat call should have fired — regression guard against
+    // accidental auto-send on welcome dismiss.
     const chatCalls = fetchSpy.mock.calls.filter(
       ([url]) => typeof url === 'string' && url.includes('/api/widget-chat'),
     )
     expect(chatCalls.length).toBe(0)
   })
 
-  it('exposes a "What is this demo?" header button that re-opens the welcome', async () => {
-    // Visitor has already dismissed the welcome AND completed the tour.
+  it('does not expose the "Show demo intro" replay button in support mode', async () => {
+    // Visitor has already dismissed the welcome.
     window.localStorage.setItem(
       ONBOARDING_KEY,
       JSON.stringify({
@@ -195,17 +206,12 @@ describe('Widget onboarding — welcome panel', () => {
       </TestWrapper>,
     )
 
-    fireEvent.click(screen.getByText('Try the demo'))
-    // Comparison columns visible (welcome dismissed before).
-    await screen.findByText(/Without Memory/i)
+    fireEvent.click(screen.getByText('Ask Support'))
+    // Support chat surface visible, no welcome.
+    await screen.findByTestId('support-mode-title')
 
-    const helpBtn = screen.getByLabelText(/Show demo intro/i)
-    act(() => {
-      fireEvent.click(helpBtn)
-    })
-
-    // Welcome panel returns.
-    expect(await screen.findByText(/Ask Statewave Support/i)).toBeInTheDocument()
+    // The "Show demo intro" replay button is demo chrome — hidden in support mode.
+    expect(screen.queryByLabelText(/Show demo intro/i)).toBeNull()
   })
 })
 
@@ -222,11 +228,13 @@ describe('Widget onboarding — guided tour', () => {
   it('starts the tour at step 1 immediately after the welcome is dismissed', async () => {
     render(
       <TestWrapper>
+        <DemoModeOpener />
         <ChatWidget />
       </TestWrapper>,
     )
 
-    fireEvent.click(screen.getByText('Try the demo'))
+    // Open the widget in demo mode (floating launcher is now the support entry).
+    fireEvent.click(screen.getByText('Open Demo'))
     // Dismiss welcome via the primary Next CTA.
     act(() => {
       fireEvent.click(screen.getByRole('button', { name: /^Next$/i }))
@@ -244,11 +252,12 @@ describe('Widget onboarding — guided tour', () => {
   it('Next + Back navigate through the tour; Got it ends and persists completion', async () => {
     render(
       <TestWrapper>
+        <DemoModeOpener />
         <ChatWidget />
       </TestWrapper>,
     )
 
-    fireEvent.click(screen.getByText('Try the demo'))
+    fireEvent.click(screen.getByText('Open Demo'))
     act(() => {
       fireEvent.click(screen.getByRole('button', { name: /^Next$/i }))
     })
@@ -282,11 +291,12 @@ describe('Widget onboarding — guided tour', () => {
   it('Skip tour closes the banner and persists completion immediately', async () => {
     render(
       <TestWrapper>
+        <DemoModeOpener />
         <ChatWidget />
       </TestWrapper>,
     )
 
-    fireEvent.click(screen.getByText('Try the demo'))
+    fireEvent.click(screen.getByText('Open Demo'))
     act(() => {
       fireEvent.click(screen.getByRole('button', { name: /^Next$/i }))
     })
@@ -312,11 +322,12 @@ describe('Widget onboarding — guided tour', () => {
 
     render(
       <TestWrapper>
+        <DemoModeOpener />
         <ChatWidget />
       </TestWrapper>,
     )
 
-    fireEvent.click(screen.getByText('Try the demo'))
+    fireEvent.click(screen.getByText('Open Demo'))
     await screen.findByText(/Without Memory/i)
     expect(screen.queryByTestId('tour-banner')).toBeNull()
   })
@@ -324,11 +335,12 @@ describe('Widget onboarding — guided tour', () => {
   it('moves the tour-pulse highlight class to the right target on each step', async () => {
     render(
       <TestWrapper>
+        <DemoModeOpener />
         <ChatWidget />
       </TestWrapper>,
     )
 
-    fireEvent.click(screen.getByText('Try the demo'))
+    fireEvent.click(screen.getByText('Open Demo'))
     act(() => {
       fireEvent.click(screen.getByRole('button', { name: /^Next$/i }))
     })
@@ -379,11 +391,12 @@ describe('Widget onboarding — guided tour', () => {
 
     render(
       <TestWrapper>
+        <DemoModeOpener />
         <ChatWidget />
       </TestWrapper>,
     )
 
-    fireEvent.click(screen.getByText('Try the demo'))
+    fireEvent.click(screen.getByText('Open Demo'))
     // Welcome doesn't show, but the tour banner resumes at step 1.
     await screen.findByText(/Without Memory/i)
     expect(await screen.findByTestId('tour-banner')).toBeInTheDocument()
@@ -530,22 +543,21 @@ describe('Widget — Ask Support (support mode)', () => {
     expect(screen.queryByText(/^statewave-support-docs$/)).toBeNull()
   })
 
-  it('keeps the demo (Try the Demo) entry point separate and unaffected', async () => {
-    // No deep link this time — visitor lands and clicks the floating
-    // launcher, which should still produce the full demo experience.
+  it('the floating launcher opens the support channel (not the demo)', async () => {
+    // No deep link — visitor clicks the floating "Ask Support" launcher.
     render(
       <TestWrapper>
         <ChatWidget />
       </TestWrapper>,
     )
 
-    fireEvent.click(screen.getByText('Try the demo'))
+    fireEvent.click(screen.getByText('Ask Support'))
 
-    // Demo welcome with the marketing headline.
-    expect(await screen.findByText(/Ask Statewave Support/i)).toBeInTheDocument()
-    // The support-mode static title must NOT be rendered when entering via
-    // the demo launcher — the demo flow uses the persona picker instead.
-    expect(screen.queryByTestId('support-mode-title')).toBeNull()
+    // Support-mode static title is present; demo persona picker is absent.
+    expect(await screen.findByTestId('support-mode-title')).toBeInTheDocument()
+    // Support welcome heading — not the demo marketing copy.
+    expect(screen.getByText(/How can I help\?/i)).toBeInTheDocument()
+    expect(screen.queryByText(/Ask Statewave Support/i)).toBeNull()
   })
 
   it('only fires the statewave /api/widget-chat call per turn — no stateless comparison fetch', async () => {

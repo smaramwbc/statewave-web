@@ -272,7 +272,6 @@ function QuickstartLead() {
           <p className="mt-5 text-xs text-theme-muted">
             Tear it down with{' '}
             <span className="font-mono text-theme-secondary">statewave-connectors quickstart --down</span>.
-            Manual Docker &amp; SDK paths are below.
           </p>
         </div>
         <div className="lg:pl-4">

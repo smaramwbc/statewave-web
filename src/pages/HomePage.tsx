@@ -153,7 +153,7 @@ function HeroSection() {
           <p className="mt-5 sm:mt-6 text-base sm:text-lg md:text-[1.2rem] text-theme-muted max-w-[38rem] leading-[1.65] sm:leading-[1.7]">
             Statewave compiles raw events into ranked, token-bounded context
             bundles with full provenance — so your AI stops forgetting across
-            sessions. Self-hosted on Postgres, no vendor lock-in.
+            sessions.
           </p>
 
           {/* Install command — primary CTA. Replaces the old "Getting Started"
