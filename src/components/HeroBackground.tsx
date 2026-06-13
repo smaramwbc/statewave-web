@@ -372,7 +372,10 @@ export function HeroBackground({ contentZoneRef }: { contentZoneRef?: React.RefO
         const blurb = personaBlurb(s.subjectId) ?? 'This subject anchors all data for one entity.'
         const text = `${blurb}\n${memCount} memories · ${epCount} episodes`
         cancelDismiss()
-        setTooltip({ x: e.clientX - rect.left, y: e.clientY - rect.top, text, type: `${s.label} · ${s.subjectId}`, group: s.group, kind: 'subject' })
+        // Title is just the human label — the raw subject slug (e.g.
+        // `demo-research-assistant`) is the same name as the label and only
+        // duplicated it ("Research Assistant · Demo-Research-Assistant").
+        setTooltip({ x: e.clientX - rect.left, y: e.clientY - rect.top, text, type: s.label, group: s.group, kind: 'subject' })
         hoveredRef.current = { kind: 'subject', idx: i }
         document.body.style.cursor = 'pointer'
         return
@@ -396,7 +399,9 @@ export function HeroBackground({ contentZoneRef }: { contentZoneRef?: React.RefO
           : 'No source episodes linked'
         const text = `${m.label}\nkind: ${m.kind} · confidence: ${confidencePct}%\n${provenanceLine}`
         cancelDismiss()
-        setTooltip({ x: e.clientX - rect.left, y: e.clientY - rect.top, text, type: `${groupNames[m.group]} · ${m.subjectId}`, group: m.group, kind: 'memory' })
+        // Persona name + node type, not the redundant subject slug (which is
+        // the same name as the persona — same duplication as the subject card).
+        setTooltip({ x: e.clientX - rect.left, y: e.clientY - rect.top, text, type: `${groupNames[m.group]} · Memory`, group: m.group, kind: 'memory' })
         hoveredRef.current = { kind: 'memory', idx: i }
         document.body.style.cursor = 'pointer'
         return
