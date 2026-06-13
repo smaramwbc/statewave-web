@@ -257,27 +257,16 @@ export function HeroBackground() {
   const memoriesRef = useRef<Memory[]>([])  
   const episodesRef = useRef<Episode[]>([])
   const frameRef = useRef<number>(0)
-  const lastHintUpdate = useRef<number>(0)
+  const tooltipDismissRef = useRef<number | null>(null)
   const themeRef = useRef(isDark)
   const startTimeRef = useRef<number>(0)
   const [tooltip, setTooltip] = useState<{ x: number; y: number; text: string; type: string; group: number; kind: 'memory' | 'episode' | 'subject' } | null>(null)
-  const [isLive, setIsLive] = useState(false)
   const hoveredRef = useRef<{ kind: 'memory' | 'episode' | 'subject'; idx: number } | null>(null)
   // True while the pointer is over the hover card itself. Lets the visitor
   // travel from a particle onto the card (to click "try the demo") without
   // the tooltip vanishing the instant the cursor leaves the node.
   const cardHoverRef = useRef(false)
-  // Pending "dismiss the tooltip" timer — a short grace period that bridges
-  // the dead gap between the particle and the offset card.
-  const tooltipDismissRef = useRef<number | null>(null)
   const progressRef = useRef<number>(0)
-  const hintSubjectIdxRef = useRef<number>(-1)
-  const [hintPos, setHintPos] = useState<{ x: number; y: number } | null>(null)
-  // Agent name shown on the hint pill's second line. Ref mirrors the state so
-  // the per-frame draw loop only triggers a re-render when it actually changes.
-  const [hintLabel, setHintLabel] = useState<string | null>(null)
-  const hintLabelRef = useRef<string | null>(null)
-  const [hintVisible, setHintVisible] = useState(true)
 
   themeRef.current = isDark
 
@@ -298,7 +287,6 @@ export function HeroBackground() {
       memoriesRef.current = memories
       episodesRef.current = episodes
       startTimeRef.current = 0 // restart animation
-      setIsLive(true)
     })
   }, [canvasSuppressed])
 
@@ -405,7 +393,6 @@ export function HeroBackground() {
         setTooltip({ x: e.clientX - rect.left, y: e.clientY - rect.top, text, type: 'Episode (raw)', group: ep.group, kind: 'episode' })
         hoveredRef.current = { kind: 'episode', idx: i }
         document.body.style.cursor = 'pointer'
-        setHintVisible(false)
         return
       }
     }
@@ -459,17 +446,6 @@ export function HeroBackground() {
     setTooltip(null)
   }, [openWidget])
 
-  // Anchor the hint chip to a random subject (the largest circle in any group),
-  // but delay its appearance so users register the visualization first.
-  const [hintReady, setHintReady] = useState(false)
-  useEffect(() => {
-    if (isLive && subjectsRef.current.length > 0 && hintSubjectIdxRef.current === -1) {
-      hintSubjectIdxRef.current = Math.floor(Math.random() * subjectsRef.current.length)
-    }
-    if (!isLive) return
-    const t = window.setTimeout(() => setHintReady(true), 3000)
-    return () => window.clearTimeout(t)
-  }, [isLive])
 
   useEffect(() => {
     // No canvas on mobile → no need to install the global hover/click
@@ -850,20 +826,6 @@ export function HeroBackground() {
     }
 
 
-    // Update hint chip position from tracked subject (throttled)
-    const hIdx = hintSubjectIdxRef.current
-    if (hIdx >= 0 && hIdx < subjects.length && progress > 0.3) {
-      const s = subjects[hIdx]
-      const now = performance.now()
-      if (!lastHintUpdate.current || now - lastHintUpdate.current > 80) {
-        lastHintUpdate.current = now
-        setHintPos({ x: s.x, y: s.y })
-      }
-      if (hintLabelRef.current !== s.label) {
-        hintLabelRef.current = s.label
-        setHintLabel(s.label)
-      }
-    }
 
     frameRef.current = requestAnimationFrame(draw)
   }, [])
@@ -1037,65 +999,6 @@ export function HeroBackground() {
           z-50 keeps it above the section's bottom-fade overlay and any other
           page-level scrims, so it never looks dimmed even if its anchor
           subject sits in the faded zone. */}
-      {isLive && hintReady && hintVisible && hintPos && !widgetOpen && (
-        <div
-          className="absolute pointer-events-none z-50"
-          style={{
-            left: `clamp(140px, ${hintPos.x * 100}%, calc(100% - 140px))`,
-            top: `clamp(60px, ${hintPos.y * 100}%, calc(100% - 60px))`,
-            transform: 'translate(-50%, -150%)',
-          }}
-        >
-          <div
-            className="pointer-events-auto flex items-center gap-2.5 pl-4 pr-5 py-2.5 rounded-2xl cursor-pointer whitespace-nowrap transition-transform duration-150 hover:scale-110"
-            style={{
-              // Warm amber against the cool indigo/cyan particle field — a
-              // deliberately *different* hue from every other CTA so the eye
-              // catches it instantly. Near-black text keeps it legible on
-              // amber (white-on-amber fails contrast).
-              backgroundColor: '#f59e0b',
-              color: '#1c1917',
-              // Amber-tinted glow ring so the halo reinforces the same accent.
-              boxShadow: isDark
-                ? '0 0 0 5px rgba(245, 158, 11, 0.22), 0 10px 30px -4px rgba(245, 158, 11, 0.55), 0 6px 16px -2px rgba(0, 0, 0, 0.45)'
-                : '0 0 0 5px rgba(245, 158, 11, 0.20), 0 10px 30px -4px rgba(245, 158, 11, 0.45), 0 6px 16px -2px rgba(180, 83, 9, 0.3)',
-              animation: 'heroHintBounce 1.4s ease-in-out infinite',
-            }}
-            onClick={() => {
-              const idx = hintSubjectIdxRef.current
-              if (idx >= 0 && idx < subjectsRef.current.length) {
-                const subj = subjectsRef.current[idx]
-                if (subj) {
-                  openWidget(subj.subjectId, subj.label)
-                }
-                setHintVisible(false)
-              }
-            }}
-          >
-            {/* Mouse cursor icon — direct visual cue to "interact here" */}
-            <svg
-              aria-hidden
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.4"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="flex-shrink-0"
-            >
-              <path d="M3 3l7 19 2-8 8-2z" />
-            </svg>
-            <span className="flex flex-col leading-tight text-left">
-              <span className="text-[13px] font-bold">Try with Memory</span>
-              {hintLabel && (
-                <span className="text-[11px] font-medium text-black/60">{hintLabel}</span>
-              )}
-            </span>
-          </div>
-        </div>
-      )}
     </div>
   )
 }

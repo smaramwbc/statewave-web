@@ -348,51 +348,6 @@ function HeroSection() {
             <HeroInstallCommand />
           </motion.div>
 
-          {/* Secondary affordance for visitors who came with a question rather
-              than wanting the comparison demo. Opens the widget directly to the
-              docs-grounded Statewave Support persona. */}
-          <motion.div variants={fadeUp} className="mt-3 text-xs text-theme-muted">
-            Have a question?{' '}
-            <button
-              type="button"
-              onClick={() => openWidget('statewave-support', 'Statewave Support', 'support')}
-              className="text-theme-secondary hover:text-accent underline-offset-4 hover:underline transition-colors font-medium"
-            >
-              Ask Statewave Support
-            </button>{' '}
-            <span className="text-theme-muted/80">— grounded in the official docs, with citations.</span>
-          </motion.div>
-
-          {/* Honesty stripe — the demo isn't a mock. Every episode, memory,
-              and ranked context bundle the demo shows comes from a real
-              running Statewave server. */}
-          <motion.div variants={fadeUp} className="mt-5 flex items-center gap-2.5">
-            <span
-              aria-hidden
-              className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.7)] flex-shrink-0"
-            />
-            <p className="text-xs text-theme-muted">
-              <span className="font-semibold text-theme-secondary">Real Statewave instance · live data.</span>{' '}
-              <span className="text-theme-muted/80">No mocks — every episode, memory, and ranking is computed live.</span>
-            </p>
-          </motion.div>
-
-          {/* Credibility row — plain-text proof figures spelled out so AI
-              crawlers / answer engines see concrete numbers in the
-              prerendered HTML (the deeper ProofSection that shows the same
-              stats with visual emphasis sits behind ClientOnly and isn't
-              in the initial document). Lives outside any motion variant so
-              it paints with the static markup, not on a stagger delay. */}
-          <p className="mt-5 text-xs text-theme-muted">
-            <span className="font-semibold text-theme-secondary">Proven in CI:</span>{' '}
-            <span>{PROOF_STATS[0].value} unit tests</span>
-            <span className="text-theme-muted/60"> · </span>
-            <span>{PROOF_STATS[1].value} eval assertions</span>
-            <span className="text-theme-muted/60"> · </span>
-            <span>
-              {PROOF_STATS[2].value} vs {PROOF_STATS[3].value} on the support workflow benchmark
-            </span>
-          </p>
         </motion.div>
       </div>
     </section>
