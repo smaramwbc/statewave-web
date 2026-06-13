@@ -273,6 +273,20 @@ function QuickstartLead() {
             Tear it down with{' '}
             <span className="font-mono text-theme-secondary">statewave-connectors quickstart --down</span>.
           </p>
+          <div className="mt-6">
+            <p className="text-[11px] uppercase tracking-wider font-medium text-theme-muted mb-2.5">Configures automatically</p>
+            <div className="flex flex-wrap gap-2">
+              {['Claude Code', 'Claude Desktop', 'Cursor', 'VS Code Copilot', 'Codex CLI'].map((client) => (
+                <span
+                  key={client}
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium border border-theme-border/60 text-theme-secondary bg-surface-2"
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-accent/70 flex-shrink-0" />
+                  {client}
+                </span>
+              ))}
+            </div>
+          </div>
         </div>
         <div className="lg:pl-4">
           <QuickstartTerminal />
