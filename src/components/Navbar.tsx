@@ -10,7 +10,6 @@ import {
 } from 'react'
 import { ThemeSwitcher } from './ThemeSwitcher'
 import { Logo } from './Logo'
-import { useChatWidget } from '../lib/widget-context-api'
 
 /** Stop a pointer event at the React handler so it never bubbles up to
  *  the window — used by the More-menu backdrop and panel to keep the
@@ -70,15 +69,9 @@ function unlockBodyScroll(scrollY: number) {
 export function Navbar() {
   const location = useLocation()
   const [mobileOpen, setMobileOpen] = useState(false)
-  const { openWidget } = useChatWidget()
   const drawerRef = useRef<HTMLDivElement>(null)
   const toggleButtonRef = useRef<HTMLButtonElement>(null)
   const lockedScrollRef = useRef<number | null>(null)
-
-  const askSupport = () => {
-    openWidget('statewave-support', 'Statewave Support', 'support')
-    setMobileOpen(false)
-  }
 
   // Close on Escape
   useEffect(() => {
@@ -148,14 +141,6 @@ export function Navbar() {
 
         {/* Desktop right — actions */}
         <div className="hidden md:flex items-center gap-3 shrink-0">
-          <button
-            type="button"
-            onClick={askSupport}
-            className="text-[12.5px] font-medium px-3 py-1.5 rounded-md bg-accent text-white hover:bg-accent-light transition-colors duration-150 shadow-[0_4px_14px_-4px_rgba(99,102,241,0.45)]"
-            title="Ask the Statewave Support agent — answers grounded in the official docs"
-          >
-            Ask Support
-          </button>
           <ThemeSwitcher />
         </div>
 
@@ -261,13 +246,6 @@ export function Navbar() {
                   </a>
                 </nav>
                 <div className="mt-3 pt-4 border-t border-theme-border flex flex-col gap-3">
-                  <button
-                    type="button"
-                    onClick={askSupport}
-                    className="inline-flex items-center justify-center min-h-12 px-5 rounded-lg bg-accent text-white text-[15px] font-medium hover:bg-accent-light transition-colors shadow-[0_4px_14px_-4px_rgba(99,102,241,0.45)]"
-                  >
-                    Ask Support
-                  </button>
                   <div className="flex items-center justify-between pt-1">
                     <span className="text-xs text-theme-muted uppercase tracking-wider">Theme</span>
                     <ThemeSwitcher />

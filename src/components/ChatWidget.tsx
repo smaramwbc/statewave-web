@@ -79,7 +79,6 @@ export function ChatWidget() {
     hasSeenWelcome,
     tourStep,
     tourTotal,
-    hasVisibleCta,
     availablePersonas,
     mode,
     openWidget,
@@ -260,10 +259,6 @@ export function ChatWidget() {
 
   // ─── Launcher button (collapsed state) ───
   if (!isOpen) {
-    // Hide the floating launcher whenever an on-page CTA (hero, footer, …) is
-    // already in the viewport — having two "Try the demo" affordances visible
-    // at once is noisy.
-    if (hasVisibleCta) return null
     return (
       <motion.button
         initial={{ opacity: 0, scale: 0.8, y: 20 }}
@@ -271,7 +266,7 @@ export function ChatWidget() {
         exit={{ opacity: 0, scale: 0.8, y: 20 }}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
-        onClick={() => openWidget()}
+        onClick={() => openWidget('statewave-support', 'Statewave Support', 'support')}
         className="fixed z-50 flex items-center gap-2.5 px-5 py-3 rounded-full shadow-xl border backdrop-blur-sm cursor-pointer"
         style={{
           // Mobile: center horizontally, clear the iOS home indicator via
@@ -289,7 +284,7 @@ export function ChatWidget() {
         }}
       >
         <span className="text-accent text-lg">✦</span>
-        <span className="text-sm font-medium text-theme-primary">Try the demo</span>
+        <span className="text-sm font-medium text-theme-primary">Ask Support</span>
       </motion.button>
     )
   }
