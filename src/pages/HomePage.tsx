@@ -1,5 +1,4 @@
 import React, { lazy, Suspense } from 'react'
-import { createPortal } from 'react-dom'
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { Section } from '../components/Section'
@@ -22,8 +21,8 @@ import { usePageSEO } from '../lib/seo'
 import { faqPageJsonLd, softwareApplicationJsonLd } from '../lib/seo-meta'
 import { FAQ_ENTRIES } from '../lib/faq'
 import { PROOF_STATS } from '../lib/proof-stats'
-import { useChatWidget, useTrackDemoCta, DEMO_SUBJECTS } from '../lib/widget-context-api'
-import { useRef, useState, useEffect, useCallback } from 'react'
+import { useChatWidget, useTrackDemoCta } from '../lib/widget-context-api'
+import { useRef, useState, useEffect } from 'react'
 
 export function HomePage() {
   // Organization and WebSite are the only site-wide entities baked into
@@ -61,7 +60,7 @@ export function HomePage() {
 }
 
 function HeroSection() {
-  const { openWidget, availablePersonas } = useChatWidget()
+  const { openWidget } = useChatWidget()
   const heroCtaRef = useRef<HTMLButtonElement>(null)
   useTrackDemoCta(heroCtaRef)
 
@@ -86,96 +85,6 @@ function HeroSection() {
     return () => mq.removeEventListener('change', handler)
   }, [])
 
-  // Persona menu attached to the "Try the Demo" split button. The main button
-  // still launches the default persona in one click; the caret opens this so
-  // visitors can pick which agent's memory they want to try first.
-  const [personaMenuOpen, setPersonaMenuOpen] = useState(false)
-  // The split button lives inside the hero <section>, which is overflow-hidden
-  // to clip the full-bleed particle canvas + bottom fade. An absolutely
-  // positioned dropdown is a child of that section, so a tall menu gets cut
-  // off at the section edge. We render the menu in a portal (escaping the
-  // clip) and position it with `fixed` from the trigger's viewport rect.
-  const personaMenuRef = useRef<HTMLDivElement>(null) // split-button trigger
-  const personaMenuPanelRef = useRef<HTMLDivElement>(null) // portaled panel
-  const [menuPos, setMenuPos] = useState<{
-    left: number
-    top?: number
-    bottom?: number
-    maxHeight: number
-  } | null>(null)
-
-  // Measure the trigger and compute a viewport-anchored position for the
-  // portaled panel. Called from the open handler and from scroll/resize while
-  // open — never directly inside an effect, so it never reflows during render.
-  const placeMenu = useCallback(() => {
-    const el = personaMenuRef.current
-    if (!el) return
-    const MENU_W = 288 // w-72
-    const GAP = 8
-    const r = el.getBoundingClientRect()
-    const spaceBelow = window.innerHeight - r.bottom - GAP
-    const spaceAbove = r.top - GAP
-    // Prefer dropping down; flip up only when there's clearly more room
-    // above. Either way the panel scrolls internally rather than ever
-    // exceeding the viewport.
-    const openUp = spaceBelow < 260 && spaceAbove > spaceBelow
-    const left = Math.max(8, Math.min(r.left, window.innerWidth - MENU_W - 8))
-    const maxHeight = Math.max(160, (openUp ? spaceAbove : spaceBelow) - 8)
-    setMenuPos(
-      openUp
-        ? { left, bottom: window.innerHeight - r.top + GAP, maxHeight }
-        : { left, top: r.bottom + GAP, maxHeight },
-    )
-  }, [])
-
-  const togglePersonaMenu = useCallback(() => {
-    setPersonaMenuOpen((open) => {
-      const next = !open
-      if (next) placeMenu()
-      return next
-    })
-  }, [placeMenu])
-
-  // While open: keep the panel glued to the trigger on scroll/resize and
-  // close on outside click / Escape. No state is set synchronously here.
-  useEffect(() => {
-    if (!personaMenuOpen) return
-    const onDocMouseDown = (e: MouseEvent) => {
-      const t = e.target as Node
-      if (
-        !personaMenuRef.current?.contains(t) &&
-        !personaMenuPanelRef.current?.contains(t)
-      ) {
-        setPersonaMenuOpen(false)
-      }
-    }
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setPersonaMenuOpen(false)
-    }
-    document.addEventListener('mousedown', onDocMouseDown)
-    document.addEventListener('keydown', onKey)
-    // `true` (capture) so the menu follows even when a scrollable ancestor
-    // — not just the window — moves under it.
-    window.addEventListener('scroll', placeMenu, true)
-    window.addEventListener('resize', placeMenu)
-    return () => {
-      document.removeEventListener('mousedown', onDocMouseDown)
-      document.removeEventListener('keydown', onKey)
-      window.removeEventListener('scroll', placeMenu, true)
-      window.removeEventListener('resize', placeMenu)
-    }
-  }, [personaMenuOpen, placeMenu])
-
-  // Same availability gating the in-widget picker uses: only offer personas
-  // the backend actually has memory for; fall back to the full catalog while
-  // the check is in flight (null) or if it returned empty.
-  const heroPersonas = (() => {
-    const filtered =
-      availablePersonas && availablePersonas.length > 0
-        ? DEMO_SUBJECTS.filter((s) => availablePersonas.includes(s.id))
-        : DEMO_SUBJECTS
-    return filtered.length > 0 ? filtered : DEMO_SUBJECTS
-  })()
   const stagger = {
     hidden: {},
     show: { transition: { staggerChildren: 0.12, delayChildren: 0.1 } },
@@ -243,109 +152,37 @@ function HeroSection() {
             sessions. Self-hosted on Postgres, no vendor lock-in.
           </p>
 
-          {/* CTAs — wrap cleanly on small phones; primary stays full-width
-              up to 360px so it never collides with the secondary link. */}
-          <motion.div variants={fadeUp} className="mt-8 sm:mt-10 flex flex-wrap items-center gap-3 sm:gap-4">
-            <div
-              ref={personaMenuRef}
-              className="relative inline-flex rounded-lg shadow-lg shadow-accent/20 hover:shadow-accent/30 transition-shadow duration-150"
-            >
-              {/* Main action — one-click launch of the default persona. */}
-              <button
-                ref={heroCtaRef}
-                type="button"
-                onClick={() => openWidget()}
-                className="inline-flex min-h-11 items-center justify-center gap-2 pl-6 pr-5 py-3 rounded-l-lg bg-accent text-white text-sm font-medium hover:bg-accent-light transition-colors duration-150"
-              >
-                Try the Demo
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                </svg>
-              </button>
-              {/* Caret — opens the persona menu. */}
-              <button
-                type="button"
-                onClick={togglePersonaMenu}
-                aria-haspopup="menu"
-                aria-expanded={personaMenuOpen}
-                aria-label="Choose a demo persona"
-                className="inline-flex min-h-11 items-center justify-center px-2.5 rounded-r-lg bg-accent text-white hover:bg-accent-light border-l border-white/20 transition-colors duration-150"
-              >
-                <svg
-                  className={`w-4 h-4 transition-transform duration-150 ${personaMenuOpen ? 'rotate-180' : ''}`}
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  aria-hidden="true"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
+          {/* Install command — primary CTA. Replaces the old "Getting Started"
+              button; this IS the getting started. */}
+          <motion.div variants={fadeUp} className="mt-8 sm:mt-10">
+            <HeroInstallCommand />
+          </motion.div>
 
-              {personaMenuOpen && menuPos && createPortal(
-                <div
-                  ref={personaMenuPanelRef}
-                  role="menu"
-                  data-testid="hero-persona-menu"
-                  className="fixed w-72 rounded-lg border border-theme-border bg-surface-1 shadow-xl z-[60] overflow-y-auto overscroll-contain"
-                  style={{
-                    left: menuPos.left,
-                    top: menuPos.top,
-                    bottom: menuPos.bottom,
-                    maxHeight: menuPos.maxHeight,
-                  }}
-                >
-                  <div className="px-3 py-2 text-[10px] uppercase tracking-wider text-theme-muted border-b border-theme-border/60 sticky top-0 bg-surface-1">
-                    Pick a persona to try
-                  </div>
-                  {heroPersonas.map((s) => (
-                    <button
-                      key={s.id}
-                      type="button"
-                      role="menuitem"
-                      onClick={() => {
-                        openWidget(s.id, s.label)
-                        setPersonaMenuOpen(false)
-                      }}
-                      className="block w-full px-3 py-2.5 text-left hover:bg-accent/10 transition-colors"
-                    >
-                      <span className="block text-sm font-medium text-theme-primary">{s.label}</span>
-                      <span className="block mt-0.5 text-xs text-theme-muted leading-snug">{s.blurb}</span>
-                    </button>
-                  ))}
-                </div>,
-                document.body,
-              )}
-            </div>
-            <a
-              href="https://github.com/smaramwbc/statewave-docs/blob/main/getting-started.md"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex min-h-11 items-center justify-center gap-2 px-6 py-3 rounded-lg bg-surface-2 text-theme-primary border border-theme-border text-sm font-medium hover:bg-surface-3 hover:border-theme-border transition-[background-color,border-color] duration-150"
+          {/* Secondary links — lower visual weight so the install command
+              stays the clear primary action. */}
+          <motion.div variants={fadeUp} className="mt-5 flex flex-wrap items-center gap-5">
+            <button
+              ref={heroCtaRef}
+              type="button"
+              onClick={() => openWidget()}
+              className="inline-flex items-center gap-1.5 text-sm text-theme-muted hover:text-theme-secondary transition-colors"
             >
-              Getting Started
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              Try the demo
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
               </svg>
-            </a>
+            </button>
             <a
               href="https://github.com/smaramwbc/statewave"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex min-h-11 items-center gap-2 px-4 sm:px-5 py-3 rounded-lg text-sm font-medium text-theme-secondary hover:text-theme-primary transition-colors duration-150"
+              className="inline-flex items-center gap-1.5 text-sm text-theme-muted hover:text-theme-secondary transition-colors"
             >
-              <svg className="w-[18px] h-[18px]" fill="currentColor" viewBox="0 0 24 24">
+              <svg className="w-[15px] h-[15px]" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
               </svg>
               View on GitHub
             </a>
-          </motion.div>
-
-          {/* One-liner install — compact hero variant of the Developers page
-              quickstart. OS tab auto-selects from userAgent; copy button lets
-              visitors grab it without scrolling to /developers. */}
-          <motion.div variants={fadeUp} className="mt-6">
-            <HeroInstallCommand />
           </motion.div>
 
         </motion.div>
