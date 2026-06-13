@@ -1,4 +1,4 @@
-import { useRef, useEffect, useCallback, useState } from 'react'
+import React, { useRef, useEffect, useCallback, useState } from 'react'
 import { useTheme } from '../lib/theme'
 import { useChatWidget, personaBlurb } from '../lib/widget-context-api'
 import { fetchLiveData, type LiveSubjectData } from '../services/statewave-live'
@@ -218,6 +218,26 @@ function buildFromLiveData(data: LiveSubjectData[]): { subjects: Subject[]; memo
   return { subjects, memories, episodes }
 }
 
+// Pushes a normalized (0-1) point outside `zone` if it lands inside.
+// Finds the nearest edge and moves the point to it so clusters stay clear
+// of the hero text area without any visual gap or snap artifact.
+function pushOutsideZone(
+  x: number,
+  y: number,
+  zone: { l: number; r: number; t: number; b: number },
+): { x: number; y: number } {
+  if (x < zone.l || x > zone.r || y < zone.t || y > zone.b) return { x, y }
+  const dLeft = x - zone.l
+  const dRight = zone.r - x
+  const dTop = y - zone.t
+  const dBottom = zone.b - y
+  const min = Math.min(dLeft, dRight, dTop, dBottom)
+  if (min === dLeft) return { x: zone.l, y }
+  if (min === dRight) return { x: zone.r, y }
+  if (min === dTop) return { x, y: zone.t }
+  return { x, y: zone.b }
+}
+
 /**
  * Detects narrow viewports (smartphone widths) at mount and on resize.
  *
@@ -242,7 +262,7 @@ function useIsHeroCanvasSuppressed(): boolean {
   return suppressed
 }
 
-export function HeroBackground() {
+export function HeroBackground({ contentZoneRef }: { contentZoneRef?: React.RefObject<HTMLElement | null> } = {}) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const { resolvedTheme } = useTheme()
   const isDark = resolvedTheme === 'dark'
@@ -253,6 +273,8 @@ export function HeroBackground() {
   // window-level listeners (registered once) can read it without re-binding.
   const widgetActiveRef = useRef(false)
   widgetActiveRef.current = widgetOpen && !widgetMinimized
+  const contentZoneRefInternal = useRef<React.RefObject<HTMLElement | null> | undefined>(contentZoneRef)
+  contentZoneRefInternal.current = contentZoneRef
   const subjectsRef = useRef<Subject[]>([])
   const memoriesRef = useRef<Memory[]>([])  
   const episodesRef = useRef<Episode[]>([])
@@ -473,6 +495,22 @@ export function HeroBackground() {
     const rect = canvas.getBoundingClientRect()
     const w = rect.width
     const h = rect.height
+
+    // Compute the exclusion zone from the hero content element each frame so
+    // it adapts to window resizes. Pad by 2% so particles don't graze text.
+    const contentEl = contentZoneRefInternal.current?.current
+    let exclusionZone: { l: number; r: number; t: number; b: number } | null = null
+    if (contentEl && w > 0 && h > 0) {
+      const cr = contentEl.getBoundingClientRect()
+      const pad = 0.02
+      exclusionZone = {
+        l: (cr.left - rect.left) / w - pad,
+        r: (cr.right - rect.left) / w + pad,
+        t: (cr.top - rect.top) / h - pad,
+        b: (cr.bottom - rect.top) / h + pad,
+      }
+    }
+
     const elapsed = (time - startTimeRef.current) * 0.001
     const t = elapsed
 
@@ -534,6 +572,10 @@ export function HeroBackground() {
       const gc = groupCenters[s.group]
       s.x = s.startX + (gc.x - s.startX) * progress + Math.sin(t * 0.15 + s.phase) * 0.003 * progress
       s.y = s.startY + (gc.y - s.startY) * progress + Math.cos(t * 0.12 + s.phase) * 0.003 * progress
+      if (exclusionZone) {
+        const cz = pushOutsideZone(s.x, s.y, exclusionZone)
+        s.x = cz.x; s.y = cz.y
+      }
     }
 
     // Update memory positions (orbit around their subject)
@@ -554,6 +596,10 @@ export function HeroBackground() {
       const chaos = (1 - progress) * 0.025
       m.x = baseX + Math.sin(t * 0.3 + m.phase * 3) * chaos + Math.sin(t * 0.15 + m.phase) * 0.003 * progress
       m.y = baseY + Math.cos(t * 0.25 + m.phase * 2) * chaos + Math.cos(t * 0.12 + m.phase * 1.3) * 0.002 * progress
+      if (exclusionZone) {
+        const cz = pushOutsideZone(m.x, m.y, exclusionZone)
+        m.x = cz.x; m.y = cz.y
+      }
     }
 
     // Update episode positions.
@@ -600,6 +646,10 @@ export function HeroBackground() {
       const chaos = (1 - progress) * 0.04
       e.x = baseX + Math.sin(t * 0.5 + e.phase * 4) * chaos + Math.sin(t * 0.2 + e.phase) * 0.002 * progress
       e.y = baseY + Math.cos(t * 0.4 + e.phase * 3) * chaos + Math.cos(t * 0.15 + e.phase * 1.5) * 0.002 * progress
+      if (exclusionZone) {
+        const cz = pushOutsideZone(e.x, e.y, exclusionZone)
+        e.x = cz.x; e.y = cz.y
+      }
     }
 
     // Episodes reach the subject through the memories that cite them.

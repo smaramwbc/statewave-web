@@ -63,6 +63,7 @@ function HeroSection() {
   const { openWidget } = useChatWidget()
   const heroCtaRef = useRef<HTMLButtonElement>(null)
   useTrackDemoCta(heroCtaRef)
+  const contentZoneRef = useRef<HTMLDivElement>(null)
 
   // Mirror the matchMedia check inside HeroBackground so we decide whether to
   // even mount the lazy chunk. Two-pass pattern: the initial state must be
@@ -102,7 +103,7 @@ function HeroSection() {
     <section className="relative min-h-[88vh] sm:min-h-[92vh] flex items-center overflow-hidden">
       {showHeroCanvas && (
         <Suspense fallback={null}>
-          <HeroBackground />
+          <HeroBackground contentZoneRef={contentZoneRef} />
         </Suspense>
       )}
 
@@ -118,10 +119,13 @@ function HeroSection() {
 
       <div className="relative z-10 w-full mx-auto max-w-7xl px-5 sm:px-6 pt-28 sm:pt-32 md:pt-36 pb-16 sm:pb-20 md:pb-24">
         <motion.div
+          ref={contentZoneRef}
           variants={stagger}
           initial="hidden"
           animate="show"
           className="max-w-3xl"
+          onMouseMove={(e) => e.stopPropagation()}
+          onClick={(e) => e.stopPropagation()}
         >
           {/* Badge */}
           <motion.div variants={fadeUp}>
