@@ -589,7 +589,7 @@ function GovernanceSection() {
   return (
     <Section>
       <div className="text-center mb-12">
-        <span className="inline-block mb-3 text-[11px] font-medium uppercase tracking-wider text-accent">
+        <span className="block mb-3 text-[11px] font-medium uppercase tracking-wider text-accent">
           What sets Statewave apart
         </span>
         <Heading id="production-governance" className="text-3xl md:text-4xl font-bold text-theme-primary tracking-tight">
