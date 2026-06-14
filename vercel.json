@@ -9,6 +9,16 @@
       "source": "/install.ps1",
       "destination": "https://raw.githubusercontent.com/smaramwbc/statewave-connectors/main/scripts/bootstrap.ps1",
       "permanent": false
+    },
+    {
+      "source": "/docs",
+      "destination": "https://github.com/smaramwbc/statewave-docs",
+      "permanent": false
+    },
+    {
+      "source": "/docs/:path*",
+      "destination": "https://github.com/smaramwbc/statewave-docs/blob/main/:path*",
+      "permanent": false
     }
   ],
   "rewrites": [

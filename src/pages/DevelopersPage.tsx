@@ -170,41 +170,47 @@ export function DevelopersPage() {
  * /install → statewave-connectors/scripts/bootstrap.sh  (macOS / Linux)
  * /install.ps1 → statewave-connectors/scripts/bootstrap.ps1  (Windows)
  * Both are Vercel redirects — no Node.js required on the visitor's machine. */
+const INSTALL_NPX  = 'npx @statewavedev/statewave'
 const INSTALL_UNIX = 'curl -fsSL https://www.statewave.ai/install | sh'
 const INSTALL_WIN  = 'powershell -Command "irm https://www.statewave.ai/install.ps1 | iex"'
-const NPX_FALLBACK = 'npx @statewavedev/connectors-cli quickstart'
+
+type QsTab = 'node' | 'unix' | 'windows'
+const QS_TABS: { id: QsTab; label: string; cmd: string; prompt: string }[] = [
+  { id: 'node',    label: 'Node',          cmd: INSTALL_NPX,  prompt: '$' },
+  { id: 'unix',    label: 'macOS / Linux', cmd: INSTALL_UNIX, prompt: '$' },
+  { id: 'windows', label: 'Windows',       cmd: INSTALL_WIN,  prompt: '>' },
+]
 
 function QuickstartCommand() {
-  const [os, setOs] = useState<'unix' | 'windows'>(() =>
-    typeof navigator !== 'undefined' && /Win/i.test(navigator.userAgent) ? 'windows' : 'unix'
+  const [tab, setTab] = useState<QsTab>(() =>
+    typeof navigator !== 'undefined' && /Win/i.test(navigator.userAgent) ? 'windows' : 'node'
   )
-  const cmd = os === 'unix' ? INSTALL_UNIX : INSTALL_WIN
-  const prompt = os === 'unix' ? '$' : '>'
+  const active = QS_TABS.find((t) => t.id === tab)!
   return (
     <div>
       <div className="flex gap-1 mb-2">
-        {(['unix', 'windows'] as const).map((id) => (
+        {QS_TABS.map(({ id, label }) => (
           <button
             key={id}
             type="button"
-            onClick={() => setOs(id)}
+            onClick={() => setTab(id)}
             className={[
               'px-3 py-1 rounded-lg text-xs font-medium transition-colors',
-              os === id
+              tab === id
                 ? 'bg-accent/10 text-accent'
                 : 'text-theme-muted hover:text-theme-secondary',
             ].join(' ')}
           >
-            {id === 'unix' ? 'macOS / Linux' : 'Windows'}
+            {label}
           </button>
         ))}
       </div>
       <div className="flex items-center gap-3 rounded-xl border border-theme-border bg-surface-2 px-4 py-3 font-mono text-sm sm:text-base">
-        <span className="select-none text-accent">{prompt}</span>
+        <span className="select-none text-accent">{active.prompt}</span>
         <code className="flex-1 overflow-x-auto whitespace-nowrap text-theme-primary">
-          {cmd}
+          {active.cmd}
         </code>
-        <CodeCopyButton code={cmd} label="Copy install command" />
+        <CodeCopyButton code={active.cmd} label="Copy install command" />
       </div>
     </div>
   )
@@ -223,7 +229,7 @@ function QuickstartTerminal() {
         <span className="h-3 w-3 rounded-full bg-red-500/70" />
         <span className="h-3 w-3 rounded-full bg-yellow-500/70" />
         <span className="h-3 w-3 rounded-full bg-green-500/70" />
-        <span className="ml-3 font-mono text-xs text-theme-muted">statewave-connectors quickstart</span>
+        <span className="ml-3 font-mono text-xs text-theme-muted">statewave quickstart</span>
       </div>
       <pre className="overflow-x-auto px-4 py-4 font-mono text-[12.5px] leading-relaxed text-theme-secondary">
         <span className="text-theme-muted">Which MCP clients should I set up?</span>
@@ -265,13 +271,10 @@ function QuickstartLead() {
           </p>
           <div className="mt-6">
             <QuickstartCommand />
-            <p className="mt-2 font-mono text-xs text-theme-muted">
-              Have Node.js 20+? <span className="text-theme-secondary">{NPX_FALLBACK}</span>
-            </p>
           </div>
           <p className="mt-5 text-xs text-theme-muted">
             Tear it down with{' '}
-            <span className="font-mono text-theme-secondary">statewave-connectors quickstart --down</span>.
+            <span className="font-mono text-theme-secondary">npx @statewavedev/statewave --down</span>.
           </p>
           <div className="mt-6">
             <p className="text-[11px] uppercase tracking-wider font-medium text-theme-muted mb-2.5">Configures automatically</p>

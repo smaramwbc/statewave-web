@@ -47,6 +47,8 @@ export function HomePage() {
         <WhatSection />
         <WhyNotSection />
         <UseCasesSection />
+        <AIClientsSection />
+        <GovernanceSection />
         <ConnectorsTeaserSection />
         <SupportProofSection />
         <CapabilitiesSection />
@@ -139,9 +141,9 @@ function HeroSection() {
               hero never overflows on small phones (the previous 3.25rem
               floor was wider than 320px after letter-spacing). */}
           <h1 className="mt-6 sm:mt-8 text-[clamp(2.25rem,8vw,4.5rem)] font-bold text-theme-primary tracking-[-0.025em] leading-[1.08] break-anywhere">
-            Open-source memory runtime{' '}
+            AI memory built{' '}
             <span className="bg-gradient-to-r from-accent via-brand-400 to-brand-300 bg-clip-text text-transparent">
-              for AI agents
+              for production
             </span>
           </h1>
 
@@ -151,14 +153,24 @@ function HeroSection() {
               animated re-creates the same 1s+ render delay we just removed.
               Paint immediately; the badge + CTAs still stagger in below. */}
           <p className="mt-5 sm:mt-6 text-base sm:text-lg md:text-[1.2rem] text-theme-muted max-w-[38rem] leading-[1.65] sm:leading-[1.7]">
-            Statewave compiles raw events into ranked, token-bounded context
-            bundles with full provenance — so your AI stops forgetting across
-            sessions.
+            Policies, sensitivity labels, and tamper-evident audit receipts —
+            not just retrieval. Every memory traces to its source. Governance
+            built in from day one.
           </p>
 
-          {/* Install command — primary CTA. Replaces the old "Getting Started"
-              button; this IS the getting started. */}
-          <motion.div variants={fadeUp} className="mt-8 sm:mt-10">
+          {/* Credibility chips — proof numbers above the fold so visitors
+              see them without scrolling to ProofSection. */}
+          <motion.div variants={fadeUp} className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2">
+            {PROOF_STATS.map((s) => (
+              <div key={s.label} className="flex items-baseline gap-1.5">
+                <span className="text-lg font-bold text-theme-primary">{s.value}</span>
+                <span className="text-xs text-theme-muted">{s.label}</span>
+              </div>
+            ))}
+          </motion.div>
+
+          {/* Install command — primary CTA. */}
+          <motion.div variants={fadeUp} className="mt-7 sm:mt-9">
             <HeroInstallCommand />
           </motion.div>
 
@@ -193,50 +205,63 @@ function HeroSection() {
   )
 }
 
+const INSTALL_NPX  = 'npx @statewavedev/statewave'
 const INSTALL_UNIX = 'curl -fsSL https://www.statewave.ai/install | sh'
 const INSTALL_WIN  = 'powershell -Command "irm https://www.statewave.ai/install.ps1 | iex"'
 
+type InstallTab = 'node' | 'unix' | 'windows'
+
+const INSTALL_TABS: { id: InstallTab; label: string; cmd: string; prompt: string }[] = [
+  { id: 'node',    label: 'Node',          cmd: INSTALL_NPX,  prompt: '$' },
+  { id: 'unix',    label: 'macOS / Linux', cmd: INSTALL_UNIX, prompt: '$' },
+  { id: 'windows', label: 'Windows',       cmd: INSTALL_WIN,  prompt: '>' },
+]
+
 function HeroInstallCommand() {
-  const [os, setOs] = useState<'unix' | 'windows'>(() =>
-    typeof navigator !== 'undefined' && /Win/i.test(navigator.userAgent) ? 'windows' : 'unix'
+  const [tab, setTab] = useState<InstallTab>(() =>
+    typeof navigator !== 'undefined' && /Win/i.test(navigator.userAgent) ? 'windows' : 'node'
   )
-  const cmd = os === 'unix' ? INSTALL_UNIX : INSTALL_WIN
-  const prompt = os === 'unix' ? '$' : '>'
+  const active = INSTALL_TABS.find((t) => t.id === tab)!
   return (
     <div>
-      {/* OS tab strip */}
+      {/* Tab strip */}
       <div className="flex gap-1 mb-1.5">
-        {(['unix', 'windows'] as const).map((id) => (
+        {INSTALL_TABS.map(({ id, label }) => (
           <button
             key={id}
             type="button"
-            onClick={() => setOs(id)}
+            onClick={() => setTab(id)}
             className={[
               'px-2.5 py-0.5 rounded text-[11px] font-medium transition-colors',
-              os === id
+              tab === id
                 ? 'bg-accent/10 text-accent'
                 : 'text-theme-muted hover:text-theme-secondary',
             ].join(' ')}
           >
-            {id === 'unix' ? 'macOS / Linux' : 'Windows'}
+            {label}
           </button>
         ))}
       </div>
 
       {/* Command pill */}
       <div className="inline-flex items-center gap-2 rounded-lg border border-theme-border/70 bg-surface-2/70 backdrop-blur-sm px-3.5 py-2 font-mono text-xs sm:text-sm max-w-full">
-        <span className="select-none text-accent/70 shrink-0">{prompt}</span>
-        <code className="overflow-x-auto whitespace-nowrap text-theme-secondary">{cmd}</code>
-        <CodeCopyButton code={cmd} label="Copy install command" />
+        <span className="select-none text-accent/70 shrink-0">{active.prompt}</span>
+        <code className="overflow-x-auto whitespace-nowrap text-theme-secondary">{active.cmd}</code>
+        <CodeCopyButton code={active.cmd} label="Copy install command" />
       </div>
 
-      {/* Nudge to Developers page */}
-      <p className="mt-1.5 text-[11px] text-theme-muted/70">
-        Boots a local server + wires your MCP clients in one step.{' '}
-        <Link to="/developers" className="text-theme-muted hover:text-accent transition-colors underline-offset-2 hover:underline">
+      {/* Trust chips */}
+      <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-theme-muted/65">
+        <span>No API key required</span>
+        <span className="text-theme-border" aria-hidden>·</span>
+        <span>Works offline</span>
+        <span className="text-theme-border" aria-hidden>·</span>
+        <span>Open source · Apache 2.0</span>
+        <span className="text-theme-border" aria-hidden>·</span>
+        <Link to="/developers" className="hover:text-accent transition-colors underline-offset-2 hover:underline">
           Full guide →
         </Link>
-      </p>
+      </div>
     </div>
   )
 }
@@ -445,6 +470,156 @@ function UseCasesSection() {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
           </svg>
         </Link>
+      </div>
+    </Section>
+  )
+}
+
+function AIClientsSection() {
+  const clients = [
+    { name: 'Claude Code',        note: 'Auto-configures via MCP server' },
+    { name: 'Claude Desktop',     note: 'Auto-configures via MCP server' },
+    { name: 'Cursor',             note: 'Auto-configures via MCP server' },
+    { name: 'VS Code Copilot',    note: 'Auto-configures via MCP server' },
+    { name: 'Codex CLI',          note: 'Auto-configures via MCP server' },
+    { name: 'Cline',              note: 'Any MCP-compatible client' },
+    { name: 'Continue',           note: 'Any MCP-compatible client' },
+    { name: 'Windsurf',           note: 'Any MCP-compatible client' },
+    { name: 'Zed',                note: 'Any MCP-compatible client' },
+    { name: 'Aider',              note: 'Any MCP-compatible client' },
+    { name: 'Goose',              note: 'Any MCP-compatible client' },
+    { name: 'Your own agent',     note: 'REST API · Python · TypeScript' },
+  ]
+
+  return (
+    <Section className="bg-surface-1/50">
+      <div className="text-center mb-12">
+        <Heading id="ai-clients" className="text-3xl md:text-4xl font-bold text-theme-primary tracking-tight">
+          Works with the tools you already use
+        </Heading>
+        <p className="mt-4 text-theme-muted max-w-2xl mx-auto">
+          One quickstart command auto-detects and wires every installed AI tool.
+          Any MCP-compatible client works — not just the ones we list here.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+        {clients.map((c, i) => (
+          <motion.div
+            key={c.name}
+            initial={{ opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: i * 0.04 }}
+            className="flex flex-col gap-1 rounded-xl border border-theme-border bg-surface-1 px-4 py-3 hover:border-accent/30 transition-colors"
+          >
+            <p className="text-sm font-medium text-theme-primary">{c.name}</p>
+            <p className="text-[11px] text-theme-muted">{c.note}</p>
+          </motion.div>
+        ))}
+      </div>
+
+      <p className="mt-6 text-center text-xs text-theme-muted">
+        Missing your tool?{' '}
+        <a
+          href="https://github.com/smaramwbc/statewave/issues"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-accent hover:underline"
+        >
+          Open an issue →
+        </a>
+      </p>
+    </Section>
+  )
+}
+
+function GovernanceSection() {
+  const pillars = [
+    {
+      title: 'Sensitivity labels',
+      desc: 'Tag memories as pii, financial, or secret. Auto-detected at ingest, operator-reviewed before promotion. Labels travel with the memory forever.',
+      icon: (
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+          d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A2 2 0 013 12V7a4 4 0 014-4z" />
+      ),
+    },
+    {
+      title: 'Declarative policies',
+      desc: 'YAML policies gate access by caller identity. Deny or redact sensitive memories per tenant. log_only mode for audit before enforcement.',
+      icon: (
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+          d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+      ),
+    },
+    {
+      title: 'State-assembly receipts',
+      desc: 'Every context call produces an immutable, ULID-addressable receipt with a byte-level integrity hash. Replay any call. Prove exactly what the agent saw.',
+      icon: (
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+          d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+      ),
+    },
+    {
+      title: 'Full provenance',
+      desc: 'Every compiled memory carries a chain back to its source episodes. Your agent can show its work — which conversations, commits, or documents produced each fact.',
+      icon: (
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+          d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+      ),
+    },
+    {
+      title: 'Multi-tenant isolation',
+      desc: 'Subject-scoped architecture with app-layer query isolation. One instance serves many tenants without cross-tenant data leakage — by design, not by convention.',
+      icon: (
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+          d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+      ),
+    },
+    {
+      title: 'GDPR-ready erasure',
+      desc: 'Subject deletion removes all episodes, memories, and receipts for a given subject in one call. No orphaned data, no manual cleanup.',
+      icon: (
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+      ),
+    },
+  ]
+
+  return (
+    <Section>
+      <div className="text-center mb-12">
+        <span className="inline-block mb-3 text-[11px] font-medium uppercase tracking-wider text-accent">
+          What sets Statewave apart
+        </span>
+        <Heading id="production-governance" className="text-3xl md:text-4xl font-bold text-theme-primary tracking-tight">
+          Memory with governance built in
+        </Heading>
+        <p className="mt-4 text-theme-muted max-w-2xl mx-auto">
+          Retrieval is a solved problem. Production AI needs policies, an audit trail, and
+          data boundaries — not just fast lookup. Statewave is built for that from the ground up.
+        </p>
+      </div>
+
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+        {pillars.map((p, i) => (
+          <motion.div
+            key={p.title}
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: i * 0.08 }}
+            className="rounded-2xl border border-accent/10 bg-accent/[0.025] p-6"
+          >
+            <div className="mb-4 inline-flex items-center justify-center w-9 h-9 rounded-lg bg-accent/10">
+              <svg className="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                {p.icon}
+              </svg>
+            </div>
+            <h3 className="text-base font-semibold text-theme-primary mb-2">{p.title}</h3>
+            <p className="text-sm text-theme-muted leading-relaxed">{p.desc}</p>
+          </motion.div>
+        ))}
       </div>
     </Section>
   )
@@ -719,16 +894,30 @@ function ProofSection() {
 }
 
 function DeveloperSection() {
-  // Docker leads — the quickest path to a running Statewave is `docker compose
-  // up`. Python / TypeScript tabs are kept for visitors evaluating the SDK
-  // story. Default tab is Docker so the panel mirrors the bullet ordering.
-  const [tab, setTab] = React.useState<'docker' | 'python' | 'typescript'>('docker')
+  // npx leads — the fastest path for a new visitor. Docker is kept for
+  // visitors who want to control the compose setup directly.
+  const [tab, setTab] = React.useState<'npx' | 'docker' | 'python' | 'typescript'>('npx')
 
-  // Each tab is broken into copy-able blocks so visitors can grab one command
-  // at a time without selecting text by hand. `display` is what shows in the
-  // panel (with `$` prompts for shell lines); `copy` is what's written to the
-  // clipboard (no prompt prefix).
   type Block = { label: string; display: string; copy: string }
+
+  const npxBlocks: Block[] = [
+    {
+      label: 'One command — installs, wires MCP clients, seeds repos',
+      display: '$ npx @statewavedev/statewave',
+      copy: 'npx @statewavedev/statewave',
+    },
+    {
+      label: 'Verify the server is up',
+      display: `$ curl http://localhost:8100/healthz
+# → {"status":"ok"}`,
+      copy: 'curl http://localhost:8100/healthz',
+    },
+    {
+      label: 'Tear down when done',
+      display: '$ npx @statewavedev/statewave --down',
+      copy: 'npx @statewavedev/statewave --down',
+    },
+  ]
 
   const dockerBlocks: Block[] = [
     {
@@ -815,7 +1004,10 @@ console.log(ctx.assembledContext);
     },
   ]
 
-  const blocks = tab === 'docker' ? dockerBlocks : tab === 'python' ? pythonBlocks : tsBlocks
+  const blocks =
+    tab === 'npx' ? npxBlocks :
+    tab === 'docker' ? dockerBlocks :
+    tab === 'python' ? pythonBlocks : tsBlocks
 
   return (
     <Section>
@@ -920,45 +1112,29 @@ console.log(ctx.assembledContext);
               <div className="w-3 h-3 rounded-full bg-green-500/60" />
             </div>
             <div role="tablist" aria-label="Quickstart" className="flex gap-1 rounded-lg bg-surface-2 p-0.5">
-              <button
-                role="tab"
-                type="button"
-                aria-selected={tab === 'docker'}
-                onClick={() => setTab('docker')}
-                className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
-                  tab === 'docker'
-                    ? 'bg-surface-0 text-theme-primary shadow-sm'
-                    : 'text-theme-muted hover:text-theme-secondary'
-                }`}
-              >
-                Docker
-              </button>
-              <button
-                role="tab"
-                type="button"
-                aria-selected={tab === 'python'}
-                onClick={() => setTab('python')}
-                className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
-                  tab === 'python'
-                    ? 'bg-surface-0 text-theme-primary shadow-sm'
-                    : 'text-theme-muted hover:text-theme-secondary'
-                }`}
-              >
-                Python SDK
-              </button>
-              <button
-                role="tab"
-                type="button"
-                aria-selected={tab === 'typescript'}
-                onClick={() => setTab('typescript')}
-                className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
-                  tab === 'typescript'
-                    ? 'bg-surface-0 text-theme-primary shadow-sm'
-                    : 'text-theme-muted hover:text-theme-secondary'
-                }`}
-              >
-                TypeScript SDK
-              </button>
+              {(
+                [
+                  { id: 'npx', label: 'npx' },
+                  { id: 'docker', label: 'Docker' },
+                  { id: 'python', label: 'Python SDK' },
+                  { id: 'typescript', label: 'TypeScript SDK' },
+                ] as const
+              ).map(({ id, label }) => (
+                <button
+                  key={id}
+                  role="tab"
+                  type="button"
+                  aria-selected={tab === id}
+                  onClick={() => setTab(id)}
+                  className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+                    tab === id
+                      ? 'bg-surface-0 text-theme-primary shadow-sm'
+                      : 'text-theme-muted hover:text-theme-secondary'
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
             </div>
           </div>
           <div className="space-y-3">
@@ -973,9 +1149,9 @@ console.log(ctx.assembledContext);
                 <pre className="text-theme-secondary overflow-x-auto px-3 pb-3 text-[12.5px] leading-relaxed"><code>{block.display}</code></pre>
               </div>
             ))}
-            {tab === 'docker' && (
+            {(tab === 'npx' || tab === 'docker') && (
               <p className="pt-1 text-right text-xs text-theme-muted">
-                Boots in demo mode — add an LLM key for semantic search.{' '}
+                Runs in demo mode by default — add an LLM key for semantic search.{' '}
                 <a
                   href="https://github.com/smaramwbc/statewave#run-the-server"
                   target="_blank"
