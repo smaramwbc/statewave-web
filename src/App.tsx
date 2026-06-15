@@ -6,6 +6,7 @@ import { HomePage } from './pages/HomePage'
 const ProductPage = lazy(() => import('./pages/ProductPage').then(m => ({ default: m.ProductPage })))
 const WhyPage = lazy(() => import('./pages/WhyPage').then(m => ({ default: m.WhyPage })))
 const UseCasesPage = lazy(() => import('./pages/UseCasesPage').then(m => ({ default: m.UseCasesPage })))
+const MultiAgentMemoryPage = lazy(() => import('./pages/MultiAgentMemoryPage').then(m => ({ default: m.MultiAgentMemoryPage })))
 const ConnectorsPage = lazy(() => import('./pages/ConnectorsPage').then(m => ({ default: m.ConnectorsPage })))
 const DevelopersPage = lazy(() => import('./pages/DevelopersPage').then(m => ({ default: m.DevelopersPage })))
 const CookiesPage = lazy(() => import('./pages/CookiesPage').then(m => ({ default: m.CookiesPage })))
@@ -30,6 +31,7 @@ export default function App() {
           <Route path="/product" element={<ProductPage />} />
           <Route path="/why" element={<WhyPage />} />
           <Route path="/use-cases" element={<UseCasesPage />} />
+          <Route path="/use-cases/multi-agent-memory" element={<MultiAgentMemoryPage />} />
           <Route path="/connectors" element={<ConnectorsPage />} />
           <Route path="/developers" element={<DevelopersPage />} />
           <Route path="/launch" element={<LaunchPage />} />

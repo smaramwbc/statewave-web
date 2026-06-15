@@ -6,7 +6,7 @@ interface Props {
   href?: string
   to?: string
   onClick?: () => void
-  variant?: 'primary' | 'secondary' | 'ghost'
+  variant?: 'primary' | 'secondary' | 'ghost' | 'white' | 'dark'
   size?: 'sm' | 'md' | 'lg'
   className?: string
 }
@@ -25,6 +25,10 @@ export const Button = forwardRef<HTMLElement, Props>(function Button(
     primary: 'bg-accent text-white hover:bg-accent-light shadow-lg shadow-accent/20 hover:shadow-accent/30',
     secondary: 'bg-surface-2 text-theme-primary border border-theme-border hover:bg-surface-3 hover:border-theme-border',
     ghost: 'text-theme-muted hover:text-theme-primary',
+    // High-contrast CTAs for dark landing surfaces (e.g. the Multi-Agent
+    // Memory page), where a solid white or solid dark button is the design.
+    white: 'bg-white text-[#0a0a0f] hover:bg-white/90 shadow-lg shadow-black/10',
+    dark: 'bg-[#0a0a0f] text-white hover:bg-[#18181b]',
   }
 
   // min-h-* enforces the 44px WCAG / Apple HIG tap target on mobile so

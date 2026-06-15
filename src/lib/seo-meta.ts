@@ -42,6 +42,7 @@ export type RouteKey =
   | '/product'
   | '/why'
   | '/use-cases'
+  | '/use-cases/multi-agent-memory'
   | '/connectors'
   | '/developers'
   | '/about'
@@ -56,6 +57,7 @@ export const PUBLIC_ROUTES: readonly RouteKey[] = [
   '/product',
   '/why',
   '/use-cases',
+  '/use-cases/multi-agent-memory',
   '/connectors',
   '/developers',
   '/about',
@@ -118,6 +120,15 @@ export const PAGE_META: Record<RouteKey, PageMeta> = {
     breadcrumbLabel: 'Use Cases',
     ogType: 'article',
     priority: 0.8,
+    changefreq: 'monthly',
+  },
+  '/use-cases/multi-agent-memory': {
+    title: 'Multi-Agent Memory — A Shared Memory Layer for Agent Pipelines',
+    description:
+      'Give multi-agent pipelines one shared, append-only memory layer: each agent writes findings as episodes and reads ranked, token-bounded context before acting — resumable across partial failures, without prompt chaining.',
+    breadcrumbLabel: 'Multi-Agent Memory',
+    ogType: 'article',
+    priority: 0.7,
     changefreq: 'monthly',
   },
   '/connectors': {
