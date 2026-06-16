@@ -1048,7 +1048,26 @@ function UseCaseCard({ uc, index }: { uc: UseCase; index: number }) {
 
 /* ─── Connectors / bootstrap patterns ────────────────────────────────────── */
 
+type ConnectorStatusFilter = 'all' | 'available' | 'coming-soon'
+
 function ConnectorSection() {
+  // "Available" = usable today (shipped packages + integration recipes);
+  // "Coming soon" = planned packages. Default to Available.
+  const [connectorStatus, setConnectorStatus] =
+    useState<ConnectorStatusFilter>('available')
+  const isComingSoon = (c: Connector) => c.package?.status === 'planned'
+  const connectorMatches = (c: Connector) =>
+    connectorStatus === 'all'
+      ? true
+      : connectorStatus === 'coming-soon'
+        ? isComingSoon(c)
+        : !isComingSoon(c)
+  const connectorCount = (key: ConnectorStatusFilter) =>
+    key === 'all'
+      ? CONNECTORS.length
+      : key === 'coming-soon'
+        ? CONNECTORS.filter(isComingSoon).length
+        : CONNECTORS.filter((c) => !isComingSoon(c)).length
   return (
     <Section id="connectors">
       <div className="max-w-2xl mb-8">
@@ -1107,10 +1126,42 @@ function ConnectorSection() {
         </p>
       </div>
 
+      {/* Status filter — Available (usable today) / Coming soon (planned) / All */}
+      <div className="mb-8 flex flex-wrap items-center gap-2">
+        <span className="text-[11px] font-medium uppercase tracking-wider text-theme-muted mr-1">
+          Status
+        </span>
+        <FilterChip
+          active={connectorStatus === 'available'}
+          onClick={() => setConnectorStatus('available')}
+          label="Available"
+          count={connectorCount('available')}
+          subtle
+          statusDotClass="bg-emerald-400"
+        />
+        <FilterChip
+          active={connectorStatus === 'coming-soon'}
+          onClick={() => setConnectorStatus('coming-soon')}
+          label="Coming soon"
+          count={connectorCount('coming-soon')}
+          subtle
+          statusDotClass="bg-theme-muted"
+        />
+        <FilterChip
+          active={connectorStatus === 'all'}
+          onClick={() => setConnectorStatus('all')}
+          label="All"
+          count={connectorCount('all')}
+          subtle
+        />
+      </div>
+
       {/* Connector groups */}
       <div className="space-y-10">
         {CONNECTOR_GROUPS.map((group) => {
-          const items = CONNECTORS.filter((c) => c.group === group.id)
+          const items = CONNECTORS.filter(
+            (c) => c.group === group.id && connectorMatches(c),
+          )
           if (items.length === 0) return null
           return (
             <div key={group.id}>
