@@ -983,7 +983,19 @@ export function HeroBackground({ contentZoneRef }: { contentZoneRef?: React.RefO
           className="absolute pointer-events-auto cursor-pointer z-50"
           style={{
             left: Math.min(tooltip.x + 16, (canvasRef.current?.getBoundingClientRect().width ?? 600) - 320),
-            top: Math.max(tooltip.y - 20, 8),
+            // Clamp vertically so the card never spills past the hero's bottom
+            // edge — the section is overflow-hidden, which would otherwise clip
+            // it. Push the top up by an estimated card height when the anchor
+            // sits low (episode chips are short; memory/subject cards are tall).
+            top: Math.min(
+              Math.max(tooltip.y - 20, 8),
+              Math.max(
+                8,
+                (canvasRef.current?.getBoundingClientRect().height ?? 600) -
+                  (tooltip.kind === 'episode' ? 64 : 250) -
+                  8,
+              ),
+            ),
           }}
           // Clicking the card bubbles to the window 'click' listener
           // (handleClick), which opens the widget for the still-set
@@ -1061,7 +1073,10 @@ export function HeroBackground({ contentZoneRef }: { contentZoneRef?: React.RefO
               </div>
               <div className="space-y-1">
                 {tooltip.text.split('\n').map((line, i) => (
-                  <p key={i} className="text-[11px] leading-relaxed" style={{ color: isDark ? '#dbe2fe' : '#1f2937', opacity: Math.max(0.82, 0.95 - i * 0.06) }}>
+                  // Clamp the first line (the memory/blurb content, which can be
+                  // a long paragraph) so the card height stays bounded and the
+                  // position clamp below can reliably keep it on-screen.
+                  <p key={i} className={`text-[11px] leading-relaxed ${i === 0 ? 'line-clamp-4' : ''}`} style={{ color: isDark ? '#dbe2fe' : '#1f2937', opacity: Math.max(0.82, 0.95 - i * 0.06) }}>
                     {line}
                   </p>
                 ))}
