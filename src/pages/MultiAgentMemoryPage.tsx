@@ -350,12 +350,16 @@ function MemoryMergingSection() {
         {MEMORY_CARDS.map((card) => (
           <div
             key={card.title}
-            className="overflow-hidden rounded-2xl border border-theme-border bg-surface-1"
+            className="flex flex-col overflow-hidden rounded-2xl border border-theme-border bg-surface-1"
           >
-            <div className="flex min-h-[300px] items-center justify-center border-b border-theme-border bg-surface-2 px-6 py-10">
+            {/* Visual grows to fill so the footers below line up across the
+                row (grid stretches the cards to equal height). */}
+            <div className="flex flex-1 min-h-[300px] items-center justify-center border-b border-theme-border bg-surface-2 px-6 py-10">
               <card.Visual />
             </div>
-            <div className="p-6">
+            {/* Fixed footer height (sm+) so every card's title/body block is
+                the same height and the dividers align. */}
+            <div className="p-6 sm:min-h-[9.5rem]">
               <h3 className="mb-2 text-lg font-semibold text-theme-primary">{card.title}</h3>
               <p className="text-sm leading-relaxed text-theme-muted">{card.body}</p>
             </div>
