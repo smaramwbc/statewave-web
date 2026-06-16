@@ -27,7 +27,7 @@ type CategoryId =
   | 'infra'
   | 'domain'
 
-type StatusId = 'strongest' | 'good-fit' | 'connector' | 'future'
+type StatusId = 'available' | 'strongest' | 'good-fit' | 'connector' | 'future'
 
 interface UseCase {
   title: string
@@ -68,6 +68,12 @@ const CATEGORIES: { id: CategoryId; label: string; blurb: string }[] = [
 ]
 
 const STATUSES: { id: StatusId; label: string; pillClass: string; dotClass: string }[] = [
+  {
+    id: 'available',
+    label: 'Available',
+    pillClass: 'bg-emerald-500/10 text-emerald-300 border-emerald-500/25',
+    dotClass: 'bg-emerald-400',
+  },
   {
     id: 'strongest',
     label: 'Strongest today',
@@ -349,7 +355,7 @@ const USE_CASES: UseCase[] = [
   {
     title: 'Multi-agent pipeline memory',
     description: 'A shared memory layer for multi-agent pipelines. Each agent writes findings as episodes and reads compiled context before acting — no prompt chaining, no context blowout, resumable across partial failures.',
-    category: 'infra', status: 'good-fit',
+    category: 'infra', status: 'available',
     tags: ['infra', 'multi-agent'],
     stack: ['Python', 'TypeScript', 'OpenAI'],
     repo: 'statewave-multi-agent-memory',
@@ -771,7 +777,9 @@ type StatusFilter = StatusId | 'all'
 
 function ExplorerSection() {
   const [category, setCategory] = useState<CategoryFilter>('all')
-  const [status, setStatus] = useState<StatusFilter>('all')
+  // Default to "Available" — the use cases backed by a shipped example/page —
+  // so visitors first see what they can actually grab today.
+  const [status, setStatus] = useState<StatusFilter>('available')
 
   const explorerPool = useMemo(() => USE_CASES.filter((u) => u.status !== 'strongest'), [])
 
