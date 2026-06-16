@@ -1174,9 +1174,9 @@ function ConnectorSection() {
           if (items.length === 0) return null
           return (
             <div key={group.id}>
-              <div className="flex flex-col md:flex-row md:items-baseline md:justify-between gap-1 mb-4">
+              <div className="mb-4">
                 <h3 className="text-lg font-semibold text-theme-primary">{group.label}</h3>
-                <p className="text-sm text-theme-muted md:max-w-md md:text-right">
+                <p className="mt-1 text-sm text-theme-muted max-w-2xl">
                   {group.description}
                 </p>
               </div>
