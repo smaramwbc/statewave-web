@@ -33,6 +33,7 @@ import { useTheme } from '../lib/theme'
 import { Logo } from './Logo'
 import { MarkdownMessage } from './chat/MarkdownMessage'
 import { SUGGESTIONS } from './chat/suggestions'
+import { safeUrl } from '@statewavedev/chat-react'
 
 // Responsive breakpoints
 const useResponsive = () => {
@@ -1485,24 +1486,38 @@ function SourcesRow({ sources, compact }: { sources: DocSource[]; compact?: bool
       className={`${compact ? 'mt-1 max-w-[95%]' : 'mt-1.5 max-w-[90%]'} px-1 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[10px] leading-snug`}
     >
       <span className="uppercase tracking-wider text-theme-muted/80">Sources</span>
-      {sources.map((s, i) => (
-        <span key={s.doc_path} className="flex items-center gap-1.5">
-          <a
-            href={s.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            title={s.breadcrumb}
-            className="text-theme-secondary hover:text-accent hover:underline underline-offset-2 decoration-accent/40 transition-colors font-mono"
-            data-testid="source-link"
-            data-doc-path={s.doc_path}
-          >
-            {s.doc_path}
-          </a>
-          {i < sources.length - 1 && (
-            <span aria-hidden className="text-theme-muted/50">·</span>
-          )}
-        </span>
-      ))}
+      {sources.map((s, i) => {
+        const safe = safeUrl(s.url)
+        return (
+          <span key={s.doc_path} className="flex items-center gap-1.5">
+            {safe ? (
+              <a
+                href={safe.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                title={s.breadcrumb}
+                className="text-theme-secondary hover:text-accent hover:underline underline-offset-2 decoration-accent/40 transition-colors font-mono"
+                data-testid="source-link"
+                data-doc-path={s.doc_path}
+              >
+                {s.doc_path}
+              </a>
+            ) : (
+              <span
+                title={s.breadcrumb}
+                className="text-theme-muted font-mono"
+                data-testid="source-link"
+                data-doc-path={s.doc_path}
+              >
+                {s.doc_path}
+              </span>
+            )}
+            {i < sources.length - 1 && (
+              <span aria-hidden className="text-theme-muted/50">·</span>
+            )}
+          </span>
+        )
+      })}
     </div>
   )
 }

@@ -22,6 +22,7 @@ import {
   useRef,
   type ReactNode,
 } from 'react'
+import { fetchWithRetry } from '@statewavedev/chat-core'
 import {
   ChatWidgetContext,
   DEFAULT_PERSONA,
@@ -88,41 +89,7 @@ function loadOnboarding(): OnboardingRecord {
   }
 }
 
-/**
- * Fetch wrapper that auto-retries transient failures so a brief network blip
- * doesn't surface as an error bubble. Retries on:
- *   - Network errors (fetch throws — typically TypeError "Failed to fetch")
- *   - HTTP 408 / 429 / 5xx (transient server-side or rate-limit responses)
- * Backoff is exponential and short (250ms, 750ms) so the visitor only sees a
- * slightly longer loading indicator on a recovering blip. Non-transient HTTP
- * statuses (4xx other than 408/429) are returned as-is for the caller to render.
- */
-async function fetchWithRetry(
-  input: RequestInfo,
-  init: RequestInit,
-  maxAttempts = 3,
-): Promise<Response> {
-  let lastErr: unknown
-  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-    try {
-      const resp = await fetch(input, init)
-      const transient =
-        resp.status === 408 || resp.status === 429 || (resp.status >= 500 && resp.status < 600)
-      if (transient && attempt < maxAttempts) {
-        await new Promise((r) => setTimeout(r, 250 * Math.pow(3, attempt - 1)))
-        continue
-      }
-      return resp
-    } catch (err) {
-      lastErr = err
-      if (attempt < maxAttempts) {
-        await new Promise((r) => setTimeout(r, 250 * Math.pow(3, attempt - 1)))
-        continue
-      }
-    }
-  }
-  throw lastErr instanceof Error ? lastErr : new Error('Network error')
-}
+// fetchWithRetry is provided by @statewavedev/chat-core (imported above).
 
 function persistOnboarding(rec: OnboardingRecord): void {
   if (typeof window === 'undefined') return
