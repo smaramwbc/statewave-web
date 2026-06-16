@@ -191,12 +191,12 @@ function HeroSection() {
 
           {/* Install command — primary CTA. */}
           <motion.div variants={fadeUp} className="mt-7 sm:mt-9">
-            <p className="mx-auto mb-2.5 max-w-[34rem] text-sm text-theme-muted leading-relaxed">
+            <HeroInstallCommand centered />
+            <p className="mx-auto mt-3 max-w-[34rem] text-sm text-theme-muted leading-relaxed">
               One command boots Statewave locally — API, admin console, and
               Postgres — and wires it into your MCP clients. No account, runs
               offline.
             </p>
-            <HeroInstallCommand centered />
           </motion.div>
 
           <motion.div variants={fadeUp} className="mt-5 flex flex-wrap items-center justify-center gap-3">
