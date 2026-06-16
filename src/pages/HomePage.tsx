@@ -125,9 +125,9 @@ function HeroSection() {
           variants={stagger}
           initial="hidden"
           animate="show"
-          className="max-w-3xl"
           onMouseMove={(e) => e.stopPropagation()}
           onClick={(e) => e.stopPropagation()}
+          className="max-w-3xl mx-auto text-center"
         >
           {/* Badge */}
           <motion.div variants={fadeUp}>
@@ -152,7 +152,7 @@ function HeroSection() {
               because it's the largest remaining text block. Keeping it
               animated re-creates the same 1s+ render delay we just removed.
               Paint immediately; the badge + CTAs still stagger in below. */}
-          <p className="mt-5 sm:mt-6 text-base sm:text-lg md:text-[1.2rem] text-theme-muted max-w-[38rem] leading-[1.65] sm:leading-[1.7]">
+          <p className="mt-5 sm:mt-6 text-base sm:text-lg md:text-[1.2rem] text-theme-muted max-w-[38rem] mx-auto leading-[1.65] sm:leading-[1.7]">
             Policies, sensitivity labels, and tamper-evident audit receipts —
             not just retrieval. Every memory traces to its source. Governance
             built in from day one.
@@ -160,7 +160,7 @@ function HeroSection() {
 
           {/* Credibility chips — proof numbers above the fold so visitors
               see them without scrolling to ProofSection. */}
-          <motion.div variants={fadeUp} className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2">
+          <motion.div variants={fadeUp} className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
             {PROOF_STATS.map((s) => (
               <div key={s.label} className="flex items-baseline gap-1.5">
                 <span className="text-lg font-bold text-theme-primary">{s.value}</span>
@@ -171,10 +171,15 @@ function HeroSection() {
 
           {/* Install command — primary CTA. */}
           <motion.div variants={fadeUp} className="mt-7 sm:mt-9">
-            <HeroInstallCommand />
+            <p className="mx-auto mb-2.5 max-w-[34rem] text-sm text-theme-muted leading-relaxed">
+              One command boots Statewave locally — API, admin console, and
+              Postgres — and wires it into your MCP clients. No account, runs
+              offline.
+            </p>
+            <HeroInstallCommand centered />
           </motion.div>
 
-          <motion.div variants={fadeUp} className="mt-5 flex flex-wrap items-center gap-3">
+          <motion.div variants={fadeUp} className="mt-5 flex flex-wrap items-center justify-center gap-3">
             <button
               ref={heroCtaRef}
               type="button"
@@ -217,15 +222,16 @@ const INSTALL_TABS: { id: InstallTab; label: string; cmd: string; prompt: string
   { id: 'windows', label: 'Windows',       cmd: INSTALL_WIN,  prompt: '>' },
 ]
 
-function HeroInstallCommand() {
+function HeroInstallCommand({ centered = false }: { centered?: boolean }) {
   const [tab, setTab] = useState<InstallTab>(() =>
     typeof navigator !== 'undefined' && /Win/i.test(navigator.userAgent) ? 'windows' : 'node'
   )
   const active = INSTALL_TABS.find((t) => t.id === tab)!
   return (
     <div>
-      {/* Tab strip */}
-      <div className="flex gap-1 mb-1.5">
+      {/* Tab strip — the command pill is inline-flex, so it centers under a
+          text-center parent on its own; the flex rows need justify-center. */}
+      <div className={`flex gap-1 mb-1.5 ${centered ? 'justify-center' : ''}`}>
         {INSTALL_TABS.map(({ id, label }) => (
           <button
             key={id}
@@ -251,12 +257,10 @@ function HeroInstallCommand() {
       </div>
 
       {/* Trust chips */}
-      <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-theme-muted/65">
+      <div className={`mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-theme-muted/65 ${centered ? 'justify-center' : ''}`}>
         <span>No API key required</span>
         <span className="text-theme-border" aria-hidden>·</span>
         <span>Works offline</span>
-        <span className="text-theme-border" aria-hidden>·</span>
-        <span>Open source · Apache 2.0</span>
         <span className="text-theme-border" aria-hidden>·</span>
         <Link to="/developers" className="hover:text-accent transition-colors underline-offset-2 hover:underline">
           Full guide →
