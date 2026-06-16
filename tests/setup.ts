@@ -1,5 +1,8 @@
 import "@testing-library/jest-dom/vitest";
-import { beforeEach, vi } from "vitest";
+import { cleanup } from "@testing-library/react";
+import { afterEach, beforeEach, vi } from "vitest";
+
+afterEach(() => cleanup());
 
 // Stub `fetch` globally before every test so components that fire
 // network calls during render (e.g. <HeroBackground> → fetchLiveData
