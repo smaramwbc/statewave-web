@@ -52,6 +52,8 @@
   --theme-selection: rgba(99, 102, 241, 0.3);
   --theme-hero-particle: #6366f1;
   --theme-hero-opacity: 0.6;
+  /* Subtle hero dot-grid texture (masked toward the centre in HomePage). */
+  --theme-hero-dot: rgba(255, 255, 255, 0.045);
   --theme-hero-overlay-from: rgba(3, 7, 18, 0.4);
   --theme-hero-overlay-via: rgba(3, 7, 18, 0.6);
   --theme-gradient-text-from: #6366f1;
@@ -89,6 +91,9 @@
   --theme-selection: rgba(99, 102, 241, 0.15);
   --theme-hero-particle: #4f46e5;
   --theme-hero-opacity: 0.35;
+  /* Slightly stronger in light mode — the near-white surface needs the
+     texture more than the dark theme does. */
+  --theme-hero-dot: rgba(2, 6, 23, 0.06);
   --theme-hero-overlay-from: rgba(250, 251, 252, 0.5);
   --theme-hero-overlay-via: rgba(250, 251, 252, 0.7);
   --theme-gradient-text-from: #4f46e5;

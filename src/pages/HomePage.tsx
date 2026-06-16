@@ -109,6 +109,31 @@ function HeroSection() {
         </Suspense>
       )}
 
+      {/* Depth layers — add visual weight so the centered content doesn't
+          float on flat (especially near-white light-theme) space. Both are
+          decorative + behind the content, and fade out toward the edges. */}
+      {/* 1. Soft accent glow behind the headline. */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background:
+            'radial-gradient(42rem 28rem at 50% 32%, rgba(99, 102, 241, 0.10), transparent 70%)',
+        }}
+      />
+      {/* 2. Masked dot-grid texture (denser in the centre, fades at edges). */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          backgroundImage:
+            'radial-gradient(var(--theme-hero-dot) 1px, transparent 1px)',
+          backgroundSize: '24px 24px',
+          maskImage:
+            'radial-gradient(ellipse 65% 55% at 50% 38%, #000 38%, transparent 78%)',
+          WebkitMaskImage:
+            'radial-gradient(ellipse 65% 55% at 50% 38%, #000 38%, transparent 78%)',
+        }}
+      />
+
       {/* Bottom-edge fade — only mask the final ~35% so the section blends
           into the page below without killing the lower particles' colors. */}
       <div
