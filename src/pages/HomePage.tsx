@@ -160,13 +160,33 @@ function HeroSection() {
 
           {/* Credibility chips — proof numbers above the fold so visitors
               see them without scrolling to ProofSection. */}
-          <motion.div variants={fadeUp} className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
-            {PROOF_STATS.map((s) => (
-              <div key={s.label} className="flex items-baseline gap-1.5">
-                <span className="text-lg font-semibold text-theme-primary">{s.value}</span>
-                <span className="text-xs text-theme-muted">{s.label}</span>
-              </div>
-            ))}
+          <motion.div variants={fadeUp} className="mt-6 flex flex-wrap items-center justify-center gap-2">
+            {PROOF_STATS.map((s) => {
+              // Purposeful colour, not rainbow: the 8/8 win reads positive,
+              // the 2/8 naive baseline reads negative (that's the comparison),
+              // the raw counts stay neutral.
+              const tone = /naive/i.test(s.label)
+                ? 'naive'
+                : /support workflow/i.test(s.label)
+                  ? 'win'
+                  : 'neutral'
+              // Tint only the chip (background + border); keep the text at the
+              // normal primary/muted colours so it stays readable.
+              const chip = {
+                neutral: 'border-theme-border bg-surface-2',
+                win: 'border-emerald-500/30 bg-emerald-500/10',
+                naive: 'border-red-500/25 bg-red-500/[0.08]',
+              }[tone]
+              return (
+                <span
+                  key={s.label}
+                  className={`inline-flex items-baseline gap-1.5 rounded-full border px-3 py-1 ${chip}`}
+                >
+                  <span className="text-sm font-semibold text-theme-primary">{s.value}</span>
+                  <span className="text-xs text-theme-muted">{s.label}</span>
+                </span>
+              )
+            })}
           </motion.div>
 
           {/* Install command — primary CTA. */}
