@@ -163,7 +163,7 @@ function HeroSection() {
           <motion.div variants={fadeUp} className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
             {PROOF_STATS.map((s) => (
               <div key={s.label} className="flex items-baseline gap-1.5">
-                <span className="text-lg font-bold text-theme-primary">{s.value}</span>
+                <span className="text-lg font-semibold text-theme-primary">{s.value}</span>
                 <span className="text-xs text-theme-muted">{s.label}</span>
               </div>
             ))}
@@ -256,12 +256,9 @@ function HeroInstallCommand({ centered = false }: { centered?: boolean }) {
         <CodeCopyButton code={active.cmd} label="Copy install command" />
       </div>
 
-      {/* Trust chips */}
-      <div className={`mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-theme-muted/65 ${centered ? 'justify-center' : ''}`}>
-        <span>No API key required</span>
-        <span className="text-theme-border" aria-hidden>·</span>
-        <span>Works offline</span>
-        <span className="text-theme-border" aria-hidden>·</span>
+      {/* Docs link — "no account / offline" already covered by the context
+          line above, so no trust chips here. */}
+      <div className={`mt-2 text-[11px] text-theme-muted ${centered ? 'text-center' : ''}`}>
         <Link to="/developers" className="hover:text-accent transition-colors underline-offset-2 hover:underline">
           Full guide →
         </Link>
