@@ -35,7 +35,7 @@ describe.runIf(distBuildAvailable)('prerendered dist/index.html', () => {
   })
 
   it('contains the hero <h1> in the initial document', () => {
-    expect(html).toMatch(/<h1[^>]*>[\s\S]*?memory runtime[\s\S]*?<\/h1>/i)
+    expect(html).toMatch(/<h1[^>]*>[\s\S]*?AI memory[\s\S]*?<\/h1>/i)
   })
 
   it('renders the navbar shell (Skip-to-content link)', () => {
