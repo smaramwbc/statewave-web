@@ -1048,26 +1048,27 @@ function UseCaseCard({ uc, index }: { uc: UseCase; index: number }) {
 
 /* ─── Connectors / bootstrap patterns ────────────────────────────────────── */
 
-type ConnectorStatusFilter = 'all' | 'available' | 'coming-soon'
+type ConnectorStatusFilter = 'all' | 'available' | 'recipe' | 'coming-soon'
 
 function ConnectorSection() {
-  // "Available" = usable today (shipped packages + integration recipes);
-  // "Coming soon" = planned packages. Default to Available.
+  // Each connector is one of: a shipped package ("Available", green badge),
+  // a planned package ("Coming soon"), or an integration recipe you build on
+  // the ingest API ("Recipe"). The filter buckets match those badges exactly,
+  // so nothing unbadged ever shows under "Available". Default to Available.
   const [connectorStatus, setConnectorStatus] =
     useState<ConnectorStatusFilter>('available')
-  const isComingSoon = (c: Connector) => c.package?.status === 'planned'
+  const connectorBucket = (c: Connector): Exclude<ConnectorStatusFilter, 'all'> =>
+    c.package?.status === 'available'
+      ? 'available'
+      : c.package?.status === 'planned'
+        ? 'coming-soon'
+        : 'recipe'
   const connectorMatches = (c: Connector) =>
-    connectorStatus === 'all'
-      ? true
-      : connectorStatus === 'coming-soon'
-        ? isComingSoon(c)
-        : !isComingSoon(c)
+    connectorStatus === 'all' || connectorBucket(c) === connectorStatus
   const connectorCount = (key: ConnectorStatusFilter) =>
     key === 'all'
       ? CONNECTORS.length
-      : key === 'coming-soon'
-        ? CONNECTORS.filter(isComingSoon).length
-        : CONNECTORS.filter((c) => !isComingSoon(c)).length
+      : CONNECTORS.filter((c) => connectorBucket(c) === key).length
   return (
     <Section id="connectors">
       <div className="max-w-2xl mb-8">
@@ -1140,6 +1141,14 @@ function ConnectorSection() {
           statusDotClass="bg-emerald-400"
         />
         <FilterChip
+          active={connectorStatus === 'recipe'}
+          onClick={() => setConnectorStatus('recipe')}
+          label="Recipe"
+          count={connectorCount('recipe')}
+          subtle
+          statusDotClass="bg-brand-400"
+        />
+        <FilterChip
           active={connectorStatus === 'coming-soon'}
           onClick={() => setConnectorStatus('coming-soon')}
           label="Coming soon"
@@ -1182,9 +1191,12 @@ function ConnectorSection() {
       </div>
 
       <p className="mt-10 text-xs text-theme-muted/80 max-w-3xl">
-        Most of the patterns above are integration recipes built on Statewave’s ingest API — write a
-        small importer in your preferred language; the SDKs make the per-subject episode loop
-        straightforward. Cards tagged{' '}
+        Cards tagged{' '}
+        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-brand-500/10 text-brand-300 text-[10px] font-medium uppercase tracking-wider align-middle">
+          Recipe
+        </span>{' '}
+        are integration patterns you build on Statewave’s ingest API — write a small importer in your
+        preferred language; the SDKs make the per-subject episode loop straightforward. Cards tagged{' '}
         <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-300 text-[10px] font-medium uppercase tracking-wider align-middle">
           Available
         </span>{' '}
@@ -1245,35 +1257,51 @@ function ConnectorCard({ connector }: { connector: Connector }) {
   const slug = slugify(connector.title)
   const active = useHashActive(slug)
   const pkg = connector.package
+  const status: 'available' | 'coming-soon' | 'recipe' =
+    pkg?.status === 'available'
+      ? 'available'
+      : pkg?.status === 'planned'
+        ? 'coming-soon'
+        : 'recipe'
+  const STATUS_STYLE = {
+    available: {
+      label: 'Available',
+      badge: 'bg-emerald-500/10 text-emerald-300',
+      dot: 'bg-emerald-400',
+      border: 'border-emerald-500/20 hover:border-emerald-500/40',
+    },
+    'coming-soon': {
+      label: 'Coming soon',
+      badge: 'bg-surface-2 text-theme-muted',
+      dot: 'bg-theme-muted',
+      border: 'border-theme-border hover:border-theme-border',
+    },
+    recipe: {
+      label: 'Recipe',
+      badge: 'bg-brand-500/10 text-brand-300',
+      dot: 'bg-brand-400',
+      border: 'border-theme-border hover:border-accent/30',
+    },
+  } as const
+  const s = STATUS_STYLE[status]
   return (
     <div
       id={slug}
-      className={`group scroll-mt-24 p-4 rounded-xl border bg-surface-1 transition-colors ${
-        pkg ? 'border-accent/20 hover:border-accent/40' : 'border-theme-border hover:border-emerald-500/25'
-      } ${active ? 'card-anchor-active' : ''}`}
+      className={`group scroll-mt-24 p-4 rounded-xl border bg-surface-1 transition-colors ${s.border} ${active ? 'card-anchor-active' : ''}`}
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-2 min-w-0">
-          <span
-            className={`w-1.5 h-1.5 rounded-full ${pkg ? 'bg-accent' : 'bg-emerald-400'}`}
-            aria-hidden
-          />
+          <span className={`w-1.5 h-1.5 rounded-full ${s.dot}`} aria-hidden />
           <h4 className="flex items-center gap-2 text-sm font-semibold text-theme-primary truncate">
             <span className="truncate">{connector.title}</span>
             <CardAnchor id={slug} />
           </h4>
         </div>
-        {pkg && (
-          <span
-            className={`shrink-0 text-[10px] font-medium uppercase tracking-wider px-2 py-0.5 rounded-full ${
-              pkg.status === 'available'
-                ? 'bg-emerald-500/10 text-emerald-300'
-                : 'bg-surface-2 text-theme-muted'
-            }`}
-          >
-            {pkg.status === 'available' ? 'Available' : 'Coming soon'}
-          </span>
-        )}
+        <span
+          className={`shrink-0 text-[10px] font-medium uppercase tracking-wider px-2 py-0.5 rounded-full ${s.badge}`}
+        >
+          {s.label}
+        </span>
       </div>
       <p className="mt-2 text-xs text-theme-muted leading-relaxed">{connector.description}</p>
       {pkg && (
