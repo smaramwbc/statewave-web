@@ -148,7 +148,8 @@ export function PressPage() {
             Logo &amp; brand assets
           </Heading>
           <p className="text-sm text-theme-secondary leading-relaxed mb-6">
-            Statewave logos, icons, brand colors, and downloadable assets for press, partners, articles, presentations, and media coverage.
+            Statewave logos, icons, brand colors, and downloadable assets for
+            press, partners, articles, presentations, and media coverage.
           </p>
           <div className="grid grid-cols-2 gap-4 sm:gap-6">
             <AssetCard
@@ -211,28 +212,17 @@ export function PressPage() {
           >
             Screenshots
           </Heading>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-            <AssetCard
-              title="Live demo — stateless vs memory-backed"
-              href="/press/screenshot-demo-side-by-side.png"
-              hint="PNG · 1920×1080"
-            />
-            <AssetCard
-              title="Compiled context bundle with provenance"
-              href="/press/screenshot-bundle.png"
-              hint="PNG · 1920×1080"
-            />
-            <AssetCard
-              title="Admin: subject timeline view"
-              href="/press/screenshot-admin-timeline.png"
-              hint="PNG · 1920×1080"
-            />
-            <AssetCard
-              title="Bench results — LoCoMo multi-hop"
-              href="/press/screenshot-bench-multihop.png"
-              hint="PNG · 1920×1080"
-            />
-          </div>
+
+          <p className="text-sm text-theme-secondary leading-relaxed mb-6">
+            Statewave product screenshots for articles, presentations, media
+            coverage, investor materials, and partner documentation.
+          </p>
+
+          <AssetCard
+            title="Complete Screenshot Pack"
+            href="/press/SCREENSHOTS.zip"
+            hint="ZIP · high-resolution product screenshots · 1920×1080"
+          />
         </div>
       </Section>
 
