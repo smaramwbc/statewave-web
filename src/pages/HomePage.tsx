@@ -228,7 +228,7 @@ function HeroSection() {
             <button
               ref={heroCtaRef}
               type="button"
-              onClick={() => openWidget()}
+              onClick={() => openWidget('support-agent', 'Support Agent')}
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-accent text-white text-sm font-medium shadow-lg shadow-accent/20 hover:bg-accent-light hover:shadow-accent/30 transition-[background-color,box-shadow] duration-150"
             >
               Try the agent demo
@@ -1426,7 +1426,7 @@ function CTASection() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
             </svg>
           </Button>
-          <Button ref={ctaDemoRef} onClick={() => openWidget()} variant="secondary" size="lg">
+          <Button ref={ctaDemoRef} onClick={() => openWidget('support-agent', 'Support Agent')} variant="secondary" size="lg">
             Try Live Demo
           </Button>
           <Button href="https://github.com/smaramwbc/statewave" variant="secondary" size="lg">
