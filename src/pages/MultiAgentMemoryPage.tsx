@@ -8,6 +8,7 @@ import { CodeCopyButton } from '../components/CodeCopyButton'
 import { UseCaseSwitcher } from '../components/UseCaseSwitcher'
 import { usePageSEO } from '../lib/seo'
 import { breadcrumbJsonLd } from '../lib/seo-meta'
+import { useTheme } from '../lib/theme'
 
 /* ─── Small shared bits ──────────────────────────────────────────────────── */
 
@@ -56,6 +57,12 @@ function CircleX() {
 /* ─── Hero ───────────────────────────────────────────────────────────────── */
 
 function HeroSection() {
+  const { resolvedTheme } = useTheme()
+  const heroSrc =
+    resolvedTheme === 'dark'
+      ? '/statewave-multi-agent-memory-hero-img-dark-theme.svg'
+      : '/statewave-multi-agent-memory-hero-img-light-theme.svg'
+
   return (
     <section className="pt-28 pb-4 sm:pt-32 md:pt-36">
       <div className="mx-auto max-w-7xl px-5 sm:px-6">
@@ -101,8 +108,8 @@ function HeroSection() {
           className="mt-12"
         >
           <img
-            src="/hero-multi-agent-memory.png"
-            alt="Multi-agent memory demo"
+            src={heroSrc}
+            alt="Multi-agent memory diagram"
             className="w-full rounded-2xl border border-theme-border"
           />
         </motion.div>
