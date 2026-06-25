@@ -179,7 +179,7 @@ export const SUGGESTIONS: Record<
       { text: "Can I self-host Statewave?",
         anchors: ['self-hosted'] },
       { text: "How does Statewave's deterministic ranking compare to other memory layers?",
-        anchors: ['deterministic ranking'] },
+        anchors: ['deterministic'] },
       { text: "What license is the core server under?",
         anchors: ['Apache-2.0'] },
     ],
