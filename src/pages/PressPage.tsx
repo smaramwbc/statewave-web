@@ -110,7 +110,7 @@ export function PressPage() {
             <Fact label="Model providers" value="100+ via LiteLLM (OpenAI, Anthropic, Bedrock, Ollama, …)" />
             <Fact label="v1.0 released" value="June 9, 2026" />
             <Fact label="Repo" value="github.com/smaramwbc/statewave" />
-            <Fact label="Open benchmark" value="github.com/smaramwbc/statewave-bench (row-level LoCoMo data)" />
+            <Fact label="Open benchmark" value="github.com/smaramwbc/statewave-memory-benchmarks (row-level LoCoMo data)" />
             <Fact label="Live demo" value="statewave.ai/demo (no signup)" />
           </dl>
         </div>
@@ -240,12 +240,12 @@ export function PressPage() {
           <ul className="space-y-2 text-sm text-theme-secondary">
             <li>
               <a
-                href="https://github.com/smaramwbc/statewave-bench"
+                href="https://github.com/smaramwbc/statewave-memory-benchmarks"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-accent hover:underline"
               >
-                statewave-bench
+                statewave-memory-benchmarks
               </a>{' '}
               &mdash; full benchmark suite (Apache-2.0), LoCoMo-based, row-level JSONL output
             </li>
@@ -262,15 +262,15 @@ export function PressPage() {
             </li>
             <li>
               <a
-                href="https://github.com/smaramwbc/statewave-docs/blob/main/comparisons/mem0.md"
+                href="https://github.com/smaramwbc/statewave-docs/tree/main/comparisons"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-accent hover:underline"
               >
                 Comparison documents
               </a>{' '}
-              &mdash; head-to-head with Mem0, Letta, Zep, OpenAI Assistants, LangChain Memory.
-              Each names the case where the alternative is the right call.
+              &mdash; head-to-head with other dedicated memory layers, vector stores, and
+              agent-framework memory. Each names the case where the alternative is the right call.
             </li>
           </ul>
         </div>

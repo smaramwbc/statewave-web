@@ -60,7 +60,7 @@ The honest answer:
 - **Postgres tier**: scales the way Postgres scales. Read replicas for retrieval-heavy workloads. Connection pooling via pgbouncer. Vertical scaling for write throughput up to the usual Postgres ceiling. Above that, partition by subject (every memory belongs to exactly one subject, so the sharding key is obvious).
 - **Vector recall on very large corpora**: pgvector's HNSW index is competitive with dedicated vector DBs up into the tens of millions of vectors per index. Beyond that, the standard mitigations apply — partial indexes per subject, partitioned tables, or — if you genuinely outgrow pgvector — pluggable retrieval (the ranking layer is decoupled from the vector store, so swapping in a different index later is a localized change, not a rewrite).
 
-We're public about the limit: high-RPS load testing across all four tiers (512 / 1024 / 2048 / 4096 token budgets) is in [statewave-bench](https://github.com/smaramwbc/statewave-bench) with measured numbers. We haven't bench-tested above 50M vectors in a single index. If you're at that scale, talk to us — that's exactly the workload to validate before committing.
+We're public about the limit: high-RPS load testing across all four tiers (512 / 1024 / 2048 / 4096 token budgets) is in [statewave-memory-benchmarks](https://github.com/smaramwbc/statewave-memory-benchmarks) with measured numbers. We haven't bench-tested above 50M vectors in a single index. If you're at that scale, talk to us — that's exactly the workload to validate before committing.
 
 ## The licensing math
 

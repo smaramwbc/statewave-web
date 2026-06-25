@@ -18,7 +18,7 @@ const PDF_PATH = '/whitepaper/compiled-memory.pdf'
 const SECTIONS = [
   'The long-horizon context-assembly problem, formalised',
   'The Statewave model — RECORD → COMPILE → CONTEXT → GOVERN',
-  'A structured comparison of memory architectures (RAG, Mem0, memU, Zep, Letta)',
+  'A structured comparison of memory architectures: RAG, vector stores, and dedicated memory layers',
   'A preliminary, equal-budget LoCoMo evaluation',
   'Determinism, provenance, and governance as first-class properties',
   'Limitations and threats to validity',
@@ -84,12 +84,12 @@ export function WhitepaperPage() {
             equal-budget results; the variance-checked multi-run aggregate supersedes them when
             complete. Reproduce them yourself with{' '}
             <a
-              href="https://github.com/smaramwbc/statewave-bench"
+              href="https://github.com/smaramwbc/statewave-memory-benchmarks"
               target="_blank"
               rel="noopener noreferrer"
               className="text-accent hover:underline"
             >
-              statewave-bench
+              statewave-memory-benchmarks
             </a>
             .
           </p>

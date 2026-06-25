@@ -42,7 +42,7 @@ const REPOS = [
   { name: 'statewave-examples', desc: 'Runnable examples and end-to-end agent flows.', url: 'https://github.com/smaramwbc/statewave-examples' },
   { name: 'statewave-connectors', desc: 'GitHub, Jira, Slack, Notion, Discord, Zendesk, Intercom, Freshdesk, Gmail, n8n, Zapier, databases, Markdown/ADRs, MCP, and more — a suite of modular connector packages.', url: 'https://github.com/smaramwbc/statewave-connectors' },
   { name: 'statewave-admin', desc: 'Read-only operator console for inspecting subjects, episodes, memories, and bundles in a running instance.', url: 'https://github.com/smaramwbc/statewave-admin' },
-  { name: 'statewave-bench', desc: 'Open evaluation harness — every published proof figure is reproducible by running these scripts.', url: 'https://github.com/smaramwbc/statewave-bench' },
+  { name: 'statewave-memory-benchmarks', desc: 'Open evaluation harness — every published proof figure is reproducible by running these scripts.', url: 'https://github.com/smaramwbc/statewave-memory-benchmarks' },
   { name: 'statewave-web', desc: 'This marketing site.', url: 'https://github.com/smaramwbc/statewave-web' },
 ] as const
 
@@ -220,12 +220,12 @@ export function AboutPage() {
             Every claim on this site is backed by automated evals and
             benchmarks that run in CI. The figures below come from the
             <a
-              href="https://github.com/smaramwbc/statewave-bench"
+              href="https://github.com/smaramwbc/statewave-memory-benchmarks"
               target="_blank"
               rel="noopener noreferrer"
               className="text-accent hover:underline"
             >{' '}
-              statewave-bench
+              statewave-memory-benchmarks
             </a>{' '}
             harness — anyone can clone it and reproduce them.
           </p>

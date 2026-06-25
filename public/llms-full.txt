@@ -88,9 +88,9 @@ One command boots a local Statewave — API + read-only admin console + Postgres
 
 - macOS / Linux: `curl -fsSL https://www.statewave.ai/install | sh`
 - Windows (PowerShell): `powershell -Command "irm https://www.statewave.ai/install.ps1 | iex"`
-- Node.js 20+ alternative: `npx @statewavedev/connectors-cli quickstart`
+- Node.js 20+ alternative: `npx @statewavedev/statewave`
 
-The API comes up at `http://localhost:8100` and the admin console at `http://localhost:8080`. Tear it down with `statewave-connectors quickstart --down`. For a manual setup, clone `https://github.com/smaramwbc/statewave` and run `docker compose up -d`.
+The API comes up at `http://localhost:8100` and the admin console at `http://localhost:8080`. Tear it down with `npx @statewavedev/statewave --down`. For a manual setup, clone `https://github.com/smaramwbc/statewave` and run `docker compose up -d`.
 
 ## REST API v1
 
