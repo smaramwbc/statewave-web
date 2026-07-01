@@ -104,7 +104,7 @@ export function BlogPostPage() {
                 url: BASE_URL,
                 logo: {
                   '@type': 'ImageObject',
-                  url: `${BASE_URL}/statewave_icon_dark.png`,
+                  url: `${BASE_URL}/brand/icon.svg`,
                 },
               },
               mainEntityOfPage: { '@type': 'WebPage', '@id': url },
