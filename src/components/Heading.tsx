@@ -7,6 +7,9 @@ interface HeadingProps {
   level?: 1 | 2 | 3 | 4
   children: ReactNode
   className?: string
+  /** Whether to show the anchor copy button. Defaults to true. */
+  showAnchor?: boolean
+
 }
 
 /**
@@ -18,7 +21,13 @@ interface HeadingProps {
  * - Clicking the button updates the URL hash and copies the absolute link
  *   to the clipboard. A small "copied" tag fades in for ~1.5s as feedback.
  */
-export function Heading({ id, level = 2, children, className = '' }: HeadingProps) {
+export function Heading({
+  id,
+  level = 2,
+  children,
+  className = '',
+  showAnchor = false,
+}: HeadingProps) {
   const Tag = (`h${level}` as unknown) as 'h1' | 'h2' | 'h3' | 'h4'
 
   // inline-flex + items-baseline + min-w-0 on the text wrapper lets the title
@@ -33,7 +42,7 @@ export function Heading({ id, level = 2, children, className = '' }: HeadingProp
   return (
     <Tag id={id} className={`group inline-flex items-baseline scroll-mt-20 ${className}`}>
       <span className="min-w-0">{children}</span>
-      <SectionAnchorCopyButton id={id} />
+      {showAnchor && <SectionAnchorCopyButton id={id} />}
     </Tag>
   )
 }
@@ -86,9 +95,8 @@ export function SectionAnchorCopyButton({ id, className = '' }: { id: string; cl
           — sliding it to the right of the icon would push the label off-screen. */}
       <span
         aria-live="polite"
-        className={`absolute bottom-full right-0 mb-1 text-[11px] font-medium uppercase tracking-wide whitespace-nowrap transition-all duration-200 ${
-          copied ? 'text-accent opacity-100 translate-y-0' : 'opacity-0 translate-y-1 pointer-events-none'
-        }`}
+        className={`absolute bottom-full right-0 mb-1 text-[11px] font-medium uppercase tracking-wide whitespace-nowrap transition-all duration-200 ${copied ? 'text-accent opacity-100 translate-y-0' : 'opacity-0 translate-y-1 pointer-events-none'
+          }`}
       >
         copied
       </span>

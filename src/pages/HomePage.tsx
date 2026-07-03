@@ -314,65 +314,65 @@ function HeroInstallCommand({ centered = false }: { centered?: boolean }) {
 
 function WhatSection() {
   return (
-    <Section>
-      <div className="grid md:grid-cols-2 gap-10 md:gap-16 items-center">
-        <div className="min-w-0">
-          <Heading id="memory-runtime" className="text-3xl md:text-4xl font-bold text-theme-primary tracking-tight">
-            Memory runtime for AI agents
-          </Heading>
-          <p className="mt-6 text-theme-muted leading-relaxed">
-            Most AI applications have no memory. Every conversation starts from scratch.
-            Context is lost between sessions. Statewave treats memory as a runtime —
-            a durable layer any AI system can build on.
-          </p>
-          <div className="mt-8 space-y-4">
-            {[
-              'Ingest raw events as immutable episodes',
-              'Compile typed memories with confidence scores',
-              'Retrieve ranked, token-bounded context bundles',
-              'Trace every memory to its source with provenance',
-              'Organize everything around subjects — users, accounts, agents, repos',
-            ].map((item, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                className="flex items-start gap-3"
-              >
-                <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-accent shrink-0" />
-                <span className="text-sm text-theme-secondary">{item}</span>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-
-        <div className="relative min-w-0">
-          <div className="rounded-2xl border border-theme-border bg-surface-1 p-5 sm:p-6 font-mono text-sm overflow-hidden">
-            <div className="flex items-center gap-2 mb-4 text-theme-muted text-xs">
-              <div className="w-3 h-3 rounded-full bg-red-500/60" />
-              <div className="w-3 h-3 rounded-full bg-yellow-500/60" />
-              <div className="w-3 h-3 rounded-full bg-green-500/60" />
-              <span className="ml-2 truncate">context_bundle.json</span>
-            </div>
-            <pre className="text-theme-secondary overflow-x-auto -mx-1 px-1"><code>{`{
-  "subject_id": "agent-7",
-  "task": "Continue code review",
-  "facts": [
-    "Prefers functional patterns",
-    "Project uses TypeScript + Postgres"
-  ],
-  "token_estimate": 284,
-  "provenance": {
-    "fact_ids": ["mem-1", "mem-3"],
-    "episode_ids": ["ep-12", "ep-19"]
-  }
-}`}</code></pre>
-          </div>
-        </div>
+<Section>
+  <div className="grid lg:grid-cols-[0.38fr_0.62fr] gap-12 xl:gap-20 items-center">
+    <div className="min-w-0">
+      <div className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
+        THE STATEWAVE APPROACH
       </div>
-    </Section>
+
+      <Heading
+        id="memory-runtime"
+        className="font-heading text-4xl md:text-[49px] font-bold leading-[1.06] tracking-[-0.03em] text-theme-primary"
+      >
+        Memory runtime for <span className="text-gradient-brand">AI agents</span>
+      </Heading>
+
+      <p className="mt-6 max-w-[600px] text-[20px] leading-[1.65] text-theme-primary">
+        Most AI applications have no memory. Every conversation starts from scratch.
+        Context is lost between sessions. Statewave treats memory as a runtime —
+        a durable layer any AI system can build on.
+      </p>
+
+      <div className="mt-8 space-y-3">
+        {[
+          'Ingest raw events as immutable episodes',
+          'Compile typed memories with confidence scores',
+          'Retrieve ranked, token-bounded context bundles',
+          'Trace every memory to its source with provenance',
+          'Organize everything around subjects — users, accounts, agents, repos',
+        ].map((item, i) => (
+          <motion.div
+            key={i}
+            initial={{ opacity: 0, x: -20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: i * 0.1 }}
+            className="flex items-start gap-3"
+          >
+            <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-accent shrink-0" />
+            <span className="text-base text-theme-primary">{item}</span>
+          </motion.div>
+        ))}
+      </div>
+    </div>
+
+    <div className="relative lg:-mr-32 xl:-mr-48 2xl:-mr-64">
+      <div
+        className="absolute inset-0 rounded-3xl bg-accent/20 blur-[80px] scale-95"
+        aria-hidden="true"
+      />
+
+      <div className="diagram-card relative z-10 rounded-3xl overflow-hidden border border-theme-border">
+        <img
+          src="/memory-runtime-flow.svg"
+          alt="Memory runtime flow"
+          className="block w-full h-auto"
+        />
+      </div>
+    </div>
+  </div>
+</Section>
   )
 }
 

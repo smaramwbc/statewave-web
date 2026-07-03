@@ -6,7 +6,7 @@
   --color-brand-200: #bfdbfe;
   --color-brand-300: #93c5fd;
   --color-brand-400: #60a5fa;
-  --color-brand-500: #3b82f6;
+  --color-brand-500: #7EC8FF;
   --color-brand-600: #2563eb;
   --color-brand-700: #1d4ed8;
   --color-brand-800: #1e40af;
@@ -16,8 +16,8 @@
    * contrast with white text on the primary CTAs ("Try the Demo", "Ask
    * Support"); indigo-600 gives 5.71:1 and still reads as the same brand
    * indigo at a glance. accent-light is the hover state. */
-  --color-accent: #4f46e5;
-  --color-accent-light: #6366f1;
+  --color-accent: #7A5CFF;
+  --color-accent-light: #4A8CFF;
 
   --color-surface-0: var(--theme-surface-0);
   --color-surface-1: var(--theme-surface-1);
@@ -31,36 +31,37 @@
   --color-theme-surface-1: var(--theme-surface-1);
 
   --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --font-heading: "Geist", "Inter", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", "Fira Code", monospace;
 }
 
 /* Dark theme tokens (default) */
 :root,
 [data-theme="dark"] {
-  --theme-surface-0: #030712;
+  --theme-surface-0: #08152E;
   --theme-surface-1: #0a0f1a;
   --theme-surface-2: #111827;
   --theme-surface-3: #1f2937;
-  --theme-text-primary: #f9fafb;
-  --theme-text-secondary: #d1d5db;
-  --theme-text-muted: #9ca3af;
+  --theme-text-primary:   #B7C5E3;
+  --theme-text-secondary: #AAB9D6;
+  --theme-text-muted:     #8898B8;
   --theme-border: rgba(255, 255, 255, 0.05);
   --theme-border-hover: rgba(255, 255, 255, 0.1);
   --theme-card-bg: #0a0f1a;
   --theme-overlay: rgba(3, 7, 18, 0.8);
   --theme-code-bg: #0a0f1a;
   --theme-selection: rgba(99, 102, 241, 0.3);
-  --theme-hero-particle: #6366f1;
+  --theme-hero-particle: #4A8CFF;
   --theme-hero-opacity: 0.6;
   /* Subtle hero dot-grid texture (masked toward the centre in HomePage). */
   --theme-hero-dot: rgba(255, 255, 255, 0.045);
   --theme-hero-overlay-from: rgba(3, 7, 18, 0.4);
   --theme-hero-overlay-via: rgba(3, 7, 18, 0.6);
-  --theme-gradient-text-from: #6366f1;
-  --theme-gradient-text-via: #60a5fa;
-  --theme-gradient-text-to: #93c5fd;
-  --theme-scrollbar-thumb: rgba(99, 102, 241, 0.32);
-  --theme-scrollbar-thumb-hover: rgba(129, 140, 248, 0.55);
+  --theme-gradient-text-from: #00C6FF;
+  --theme-gradient-text-via: #4A8CFF;
+  --theme-gradient-text-to: #7A5CFF;
+  --theme-scrollbar-thumb: rgba(122, 92, 255, 0.32);
+  --theme-scrollbar-thumb-hover: rgba(122, 92, 255, 0.52);
 }
 
 /* Light theme tokens
@@ -99,8 +100,8 @@
   --theme-gradient-text-from: #4f46e5;
   --theme-gradient-text-via: #2563eb;
   --theme-gradient-text-to: #1d4ed8;
-  --theme-scrollbar-thumb: rgba(99, 102, 241, 0.28);
-  --theme-scrollbar-thumb-hover: rgba(99, 102, 241, 0.5);
+  --theme-scrollbar-thumb: rgba(122, 92, 255, 0.28);
+  --theme-scrollbar-thumb-hover: rgba(122, 92, 255, 0.45);
 }
 
 html {
@@ -362,3 +363,32 @@ html {
 ::-webkit-scrollbar-corner {
   background: transparent;
 }
+
+.diagram-card {
+  box-shadow:
+    0 0 1px rgba(255,255,255,.08),
+    0 0 0 1px rgba(122,92,255,.18);
+}
+
+[data-theme="light"] .diagram-card {
+  box-shadow:
+    0 0 1px rgba(0,0,0,.06),
+    0 0 0 1px rgba(122,92,255,.12);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-heading);
+}
+
+.text-gradient-brand {
+  background: linear-gradient(90deg, #4A8CFF 0%, #7A5CFF 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
