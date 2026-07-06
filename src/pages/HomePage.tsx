@@ -522,7 +522,7 @@ function UseCasesSection() {
         'Any AI system that operates over time, across sessions, with subjects that have persistent identity. Statewave is the memory layer.',
       badge: 'Supported',
       Icon: Clock3,
-       iconClass: 'border-[#C68CFF]/45 text-[#D8CCFF]',
+      iconClass: 'border-[#C68CFF]/45 text-[#D8CCFF]',
     },
 
   ]
@@ -621,60 +621,129 @@ function UseCasesSection() {
 }
 
 function AIClientsSection() {
-  const clients = [
-    { name: 'Claude Code', note: 'Auto-configures via MCP server' },
-    { name: 'Claude Desktop', note: 'Auto-configures via MCP server' },
-    { name: 'Cursor', note: 'Auto-configures via MCP server' },
-    { name: 'VS Code Copilot', note: 'Auto-configures via MCP server' },
-    { name: 'Codex CLI', note: 'Auto-configures via MCP server' },
-    { name: 'Cline', note: 'Any MCP-compatible client' },
-    { name: 'Continue', note: 'Any MCP-compatible client' },
-    { name: 'Windsurf', note: 'Any MCP-compatible client' },
-    { name: 'Zed', note: 'Any MCP-compatible client' },
-    { name: 'Aider', note: 'Any MCP-compatible client' },
-    { name: 'Goose', note: 'Any MCP-compatible client' },
-    { name: 'Your own agent', note: 'REST API · Python · TypeScript' },
+  const connectors = [
+    {
+      name: 'GitHub',
+      type: 'Repo memory',
+      logo: '/connectors/GitHub_Invertocat_Black_Clearspace.svg',
+    },
+    {
+      name: 'Slack',
+      type: 'Team memory',
+      logo: '/connectors/Slack_icon_2019.svg',
+    },
+    {
+      name: 'Zapier',
+      type: 'Workflow memory',
+      logo: '/connectors/zapier.svg',
+    },
+    {
+      name: 'n8n',
+      type: 'Workflow memory',
+      logo: '/connectors/n8n_pink+white_logo.svg',
+    },
+    {
+      name: 'Zendesk',
+      type: 'Customer memory',
+      logo: '/connectors/zendesk-1.svg',
+    },
+    {
+      name: 'MCP',
+      type: 'Agent memory',
+      logo: '/connectors/Model_Context_Protocol_logo.svg',
+    },
+    {
+      name: 'Markdown',
+      type: 'Decision memory',
+      logo: '/connectors/markdown-svgrepo-com.svg',
+    },
+    {
+      name: 'Docs',
+      type: 'Decision memory',
+      logo: '/connectors/Docs-icon.svg',
+    },
   ]
 
   return (
-    <Section className="bg-surface-1/50">
-      <div className="text-center mb-12">
-        <Heading id="ai-clients" className="text-3xl md:text-4xl font-bold text-theme-primary tracking-tight">
-          Works with the tools you already use
-        </Heading>
-        <p className="mt-4 text-theme-muted max-w-2xl mx-auto">
-          One quickstart command auto-detects and wires every installed AI tool.
-          Any MCP-compatible client works — not just the ones we list here.
-        </p>
-      </div>
+    <Section>
+      <div className="grid lg:grid-cols-[0.46fr_0.54fr] gap-12 xl:gap-20 items-center">
+        <div>
+          <div className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
+            CONNECTORS & INTEGRATIONS
+          </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-        {clients.map((c, i) => (
-          <motion.div
-            key={c.name}
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: i * 0.04 }}
-            className="flex flex-col gap-1 rounded-xl border border-theme-border bg-surface-1 px-4 py-3 hover:border-accent/30 transition-colors"
+          <Heading
+            id="ai-clients"
+            className="font-heading text-4xl md:text-[52px] font-bold leading-[1.08] tracking-[-0.03em] text-theme-primary"
           >
-            <p className="text-sm font-medium text-theme-primary">{c.name}</p>
-            <p className="text-[11px] text-theme-muted">{c.note}</p>
-          </motion.div>
-        ))}
-      </div>
+            Not just live chats — <br />
+            <span className="text-gradient-brand">connect your tools</span>
+          </Heading>
 
-      <p className="mt-6 text-center text-xs text-theme-muted">
-        Missing your tool?{' '}
-        <a
-          href="https://github.com/smaramwbc/statewave/issues"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-accent hover:underline"
-        >
-          Open an issue →
-        </a>
-      </p>
+          <p className="mt-6 max-w-[680px] text-[20px] leading-[1.65] text-theme-secondary">
+            Connectors feed real-world events into Statewave as durable episodic memory.
+            Agents recall projects, customers, communities, decisions, and workflows —
+            by subject — without stuffing raw history into a prompt.
+          </p>
+
+          <p className="mt-6 text-[15px] leading-7 text-theme-secondary">
+            Modular packages — install only what you need. The core stays clean;
+            connectors are optional.
+          </p>
+
+          <div className="mt-8 flex flex-wrap gap-4">
+            <Link
+              to="/connectors"
+              className="inline-flex items-center rounded-full border border-brand-500/35 bg-brand-500/10 px-6 py-3 text-sm font-medium text-brand-300 hover:bg-brand-500/16 hover:border-brand-500/50 transition-colors"
+            >
+              Explore Statewave Connectors
+            </Link>
+
+            <Link
+              to="/developers"
+              className="inline-flex items-center rounded-full border border-theme-primary/40 bg-transparent px-6 py-3 text-sm font-medium text-theme-primary hover:bg-surface-1/30 hover:border-theme-primary/35 transition-colors"
+            >
+              View connector docs
+            </Link>
+          </div>
+        </div>
+
+        <div className="relative">
+          <div
+            className="absolute inset-0 rounded-full bg-accent/20 blur-[100px] scale-90"
+            aria-hidden="true"
+          />
+
+          <div className="relative z-10 grid grid-cols-2 md:grid-cols-3 gap-5">
+            {connectors.map((item, i) => (
+              <motion.div
+                key={item.name}
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.05 }}
+                className="rounded-2xl border border-brand-500/25 bg-surface-1/45 p-6 shadow-[0_24px_80px_rgba(0,0,0,.16)]"
+              >
+                <img
+                  src={item.logo}
+                  alt=""
+                  aria-hidden="true"
+                  className={`mb-7 object-contain ${item.name === 'n8n' ? 'h-9 w-12' : 'h-9 w-9'
+                    }`}
+                />
+
+                <h3 className="font-heading text-[20px] font-bold leading-tight text-theme-primary">
+                  {item.name}
+                </h3>
+
+                <p className="mt-2 text-xs font-semibold uppercase tracking-[0.12em] text-brand-500">
+                  {item.type}
+                </p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </div>
     </Section>
   )
 }
@@ -809,8 +878,7 @@ function ConnectorsTeaserSection() {
             stuffing raw history into a prompt.
           </p>
           <p className="mt-3 text-sm text-theme-muted/85 leading-relaxed">
-            Modular packages — install only what you need. The core stays clean; connectors are
-            optional.
+            Modular packages — install only what you need. The core stays clean; connectors and MCP-compatible clients are optional.
           </p>
           <div className="mt-7 flex flex-wrap items-center gap-3">
             <Link
