@@ -12,6 +12,15 @@ import {
   Code,
   MessageSquareMore,
   Clock3,
+  Download,
+  Layers,
+  BarChart3,
+  Send,
+  ShieldCheck,
+  Code2,
+  ReceiptText,
+  Radio,
+  Search,
 } from 'lucide-react'
 
 // HeroBackground is a ~1100-line canvas component that is suppressed on
@@ -621,129 +630,80 @@ function UseCasesSection() {
 }
 
 function AIClientsSection() {
-  const connectors = [
-    {
-      name: 'GitHub',
-      type: 'Repo memory',
-      logo: '/connectors/GitHub_Invertocat_Black_Clearspace.svg',
-    },
-    {
-      name: 'Slack',
-      type: 'Team memory',
-      logo: '/connectors/Slack_icon_2019.svg',
-    },
-    {
-      name: 'Zapier',
-      type: 'Workflow memory',
-      logo: '/connectors/zapier.svg',
-    },
-    {
-      name: 'n8n',
-      type: 'Workflow memory',
-      logo: '/connectors/n8n_pink+white_logo.svg',
-    },
-    {
-      name: 'Zendesk',
-      type: 'Customer memory',
-      logo: '/connectors/zendesk-1.svg',
-    },
-    {
-      name: 'MCP',
-      type: 'Agent memory',
-      logo: '/connectors/Model_Context_Protocol_logo.svg',
-    },
-    {
-      name: 'Markdown',
-      type: 'Decision memory',
-      logo: '/connectors/markdown-svgrepo-com.svg',
-    },
-    {
-      name: 'Docs',
-      type: 'Decision memory',
-      logo: '/connectors/Docs-icon.svg',
-    },
+  const clients = [
+    { name: 'Claude Code', note: 'Auto-configures via MCP server' },
+    { name: 'Claude Desktop', note: 'Auto-configures via MCP server' },
+    { name: 'Cursor', note: 'Auto-configures via MCP server' },
+    { name: 'VS Code Copilot', note: 'Auto-configures via MCP server' },
+    { name: 'Codex CLI', note: 'Auto-configures via MCP server' },
+    { name: 'Cline', note: 'Any MCP-compatible client' },
+    { name: 'Continue', note: 'Any MCP-compatible client' },
+    { name: 'Windsurf', note: 'Any MCP-compatible client' },
+    { name: 'Zed', note: 'Any MCP-compatible client' },
+    { name: 'Aider', note: 'Any MCP-compatible client' },
+    { name: 'Goose', note: 'Any MCP-compatible client' },
+    { name: 'Your own agent', note: 'REST API · Python · TypeScript' },
   ]
 
   return (
     <Section>
-      <div className="grid lg:grid-cols-[0.46fr_0.54fr] gap-12 xl:gap-20 items-center">
-        <div>
-          <div className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
-            CONNECTORS & INTEGRATIONS
-          </div>
-
-          <Heading
-            id="ai-clients"
-            className="font-heading text-4xl md:text-[52px] font-bold leading-[1.08] tracking-[-0.03em] text-theme-primary"
-          >
-            Not just live chats — <br />
-            <span className="text-gradient-brand">connect your tools</span>
-          </Heading>
-
-          <p className="mt-6 max-w-[680px] text-[20px] leading-[1.65] text-theme-secondary">
-            Connectors feed real-world events into Statewave as durable episodic memory.
-            Agents recall projects, customers, communities, decisions, and workflows —
-            by subject — without stuffing raw history into a prompt.
-          </p>
-
-          <p className="mt-6 text-[15px] leading-7 text-theme-secondary">
-            Modular packages — install only what you need. The core stays clean;
-            connectors are optional.
-          </p>
-
-          <div className="mt-8 flex flex-wrap gap-4">
-            <Link
-              to="/connectors"
-              className="inline-flex items-center rounded-full border border-brand-500/35 bg-brand-500/10 px-6 py-3 text-sm font-medium text-brand-300 hover:bg-brand-500/16 hover:border-brand-500/50 transition-colors"
-            >
-              Explore Statewave Connectors
-            </Link>
-
-            <Link
-              to="/developers"
-              className="inline-flex items-center rounded-full border border-theme-primary/40 bg-transparent px-6 py-3 text-sm font-medium text-theme-primary hover:bg-surface-1/30 hover:border-theme-primary/35 transition-colors"
-            >
-              View connector docs
-            </Link>
-          </div>
+      <div className="text-center mb-16">
+        <div className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
+          AI CLIENTS & AGENTS
         </div>
 
-        <div className="relative">
-          <div
-            className="absolute inset-0 rounded-full bg-accent/20 blur-[100px] scale-90"
-            aria-hidden="true"
-          />
+        <Heading
+          id="ai-clients"
+          className="font-heading text-4xl md:text-[52px] font-bold leading-[1.06] tracking-[-0.03em] text-theme-primary"
+        >
+          Works with the tools{' '}
+          <span className="text-gradient-brand">you already use</span>
+        </Heading>
 
-          <div className="relative z-10 grid grid-cols-2 md:grid-cols-3 gap-5">
-            {connectors.map((item, i) => (
-              <motion.div
-                key={item.name}
-                initial={{ opacity: 0, y: 16 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.05 }}
-                className="rounded-2xl border border-brand-500/25 bg-surface-1/45 p-6 shadow-[0_24px_80px_rgba(0,0,0,.16)]"
-              >
-                <img
-                  src={item.logo}
-                  alt=""
-                  aria-hidden="true"
-                  className={`mb-7 object-contain ${item.name === 'n8n' ? 'h-9 w-12' : 'h-9 w-9'
-                    }`}
-                />
+        <p className="mt-6 text-[18px] leading-relaxed text-theme-secondary max-w-3xl mx-auto">
+          One quickstart command auto-detects and wires every installed AI tool.
+          Any MCP-compatible client works — not just the ones we list here.
+        </p>
+      </div>
 
-                <h3 className="font-heading text-[20px] font-bold leading-tight text-theme-primary">
-                  {item.name}
-                </h3>
+      <div className="relative">
+        <div
+          className="absolute inset-x-0 top-1/2 h-[360px] -translate-y-1/2 rounded-full bg-accent/10 blur-[100px]"
+          aria-hidden="true"
+        />
 
-                <p className="mt-2 text-xs font-semibold uppercase tracking-[0.12em] text-brand-500">
-                  {item.type}
-                </p>
-              </motion.div>
-            ))}
-          </div>
+        <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {clients.map((c, i) => (
+            <motion.div
+              key={c.name}
+              initial={{ opacity: 0, y: 12 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.035 }}
+              className="rounded-2xl border border-brand-500/20 bg-surface-1/45 p-5 shadow-[0_24px_80px_rgba(0,0,0,.12)] hover:border-brand-500/35 hover:bg-surface-1/60 transition-colors"
+            >
+              <h3 className="font-heading text-[18px] font-bold leading-tight text-theme-primary">
+                {c.name}
+              </h3>
+              <p className="mt-2 text-[13px] leading-6 text-theme-secondary">
+                {c.note}
+              </p>
+            </motion.div>
+          ))}
         </div>
       </div>
+
+      <p className="mt-8 text-center text-sm text-theme-secondary">
+        Missing your tool?{' '}
+        <a
+          href="https://github.com/smaramwbc/statewave/issues"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-accent hover:underline"
+        >
+          Open an issue →
+        </a>
+      </p>
     </Section>
   )
 }
@@ -940,7 +900,7 @@ function ConnectorsTeaserSection() {
           </div>
 
           <Heading
-            id="ai-clients"
+            id="connectors"
             className="font-heading text-4xl md:text-[52px] font-bold leading-[1.08] tracking-[-0.03em] text-theme-primary"
           >
             Not just live chats — <br />
@@ -953,7 +913,7 @@ function ConnectorsTeaserSection() {
             by subject — without stuffing raw history into a prompt.
           </p>
 
-          <p className="mt-6 text-[15px] leading-7 text-theme-secondary">
+          className="mt-6 text-[15px] leading-7 text-theme-secondary"          <p >
             Modular packages — install only what you need. The core stays clean;
             connectors are optional.
           </p>
@@ -1019,43 +979,90 @@ function ConnectorsTeaserSection() {
 }
 
 function SupportProofSection() {
+  const proofs = [
+    {
+      number: '01',
+      title: 'Session-aware context',
+      description:
+        'Active sessions boosted, resolved issues deprioritized. Context is ranked by what matters right now.',
+    },
+    {
+      number: '02',
+      title: 'Handoff context packs',
+      description:
+        'Compact escalation briefs with health, SLA, and issue context — ready for human or AI handoff.',
+    },
+    {
+      number: '03',
+      title: 'Health scoring',
+      description:
+        'Deterministic 0–100 health scores with explainable factors. Proactive webhook alerts on degradation.',
+    },
+    {
+      number: '04',
+      title: 'Resolution tracking',
+      description:
+        'Track issue state per session. Surface resolution history when recurring patterns are detected.',
+    },
+    {
+      number: '05',
+      title: 'SLA tracking',
+      description:
+        'First-response time, resolution time, breach detection. Integrated into health scoring and handoff.',
+    },
+    {
+      number: '06',
+      title: 'Repeat-issue detection',
+      description:
+        'Automatically surface prior resolutions when recurring problems appear. Stop solving the same issue twice.',
+    },
+  ]
+
   return (
-    <Section className="bg-surface-1/50">
+    <Section>
       <div className="text-center mb-16">
-        <Heading id="support-agent-proof" className="text-3xl md:text-4xl font-bold text-theme-primary tracking-tight">
-          Proven first in support-agent workflows
+        <div className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
+          SUPPORT AGENT PROOF
+        </div>
+
+        <Heading
+          id="support-agent-proof"
+          className="font-heading text-4xl md:text-[52px] font-bold leading-[1.06] tracking-[-0.03em] text-theme-primary"
+        >
+          Proven first in{' '}
+          <span className="text-gradient-brand">support-agent</span> workflows
         </Heading>
-        <p className="mt-4 text-theme-muted max-w-2xl mx-auto">
+
+        <p className="mt-6 text-[18px] leading-relaxed text-theme-secondary max-w-3xl mx-auto">
           Support agents are the first workflow where Statewave is deeply optimized and
-          rigorously evaluated — the clearest proof that structured memory outperforms naive approaches.
+          rigorously evaluated — the clearest proof that structured memory outperforms
+          naive approaches.
         </p>
       </div>
 
-      <div className="grid md:grid-cols-3 gap-6">
-        <Card
-          title="Session-aware context"
-          description="Active sessions boosted, resolved issues deprioritized. Context is ranked by what matters right now."
-        />
-        <Card
-          title="Handoff context packs"
-          description="Compact escalation briefs with health, SLA, and issue context — ready for human or AI handoff."
-        />
-        <Card
-          title="Health scoring"
-          description="Deterministic 0–100 health scores with explainable factors. Proactive webhook alerts on degradation."
-        />
-        <Card
-          title="Resolution tracking"
-          description="Track issue state per session. Surface resolution history when recurring patterns are detected."
-        />
-        <Card
-          title="SLA tracking"
-          description="First-response time, resolution time, breach detection. Integrated into health scoring and handoff."
-        />
-        <Card
-          title="Repeat-issue detection"
-          description="Automatically surface prior resolutions when recurring problems appear. Stop solving the same issue twice."
-        />
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {proofs.map((item, i) => (
+          <motion.div
+            key={item.title}
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: i * 0.05 }}
+            className="rounded-[1.75rem] border border-brand-500/20 bg-surface-1/45 p-7 shadow-[0_24px_80px_rgba(0,0,0,.12)] hover:border-brand-500/35 hover:bg-surface-1/60 transition-colors"
+          >
+            <div className="mb-5 text-xs font-bold tracking-[0.18em] text-brand-500/80">
+              {item.number}
+            </div>
+
+            <h3 className="font-heading text-[22px] font-bold leading-tight text-theme-primary">
+              {item.title}
+            </h3>
+
+            <p className="mt-4 text-[15px] leading-7 text-theme-secondary/80">
+              {item.description}
+            </p>
+          </motion.div>
+        ))}
       </div>
     </Section>
   )
@@ -1063,48 +1070,166 @@ function SupportProofSection() {
 
 function CapabilitiesSection() {
   const capabilities = [
-    { label: 'Append-only episodes', desc: 'Immutable raw truth' },
-    { label: 'Pluggable compilers', desc: 'Heuristic or LLM (100+ providers via LiteLLM)' },
-    { label: 'Semantic search', desc: 'pgvector cosine similarity + text fallback' },
-    { label: 'Token-bounded context', desc: 'Configurable budget, ranked packing' },
-    { label: 'Provenance tracing', desc: 'Every memory → source episodes' },
-    { label: 'State-assembly receipts', desc: 'Immutable, ULID-addressable audit record per call with byte-level integrity hash' },
-    { label: 'Sensitivity labels & policy', desc: 'Per-memory capability tags + declarative YAML policy gates access by caller identity' },
-    { label: 'Idempotent compilation', desc: 'Safe recompilation, no duplicates' },
-    { label: 'Memory conflict resolution', desc: 'Auto-supersede older overlapping memories' },
-    { label: 'Multi-tenant isolation', desc: 'App-layer query scoping per tenant' },
-    { label: 'Per-tenant configuration', desc: 'Receipts emission, policy mode (log_only / enforce), caller-identity gate' },
-    { label: 'Webhooks', desc: 'Persistent delivery with retry + dead-letter' },
-    { label: 'Typed SDKs', desc: 'Python (sync + async) & TypeScript' },
-    { label: 'OpenTelemetry', desc: 'Optional distributed tracing' },
-    { label: 'Subject deletion', desc: 'GDPR-style erasure by subject' },
+    {
+      number: '01',
+      title: 'Ingest',
+      subtitle: 'Capture raw truth',
+      desc: 'Append-only episodes with immutable, token-bounded context. No overwrites, no ambiguity.',
+      Icon: Download,
+      iconClass: 'border-brand-500/55 text-brand-500',
+    },
+    {
+      number: '02',
+      title: 'Compile',
+      subtitle: 'Structure & enrich',
+      desc: 'Pluggable compilers turn raw episodes into ranked memory with heuristics or LLMs.',
+      Icon: Layers,
+      iconClass: 'border-accent/55 text-accent',
+    },
+    {
+      number: '03',
+      title: 'Govern',
+      subtitle: 'Trust & control',
+      desc: 'Provenance for every memory, policy enforcement, state receipts, and audit-ready integrity.',
+      Icon: BarChart3,
+      iconClass: 'border-cyan-400/55 text-cyan-400',
+    },
+    {
+      number: '04',
+      title: 'Deliver',
+      subtitle: 'Serve & integrate',
+      desc: 'Semantic search, SDKs, webhooks, and OpenTelemetry for reliable delivery at scale.',
+      Icon: Send,
+      iconClass: 'border-brand-500/55 text-brand-500',
+    },
+    {
+      number: '05',
+      title: 'Isolate',
+      subtitle: 'Secure by default',
+      desc: 'Multi-tenant isolation, per-tenant configuration, and subject-level deletion for compliance.',
+      Icon: UserRound,
+      iconClass: 'border-brand-secondary/55 text-brand-secondary',
+    },
+  ]
+
+  const extras = [
+    {
+      title: 'Conflict resolution',
+      desc: 'Auto-supersedes older overlapping memories',
+      Icon: ShieldCheck,
+    },
+    {
+      title: 'Typed SDKs',
+      desc: 'Python (async + sync) & TypeScript',
+      Icon: Code2,
+    },
+    {
+      title: 'State receipts',
+      desc: 'ULID-addressable audit records with byte-level integrity',
+      Icon: ReceiptText,
+    },
+    {
+      title: 'Webhooks',
+      desc: 'Persistent delivery with retry + dead-letter',
+      Icon: Radio,
+    },
+    {
+      title: 'Semantic search',
+      desc: 'pgvector cosine similarity + text fallback',
+      Icon: Search,
+    },
   ]
 
   return (
     <Section>
-      <div className="text-center mb-16">
-        <Heading id="core-capabilities" className="text-3xl md:text-4xl font-bold text-theme-primary tracking-tight">
+      <div className="text-center mb-20">
+        <div className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
+          SUPPORT AGENT WORKFLOW
+        </div>
+
+        <Heading
+          id="core-capabilities"
+          className="font-heading text-4xl md:text-[52px] font-bold leading-[1.06] tracking-[-0.03em] text-theme-primary"
+        >
           Core capabilities
         </Heading>
-        <p className="mt-4 text-theme-muted max-w-2xl mx-auto">
-          Composable memory primitives for any AI system that needs persistent, structured memory.
+
+        <p className="mt-6 text-[18px] leading-relaxed text-theme-secondary max-w-3xl mx-auto">
+          Production-ready primitives for any AI system that needs persistent,
+          structured memory.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {capabilities.map((c, i) => (
+      <div className="relative">
+        <div
+          className="absolute left-0 right-0 top-[86px] h-px bg-gradient-to-r from-brand-500 via-cyan-400 to-brand-500"
+          aria-hidden="true"
+        />
+
+        <div className="grid lg:grid-cols-5 rounded-[2rem] bg-surface-1/35 overflow-hidden">
+          {capabilities.map((item, i) => (
+            <motion.div
+              key={item.title}
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.06 }}
+              className="relative px-7 pt-12 pb-10 text-center "
+            >
+              <div className={`mx-auto mb-7 flex h-18 w-18 items-center justify-center rounded-full border ${item.iconClass} bg-surface-1`}>
+                <item.Icon className="h-9 w-9" strokeWidth={1.8} aria-hidden="true" />
+              </div>
+
+              <div className={`mb-4 text-sm font-bold ${item.iconClass.split(' ')[1]}`}>
+                {item.number}
+              </div>
+
+              <h3 className="font-heading text-[22px] font-bold uppercase tracking-wide text-theme-primary">
+                {item.title}
+              </h3>
+
+              <p className={`mt-1 text-sm font-semibold ${item.iconClass.split(' ')[1]}`}>
+                {item.subtitle}
+              </p>
+
+              <p className="mt-5 text-[15px] leading-[1.6] text-theme-secondary/70">
+                {item.desc}
+              </p>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-12 grid grid-cols-1 md:grid-cols-5 gap-6">
+        {extras.map((item, i) => (
           <motion.div
-            key={i}
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
+            key={item.title}
+            initial={{ opacity: 0, y: 12 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ delay: i * 0.03 }}
-            className="p-4 rounded-xl border border-theme-border bg-surface-2/50 hover:border-accent/20 transition-colors"
+            transition={{ delay: i * 0.04 }}
+            className="flex items-start gap-4"
           >
-            <p className="text-sm font-medium text-theme-primary">{c.label}</p>
-            <p className="text-xs text-theme-muted mt-1">{c.desc}</p>
+            <item.Icon className="mt-0 h-6 w-6 shrink-0 text-theme-secondary" strokeWidth={1.8} />
+            <div>
+              <h4 className="font-heading text-sm font-bold text-theme-primary">
+                {item.title}
+              </h4>
+              <p className="mt-3 text-sm leading-[1.6] text-theme-secondary/70">
+                {item.desc}
+              </p>
+            </div>
           </motion.div>
         ))}
+      </div>
+
+      <div className="mt-12 text-center">
+        <Link
+          to="/developers"
+          className="inline-flex items-center rounded-full border border-brand-500/25 bg-brand-500/[0.05] px-6 py-3 text-sm font-medium text-brand-400 hover:bg-brand-500/[0.08] hover:border-brand-500/40 transition-colors"
+        >
+          Explore all capabilities
+        </Link>
       </div>
     </Section>
   )
