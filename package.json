@@ -26,6 +26,7 @@
     "@statewavedev/chat-react": "^0.1.1",
     "feed": "^5.2.1",
     "framer-motion": "^12.41.0",
+    "lucide-react": "^1.23.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "react-markdown": "^10.1.0",
