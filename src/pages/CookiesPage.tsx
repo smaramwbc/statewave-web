@@ -6,7 +6,7 @@ export function CookiesPage() {
   usePageSEO({
     title: 'Cookie Policy — Statewave',
     description:
-      'What cookies and browser storage statewave.ai uses, why, and how long they live. Statewave does not run analytics, advertising, or third-party trackers.',
+      'What cookies and browser storage statewave.ai uses, why, and how long they live. Statewave uses only cookieless, privacy-friendly analytics (Plausible) and sets no advertising or tracking cookies.',
     robots: 'noindex, follow',
     breadcrumb: false,
   })
@@ -22,13 +22,15 @@ export function CookiesPage() {
             Cookie Policy
           </h1>
           <p className="mt-5 text-sm text-theme-muted">
-            Last updated: 9 May 2026
+            Last updated: 7 July 2026
           </p>
           <p className="mt-6 text-base text-theme-secondary leading-relaxed">
-            statewave.ai is a marketing site for an open-source project. We do
-            not run analytics, advertising, or third-party trackers. The only
-            cookie we set is a strictly necessary one used by the live demo
-            chat widget so the conversation can continue across page loads.
+            statewave.ai is a marketing site for an open-source project. For
+            traffic analytics we use Plausible, which is cookieless and stores
+            no personal data. We run no advertising or third-party tracking
+            cookies. The only cookie we set is a strictly necessary one used by
+            the live demo chat widget so the conversation can continue across
+            page loads.
           </p>
         </div>
       </section>
@@ -123,7 +125,7 @@ export function CookiesPage() {
           </Heading>
           <ul className="space-y-3 text-sm text-theme-secondary">
             {[
-              'No analytics or product telemetry on this site (no GA, Plausible, PostHog, Mixpanel, Segment, etc.).',
+              'No cookie-based analytics, ad tech, or product telemetry (no GA, PostHog, Mixpanel, Segment). Traffic counts come from Plausible, which is cookieless and stores no personal data.',
               'No advertising or marketing cookies.',
               'No third-party social-media trackers, fingerprinting, or session-replay.',
               'No cross-site tracking. The demo cookie is first-party and only readable by statewave.ai.',
@@ -166,9 +168,9 @@ export function CookiesPage() {
           </Heading>
           <p className="text-sm text-theme-secondary leading-relaxed">
             If we ever add cookies that aren&rsquo;t strictly necessary
-            &mdash; for example product analytics &mdash; we&rsquo;ll update
-            this page and add a proper consent prompt before any non-essential
-            cookie is set.
+            &mdash; for example advertising or A/B-testing cookies &mdash;
+            we&rsquo;ll update this page and add a proper consent prompt before
+            any non-essential cookie is set.
           </p>
         </div>
       </Section>
