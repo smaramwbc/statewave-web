@@ -118,49 +118,43 @@ function HeroSection() {
   // on the subordinate elements (badge, subhead, CTAs).
 
   return (
-    <section className="relative min-h-[88vh] sm:min-h-[92vh] flex items-center overflow-hidden">
+    <section className="relative min-h-[92vh] flex items-center overflow-hidden">
       {showHeroCanvas && (
         <Suspense fallback={null}>
           <HeroBackground contentZoneRef={contentZoneRef} />
         </Suspense>
       )}
 
-      {/* Depth layers — add visual weight so the centered content doesn't
-          float on flat (especially near-white light-theme) space. Both are
-          decorative + behind the content, and fade out toward the edges. */}
-      {/* 1. Soft accent glow behind the headline. */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
           background:
-            'radial-gradient(42rem 28rem at 50% 32%, rgba(99, 102, 241, 0.10), transparent 70%)',
+            'radial-gradient(48rem 32rem at 50% 34%, rgba(99,102,241,.10), transparent 70%)',
         }}
       />
-      {/* 2. Masked dot-grid texture (denser in the centre, fades at edges). */}
+
       <div
-        className="absolute inset-0 pointer-events-none"
+        className="absolute inset-0 pointer-events-none opacity-45"
         style={{
           backgroundImage:
             'radial-gradient(var(--theme-hero-dot) 1px, transparent 1px)',
-          backgroundSize: '24px 24px',
+          backgroundSize: '22px 22px',
           maskImage:
-            'radial-gradient(ellipse 65% 55% at 50% 38%, #000 38%, transparent 78%)',
+            'radial-gradient(ellipse 66% 58% at 50% 40%, #000 30%, transparent 76%)',
           WebkitMaskImage:
-            'radial-gradient(ellipse 65% 55% at 50% 38%, #000 38%, transparent 78%)',
+            'radial-gradient(ellipse 66% 58% at 50% 40%, #000 30%, transparent 76%)',
         }}
       />
 
-      {/* Bottom-edge fade — only mask the final ~35% so the section blends
-          into the page below without killing the lower particles' colors. */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
           background:
-            'linear-gradient(to bottom, transparent 0%, transparent 65%, var(--theme-surface-0) 100%)',
+            'linear-gradient(to bottom, transparent 0%, transparent 68%, var(--theme-surface-0) 100%)',
         }}
       />
 
-      <div className="relative z-10 w-full mx-auto max-w-7xl px-5 sm:px-6 pt-28 sm:pt-32 md:pt-36 pb-16 sm:pb-20 md:pb-24">
+      <div className="relative z-10 w-full mx-auto max-w-7xl px-5 sm:px-6 pt-28 sm:pt-32 md:pt-36 pb-32 sm:pb-36 md:pb-44">
         <motion.div
           ref={contentZoneRef}
           variants={stagger}
@@ -168,102 +162,86 @@ function HeroSection() {
           animate="show"
           onMouseMove={(e) => e.stopPropagation()}
           onClick={(e) => e.stopPropagation()}
-          className="max-w-3xl mx-auto text-center"
+          className="max-w-5xl mx-auto text-center"
         >
-          {/* Badge */}
           <motion.div variants={fadeUp}>
-            <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-accent/20 bg-accent/[0.04] text-accent text-[11px] font-medium tracking-wide uppercase">
-              <span className="w-1.5 h-1.5 rounded-full bg-accent/80" />
+            <span className="inline-flex items-center gap-2 rounded-full border border-brand-500/35 bg-brand-500/[0.06] px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-400">
+              <span className="h-1.5 w-1.5 rounded-full bg-brand-500" />
               Open source · Self-hosted · Apache 2.0
             </span>
           </motion.div>
 
-          {/* Headline — clamps fluidly between 320px and desktop so the
-              hero never overflows on small phones (the previous 3.25rem
-              floor was wider than 320px after letter-spacing). */}
-          <h1 className="mt-6 sm:mt-8 text-[clamp(2.25rem,8vw,4.5rem)] font-bold text-theme-primary tracking-[-0.025em] leading-[1.08] break-anywhere">
-            AI memory built{' '}
-            <span className="bg-gradient-to-r from-accent via-brand-400 to-brand-300 bg-clip-text text-transparent">
-              for production
-            </span>
+          <h1 className="mt-8 font-heading text-[clamp(2.8rem,6.6vw,5.8rem)] font-bold leading-[0.98] tracking-[-0.055em] text-theme-primary">
+            Open-source memory runtime{' '}
+            <span className="text-gradient-brand">for AI agents</span>
           </h1>
 
-          {/* Subheadline — once the h1 paints instantly (no motion gate),
-              Lighthouse promotes this paragraph to the LCP element on mobile
-              because it's the largest remaining text block. Keeping it
-              animated re-creates the same 1s+ render delay we just removed.
-              Paint immediately; the badge + CTAs still stagger in below. */}
-          <p className="mt-5 sm:mt-6 text-base sm:text-lg md:text-[1.2rem] text-theme-muted max-w-[38rem] mx-auto leading-[1.65] sm:leading-[1.7]">
-            Policies, sensitivity labels, and tamper-evident audit receipts —
-            not just retrieval. Every memory traces to its source. Governance
-            built in from day one.
+          <p className="mt-7 mx-auto max-w-2xl text-[20px] md:text-[22px] leading-[1.6] text-theme-secondary/90">
+            Durable memory infrastructure for AI agents. Ranked context,
+            full provenance, self-hosted on Postgres.
           </p>
 
-          {/* Credibility chips — proof numbers above the fold so visitors
-              see them without scrolling to ProofSection. */}
-          <motion.div variants={fadeUp} className="mt-6 flex flex-wrap items-center justify-center gap-2">
-            {PROOF_STATS.map((s) => {
-              // Purposeful colour, not rainbow: the 8/8 win reads positive,
-              // the 2/8 naive baseline reads negative (that's the comparison),
-              // the raw counts stay neutral.
-              const tone = /naive/i.test(s.label)
-                ? 'naive'
-                : /support workflow/i.test(s.label)
-                  ? 'win'
-                  : 'neutral'
-              // Tint only the chip (background + border); keep the text at the
-              // normal primary/muted colours so it stays readable.
-              const chip = {
-                neutral: 'border-theme-border bg-surface-2',
-                win: 'border-emerald-500/30 bg-emerald-500/10',
-                naive: 'border-red-500/25 bg-red-500/[0.08]',
-              }[tone]
-              return (
-                <span
-                  key={s.label}
-                  className={`inline-flex items-baseline gap-1.5 rounded-full border px-3 py-1 ${chip}`}
-                >
-                  <span className="text-sm font-semibold text-theme-primary">{s.value}</span>
-                  <span className="text-xs text-theme-muted">{s.label}</span>
+          <motion.div
+            variants={fadeUp}
+            className="mt-8 flex flex-wrap items-center justify-center gap-3 text-[11px] font-medium uppercase tracking-[0.1em] text-theme-secondary/55"
+          >
+            {PROOF_STATS.map((stat, index) => (
+              <React.Fragment key={stat.label}>
+                {index > 0 && <span className="opacity-40">•</span>}
+
+                <span className="flex items-center gap-1">
+                  <span
+                    className={
+                      stat.label.toLowerCase().includes('support')
+                        ? 'font-semibold text-emerald-300'
+                        : 'font-semibold text-theme-primary'
+                    }
+                  >
+                    {stat.value}
+                  </span>
+
+                  <span>{stat.label}</span>
                 </span>
-              )
-            })}
+              </React.Fragment>
+            ))}
           </motion.div>
 
-          {/* Install command — primary CTA. */}
-          <motion.div variants={fadeUp} className="mt-7 sm:mt-9">
-            <HeroInstallCommand centered />
-            <p className="mx-auto mt-3 max-w-[34rem] text-sm text-theme-muted leading-relaxed">
-              One command boots Statewave locally — API, admin console, and
-              Postgres — and wires it into your MCP clients. No account, runs
-              offline.
-            </p>
-          </motion.div>
-
-          <motion.div variants={fadeUp} className="mt-5 flex flex-wrap items-center justify-center gap-3">
-            <button
+          <motion.div variants={fadeUp} className="mt-8 flex flex-wrap items-center justify-center gap-4">
+            <Button
               ref={heroCtaRef}
-              type="button"
               onClick={() => openWidget('support-agent', 'Support Agent')}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-accent text-white text-sm font-medium shadow-lg shadow-accent/20 hover:bg-accent-light hover:shadow-accent/30 transition-[background-color,box-shadow] duration-150"
+              size="lg"
             >
-              Try the agent demo
-              <svg className="w-[15px] h-[15px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              Try the Demo
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
               </svg>
-            </button>
+
+            </Button>
+          </motion.div>
+
+          <motion.div variants={fadeUp} className="mt-6">
             <a
               href="https://github.com/smaramwbc/statewave"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-surface-2 text-theme-primary border border-theme-border text-sm font-medium hover:bg-surface-3 hover:border-theme-border transition-[background-color,border-color] duration-150"
+              className="inline-flex items-center gap-1.5 text-sm text-theme-secondary/65 hover:text-theme-primary transition-colors"
             >
-              <svg className="w-[15px] h-[15px]" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <svg
+                className="w-4 h-4"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
                 <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
               </svg>
-              View on GitHub
+
+              <span className="inline-flex items-center gap-1.5 text-[13px] text-theme-secondary/55 hover:text-theme-primary transition-colors">
+                View on GitHub
+              </span>
             </a>
           </motion.div>
+
 
         </motion.div>
       </div>
@@ -1558,11 +1536,10 @@ console.log(ctx.assembledContext);
                   type="button"
                   aria-selected={tab === id}
                   onClick={() => setTab(id)}
-                  className={`px-4 py-2 rounded-lg text-xs font-semibold transition-colors ${
-                    tab === id
-                      ? 'bg-brand-500/10 text-brand-300'
-                      : 'text-theme-muted hover:text-theme-secondary'
-                  }`}
+                  className={`px-4 py-2 rounded-lg text-xs font-semibold transition-colors ${tab === id
+                    ? 'bg-brand-500/10 text-brand-300'
+                    : 'text-theme-muted hover:text-theme-secondary'
+                    }`}
                 >
                   {label}
                 </button>
@@ -1815,30 +1792,66 @@ function CTASection() {
   useTrackDemoCta(ctaDemoRef)
   return (
     <Section>
-      <div className="text-center">
-        <Heading id="give-ai-memory" className="text-3xl md:text-5xl font-bold text-theme-primary tracking-tight">
-          Give your AI system memory
-        </Heading>
-        <p className="mt-6 text-lg text-theme-muted max-w-xl mx-auto">
-          Start building with Statewave in about 5 minutes.
-          Self-hosted, open source, and proven.
-        </p>
-        <div className="mt-10 flex flex-wrap justify-center gap-4">
-          <Button href="https://github.com/smaramwbc/statewave-docs/blob/main/getting-started.md" size="lg">
-            Get Started
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-            </svg>
-          </Button>
-          <Button ref={ctaDemoRef} onClick={() => openWidget('support-agent', 'Support Agent')} variant="secondary" size="lg">
-            Try Live Demo
-          </Button>
-          <Button href="https://github.com/smaramwbc/statewave" variant="secondary" size="lg">
-            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
-            </svg>
-            GitHub
-          </Button>
+      <div className="relative overflow-hidden rounded-[2.5rem] border border-brand-500/25 bg-surface-1/55 px-6 py-20 text-center shadow-[0_32px_120px_rgba(0,0,0,.18)]">
+        <div
+          className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(124,92,255,.22),transparent_45%),radial-gradient(circle_at_20%_80%,rgba(73,168,255,.14),transparent_42%),radial-gradient(circle_at_80%_80%,rgba(139,92,246,.12),transparent_40%)]"
+          aria-hidden="true"
+        />
+
+        <div
+          className="absolute inset-x-20 top-0 h-px bg-gradient-to-r from-transparent via-brand-500/60 to-transparent"
+          aria-hidden="true"
+        />
+
+        <div className="relative z-10 mx-auto max-w-4xl">
+          <div className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
+            START BUILDING
+          </div>
+
+          <Heading
+            id="give-ai-memory"
+            className="font-heading text-4xl md:text-[64px] font-bold leading-[1.02] tracking-[-0.04em] text-theme-primary"
+          >
+            Give your AI system{' '}
+            <span className="text-gradient-brand">memory</span>
+          </Heading>
+
+          <p className="mt-6 mx-auto max-w-2xl text-[20px] leading-[1.65] text-theme-secondary/85">
+            Start building with Statewave in about 5 minutes. Self-hosted,
+            open source, and proven.
+          </p>
+
+          <div className="mt-10 flex flex-wrap justify-center gap-4">
+            <Button
+              href="https://github.com/smaramwbc/statewave-docs/blob/main/getting-started.md"
+              size="lg"
+            >
+              Get Started
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              </svg>
+            </Button>
+
+            <Button
+              ref={ctaDemoRef}
+              onClick={() => openWidget('support-agent', 'Support Agent')}
+              variant="secondary"
+              size="lg"
+            >
+              Try Live Demo
+            </Button>
+
+            <Button
+              href="https://github.com/smaramwbc/statewave"
+              variant="secondary"
+              size="lg"
+            >
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+              </svg>
+              GitHub
+            </Button>
+          </div>
         </div>
       </div>
     </Section>
