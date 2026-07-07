@@ -364,10 +364,10 @@ function WhatSection() {
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
-                className="flex items-center gap-4"
+                className="flex items-start gap-4"
               >
-                <span className="h-px w-4 shrink-0 bg-accent/70" />
-                <span className="text-sm text-theme-primary leading-7">
+                <span className="h-px mt-2 w-3 shrink-0 bg-accent" />
+                <span className="text-sm text-theme-primary leading-5">
                   {item}
                 </span>
               </motion.div>
@@ -1238,60 +1238,83 @@ function CapabilitiesSection() {
 function ProofSection() {
   const stats = PROOF_STATS
 
+  const proofs = [
+    'Identity facts persist across sessions',
+    'Relevant preferences surface for matching tasks',
+    'Token budgets are always respected',
+    'Provenance traces facts to source episodes',
+    'Compilation is idempotent — no duplicates',
+    'Session-aware ranking boosts active sessions',
+    'Repeat-issue detection surfaces prior fixes',
+    'Health scoring is deterministic and explainable',
+  ]
+
   return (
-    <Section className="bg-surface-1/50">
+    <Section>
       <div className="text-center mb-16">
-        <Heading id="proven-not-promised" className="text-3xl md:text-4xl font-bold text-theme-primary tracking-tight">
-          Proven, not promised
+        <div className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
+          VERIFIED BY EVALS
+        </div>
+
+        <Heading
+          id="proven-not-promised"
+          className="font-heading text-4xl md:text-[52px] font-bold leading-[1.06] tracking-[-0.03em] text-theme-primary"
+        >
+          Proven, <span className="text-gradient-brand">not promised</span>
         </Heading>
-        <p className="mt-4 text-theme-muted max-w-2xl mx-auto">
+
+        <p className="mt-6 text-[18px] leading-relaxed text-theme-secondary max-w-3xl mx-auto">
           Every claim is backed by automated evals and benchmarks that run in CI.
           Statewave scores 8/8 on support workflow criteria where naive approaches score 2/8.
         </p>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
         {stats.map((s, i) => (
           <motion.div
             key={i}
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
+            initial={{ opacity: 0, y: 14 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ delay: i * 0.1 }}
-            className="text-center p-6 rounded-2xl border border-theme-border bg-surface-1"
+            transition={{ delay: i * 0.06 }}
+            className="rounded-[1.75rem] border border-brand-500/20 bg-surface-1/45 p-7 text-center shadow-[0_24px_80px_rgba(0,0,0,.12)]"
           >
-            <p className="text-3xl md:text-4xl font-bold text-theme-primary">{s.value}</p>
-            <p className="text-sm text-theme-muted mt-2">{s.label}</p>
+            <p className="font-heading text-[42px] md:text-[52px] font-bold leading-none text-theme-primary">
+              {s.value}
+            </p>
+            <p className="mt-3 text-sm text-theme-secondary/80">
+              {s.label}
+            </p>
           </motion.div>
         ))}
       </div>
 
-      <div className="mt-12 rounded-2xl border border-theme-border bg-surface-1 p-8">
-        <h3 className="text-lg font-semibold text-theme-primary mb-4">What the evals prove</h3>
-        <div className="grid md:grid-cols-2 gap-4 text-sm text-theme-muted">
-          {[
-            'Identity facts persist across sessions',
-            'Relevant preferences surface for matching tasks',
-            'Token budgets are always respected',
-            'Provenance traces facts to source episodes',
-            'Compilation is idempotent — no duplicates',
-            'Session-aware ranking boosts active sessions',
-            'Repeat-issue detection surfaces prior fixes',
-            'Health scoring is deterministic and explainable',
-          ].map((item, i) => (
-            <div key={i} className="flex items-start gap-2">
-              <svg className="w-4 h-4 text-green-400 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-              <span>{item}</span>
-            </div>
+      <div className="mt-10 rounded-[2rem] border border-brand-500/20 bg-surface-1/45 p-8 md:p-10 shadow-[0_24px_80px_rgba(0,0,0,.12)]">
+        <h3 className="font-heading text-[22px] font-bold text-theme-primary mb-8">
+          What the evals prove
+        </h3>
+
+        <div className="grid md:grid-cols-2 gap-x-14 gap-y-5">
+          {proofs.map((item, i) => (
+            <motion.div
+              key={item}
+              initial={{ opacity: 0, x: -8 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.035 }}
+              className="flex items-start gap-4"
+            >
+              <span className="mt-1.5 text-brand-success">✓</span>
+              <span className="text-[15px] leading-7 text-theme-secondary/85">
+                {item}
+              </span>
+            </motion.div>
           ))}
         </div>
       </div>
     </Section>
   )
 }
-
 function DeveloperSection() {
   // npx leads — the fastest path for a new visitor. Docker is kept for
   // visitors who want to control the compose setup directly.
@@ -1410,26 +1433,36 @@ console.log(ctx.assembledContext);
 
   return (
     <Section>
-      <div className="grid md:grid-cols-2 gap-10 md:gap-16 items-center">
+      <div className="grid lg:grid-cols-[0.45fr_0.55fr] gap-12 xl:gap-20 items-center">
         <div className="min-w-0">
-          <Heading id="self-hosted" className="text-3xl md:text-4xl font-bold text-theme-primary tracking-tight">
-            Self-hosted. Framework-neutral.
+          <div className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
+            DEPLOY YOUR WAY
+          </div>
+
+          <Heading
+            id="self-hosted"
+            className="font-heading text-4xl md:text-[52px] font-bold leading-[1.08] tracking-[-0.03em] text-theme-primary"
+          >
+            Self-hosted.{' '}
+            <span className="text-gradient-brand">Framework-neutral.</span>
           </Heading>
-          <p className="mt-6 text-theme-muted leading-relaxed">
-            Run Statewave alongside any AI application. The storage layer is Postgres-only and runs in
-            your infrastructure — no Statewave-managed cloud sees your episodes or memories.
+
+          <p className="mt-6 max-w-[680px] text-[20px] leading-[1.65] text-theme-secondary">
+            Run Statewave alongside any AI application. The storage layer is Postgres-only
+            and runs in your infrastructure — no Statewave-managed cloud sees your episodes
+            or memories.
           </p>
-          <p className="mt-3 text-xs text-theme-muted/80 leading-relaxed">
-            What leaves your network depends on the compiler and embedding you configure. The default
-            heuristic compiler is fully local; choosing the LLM compiler or a hosted embedding model
-            sends content to that provider. <Link to="/product#privacy" className="text-accent hover:underline">See the data-flow breakdown →</Link>
+
+          <p className="mt-5 text-[15px] leading-7 text-theme-secondary/80">
+            What leaves your network depends on the compiler and embedding you configure.
+            The default heuristic compiler is fully local; choosing the LLM compiler or a
+            hosted embedding model sends content to that provider.{' '}
+            <Link to="/product#privacy" className="text-accent hover:underline">
+              See the data-flow breakdown →
+            </Link>
           </p>
-          {/* Bullets prioritize "how easy is it to run Statewave?" — Docker
-              Hub and Compose come first, then the runtime properties, then
-              integrations and SDKs. Each links to the most relevant doc /
-              registry / repo, opened in a new tab so the visitor doesn't
-              lose their place on the homepage. */}
-          <ul className="mt-8 space-y-3">
+
+          <ul className="mt-6 space-y-1">
             {(() => {
               const DOCS = 'https://github.com/smaramwbc/statewave-docs/blob/main'
               type Bullet = { node: React.ReactNode }
@@ -1491,11 +1524,10 @@ console.log(ctx.assembledContext);
                   ),
                 },
               ]
+
               return items.map((item, i) => (
-                <li key={i} className="flex items-start gap-3 text-sm text-theme-secondary">
-                  <svg className="w-4 h-4 text-accent mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
+                <li key={i} className="text-sm flex items-start gap-4 leading-7 text-theme-secondary">
+                  <span className="mt-3 h-px w-3 shrink-0 bg-accent" />
                   <span>{item.node}</span>
                 </li>
               ))
@@ -1503,14 +1535,15 @@ console.log(ctx.assembledContext);
           </ul>
         </div>
 
-        <div className="min-w-0 rounded-2xl border border-theme-border bg-surface-1 p-5 sm:p-6 font-mono text-sm overflow-hidden">
-          <div className="flex items-center justify-between gap-3 mb-4">
+        <div className="min-w-0 rounded-[2rem] border border-brand-500/20 bg-surface-1/55 p-5 sm:p-6 font-mono text-sm overflow-hidden shadow-[0_24px_80px_rgba(0,0,0,.16)]">
+          <div className="flex items-center justify-between gap-3 mb-5">
             <div className="flex items-center gap-2 text-theme-muted text-xs">
-              <div className="w-3 h-3 rounded-full bg-red-500/60" />
-              <div className="w-3 h-3 rounded-full bg-yellow-500/60" />
-              <div className="w-3 h-3 rounded-full bg-green-500/60" />
+              <div className="w-3 h-3 rounded-full bg-red-500/70" />
+              <div className="w-3 h-3 rounded-full bg-yellow-500/70" />
+              <div className="w-3 h-3 rounded-full bg-green-500/70" />
             </div>
-            <div role="tablist" aria-label="Quickstart" className="flex gap-1 rounded-lg bg-surface-2 p-0.5">
+
+            <div role="tablist" aria-label="Quickstart" className="flex gap-1 rounded-xl bg-surface-2/70 p-1">
               {(
                 [
                   { id: 'npx', label: 'npx' },
@@ -1525,30 +1558,39 @@ console.log(ctx.assembledContext);
                   type="button"
                   aria-selected={tab === id}
                   onClick={() => setTab(id)}
-                  className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${tab === id
-                    ? 'bg-surface-0 text-theme-primary shadow-sm'
-                    : 'text-theme-muted hover:text-theme-secondary'
-                    }`}
+                  className={`px-4 py-2 rounded-lg text-xs font-semibold transition-colors ${
+                    tab === id
+                      ? 'bg-brand-500/10 text-brand-300'
+                      : 'text-theme-muted hover:text-theme-secondary'
+                  }`}
                 >
                   {label}
                 </button>
               ))}
             </div>
           </div>
-          <div className="space-y-3">
+
+          <div className="space-y-4">
             {blocks.map((block) => (
-              <div key={block.label} className="rounded-lg border border-theme-border/60 bg-surface-2/40">
-                <div className="flex items-center justify-between gap-3 px-3 pt-2 pb-1">
-                  <p className="text-[10.5px] font-medium uppercase tracking-wider text-theme-muted/85">
+              <div
+                key={block.label}
+                className="rounded-2xl border border-theme-primary/10 bg-surface-2/35"
+              >
+                <div className="flex items-center justify-between gap-3 px-4 pt-4 pb-2">
+                  <p className="text-[10.5px] font-semibold uppercase tracking-[0.18em] text-theme-muted/85">
                     {block.label}
                   </p>
                   <CodeCopyButton code={block.copy} label={`Copy: ${block.label}`} />
                 </div>
-                <pre className="text-theme-secondary overflow-x-auto px-3 pb-3 text-[12.5px] leading-relaxed"><code>{block.display}</code></pre>
+
+                <pre className="text-theme-secondary/90 overflow-x-auto px-4 pb-4 text-[13px] leading-7">
+                  <code>{block.display}</code>
+                </pre>
               </div>
             ))}
+
             {(tab === 'npx' || tab === 'docker') && (
-              <p className="pt-1 text-right text-xs text-theme-muted">
+              <p className="pt-1 text-right text-xs leading-6 text-theme-muted">
                 Runs in demo mode by default — add an LLM key for semantic search.{' '}
                 <a
                   href="https://github.com/smaramwbc/statewave#run-the-server"
@@ -1578,89 +1620,99 @@ console.log(ctx.assembledContext);
 
 function FAQSection() {
   return (
-    <Section className="bg-surface-1/50">
-      <div className="text-center mb-14">
+    <Section>
+      <div className="text-center mb-16">
+        <div className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
+          FREQUENTLY ASKED QUESTIONS
+        </div>
+
         <Heading
           id="faq"
-          className="text-3xl md:text-4xl font-bold text-theme-primary tracking-tight"
+          className="font-heading text-4xl md:text-[52px] font-bold leading-[1.08] tracking-[-0.03em] text-theme-primary"
         >
           Frequently asked questions
         </Heading>
-        <p className="mt-4 text-theme-muted max-w-2xl mx-auto">
+
+        <p className="mt-6 max-w-3xl mx-auto text-[20px] leading-[1.65] text-theme-secondary">
           Honest, technical answers about Statewave, AI agent memory,
           and how it fits with the rest of your stack.
         </p>
       </div>
 
-      {/* Semantic structure: each Q&A is a <details> so it's collapsible by
-          keyboard and assistive tech, with the question as a real <h3> inside
-          <summary> (valid per HTML spec — summary accepts one heading) and
-          the answer as a paragraph in the disclosure body. The visible HTML
-          is the same content the FAQPage JSON-LD emits, so search and
-          answer engines see one source of truth. */}
-      <div className="mx-auto max-w-3xl divide-y divide-theme-border rounded-2xl border border-theme-border bg-surface-1">
+      <div className="mx-auto max-w-4xl space-y-3">
         {FAQ_ENTRIES.map((entry, i) => (
           <details
             key={entry.question}
-            className="group p-6 [&_summary::-webkit-details-marker]:hidden"
-            // First item open by default so the section reads as content,
-            // not a wall of collapsed accordions, on first paint.
             {...(i === 0 ? { open: true } : {})}
+            className="group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35"
           >
-            <summary className="flex cursor-pointer items-start justify-between gap-4 text-left">
-              <h3 className="text-base md:text-lg font-semibold text-theme-primary leading-snug">
+            <summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none [&::-webkit-details-marker]:hidden">
+              <h3 className="text-[18px] font-semibold leading-snug text-theme-primary">
                 {entry.question}
               </h3>
-              <svg
-                className="mt-1 h-5 w-5 shrink-0 text-theme-muted transition-transform duration-200 group-open:rotate-180"
-                aria-hidden
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M19 9l-7 7-7-7"
-                />
-              </svg>
+
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40 transition-all group-open:rotate-180 group-hover:border-brand-500/40">
+                <svg
+                  className="h-5 w-5 text-theme-secondary"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={1.8}
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+              </div>
             </summary>
-            <p className="mt-3 text-sm md:text-[15px] text-theme-muted leading-[1.7]">
-              {entry.answer}
-            </p>
-            {entry.links && entry.links.length > 0 && (
-              <FaqLinks links={entry.links} />
-            )}
+
+            <div className="px-7 pb-7">
+              <div className="h-px bg-theme-primary/10 mb-6" />
+
+              <p className="text-[16px] leading-8 text-theme-secondary/80">
+                {entry.answer}
+              </p>
+
+              {entry.links && entry.links.length > 0 && (
+                <div className="mt-5">
+                  <FaqLinks links={entry.links} />
+                </div>
+              )}
+            </div>
           </details>
         ))}
       </div>
 
-      <p className="mt-10 text-center text-sm text-theme-muted">
-        More questions? Read the{' '}
+      <div className="mt-14 text-center text-[15px] text-theme-secondary/75">
+        More questions? Read the{" "}
         <a
           href="https://github.com/smaramwbc/statewave-docs"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-accent hover:underline"
+          className="text-accent hover:text-accent/80 transition-colors"
         >
           docs
         </a>
-        , browse the{' '}
-        <Link to="/use-cases" className="text-accent hover:underline">
+        , browse the{" "}
+        <Link
+          to="/use-cases"
+          className="text-accent hover:text-accent/80 transition-colors"
+        >
           use cases
         </Link>
-        , or open an{' '}
+        , or open an{" "}
         <a
           href="https://github.com/smaramwbc/statewave/issues"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-accent hover:underline"
+          className="text-accent hover:text-accent/80 transition-colors"
         >
           issue on GitHub
         </a>
         .
-      </p>
+      </div>
     </Section>
   )
 }
