@@ -236,7 +236,7 @@ function HeroSection() {
                 <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
               </svg>
 
-              <span className="inline-flex items-center gap-1.5 text-[13px] text-theme-secondary/55 hover:text-theme-primary transition-colors">
+              <span className="hero-github-link inline-flex items-center gap-1.5 text-[13px] text-theme-secondary/55 hover:text-theme-primary transition-colors">
                 View on GitHub
               </span>
             </a>
@@ -308,10 +308,10 @@ function HeroInstallCommand({ centered = false }: { centered?: boolean }) {
 
 function WhatSection() {
   return (
-    <Section>
+    <Section className="bg-surface-1">
       <div className="grid lg:grid-cols-[0.38fr_0.62fr] gap-12 xl:gap-20 items-center">
         <div className="min-w-0">
-          <div className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
+          <div className="section-eyebrow mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
             THE STATEWAVE APPROACH
           </div>
 
@@ -389,9 +389,9 @@ function WhyNotSection() {
   ]
 
   return (
-    <Section className="bg-surface-1/50">
+    <Section>
       <div className="text-center mb-16">
-        <div className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
+        <div className="section-eyebrow mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
           WHY EXISTING APPROACHES FAIL
         </div>
 
@@ -423,14 +423,14 @@ function WhyNotSection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.1 }}
-              className="rounded-[2rem] border border-brand-500/25 bg-surface-1/45 p-10 shadow-[0_24px_80px_rgba(0,0,0,.16)]"
+              className="sw-card rounded-[2rem] border border-brand-500/25 bg-surface-1/45 p-10 shadow-[0_24px_80px_rgba(0,0,0,.16)]"
             >
               <div className="flex items-start gap-8">
                 <img
                   src={icons[i]}
                   alt=""
                   aria-hidden="true"
-                  className="h-14 w-14 shrink-0"
+                  className="h-12 w-12 shrink-0"
                 />
 
                 <div className="min-w-0">
@@ -456,13 +456,13 @@ function WhyNotSection() {
         })}
       </div>
 
-      <div className="mt-10 rounded-[2rem] border border-brand-500/25 bg-surface-1/45 p-8 shadow-[0_24px_80px_rgba(0,0,0,.16)]">
+      <div className="sw-card mt-10 rounded-[2rem] border border-brand-500/25 bg-surface-1/45 p-8 shadow-[0_24px_80px_rgba(0,0,0,.16)]">
         <div className="flex flex-col md:flex-row items-center justify-center gap-8 text-center md:text-left">
           <img
             src="/icons/icon-statewave-layers.svg"
             alt=""
             aria-hidden="true"
-            className="h-20 w-20 shrink-0"
+            className="h-16 w-16 shrink-0"
           />
 
           <p className="max-w-[340px] text-[20px] leading-relaxed text-theme-secondary">
@@ -515,9 +515,9 @@ function UseCasesSection() {
   ]
 
   return (
-    <Section>
+    <Section className="bg-surface-1">
       <div className="text-center mb-16">
-        <div className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
+        <div className="section-eyebrow mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
           BUILT FOR ANY STATEFUL AI WORKFLOW
         </div>
 
@@ -557,7 +557,7 @@ function UseCasesSection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.1 }}
-              className="rounded-[2rem] border border-brand-500/25 bg-surface-1/45 p-8 shadow-[0_24px_80px_rgba(0,0,0,.16)]"
+              className="sw-card rounded-[2rem] border border-brand-500/25 bg-surface-1/45 p-8 shadow-[0_24px_80px_rgba(0,0,0,.16)]"
             >
               <div className="flex items-start gap-5 mb-6">
                 <div
@@ -626,7 +626,7 @@ function AIClientsSection() {
   return (
     <Section>
       <div className="text-center mb-16">
-        <div className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
+        <div className="section-eyebrow mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
           AI CLIENTS & AGENTS
         </div>
 
@@ -658,7 +658,7 @@ function AIClientsSection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.035 }}
-              className="rounded-2xl border border-brand-500/20 bg-surface-1/45 p-5 shadow-[0_24px_80px_rgba(0,0,0,.12)] hover:border-brand-500/35 hover:bg-surface-1/60 transition-colors"
+              className="sw-card rounded-2xl border border-brand-500/20 bg-surface-1/45 p-5 shadow-[0_24px_80px_rgba(0,0,0,.12)] hover:border-brand-500/35 hover:bg-surface-1/60 transition-colors"
             >
               <h3 className="font-heading text-[18px] font-bold leading-tight text-theme-primary">
                 {c.name}
@@ -727,9 +727,9 @@ function GovernanceSection() {
   ]
 
   return (
-    <Section>
+    <Section className="bg-surface-1">
       <div className="text-center mb-16">
-        <div className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
+        <div className="section-eyebrow mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
           SUPPORT AGENT WORKFLOW
         </div>
 
@@ -748,7 +748,7 @@ function GovernanceSection() {
         </p>
       </div>
 
-      <div className="mx-auto max-w-[1040px] rounded-[2rem] border border-brand-500/25 bg-surface-1/45 p-10 md:p-14 shadow-[0_24px_80px_rgba(0,0,0,.16)]">
+      <div className="sw-card mx-auto max-w-[1040px] rounded-[2rem] border border-brand-500/25 bg-surface-1/45 p-10 md:p-14 shadow-[0_24px_80px_rgba(0,0,0,.16)]">
         <div className="grid lg:grid-cols-[0.42fr_0.58fr] gap-12 xl:gap-16 items-center">
           <div className="relative flex min-h-[420px] items-center justify-center">
             <div
@@ -873,7 +873,7 @@ function ConnectorsTeaserSection() {
     <Section>
       <div className="grid lg:grid-cols-[0.46fr_0.54fr] gap-12 xl:gap-20 items-center">
         <div>
-          <div className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
+          <div className="section-eyebrow mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
             CONNECTORS & INTEGRATIONS
           </div>
 
@@ -930,13 +930,16 @@ function ConnectorsTeaserSection() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.05 }}
-                className="block rounded-2xl border border-brand-500/25 bg-surface-1/45 p-6 shadow-[0_24px_80px_rgba(0,0,0,.16)] hover:border-brand-500/45 hover:bg-surface-1/60 transition-colors"
+                className="sw-card block rounded-2xl border border-brand-500/25 bg-surface-1/45 p-6 shadow-[0_24px_80px_rgba(0,0,0,.16)] hover:border-brand-500/45 hover:bg-surface-1/60 transition-colors"
               >
                 <img
                   src={item.logo}
                   alt=""
                   aria-hidden="true"
                   className={`mb-7 object-contain ${item.name === 'n8n' ? 'h-9 w-12' : 'h-9 w-9'
+                    } ${['GitHub', 'Zendesk', 'MCP', 'Markdown'].includes(item.name)
+                      ? 'invert'
+                      : ''
                     }`}
                 />
 
@@ -997,9 +1000,9 @@ function SupportProofSection() {
   ]
 
   return (
-    <Section>
+    <Section className="bg-surface-1">
       <div className="text-center mb-16">
-        <div className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
+        <div className="section-eyebrow mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
           SUPPORT AGENT PROOF
         </div>
 
@@ -1026,7 +1029,7 @@ function SupportProofSection() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: i * 0.05 }}
-            className="rounded-[1.75rem] border border-brand-500/20 bg-surface-1/45 p-7 shadow-[0_24px_80px_rgba(0,0,0,.12)] hover:border-brand-500/35 hover:bg-surface-1/60 transition-colors"
+            className="sw-card rounded-[1.75rem] border border-brand-500/20 bg-surface-1/45 p-7 shadow-[0_24px_80px_rgba(0,0,0,.12)] hover:border-brand-500/35 hover:bg-surface-1/60 transition-colors"
           >
             <div className="mb-5 text-xs font-bold tracking-[0.18em] text-brand-500/80">
               {item.number}
@@ -1121,7 +1124,7 @@ function CapabilitiesSection() {
   return (
     <Section>
       <div className="text-center mb-20">
-        <div className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
+        <div className="section-eyebrow mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
           SUPPORT AGENT WORKFLOW
         </div>
 
@@ -1228,9 +1231,9 @@ function ProofSection() {
   ]
 
   return (
-    <Section>
+    <Section className="bg-surface-1">
       <div className="text-center mb-16">
-        <div className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
+        <div className="section-eyebrow mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
           VERIFIED BY EVALS
         </div>
 
@@ -1255,7 +1258,7 @@ function ProofSection() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: i * 0.06 }}
-            className="rounded-[1.75rem] border border-brand-500/20 bg-surface-1/45 p-7 text-center shadow-[0_24px_80px_rgba(0,0,0,.12)]"
+            className="sw-card rounded-[1.75rem] border border-brand-500/20 bg-surface-1/45 p-7 text-center shadow-[0_24px_80px_rgba(0,0,0,.12)]"
           >
             <p className="font-heading text-[42px] md:text-[52px] font-bold leading-none text-theme-primary">
               {s.value}
@@ -1267,7 +1270,7 @@ function ProofSection() {
         ))}
       </div>
 
-      <div className="mt-10 rounded-[2rem] border border-brand-500/20 bg-surface-1/45 p-8 md:p-10 shadow-[0_24px_80px_rgba(0,0,0,.12)]">
+      <div className="sw-card mt-10 rounded-[2rem] border border-brand-500/20 bg-surface-1/45 p-8 md:p-10 shadow-[0_24px_80px_rgba(0,0,0,.12)]">
         <h3 className="font-heading text-[22px] font-bold text-theme-primary mb-8">
           What the evals prove
         </h3>
@@ -1413,7 +1416,7 @@ console.log(ctx.assembledContext);
     <Section>
       <div className="grid lg:grid-cols-[0.45fr_0.55fr] gap-12 xl:gap-20 items-center">
         <div className="min-w-0">
-          <div className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
+          <div className="section-eyebrow mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
             DEPLOY YOUR WAY
           </div>
 
@@ -1597,9 +1600,9 @@ console.log(ctx.assembledContext);
 
 function FAQSection() {
   return (
-    <Section>
+    <Section className="bg-surface-1">
       <div className="text-center mb-16">
-        <div className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
+        <div className="section-eyebrow mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
           FREQUENTLY ASKED QUESTIONS
         </div>
 
@@ -1804,7 +1807,7 @@ function CTASection() {
         />
 
         <div className="relative z-10 mx-auto max-w-4xl">
-          <div className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
+          <div className="section-eyebrow mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
             START BUILDING
           </div>
 
