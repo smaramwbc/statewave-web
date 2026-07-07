@@ -165,7 +165,7 @@ function HeroSection() {
           className="max-w-5xl mx-auto text-center"
         >
           <motion.div variants={fadeUp}>
-            <span className="inline-flex items-center gap-2 rounded-full border border-brand-500/35 bg-brand-500/[0.06] px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-400">
+            <span className="hero-badge inline-flex items-center gap-2 rounded-full border border-brand-500/35 bg-brand-500/[0.06] px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-400">
               <span className="h-1.5 w-1.5 rounded-full bg-brand-500" />
               Open source · Self-hosted · Apache 2.0
             </span>
@@ -193,7 +193,7 @@ function HeroSection() {
                   <span
                     className={
                       stat.label.toLowerCase().includes('support')
-                        ? 'font-semibold text-emerald-300'
+                        ? 'font-semibold text-success'
                         : 'font-semibold text-theme-primary'
                     }
                   >
@@ -1857,3 +1857,5 @@ function CTASection() {
     </Section>
   )
 }
+
+

@@ -42,9 +42,9 @@
   --theme-surface-1: #0a0f1a;
   --theme-surface-2: #111827;
   --theme-surface-3: #1f2937;
-  --theme-text-primary:   #B7C5E3;
+  --theme-text-primary: #B7C5E3;
   --theme-text-secondary: #c7d6f2;
-  --theme-text-muted:     #8898B8;
+  --theme-text-muted: #8898B8;
   --theme-border: rgba(255, 255, 255, 0.05);
   --theme-border-hover: rgba(255, 255, 255, 0.1);
   --theme-card-bg: #0a0f1a;
@@ -62,6 +62,8 @@
   --theme-gradient-text-to: #7A5CFF;
   --theme-scrollbar-thumb: rgba(122, 92, 255, 0.32);
   --theme-scrollbar-thumb-hover: rgba(122, 92, 255, 0.52);
+  --color-success: #6ee7b7;
+  --color-danger: #f87171;
 }
 
 /* Light theme tokens
@@ -102,6 +104,8 @@
   --theme-gradient-text-to: #1d4ed8;
   --theme-scrollbar-thumb: rgba(122, 92, 255, 0.28);
   --theme-scrollbar-thumb-hover: rgba(122, 92, 255, 0.45);
+  --color-success: #22c55e;
+  --color-danger: #ef4444;
 }
 
 html {
@@ -149,15 +153,19 @@ html[data-scroll-lock="true"] body {
   .pt-safe {
     padding-top: max(env(safe-area-inset-top), 0px);
   }
+
   .pb-safe {
     padding-bottom: max(env(safe-area-inset-bottom), 0px);
   }
+
   .pl-safe {
     padding-left: max(env(safe-area-inset-left), 0px);
   }
+
   .pr-safe {
     padding-right: max(env(safe-area-inset-right), 0px);
   }
+
   /* Standard 44×44 minimum touch target (WCAG 2.5.5 / Apple HIG). Used by
    * the Button primitive and any other inline tap surface that doesn't
    * have its own size convention. */
@@ -165,6 +173,7 @@ html[data-scroll-lock="true"] body {
     min-height: 44px;
     min-width: 44px;
   }
+
   /* Long words in marketing copy can overflow on 320px-wide screens
    * (e.g. URLs, "TypeScript+Postgres"). Force-break only when needed. */
   .break-anywhere {
@@ -179,7 +188,10 @@ html[data-scroll-lock="true"] body {
 
 /* Reduced motion: disable animations for users who prefer it */
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+
+  *,
+  *::before,
+  *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
@@ -249,8 +261,15 @@ textarea:disabled {
 
 /* Hero hint chip — attention bounce + subtle scale pulse */
 @keyframes heroHintBounce {
-  0%, 100% { transform: translateY(0) scale(1); }
-  50%      { transform: translateY(-6px) scale(1.04); }
+
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+
+  50% {
+    transform: translateY(-6px) scale(1.04);
+  }
 }
 
 /* ─── Tour highlight ─────────────────────────────────────────────────────────
@@ -263,12 +282,15 @@ textarea:disabled {
  * when motion is disabled.
  */
 @keyframes tourPulse {
-  0%, 100% {
+
+  0%,
+  100% {
     box-shadow:
       0 0 0 2px var(--color-accent),
       0 0 0 6px rgba(99, 102, 241, 0.15),
       0 0 18px 4px rgba(99, 102, 241, 0.18);
   }
+
   50% {
     box-shadow:
       0 0 0 2px var(--color-accent),
@@ -303,9 +325,17 @@ textarea:disabled {
  * steady accent border carries the highlight when motion is disabled.
  */
 @keyframes cardAnchorPulse {
-  0%   { box-shadow: 0 0 0 0   rgba(99, 102, 241, 0.55); }
-  60%  { box-shadow: 0 0 0 10px rgba(99, 102, 241, 0); }
-  100% { box-shadow: 0 0 0 0   rgba(99, 102, 241, 0); }
+  0% {
+    box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.55);
+  }
+
+  60% {
+    box-shadow: 0 0 0 10px rgba(99, 102, 241, 0);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(99, 102, 241, 0);
+  }
 }
 
 .card-anchor-active {
@@ -366,14 +396,14 @@ html {
 
 .diagram-card {
   box-shadow:
-    0 0 1px rgba(255,255,255,.08),
-    0 0 0 1px rgba(122,92,255,.18);
+    0 0 1px rgba(255, 255, 255, .08),
+    0 0 0 1px rgba(122, 92, 255, .18);
 }
 
 [data-theme="light"] .diagram-card {
   box-shadow:
-    0 0 1px rgba(0,0,0,.06),
-    0 0 0 1px rgba(122,92,255,.12);
+    0 0 1px rgba(0, 0, 0, .06),
+    0 0 0 1px rgba(122, 92, 255, .12);
 }
 
 h1,
@@ -392,61 +422,83 @@ h6 {
   color: transparent;
 }
 
+.text-success {
+  color: var(--color-success);
+}
+
+.text-danger {
+  color: var(--color-danger);
+}
+
 .btn-gradient {
-    position: relative;
-    overflow: hidden;
+  position: relative;
+  overflow: hidden;
 
-    background: linear-gradient(
-        135deg,
-        #45B2FF 0%,
-        #4D9EFF 22%,
-        #5F82FF 48%,
-        #7366FF 72%,
-        #8B5CF6 100%
-    );
+  background: linear-gradient(135deg,
+      #45B2FF 0%,
+      #4D9EFF 22%,
+      #5F82FF 48%,
+      #7366FF 72%,
+      #8B5CF6 100%);
 
-    background-size: 180% 180%;
-    background-position: 20% 50%;
+  background-size: 180% 180%;
+  background-position: 20% 50%;
 
-    transition:
-        background-position .65s cubic-bezier(.22,.61,.36,1),
-        box-shadow .35s ease,
-        filter .35s ease;
+  transition:
+    background-position .65s cubic-bezier(.22, .61, .36, 1),
+    box-shadow .35s ease,
+    filter .35s ease,
+    transform .25s ease;
 
-    box-shadow:
-        0 10px 28px rgba(98, 98, 255, .18),
-        0 2px 10px rgba(79, 150, 255, .12);
+  /* Light theme */
+  box-shadow: none;
+}
+
+[data-theme="dark"] .btn-gradient {
+  box-shadow:
+    0 10px 28px rgba(98, 98, 255, .18),
+    0 2px 10px rgba(79, 150, 255, .12);
 }
 
 .btn-gradient:hover {
-    background-position: 85% 50%;
-    filter: brightness(1.05) saturate(1.08);
+  background-position: 100% 50%;
+  filter: brightness(1.04) saturate(1.05);
+}
 
-    box-shadow:
-        0 16px 40px rgba(110, 90, 255, .24),
-        0 4px 16px rgba(70, 170, 255, .16);
+[data-theme="dark"] .btn-gradient:hover {
+  box-shadow:
+    0 16px 40px rgba(110, 90, 255, .24),
+    0 4px 16px rgba(70, 170, 255, .16);
 }
 
 .btn-gradient::before {
-    content: "";
-    position: absolute;
-    inset: 0;
+  content: "";
+  position: absolute;
+  inset: 0;
 
-    background: linear-gradient(
-        110deg,
-        transparent 24%,
-        rgba(120, 185, 255, .08) 43%,
-        rgba(255, 255, 255, .10) 50%,
-        rgba(170, 140, 255, .10) 57%,
-        transparent 76%
-    );
+  background: linear-gradient(110deg,
+      transparent 24%,
+      rgba(120, 185, 255, .08) 43%,
+      rgba(255, 255, 255, .10) 50%,
+      rgba(170, 140, 255, .10) 57%,
+      transparent 76%);
 
-    transform: translateX(-155%);
-    transition: transform .9s cubic-bezier(.22,.61,.36,1);
+  transform: translateX(-155%);
+  transition: transform .9s cubic-bezier(.22, .61, .36, 1);
 
-    pointer-events: none;
+  pointer-events: none;
 }
 
 .btn-gradient:hover::before {
-    transform: translateX(155%);
+  transform: translateX(155%);
+}
+
+/* ==========================================================================
+   Home page
+   ========================================================================== */
+
+[data-theme="light"] .hero-badge {
+  color: var(--brand-600);
+  border-color: rgba(99, 102, 241, .22);
+  background: rgba(99, 102, 241, .06);
 }

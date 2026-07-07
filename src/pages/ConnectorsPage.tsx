@@ -300,7 +300,7 @@ function ConnectorCardItem({ card, index }: { card: ConnectorCard; index: number
           className={`shrink-0 text-[10px] font-medium uppercase tracking-wider px-2 py-0.5 rounded-full ${
             isPlanned
               ? 'bg-surface-2 text-theme-muted'
-              : 'bg-emerald-500/10 text-emerald-300'
+              : 'bg-emerald-500/10 text-success'
           }`}
         >
           {isPlanned ? 'Coming soon' : 'Available'}

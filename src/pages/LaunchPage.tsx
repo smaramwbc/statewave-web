@@ -194,7 +194,7 @@ export function LaunchPage() {
                     />
                   </label>
                   {emailError ? (
-                    <p id="newsletter-email-error" role="alert" className="mt-1.5 text-xs text-red-600 dark:text-red-400">
+                    <p id="newsletter-email-error" role="alert" className="mt-1.5 text-xs text-red-600 dark:text-danger">
                       {emailError}
                     </p>
                   ) : null}
@@ -237,7 +237,7 @@ export function LaunchPage() {
                 {state === 'error' && formError ? (
                   <div
                     role="alert"
-                    className="rounded-xl border border-red-500/30 bg-red-500/5 px-4 py-3 text-sm text-red-600 dark:text-red-400"
+                    className="rounded-xl border border-red-500/30 bg-red-500/5 px-4 py-3 text-sm text-red-600 dark:text-danger"
                   >
                     {formError}
                   </div>

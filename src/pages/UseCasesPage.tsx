@@ -71,7 +71,7 @@ const STATUSES: { id: StatusId; label: string; pillClass: string; dotClass: stri
   {
     id: 'available',
     label: 'Available',
-    pillClass: 'bg-emerald-500/10 text-emerald-300 border-emerald-500/25',
+    pillClass: 'bg-emerald-500/10 text-success border-emerald-500/25',
     dotClass: 'bg-emerald-400',
   },
   {
@@ -89,7 +89,7 @@ const STATUSES: { id: StatusId; label: string; pillClass: string; dotClass: stri
   {
     id: 'connector',
     label: 'Connector / bootstrap',
-    pillClass: 'bg-emerald-500/10 text-emerald-300 border-emerald-500/25',
+    pillClass: 'bg-emerald-500/10 text-success border-emerald-500/25',
     dotClass: 'bg-emerald-400',
   },
   {
@@ -592,7 +592,7 @@ function JumpChip({
     tone === 'accent'
       ? 'border-accent/30 bg-accent/[0.06] text-accent hover:bg-accent/10'
       : tone === 'emerald'
-        ? 'border-emerald-500/25 bg-emerald-500/[0.05] text-emerald-300 hover:bg-emerald-500/10'
+        ? 'border-emerald-500/25 bg-emerald-500/[0.05] text-success hover:bg-emerald-500/10'
         : tone === 'muted'
           ? 'border-theme-border bg-surface-2 text-theme-muted hover:text-theme-secondary'
           : 'border-theme-border bg-surface-2 text-theme-secondary hover:border-theme-border-hover hover:text-theme-primary'
@@ -1197,7 +1197,7 @@ function ConnectorSection() {
         </span>{' '}
         are integration patterns you build on Statewave’s ingest API — write a small importer in your
         preferred language; the SDKs make the per-subject episode loop straightforward. Cards tagged{' '}
-        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-300 text-[10px] font-medium uppercase tracking-wider align-middle">
+        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-emerald-500/10 text-success text-[10px] font-medium uppercase tracking-wider align-middle">
           Available
         </span>{' '}
         or{' '}
@@ -1230,7 +1230,7 @@ function BootstrapStep({
         ? 'border-brand-500/25 bg-brand-500/[0.05] text-theme-primary'
         : 'border-theme-border bg-surface-2 text-theme-secondary'
   const subToneClass =
-    tone === 'emerald' ? 'text-emerald-300' : tone === 'brand' ? 'text-brand-300' : 'text-theme-muted'
+    tone === 'emerald' ? 'text-success' : tone === 'brand' ? 'text-brand-300' : 'text-theme-muted'
   return (
     <div className={`flex-1 px-4 py-3 rounded-xl border ${toneClass}`}>
       <p className="text-sm font-semibold">{label}</p>
@@ -1266,7 +1266,7 @@ function ConnectorCard({ connector }: { connector: Connector }) {
   const STATUS_STYLE = {
     available: {
       label: 'Available',
-      badge: 'bg-emerald-500/10 text-emerald-300',
+      badge: 'bg-emerald-500/10 text-success',
       dot: 'bg-emerald-400',
       border: 'border-emerald-500/20 hover:border-emerald-500/40',
     },
