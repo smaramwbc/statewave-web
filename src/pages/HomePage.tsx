@@ -20,15 +20,15 @@ import {
   Link2,
   Users,
   Trash2,
-  /*Download,
+  Download,
   Layers,
   BarChart3,
   Send,
   ShieldCheck,
   Code2,
-  ReceiptText,
   Radio,
-  Search,*/
+  Search,
+  RefreshCw,
 } from 'lucide-react'
 
 // HeroBackground is a ~1100-line canvas component that is suppressed on
@@ -1006,48 +1006,171 @@ function SupportProofSection() {
 
 function CapabilitiesSection() {
   const capabilities = [
-    { label: 'Append-only episodes', desc: 'Immutable raw truth' },
-    { label: 'Pluggable compilers', desc: 'Heuristic or LLM (100+ providers via LiteLLM)' },
-    { label: 'Semantic search', desc: 'pgvector cosine similarity + text fallback' },
-    { label: 'Token-bounded context', desc: 'Configurable budget, ranked packing' },
-    { label: 'Provenance tracing', desc: 'Every memory → source episodes' },
-    { label: 'State-assembly receipts', desc: 'Immutable, ULID-addressable audit record per call with byte-level integrity hash' },
-    { label: 'Sensitivity labels & policy', desc: 'Per-memory capability tags + declarative YAML policy gates access by caller identity' },
-    { label: 'Idempotent compilation', desc: 'Safe recompilation, no duplicates' },
-    { label: 'Memory conflict resolution', desc: 'Auto-supersede older overlapping memories' },
-    { label: 'Multi-tenant isolation', desc: 'App-layer query scoping per tenant' },
-    { label: 'Per-tenant configuration', desc: 'Receipts emission, policy mode (log_only / enforce), caller-identity gate' },
-    { label: 'Webhooks', desc: 'Persistent delivery with retry + dead-letter' },
-    { label: 'Typed SDKs', desc: 'Python (sync + async) & TypeScript' },
-    { label: 'OpenTelemetry', desc: 'Optional distributed tracing' },
-    { label: 'Subject deletion', desc: 'GDPR-style erasure by subject' },
+    {
+      number: '01',
+      title: 'Ingest',
+      subtitle: 'Capture raw truth',
+      desc: 'Append-only episodes with immutable, token-bounded context. No overwrites, no ambiguity.',
+      Icon: Download,
+      iconClass: 'border-brand-500/55 text-brand-500',
+    },
+    {
+      number: '02',
+      title: 'Compile',
+      subtitle: 'Structure & enrich',
+      desc: 'Pluggable compilers turn raw episodes into ranked memory with heuristics or LLMs. Recompilation is idempotent — safe to re-run, never duplicates.',
+      Icon: Layers,
+      iconClass: 'border-accent/55 text-accent',
+    },
+    {
+      number: '03',
+      title: 'Govern',
+      subtitle: 'Trust & control',
+      desc: 'Provenance for every memory, policy enforcement, state receipts, and audit-ready integrity.',
+      Icon: BarChart3,
+      iconClass: 'border-cyan-400/55 text-cyan-400',
+    },
+    {
+      number: '04',
+      title: 'Deliver',
+      subtitle: 'Serve & integrate',
+      desc: 'Semantic search, SDKs, webhooks, and OpenTelemetry for reliable delivery at scale.',
+      Icon: Send,
+      iconClass: 'border-brand-500/55 text-brand-500',
+    },
+    {
+      number: '05',
+      title: 'Isolate',
+      subtitle: 'Secure by default',
+      desc: 'Multi-tenant isolation, per-tenant configuration, and subject-level deletion for compliance.',
+      Icon: UserRound,
+      iconClass: 'border-brand-secondary/55 text-brand-secondary',
+    },
+  ]
+
+  const extras = [
+    {
+      title: 'Conflict resolution',
+      desc: 'Auto-supersedes older overlapping memories',
+      Icon: ShieldCheck,
+    },
+    {
+      title: 'Idempotent compilation',
+      desc: 'Safe recompilation, no duplicates',
+      Icon: RefreshCw,
+    },
+    {
+      title: 'Typed SDKs',
+      desc: 'Python (async + sync) & TypeScript',
+      Icon: Code2,
+    },
+    {
+      title: 'State receipts',
+      desc: 'ULID-addressable audit records with byte-level integrity',
+      Icon: ReceiptText,
+    },
+    {
+      title: 'Webhooks',
+      desc: 'Persistent delivery with retry + dead-letter',
+      Icon: Radio,
+    },
+    {
+      title: 'Semantic search',
+      desc: 'pgvector cosine similarity + text fallback',
+      Icon: Search,
+    },
   ]
 
   return (
     <Section>
-      <div className="text-center mb-16">
-        <Heading id="core-capabilities" className="text-3xl md:text-4xl font-bold text-theme-primary tracking-tight">
+      <div className="text-center mb-20">
+        <div className="section-eyebrow mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
+          HOW IT WORKS
+        </div>
+
+        <Heading
+          id="core-capabilities"
+          className="font-heading text-4xl md:text-[52px] font-bold leading-[1.06] tracking-[-0.03em] text-theme-primary"
+        >
           Core capabilities
         </Heading>
-        <p className="mt-4 text-theme-muted max-w-2xl mx-auto">
-          Composable memory primitives for any AI system that needs persistent, structured memory.
+
+        <p className="mt-6 text-[18px] leading-relaxed text-theme-secondary max-w-3xl mx-auto">
+          Production-ready primitives for any AI system that needs persistent,
+          structured memory.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {capabilities.map((c, i) => (
+      <div className="relative">
+        <div
+          className="absolute left-0 right-0 top-[86px] h-px bg-gradient-to-r from-brand-500 via-cyan-400 to-brand-500"
+          aria-hidden="true"
+        />
+
+        <div className="grid lg:grid-cols-5 rounded-[2rem] bg-surface-1/35 overflow-hidden">
+          {capabilities.map((item, i) => (
+            <motion.div
+              key={item.title}
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.06 }}
+              className="relative px-7 pt-12 pb-10 text-center "
+            >
+              <div className={`mx-auto mb-7 flex h-18 w-18 items-center justify-center rounded-full border ${item.iconClass} bg-surface-1`}>
+                <item.Icon className="h-9 w-9" strokeWidth={1.8} aria-hidden="true" />
+              </div>
+
+              <div className={`mb-4 text-sm font-bold ${item.iconClass.split(' ')[1]}`}>
+                {item.number}
+              </div>
+
+              <h3 className="font-heading text-[22px] font-bold uppercase tracking-wide text-theme-primary">
+                {item.title}
+              </h3>
+
+              <p className={`mt-1 text-sm font-semibold ${item.iconClass.split(' ')[1]}`}>
+                {item.subtitle}
+              </p>
+
+              <p className="mt-5 text-[15px] leading-[1.6] text-theme-secondary/70">
+                {item.desc}
+              </p>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+        {extras.map((item, i) => (
           <motion.div
-            key={i}
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
+            key={item.title}
+            initial={{ opacity: 0, y: 12 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ delay: i * 0.03 }}
-            className="p-4 rounded-xl border border-theme-border bg-surface-2/50 hover:border-accent/20 transition-colors"
+            transition={{ delay: i * 0.04 }}
+            className="flex items-start gap-4"
           >
-            <p className="text-sm font-medium text-theme-primary">{c.label}</p>
-            <p className="text-xs text-theme-muted mt-1">{c.desc}</p>
+            <item.Icon className="mt-0 h-6 w-6 shrink-0 text-theme-secondary" strokeWidth={1.8} />
+            <div>
+              <h4 className="font-heading text-sm font-bold text-theme-primary">
+                {item.title}
+              </h4>
+              <p className="mt-3 text-sm leading-[1.6] text-theme-secondary/70">
+                {item.desc}
+              </p>
+            </div>
           </motion.div>
         ))}
+      </div>
+
+      <div className="mt-12 text-center">
+        <Link
+          to="/developers"
+          className="inline-flex items-center rounded-full border border-brand-500/25 bg-brand-500/[0.05] px-6 py-3 text-sm font-medium text-brand-400 hover:bg-brand-500/[0.08] hover:border-brand-500/40 transition-colors"
+        >
+          Explore all capabilities
+        </Link>
       </div>
     </Section>
   )
@@ -1056,53 +1179,77 @@ function CapabilitiesSection() {
 function ProofSection() {
   const stats = PROOF_STATS
 
+  const proofs = [
+    'Identity facts persist across sessions',
+    'Relevant preferences surface for matching tasks',
+    'Token budgets are always respected',
+    'Provenance traces facts to source episodes',
+    'Compilation is idempotent — no duplicates',
+    'Session-aware ranking boosts active sessions',
+    'Repeat-issue detection surfaces prior fixes',
+    'Health scoring is deterministic and explainable',
+  ]
+
   return (
-    <Section className="bg-surface-1/50">
+    <Section className="bg-surface-1">
       <div className="text-center mb-16">
-        <Heading id="proven-not-promised" className="text-3xl md:text-4xl font-bold text-theme-primary tracking-tight">
-          Proven, not promised
+        <div className="section-eyebrow mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
+          VERIFIED BY EVALS
+        </div>
+
+        <Heading
+          id="proven-not-promised"
+          className="font-heading text-4xl md:text-[52px] font-bold leading-[1.06] tracking-[-0.03em] text-theme-primary"
+        >
+          Proven, <span className="text-gradient-brand">not promised</span>
         </Heading>
-        <p className="mt-4 text-theme-muted max-w-2xl mx-auto">
+
+        <p className="mt-6 text-[18px] leading-relaxed text-theme-secondary max-w-3xl mx-auto">
           Every claim is backed by automated evals and benchmarks that run in CI.
           Statewave scores 8/8 on support workflow criteria where naive approaches score 2/8.
         </p>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
         {stats.map((s, i) => (
           <motion.div
             key={i}
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
+            initial={{ opacity: 0, y: 14 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ delay: i * 0.1 }}
-            className="text-center p-6 rounded-2xl border border-theme-border bg-surface-1"
+            transition={{ delay: i * 0.06 }}
+            className="sw-card rounded-[1.75rem] border border-brand-500/20 bg-surface-1/45 p-7 text-center shadow-[0_24px_80px_rgba(0,0,0,.12)]"
           >
-            <p className="text-3xl md:text-4xl font-bold text-theme-primary">{s.value}</p>
-            <p className="text-sm text-theme-muted mt-2">{s.label}</p>
+            <p className="font-heading text-[42px] md:text-[52px] font-bold leading-none text-theme-primary">
+              {s.value}
+            </p>
+            <p className="mt-3 text-sm text-theme-secondary/80">
+              {s.label}
+            </p>
           </motion.div>
         ))}
       </div>
 
-      <div className="mt-12 rounded-2xl border border-theme-border bg-surface-1 p-8">
-        <h3 className="text-lg font-semibold text-theme-primary mb-4">What the evals prove</h3>
-        <div className="grid md:grid-cols-2 gap-4 text-sm text-theme-muted">
-          {[
-            'Identity facts persist across sessions',
-            'Relevant preferences surface for matching tasks',
-            'Token budgets are always respected',
-            'Provenance traces facts to source episodes',
-            'Compilation is idempotent — no duplicates',
-            'Session-aware ranking boosts active sessions',
-            'Repeat-issue detection surfaces prior fixes',
-            'Health scoring is deterministic and explainable',
-          ].map((item, i) => (
-            <div key={i} className="flex items-start gap-2">
-              <svg className="w-4 h-4 text-green-400 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-              <span>{item}</span>
-            </div>
+      <div className="sw-card mt-10 rounded-[2rem] border border-brand-500/20 bg-surface-1/45 p-8 md:p-10 shadow-[0_24px_80px_rgba(0,0,0,.12)]">
+        <h3 className="font-heading text-[22px] font-bold text-theme-primary mb-8">
+          What the evals prove
+        </h3>
+
+        <div className="grid md:grid-cols-2 gap-x-14 gap-y-5">
+          {proofs.map((item, i) => (
+            <motion.div
+              key={item}
+              initial={{ opacity: 0, x: -8 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.035 }}
+              className="flex items-start gap-4"
+            >
+              <span className="mt-1.5 text-brand-success">✓</span>
+              <span className="text-[15px] leading-7 text-theme-secondary/85">
+                {item}
+              </span>
+            </motion.div>
           ))}
         </div>
       </div>
