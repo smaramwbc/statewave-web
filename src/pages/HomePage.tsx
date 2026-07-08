@@ -499,20 +499,20 @@ function UseCasesSection() {
             aria-hidden="true"
           />
 
-<img
-  key={`map-dark-${replayKey}`}
-  src={`/stateful-workflows-map-animated-dark.svg?r=${replayKey}`}
-  alt="Statewave workflow map"
-  className="theme-dark relative z-10 w-[108%] max-w-none h-auto"
-/>
+          <img
+            key={`map-dark-${replayKey}`}
+            src={`/stateful-workflows-map-animated-dark.svg?r=${replayKey}`}
+            alt="Statewave workflow map"
+            className="theme-dark relative z-10 w-[108%] max-w-none h-auto"
+          />
 
-<img
-  key={`map-light-${replayKey}`}
-  src={`/stateful-workflows-map-animated-light.svg?r=${replayKey}`}
-  alt=""
-  aria-hidden="true"
-  className="theme-light relative z-10 w-[108%] max-w-none h-auto"
-/>
+          <img
+            key={`map-light-${replayKey}`}
+            src={`/stateful-workflows-map-animated-light.svg?r=${replayKey}`}
+            alt=""
+            aria-hidden="true"
+            className="theme-light relative z-10 w-[108%] max-w-none h-auto"
+          />
         </motion.div>
 
 
