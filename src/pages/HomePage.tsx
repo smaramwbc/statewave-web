@@ -8,13 +8,13 @@ import { Card } from '../components/Card'
 import { ClientOnly } from '../components/ClientOnly'
 import { CodeCopyButton } from '../components/CodeCopyButton'
 import { HeroInstallCommand } from '../components/HeroInstallCommand'
-/*
+
 import {
   UserRound,
   Code,
   MessageSquareMore,
   Clock3,
-  Download,
+  /*Download,
   Layers,
   BarChart3,
   Send,
@@ -22,9 +22,9 @@ import {
   Code2,
   ReceiptText,
   Radio,
-  Search,
+  Search,*/
 } from 'lucide-react'
-*/
+
 // HeroBackground is a ~1100-line canvas component that is suppressed on
 // viewports ≤ 639px (see useIsHeroCanvasSuppressed inside the component).
 // We lazy-load it AND gate the mount on the same media query at this level,
@@ -426,80 +426,124 @@ function UseCasesSection() {
   const useCases = [
     {
       title: 'Support agents',
-      status: 'Deeply optimized',
-      description: 'Session-aware context, resolution tracking, handoff packs, health scoring, SLA monitoring, repeat-issue detection. The first and most proven workflow.',
+      description:
+        'Session-aware context, resolution tracking, handoff packs, health scoring, SLA monitoring, repeat-issue detection. The first and most proven workflow.',
       badge: 'Primary wedge',
+      Icon: UserRound,
+      iconClass: 'border-accent/35 text-accent',
     },
     {
       title: 'Coding agents',
-      status: 'Proven',
-      description: 'Accumulate project knowledge across sessions — tech stack, architecture decisions, preferences. Your agent builds understanding over time.',
+      description:
+        'Accumulate project knowledge across sessions — tech stack, architecture decisions, preferences. Your agent builds understanding over time.',
       badge: 'Supported',
+      Icon: Code,
+      iconClass: 'border-brand-500/35 text-brand-500',
     },
     {
       title: 'Internal copilots',
-      status: 'Supported',
-      description: 'Give internal tools persistent memory of user workflows, past decisions, and organizational context. Every interaction builds on the last.',
+      description:
+        'Give internal tools persistent memory of user workflows, past decisions, and organizational context. Every interaction builds on the last.',
       badge: 'Supported',
+      Icon: MessageSquareMore,
+      iconClass: 'border-brand-500/35 text-brand-500',
     },
     {
       title: 'Long-lived agent systems',
-      status: 'Supported',
-      description: 'Any AI system that operates over time, across sessions, with subjects that have persistent identity. Statewave is the memory layer.',
+      description:
+        'Any AI system that operates over time, across sessions, with subjects that have persistent identity. Statewave is the memory layer.',
       badge: 'Supported',
+      Icon: Clock3,
+      iconClass: 'border-[#C68CFF]/45 text-[#D8CCFF]',
     },
+
   ]
 
   return (
-    <Section>
+    <Section className="bg-surface-1">
       <div className="text-center mb-16">
-        <Heading id="stateful-workflows" className="text-3xl md:text-4xl font-bold text-theme-primary tracking-tight">
-          Built for any stateful AI workflow
+        <div className="section-eyebrow mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
+          BUILT FOR ANY STATEFUL AI WORKFLOW
+        </div>
+
+        <Heading
+          id="stateful-workflows"
+          className="font-heading text-4xl md:text-[52px] font-bold leading-[1.06] tracking-[-0.03em] text-theme-primary"
+        >
+          Stateful memory for every kind of{' '}
+          <span className="text-gradient-brand">AI agent</span>
         </Heading>
-        <p className="mt-4 text-theme-muted max-w-2xl mx-auto">
-          Statewave is a runtime — not a vertical product. Any AI system that needs to
-          remember across sessions can build on it.
+
+        <p className="mt-6 text-[18px] leading-relaxed text-theme-secondary max-w-3xl mx-auto">
+          Statewave is a runtime — not a vertical product. Any AI system that needs
+          to remember across sessions can build on it.
         </p>
       </div>
 
-      <div className="grid md:grid-cols-2 gap-6">
-        {useCases.map((uc, i) => (
-          <motion.div
-            key={i}
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: i * 0.1 }}
-            className={`p-6 rounded-2xl border bg-surface-1 ${
-              i === 0 ? 'border-accent/20 ring-1 ring-accent/10' : 'border-theme-border'
-            }`}
-          >
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-lg font-semibold text-theme-primary">{uc.title}</h3>
-              <span className={`text-[10px] font-medium uppercase tracking-wider px-2 py-0.5 rounded-full ${
-                i === 0 ? 'bg-accent/10 text-accent' : 'bg-surface-2 text-theme-muted'
-              }`}>
-                {uc.badge}
-              </span>
-            </div>
-            <p className="text-sm text-theme-muted leading-relaxed">{uc.description}</p>
-          </motion.div>
-        ))}
+      <div className="grid lg:grid-cols-[0.38fr_0.62fr] gap-12 xl:gap-20 items-center">
+        <div className="relative lg:-ml-24 xl:-ml-40">
+          <div
+            className="absolute left-1/2 top-1/2 h-[620px] w-[620px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(122,92,255,0.45)_0%,rgba(122,92,255,0.22)_28%,rgba(122,92,255,0.08)_55%,transparent_75%)] blur-2xl"
+            aria-hidden="true"
+          />
+
+          <img
+            src="/stateful-workflows-map.svg"
+            alt="Statewave workflow map"
+            className="relative z-10 block w-full h-auto"
+          />
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-6">
+          {useCases.map((uc, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.1 }}
+              className="sw-card rounded-[2rem] border border-brand-500/25 bg-surface-1/45 p-8 shadow-[0_24px_80px_rgba(0,0,0,.16)]"
+            >
+              <div className="flex items-start gap-5 mb-6">
+                <div
+                  className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-full border ${uc.iconClass}`}
+                >
+                  <uc.Icon
+                    className="h-6 w-6"
+                    strokeWidth={1.8}
+                    aria-hidden="true"
+                  />
+                </div>
+
+                <div className="min-w-0">
+                  <h3 className="font-heading text-[22px] font-bold leading-tight text-theme-primary">
+                    {uc.title}
+                  </h3>
+
+                  <span
+                    className={`mt-2 inline-flex text-[11px] font-semibold uppercase tracking-[0.14em] ${i === 0 ? 'text-accent' : 'text-theme-muted'
+                      }`}
+                  >
+                    {uc.badge}
+                  </span>
+                </div>
+              </div>
+
+              <p className="text-[15px] leading-7 text-theme-secondary">
+                {uc.description}
+              </p>
+            </motion.div>
+          ))}
+        </div>
       </div>
 
-      <div className="mt-10 text-center">
+      <div className="mt-10 flex justify-end lg:w-[62%] lg:ml-auto">
         <Link
           to="/use-cases"
-          className="group inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium border border-accent/25 bg-accent/[0.06] text-accent hover:bg-accent/10 hover:border-accent/40 transition-colors"
+          className="group inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium border border-accent/25 bg-accent/[0.06] text-accent hover:bg-accent/10 hover:border-accent/40 transition-colors"
         >
           Browse the full map — 80+ ideas to build
-          <svg
-            className="w-4 h-4 transition-transform group-hover:translate-x-0.5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            aria-hidden
-          >
+          <svg className="w-4 h-4 transition-transform group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
           </svg>
         </Link>
