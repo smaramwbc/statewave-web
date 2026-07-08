@@ -7,6 +7,7 @@ import { Heading } from '../components/Heading'
 import { Card } from '../components/Card'
 import { ClientOnly } from '../components/ClientOnly'
 import { CodeCopyButton } from '../components/CodeCopyButton'
+import { HeroInstallCommand } from '../components/HeroInstallCommand'
 // HeroBackground is a ~1100-line canvas component that is suppressed on
 // viewports ≤ 639px (see useIsHeroCanvasSuppressed inside the component).
 // We lazy-load it AND gate the mount on the same media query at this level,
@@ -101,215 +102,136 @@ function HeroSection() {
   // headline so it paints with the first frame, and keep the stagger fade-in
   // on the subordinate elements (badge, subhead, CTAs).
 
-  return (
-    <section className="relative min-h-[88vh] sm:min-h-[92vh] flex items-center overflow-hidden">
-      {showHeroCanvas && (
-        <Suspense fallback={null}>
-          <HeroBackground contentZoneRef={contentZoneRef} />
-        </Suspense>
-      )}
+return (
+  <section className="relative min-h-[92vh] flex items-center overflow-hidden">
+    {showHeroCanvas && (
+      <Suspense fallback={null}>
+        <HeroBackground contentZoneRef={contentZoneRef} />
+      </Suspense>
+    )}
 
-      {/* Depth layers — add visual weight so the centered content doesn't
-          float on flat (especially near-white light-theme) space. Both are
-          decorative + behind the content, and fade out toward the edges. */}
-      {/* 1. Soft accent glow behind the headline. */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background:
-            'radial-gradient(42rem 28rem at 50% 32%, rgba(99, 102, 241, 0.10), transparent 70%)',
-        }}
-      />
-      {/* 2. Masked dot-grid texture (denser in the centre, fades at edges). */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          backgroundImage:
-            'radial-gradient(var(--theme-hero-dot) 1px, transparent 1px)',
-          backgroundSize: '24px 24px',
-          maskImage:
-            'radial-gradient(ellipse 65% 55% at 50% 38%, #000 38%, transparent 78%)',
-          WebkitMaskImage:
-            'radial-gradient(ellipse 65% 55% at 50% 38%, #000 38%, transparent 78%)',
-        }}
-      />
+    <div
+      className="absolute inset-0 pointer-events-none"
+      style={{
+        background:
+          'radial-gradient(48rem 32rem at 50% 34%, rgba(99,102,241,.10), transparent 70%)',
+      }}
+    />
 
-      {/* Bottom-edge fade — only mask the final ~35% so the section blends
-          into the page below without killing the lower particles' colors. */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background:
-            'linear-gradient(to bottom, transparent 0%, transparent 65%, var(--theme-surface-0) 100%)',
-        }}
-      />
+    <div
+      className="absolute inset-0 pointer-events-none opacity-45"
+      style={{
+        backgroundImage:
+          'radial-gradient(var(--theme-hero-dot) 1px, transparent 1px)',
+        backgroundSize: '22px 22px',
+        maskImage:
+          'radial-gradient(ellipse 66% 58% at 50% 40%, #000 30%, transparent 76%)',
+        WebkitMaskImage:
+          'radial-gradient(ellipse 66% 58% at 50% 40%, #000 30%, transparent 76%)',
+      }}
+    />
 
-      <div className="relative z-10 w-full mx-auto max-w-7xl px-5 sm:px-6 pt-28 sm:pt-32 md:pt-36 pb-16 sm:pb-20 md:pb-24">
-        <motion.div
-          ref={contentZoneRef}
-          variants={stagger}
-          initial="hidden"
-          animate="show"
-          onMouseMove={(e) => e.stopPropagation()}
-          onClick={(e) => e.stopPropagation()}
-          className="max-w-3xl mx-auto text-center"
-        >
-          {/* Badge */}
-          <motion.div variants={fadeUp}>
-            <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-accent/20 bg-accent/[0.04] text-accent text-[11px] font-medium tracking-wide uppercase">
-              <span className="w-1.5 h-1.5 rounded-full bg-accent/80" />
-              Open source · Self-hosted · Apache 2.0
-            </span>
-          </motion.div>
+    <div
+      className="absolute inset-0 pointer-events-none"
+      style={{
+        background:
+          'linear-gradient(to bottom, transparent 0%, transparent 68%, var(--theme-surface-0) 100%)',
+      }}
+    />
 
-          {/* Headline — clamps fluidly between 320px and desktop so the
-              hero never overflows on small phones (the previous 3.25rem
-              floor was wider than 320px after letter-spacing). */}
-          <h1 className="mt-6 sm:mt-8 text-[clamp(2.25rem,8vw,4.5rem)] font-bold text-theme-primary tracking-[-0.025em] leading-[1.08] break-anywhere">
-            AI memory built{' '}
-            <span className="bg-gradient-to-r from-accent via-brand-400 to-brand-300 bg-clip-text text-transparent">
-              for production
-            </span>
-          </h1>
-
-          {/* Subheadline — once the h1 paints instantly (no motion gate),
-              Lighthouse promotes this paragraph to the LCP element on mobile
-              because it's the largest remaining text block. Keeping it
-              animated re-creates the same 1s+ render delay we just removed.
-              Paint immediately; the badge + CTAs still stagger in below. */}
-          <p className="mt-5 sm:mt-6 text-base sm:text-lg md:text-[1.2rem] text-theme-muted max-w-[38rem] mx-auto leading-[1.65] sm:leading-[1.7]">
-            Policies, sensitivity labels, and tamper-evident audit receipts —
-            not just retrieval. Every memory traces to its source. Governance
-            built in from day one.
-          </p>
-
-          {/* Credibility chips — proof numbers above the fold so visitors
-              see them without scrolling to ProofSection. */}
-          <motion.div variants={fadeUp} className="mt-6 flex flex-wrap items-center justify-center gap-2">
-            {PROOF_STATS.map((s) => {
-              // Purposeful colour, not rainbow: the 8/8 win reads positive,
-              // the 2/8 naive baseline reads negative (that's the comparison),
-              // the raw counts stay neutral.
-              const tone = /naive/i.test(s.label)
-                ? 'naive'
-                : /support workflow/i.test(s.label)
-                  ? 'win'
-                  : 'neutral'
-              // Tint only the chip (background + border); keep the text at the
-              // normal primary/muted colours so it stays readable.
-              const chip = {
-                neutral: 'border-theme-border bg-surface-2',
-                win: 'border-emerald-500/30 bg-emerald-500/10',
-                naive: 'border-red-500/25 bg-red-500/[0.08]',
-              }[tone]
-              return (
-                <span
-                  key={s.label}
-                  className={`inline-flex items-baseline gap-1.5 rounded-full border px-3 py-1 ${chip}`}
-                >
-                  <span className="text-sm font-semibold text-theme-primary">{s.value}</span>
-                  <span className="text-xs text-theme-muted">{s.label}</span>
-                </span>
-              )
-            })}
-          </motion.div>
-
-          {/* Install command — primary CTA. */}
-          <motion.div variants={fadeUp} className="mt-7 sm:mt-9">
-            <HeroInstallCommand centered />
-            <p className="mx-auto mt-3 max-w-[34rem] text-sm text-theme-muted leading-relaxed">
-              One command boots Statewave locally — API, admin console, and
-              Postgres — and wires it into your MCP clients. No account, runs
-              offline.
-            </p>
-          </motion.div>
-
-          <motion.div variants={fadeUp} className="mt-5 flex flex-wrap items-center justify-center gap-3">
-            <button
-              ref={heroCtaRef}
-              type="button"
-              onClick={() => openWidget('support-agent', 'Support Agent')}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-accent text-white text-sm font-medium shadow-lg shadow-accent/20 hover:bg-accent-light hover:shadow-accent/30 transition-[background-color,box-shadow] duration-150"
-            >
-              Try the agent demo
-              <svg className="w-[15px] h-[15px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-              </svg>
-            </button>
-            <a
-              href="https://github.com/smaramwbc/statewave"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-surface-2 text-theme-primary border border-theme-border text-sm font-medium hover:bg-surface-3 hover:border-theme-border transition-[background-color,border-color] duration-150"
-            >
-              <svg className="w-[15px] h-[15px]" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
-              </svg>
-              View on GitHub
-            </a>
-          </motion.div>
-
+    <div className="relative z-10 w-full mx-auto max-w-7xl px-5 sm:px-6 pt-28 sm:pt-32 md:pt-36 pb-32 sm:pb-36 md:pb-44">
+      <motion.div
+        ref={contentZoneRef}
+        variants={stagger}
+        initial="hidden"
+        animate="show"
+        onMouseMove={(e) => e.stopPropagation()}
+        onClick={(e) => e.stopPropagation()}
+        className="max-w-5xl mx-auto text-center"
+      >
+        <motion.div variants={fadeUp}>
+          <span className="hero-badge inline-flex items-center gap-2 rounded-full border border-brand-500/35 bg-brand-500/[0.06] px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-400">
+            <span className="h-1.5 w-1.5 rounded-full bg-brand-500" />
+            Open source · Self-hosted · Apache 2.0
+          </span>
         </motion.div>
-      </div>
-    </section>
-  )
-}
 
-const INSTALL_NPX  = 'npx @statewavedev/statewave'
-const INSTALL_UNIX = 'curl -fsSL https://www.statewave.ai/install | sh'
-const INSTALL_WIN  = 'powershell -Command "irm https://www.statewave.ai/install.ps1 | iex"'
+        <h1 className="mt-8 font-heading text-[clamp(2.8rem,6.6vw,5.8rem)] font-bold leading-[0.98] tracking-[-0.055em] text-theme-primary">
+          AI memory built{' '}
+          <span className="text-gradient-brand">for production</span>
+        </h1>
 
-type InstallTab = 'node' | 'unix' | 'windows'
+        <p className="mt-7 mx-auto max-w-2xl text-[20px] md:text-[22px] leading-[1.6] text-theme-secondary/90">
+          Policies, sensitivity labels, and tamper-evident audit receipts — not just retrieval.
+          Every memory traces to its source. Governance built in from day one.
+        </p>
 
-const INSTALL_TABS: { id: InstallTab; label: string; cmd: string; prompt: string }[] = [
-  { id: 'node',    label: 'Node',          cmd: INSTALL_NPX,  prompt: '$' },
-  { id: 'unix',    label: 'macOS / Linux', cmd: INSTALL_UNIX, prompt: '$' },
-  { id: 'windows', label: 'Windows',       cmd: INSTALL_WIN,  prompt: '>' },
-]
+        <motion.div
+          variants={fadeUp}
+          className="mt-7 flex flex-wrap items-center justify-center gap-3 text-[11px] font-medium uppercase tracking-[0.1em] text-theme-secondary/55"
+        >
+          {PROOF_STATS.map((stat, index) => (
+            <React.Fragment key={stat.label}>
+              {index > 0 && <span className="opacity-40">•</span>}
+              <span className="flex items-center gap-1">
+                <span
+                  className={
+                    stat.label.toLowerCase().includes('support')
+                      ? 'font-semibold text-success'
+                      : stat.label.toLowerCase().includes('naive')
+                        ? 'font-semibold text-danger'
+                        : 'font-semibold text-theme-primary'
+                  }
+                >
+                  {stat.value}
+                </span>
+                <span>{stat.label}</span>
+              </span>
+            </React.Fragment>
+          ))}
+        </motion.div>
 
-function HeroInstallCommand({ centered = false }: { centered?: boolean }) {
-  const [tab, setTab] = useState<InstallTab>(() =>
-    typeof navigator !== 'undefined' && /Win/i.test(navigator.userAgent) ? 'windows' : 'node'
-  )
-  const active = INSTALL_TABS.find((t) => t.id === tab)!
-  return (
-    <div>
-      {/* Tab strip — the command pill is inline-flex, so it centers under a
-          text-center parent on its own; the flex rows need justify-center. */}
-      <div className={`flex gap-1 mb-1.5 ${centered ? 'justify-center' : ''}`}>
-        {INSTALL_TABS.map(({ id, label }) => (
-          <button
-            key={id}
-            type="button"
-            onClick={() => setTab(id)}
-            className={[
-              'px-2.5 py-0.5 rounded text-[11px] font-medium transition-colors',
-              tab === id
-                ? 'bg-accent/10 text-accent'
-                : 'text-theme-muted hover:text-theme-secondary',
-            ].join(' ')}
+        <motion.div variants={fadeUp} className="mt-7">
+          <HeroInstallCommand centered />
+
+          <p className="mx-auto mt-4 max-w-[42rem] text-[15px] leading-7 text-theme-secondary/80">
+            One command boots Statewave locally — API, admin console, and Postgres —
+            and wires it into your MCP clients. No account, runs offline.
+          </p>
+        </motion.div>
+
+        <motion.div variants={fadeUp} className="mt-8 flex justify-center">
+          <Button
+            ref={heroCtaRef}
+            onClick={() => openWidget('support-agent', 'Support Agent')}
+            size="lg"
           >
-            {label}
-          </button>
-        ))}
-      </div>
+            Try the agent demo
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+            </svg>
+          </Button>
+        </motion.div>
 
-      {/* Command pill */}
-      <div className="inline-flex items-center gap-2 rounded-lg border border-theme-border/70 bg-surface-2/70 backdrop-blur-sm px-3.5 py-2 font-mono text-xs sm:text-sm max-w-full">
-        <span className="select-none text-accent/70 shrink-0">{active.prompt}</span>
-        <code className="overflow-x-auto whitespace-nowrap text-theme-secondary">{active.cmd}</code>
-        <CodeCopyButton code={active.cmd} label="Copy install command" />
-      </div>
-
-      {/* Docs link — "no account / offline" already covered by the context
-          line above, so no trust chips here. */}
-      <div className={`mt-2 text-[11px] text-theme-muted ${centered ? 'text-center' : ''}`}>
-        <Link to="/developers" className="hover:text-accent transition-colors underline-offset-2 hover:underline">
-          Full guide →
-        </Link>
-      </div>
+        <motion.div variants={fadeUp} className="mt-6">
+          <a
+            href="https://github.com/smaramwbc/statewave"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hero-github-link inline-flex items-center gap-1.5 text-[13px] text-theme-secondary/55 hover:text-theme-primary transition-colors"
+          >
+            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+            </svg>
+            <span className="underline underline-offset-2 decoration-theme-secondary/30 hover:decoration-theme-primary transition-colors">
+              View on GitHub
+            </span>
+          </a>
+        </motion.div>
+      </motion.div>
     </div>
-  )
+  </section>
+)
 }
 
 function WhatSection() {
