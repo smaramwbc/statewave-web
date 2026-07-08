@@ -481,16 +481,16 @@ function UseCasesSection() {
       </div>
 
       <div className="grid lg:grid-cols-[0.38fr_0.62fr] gap-12 xl:gap-20 items-center">
-        <div className="relative lg:-ml-24 xl:-ml-40">
+        <div className="relative flex justify-start lg:-ml-12">
           <div
-            className="absolute left-1/2 top-1/2 h-[620px] w-[620px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(122,92,255,0.45)_0%,rgba(122,92,255,0.22)_28%,rgba(122,92,255,0.08)_55%,transparent_75%)] blur-2xl"
+            className="absolute left-1/2 top-1/2 h-[700px] w-[700px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(122,92,255,0.45)_0%,rgba(122,92,255,0.22)_28%,rgba(122,92,255,0.08)_55%,transparent_75%)] blur-2xl"
             aria-hidden="true"
           />
 
           <img
             src="/stateful-workflows-map.svg"
             alt="Statewave workflow map"
-            className="relative z-10 block w-full h-auto"
+            className="relative z-10 block w-[108%] max-w-none h-auto"
           />
         </div>
 
@@ -554,49 +554,69 @@ function UseCasesSection() {
 
 function AIClientsSection() {
   const clients = [
-    { name: 'Claude Code',        note: 'Auto-configures via MCP server' },
-    { name: 'Claude Desktop',     note: 'Auto-configures via MCP server' },
-    { name: 'Cursor',             note: 'Auto-configures via MCP server' },
-    { name: 'VS Code Copilot',    note: 'Auto-configures via MCP server' },
-    { name: 'Codex CLI',          note: 'Auto-configures via MCP server' },
-    { name: 'Cline',              note: 'Any MCP-compatible client' },
-    { name: 'Continue',           note: 'Any MCP-compatible client' },
-    { name: 'Windsurf',           note: 'Any MCP-compatible client' },
-    { name: 'Zed',                note: 'Any MCP-compatible client' },
-    { name: 'Aider',              note: 'Any MCP-compatible client' },
-    { name: 'Goose',              note: 'Any MCP-compatible client' },
-    { name: 'Your own agent',     note: 'REST API · Python · TypeScript' },
+    { name: 'Claude Code', note: 'Auto-configures via MCP server' },
+    { name: 'Claude Desktop', note: 'Auto-configures via MCP server' },
+    { name: 'Cursor', note: 'Auto-configures via MCP server' },
+    { name: 'VS Code Copilot', note: 'Auto-configures via MCP server' },
+    { name: 'Codex CLI', note: 'Auto-configures via MCP server' },
+    { name: 'Cline', note: 'Any MCP-compatible client' },
+    { name: 'Continue', note: 'Any MCP-compatible client' },
+    { name: 'Windsurf', note: 'Any MCP-compatible client' },
+    { name: 'Zed', note: 'Any MCP-compatible client' },
+    { name: 'Aider', note: 'Any MCP-compatible client' },
+    { name: 'Goose', note: 'Any MCP-compatible client' },
+    { name: 'Your own agent', note: 'REST API · Python · TypeScript' },
   ]
 
   return (
-    <Section className="bg-surface-1/50">
-      <div className="text-center mb-12">
-        <Heading id="ai-clients" className="text-3xl md:text-4xl font-bold text-theme-primary tracking-tight">
-          Works with the tools you already use
+    <Section>
+      <div className="text-center mb-16">
+        <div className="section-eyebrow mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
+          AI CLIENTS & AGENTS
+        </div>
+
+        <Heading
+          id="ai-clients"
+          className="font-heading text-4xl md:text-[52px] font-bold leading-[1.06] tracking-[-0.03em] text-theme-primary"
+        >
+          Works with the tools{' '}
+          <span className="text-gradient-brand">you already use</span>
         </Heading>
-        <p className="mt-4 text-theme-muted max-w-2xl mx-auto">
+
+        <p className="mt-6 text-[18px] leading-relaxed text-theme-secondary max-w-3xl mx-auto">
           One quickstart command auto-detects and wires every installed AI tool.
           Any MCP-compatible client works — not just the ones we list here.
         </p>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-        {clients.map((c, i) => (
-          <motion.div
-            key={c.name}
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: i * 0.04 }}
-            className="flex flex-col gap-1 rounded-xl border border-theme-border bg-surface-1 px-4 py-3 hover:border-accent/30 transition-colors"
-          >
-            <p className="text-sm font-medium text-theme-primary">{c.name}</p>
-            <p className="text-[11px] text-theme-muted">{c.note}</p>
-          </motion.div>
-        ))}
+      <div className="relative">
+        <div
+          className="absolute inset-x-0 top-1/2 h-[360px] -translate-y-1/2 rounded-full bg-accent/10 blur-[100px]"
+          aria-hidden="true"
+        />
+
+        <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {clients.map((c, i) => (
+            <motion.div
+              key={c.name}
+              initial={{ opacity: 0, y: 12 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.035 }}
+              className="sw-card rounded-2xl border border-brand-500/20 bg-surface-1/45 p-5 shadow-[0_24px_80px_rgba(0,0,0,.12)] hover:border-brand-500/35 hover:bg-surface-1/60 transition-colors"
+            >
+              <h3 className="font-heading text-[18px] font-bold leading-tight text-theme-primary">
+                {c.name}
+              </h3>
+              <p className="mt-2 text-[13px] leading-6 text-theme-secondary">
+                {c.note}
+              </p>
+            </motion.div>
+          ))}
+        </div>
       </div>
 
-      <p className="mt-6 text-center text-xs text-theme-muted">
+      <p className="mt-8 text-center text-sm text-theme-secondary">
         Missing your tool?{' '}
         <a
           href="https://github.com/smaramwbc/statewave/issues"
@@ -610,7 +630,6 @@ function AIClientsSection() {
     </Section>
   )
 }
-
 function GovernanceSection() {
   const pillars = [
     {
