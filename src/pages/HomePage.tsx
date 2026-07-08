@@ -334,43 +334,89 @@ function WhyNotSection() {
   ]
 
   return (
-    <Section className="bg-surface-1/50">
+    <Section>
       <div className="text-center mb-16">
-        <Heading id="why-existing-approaches-fail" className="text-3xl md:text-4xl font-bold text-theme-primary tracking-tight">
-          Why existing approaches fail
+        <div className="section-eyebrow mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
+          WHY EXISTING APPROACHES FAIL
+        </div>
+
+        <Heading
+          id="why-existing-approaches-fail"
+          className="font-heading text-4xl md:text-[52px] font-bold leading-[1.06] tracking-[-0.03em] text-theme-primary"
+        >
+          Most <span className="text-gradient-brand">AI memory</span> systems fall short
         </Heading>
-        <p className="mt-4 text-theme-muted max-w-2xl mx-auto">
+
+        <p className="mt-6 text-[18px] leading-relaxed text-theme-secondary max-w-3xl mx-auto">
           Bolting on a vector database or dumping chat logs into a prompt creates fragile,
           unstructured context that degrades as it scales.
         </p>
       </div>
 
-      <div className="grid md:grid-cols-3 gap-6">
-        {approaches.map((a, i) => (
-          <motion.div
-            key={i}
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: i * 0.1 }}
-            className="p-6 rounded-2xl border border-red-500/10 bg-red-500/[0.02]"
-          >
-            <h3 className="text-base font-semibold text-theme-primary mb-4 flex items-center gap-2">
-              <svg className="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-              {a.title}
-            </h3>
-            <ul className="space-y-2">
-              {a.problems.map((p, j) => (
-                <li key={j} className="text-sm text-theme-muted flex items-start gap-2">
-                  <span className="text-red-400/60 mt-0.5">—</span>
-                  {p}
-                </li>
-              ))}
-            </ul>
-          </motion.div>
-        ))}
+      <div className="grid md:grid-cols-3 gap-8">
+        {approaches.map((a, i) => {
+          const icons = [
+            '/icons/icon-prompt-stuffing.svg',
+            '/icons/icon-naive-rag.svg',
+            '/icons/icon-raw-history.svg',
+          ]
+
+          return (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.1 }}
+              className="sw-card rounded-[2rem] border border-brand-500/25 bg-surface-1/45 p-10 shadow-[0_24px_80px_rgba(0,0,0,.16)]"
+            >
+              <div className="flex items-start gap-8">
+                <img
+                  src={icons[i]}
+                  alt=""
+                  aria-hidden="true"
+                  className="h-12 w-12 shrink-0"
+                />
+
+                <div className="min-w-0">
+                  <h3 className="font-heading text-[28px] font-bold leading-tight text-theme-primary mb-6">
+                    {a.title}
+                  </h3>
+
+                  <ul className="space-y-3">
+                    {a.problems.map((p, j) => (
+                      <li
+                        key={j}
+                        className="flex items-start gap-4 text-[16px] text-theme-secondary"
+                      >
+                        <span className="mt-[0.8em] h-px w-3 shrink-0 bg-red-500/80" />
+                        <span>{p}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </motion.div>
+          )
+        })}
+      </div>
+
+      <div className="sw-card mt-10 rounded-[2rem] border border-brand-500/25 bg-surface-1/45 p-8 shadow-[0_24px_80px_rgba(0,0,0,.16)]">
+        <div className="flex flex-col md:flex-row items-center justify-center gap-8 text-center md:text-left">
+          <img
+            src="/icons/icon-statewave-layers.svg"
+            alt=""
+            aria-hidden="true"
+            className="h-16 w-16 shrink-0"
+          />
+
+          <p className="max-w-[340px] text-[20px] leading-relaxed text-theme-secondary">
+            Statewave builds{' '}
+            <span className="text-cyan-400">durable</span>,{' '}
+            <span className="text-brand-400">ranked</span>, and{' '}
+            <span className="text-gradient-brand">structured</span> memory.
+          </p>
+        </div>
       </div>
     </Section>
   )
