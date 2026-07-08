@@ -24,7 +24,7 @@
     "@mdx-js/rollup": "^3.1.1",
     "@statewavedev/chat-core": "^0.1.2",
     "@statewavedev/chat-react": "^0.1.1",
-    "feed": "^5.2.1",
+    "feed": "^6.0.0",
     "framer-motion": "^12.42.2",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
