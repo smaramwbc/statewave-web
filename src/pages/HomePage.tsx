@@ -14,6 +14,12 @@ import {
   Code,
   MessageSquareMore,
   Clock3,
+  Tag,
+  FileText,
+  ReceiptText,
+  Link2,
+  Users,
+  Trash2,
   /*Download,
   Layers,
   BarChart3,
@@ -637,90 +643,83 @@ function AIClientsSection() {
     </Section>
   )
 }
+
 function GovernanceSection() {
   const pillars = [
     {
       title: 'Sensitivity labels',
       desc: 'Tag memories as pii, financial, or secret. Auto-detected at ingest, operator-reviewed before promotion. Labels travel with the memory forever.',
-      icon: (
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-          d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A2 2 0 013 12V7a4 4 0 014-4z" />
-      ),
+      Icon: Tag,
     },
     {
       title: 'Declarative policies',
       desc: 'YAML policies gate access by caller identity. Deny or redact sensitive memories per tenant. log_only mode for audit before enforcement.',
-      icon: (
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-          d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-      ),
+      Icon: FileText,
     },
     {
       title: 'State-assembly receipts',
       desc: 'Every context call produces an immutable, ULID-addressable receipt with a byte-level integrity hash. Replay any call. Prove exactly what the agent saw.',
-      icon: (
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-          d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-      ),
+      Icon: ReceiptText,
     },
     {
       title: 'Full provenance',
       desc: 'Every compiled memory carries a chain back to its source episodes. Your agent can show its work — which conversations, commits, or documents produced each fact.',
-      icon: (
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-          d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-      ),
+      Icon: Link2,
     },
     {
       title: 'Multi-tenant isolation',
       desc: 'Subject-scoped architecture with app-layer query isolation. One instance serves many tenants without cross-tenant data leakage — by design, not by convention.',
-      icon: (
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-          d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
-      ),
+      Icon: Users,
     },
     {
       title: 'GDPR-ready erasure',
       desc: 'Subject deletion removes all episodes, memories, and receipts for a given subject in one call. No orphaned data, no manual cleanup.',
-      icon: (
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-      ),
+      Icon: Trash2,
     },
   ]
 
   return (
     <Section>
-      <div className="text-center mb-12">
-        <span className="block mb-3 text-[11px] font-medium uppercase tracking-wider text-accent">
-          What sets Statewave apart
-        </span>
-        <Heading id="production-governance" className="text-3xl md:text-4xl font-bold text-theme-primary tracking-tight">
-          Memory with governance built in
+      <div className="text-center mb-16">
+        <div className="section-eyebrow mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
+          WHAT SETS STATEWAVE APART
+        </div>
+
+        <Heading
+          id="production-governance"
+          className="font-heading text-4xl md:text-[52px] font-bold leading-[1.06] tracking-[-0.03em] text-theme-primary"
+        >
+          Memory with <span className="text-gradient-brand">governance</span> built in
         </Heading>
-        <p className="mt-4 text-theme-muted max-w-2xl mx-auto">
-          Retrieval is a solved problem. Production AI needs policies, an audit trail, and
-          data boundaries — not just fast lookup. Statewave is built for that from the ground up.
+
+        <p className="mt-6 text-[18px] leading-relaxed text-theme-secondary max-w-3xl mx-auto">
+          Retrieval is a solved problem. Production AI needs policies, an audit trail,
+          and data boundaries — not just fast lookup. Statewave is built for that from
+          the ground up.
         </p>
       </div>
 
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
         {pillars.map((p, i) => (
           <motion.div
             key={p.title}
-            initial={{ opacity: 0, y: 16 }}
+            initial={{ opacity: 0, y: 18 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ delay: i * 0.08 }}
-            className="rounded-2xl border border-accent/10 bg-accent/[0.025] p-6"
+            transition={{ delay: i * 0.06 }}
+            className="sw-card rounded-[2rem] border border-brand-500/25 bg-surface-1/45 p-8 shadow-[0_24px_80px_rgba(0,0,0,.16)]"
           >
-            <div className="mb-4 inline-flex items-center justify-center w-9 h-9 rounded-lg bg-accent/10">
-              <svg className="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                {p.icon}
-              </svg>
+            <div className="mb-7 flex h-14 w-14 items-center justify-center rounded-full border border-accent/35 text-accent">
+              <p.Icon className="h-6 w-6" strokeWidth={1.8} aria-hidden="true" />
             </div>
-            <h3 className="text-base font-semibold text-theme-primary mb-2">{p.title}</h3>
-            <p className="text-sm text-theme-muted leading-relaxed">{p.desc}</p>
+
+            <h3 className="font-heading text-[22px] font-bold leading-tight text-theme-primary">
+              {p.title}
+            </h3>
+
+            <p className="mt-4 text-[15px] leading-7 text-theme-secondary">
+              {p.desc}
+            </p>
           </motion.div>
         ))}
       </div>
