@@ -481,18 +481,25 @@ function UseCasesSection() {
       </div>
 
       <div className="grid lg:grid-cols-[0.38fr_0.62fr] gap-12 xl:gap-20 items-center">
-        <div className="relative flex justify-start lg:-ml-12">
-          <div
-            className="absolute left-1/2 top-1/2 h-[700px] w-[700px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(122,92,255,0.45)_0%,rgba(122,92,255,0.22)_28%,rgba(122,92,255,0.08)_55%,transparent_75%)] blur-2xl"
-            aria-hidden="true"
-          />
+<div className="relative flex justify-start lg:-ml-12">
+  <div
+    className="absolute left-1/2 top-1/2 h-[700px] w-[700px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(122,92,255,0.45)_0%,rgba(122,92,255,0.22)_28%,rgba(122,92,255,0.08)_55%,transparent_75%)] blur-2xl"
+    aria-hidden="true"
+  />
 
-          <img
-            src="/stateful-workflows-map.svg"
-            alt="Statewave workflow map"
-            className="relative z-10 block w-[108%] max-w-none h-auto"
-          />
-        </div>
+  <img
+    src="/stateful-workflows-map-animated-dark.svg"
+    alt="Statewave workflow map"
+    className="theme-dark relative z-10 w-[108%] max-w-none h-auto"
+  />
+
+  <img
+    src="/stateful-workflows-map-animated-light.svg"
+    alt=""
+    aria-hidden="true"
+    className="theme-light relative z-10 w-[108%] max-w-none h-auto"
+  />
+</div>
 
         <div className="grid md:grid-cols-2 gap-6">
           {useCases.map((uc, i) => (

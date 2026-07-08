@@ -605,3 +605,19 @@ html[data-theme="dark"] .invert {
   color: var(--theme-eyebrow);
 }
 
+html[data-theme="dark"] .theme-dark {
+  display: block;
+}
+
+html[data-theme="dark"] .theme-light {
+  display: none;
+}
+
+html[data-theme="light"] .theme-dark {
+  display: none;
+}
+
+html[data-theme="light"] .theme-light {
+  display: block;
+}
+
