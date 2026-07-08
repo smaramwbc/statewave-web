@@ -19,25 +19,32 @@ export const Button = forwardRef<HTMLElement, Props>(function Button(
   // inherits from <html> and trips Lighthouse's non-composited-animations
   // audit when included by `all`.
   const base =
-    'inline-flex items-center justify-center font-medium rounded-xl transition-[background-color,color,border-color,box-shadow,transform] duration-200'
+    'group relative overflow-hidden inline-flex items-center justify-center font-semibold rounded-full transition-[background-color,color,border-color,box-shadow,filter] duration-300 ease-out'
 
   const variants = {
-    primary: 'bg-accent text-white hover:bg-accent-light shadow-lg shadow-accent/20 hover:shadow-accent/30',
-    secondary: 'bg-surface-2 text-theme-primary border border-theme-border hover:bg-surface-3 hover:border-theme-border',
-    ghost: 'text-theme-muted hover:text-theme-primary',
-    // High-contrast CTAs for dark landing surfaces (e.g. the Multi-Agent
-    // Memory page), where a solid white or solid dark button is the design.
-    white: 'bg-white text-[#0a0a0f] hover:bg-white/90 shadow-lg shadow-black/10',
-    dark: 'bg-[#0a0a0f] text-white hover:bg-[#18181b]',
+    primary:
+      'btn-gradient text-white shadow-[0_12px_34px_rgba(108,92,255,.22)] hover:shadow-[0_18px_48px_rgba(108,92,255,.34)]',
+
+    secondary:
+      'bg-surface-1/50 border border-white/15 text-theme-primary hover:bg-surface-1/70 hover:border-white/25',
+
+    ghost:
+      'text-theme-secondary hover:text-theme-primary',
+
+    white:
+      'bg-white text-[#0B1020] hover:bg-white/90',
+
+    dark:
+      'bg-[#0A1223] text-white hover:bg-[#111C33]',
   }
 
   // min-h-* enforces the 44px WCAG / Apple HIG tap target on mobile so
   // visitors don't misclick adjacent CTAs on small phones. Desktop hover
   // is unaffected — these only set a floor.
   const sizes = {
-    sm: 'min-h-10 px-4 py-2 text-sm gap-1.5',
-    md: 'min-h-11 px-6 py-3 text-sm gap-2',
-    lg: 'min-h-12 px-7 sm:px-8 py-3.5 sm:py-4 text-base gap-2.5',
+    sm: 'h-10 px-5 text-sm gap-2',
+    md: 'h-11 px-6 text-sm gap-2',
+    lg: 'h-[54px] px-8 text-[15px] gap-2.5',
   }
 
   const cls = `${base} ${variants[variant]} ${sizes[size]} ${className}`
