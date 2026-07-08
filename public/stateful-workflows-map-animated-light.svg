@@ -1,0 +1,356 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" viewBox="0 0 462.04897 327.89785">
+  <defs>
+    <style>
+      .st0, .st1, .st2, .st3, .st4, .st5, .st6, .st7, .st8, .st9 { fill: none; }
+      .st10 { fill: #f6eafd; }
+      .st10, .st11, .st12, .st1, .st13, .st14, .st15 { isolation: isolate; }
+      .st11 { fill: #e8effc; }
+      .st16 { fill: url(#glowTeal); }
+      .st12 { fill: #efe9fc; }
+      .st1 { stroke: #5951f4; stroke-miterlimit: 10; }
+      .st1, .st4 { stroke-width: 2px; }
+      .st2 { stroke: #bd54e8; }
+      .st2, .st4, .st8, .st9 { stroke-linecap: round; stroke-linejoin: round; }
+      .st2, .st8, .st9 { stroke-width: 1.5px; }
+      .st3 { stroke: #cf9be3; }
+      .st22 { fill: #e3f7f5; }
+      .st17 { fill: url(#glowBlue); }
+      .st23 { fill: #9a6ae0; }
+      .st4 { stroke: #8b5cf6; }
+      .st24 { fill: url(#Degradado_sin_nombre_132); }
+      .st25 { fill: url(#Degradado_sin_nombre_133); }
+      .st26 { fill: url(#Degradado_sin_nombre_131); }
+      .st5 { stroke: #8babe6; }
+      .st6 { stroke: #a98bd6; }
+      .st7 { stroke: #6cc7bc; }
+      .st27 { fill: url(#Degradado_sin_nombre_13); }
+      .st8 { stroke: #3e6fd0; }
+      .st28 { fill: #c964ec; }
+      .st9 { stroke: #0f9e92; }
+      .st20 { fill: #14b8a6; }
+      .st21 { fill: #4a7fdd; }
+      .st14 { opacity: .6; }
+      .st14 { fill: #ece9fb; }
+      .st15 { opacity: .92; fill: #f7f6fe; }
+      .st18 { fill: url(#glowMagenta2); }
+      .st19 { fill: url(#glowMagenta); }
+
+      /* ============ ANIMACIÓN ============ */
+
+      /* --- Entrada: capas del stack (de abajo hacia arriba) --- */
+      .layer {
+        opacity: 0;
+        animation: layerIn 1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+      }
+      .layer-1 { animation-delay: 0.10s; }
+      .layer-2 { animation-delay: 0.26s; }
+      .layer-3 { animation-delay: 0.42s; }
+      .layer-4 { animation-delay: 0.58s; }
+      @keyframes layerIn {
+        from { opacity: 0; transform: translateY(16px); }
+        to   { opacity: 1; transform: translateY(0); }
+      }
+
+      /* --- Entrada: icono de capas y rayo --- */
+      .stack-icon {
+        opacity: 0;
+        transform-box: fill-box;
+        transform-origin: center;
+        animation: popIn 0.9s cubic-bezier(0.34, 1.4, 0.64, 1) 0.85s forwards;
+      }
+      .bolt-wrap {
+        opacity: 0;
+        transform-box: fill-box;
+        transform-origin: center;
+        animation: popIn 0.8s cubic-bezier(0.34, 1.4, 0.64, 1) 1.05s forwards;
+      }
+      @keyframes popIn {
+        from { opacity: 0; transform: scale(0.55); }
+        to   { opacity: 1; transform: scale(1); }
+      }
+
+      /* --- Rayo: pulso energético continuo --- */
+      .bolt {
+        transform-box: fill-box;
+        transform-origin: center;
+        animation: boltPulse 3.2s ease-in-out 2.2s infinite;
+      }
+      @keyframes boltPulse {
+        0%, 100% { opacity: 1;   transform: scale(1); }
+        50%      { opacity: 0.72; transform: scale(0.94); }
+      }
+
+      /* --- Flotación ambiental del stack completo --- */
+      .stack-float {
+        animation: floatY 7s ease-in-out 1.4s infinite;
+      }
+      @keyframes floatY {
+        0%, 100% { transform: translateY(0); }
+        50%      { transform: translateY(-3.5px); }
+      }
+
+      /* --- Entrada: nodos de las esquinas --- */
+      .node {
+        opacity: 0;
+        transform-box: fill-box;
+        transform-origin: center;
+        animation: nodeIn 0.85s cubic-bezier(0.34, 1.45, 0.64, 1) forwards;
+      }
+      .node-user    { animation-delay: 0.95s; }
+      .node-code    { animation-delay: 1.08s; }
+      .node-clock   { animation-delay: 1.21s; }
+      .node-message { animation-delay: 1.34s; }
+      @keyframes nodeIn {
+        from { opacity: 0; transform: scale(0.6); }
+        to   { opacity: 1; transform: scale(1); }
+      }
+
+      /* --- Halos de los nodos: entrada + respiración --- */
+      .glow {
+        opacity: 0;
+        animation: glowIn 1.2s ease-out forwards,
+                   glowBreathe 6s ease-in-out infinite;
+      }
+      .glow-1 { animation-delay: 1.1s, 2.3s; }
+      .glow-2 { animation-delay: 1.25s, 3.4s; }
+      .glow-3 { animation-delay: 1.4s, 4.5s; }
+      .glow-4 { animation-delay: 1.55s, 5.6s; }
+      @keyframes glowIn {
+        from { opacity: 0; }
+        to   { opacity: 1; }
+      }
+      @keyframes glowBreathe {
+        0%, 100% { opacity: 1; }
+        50%      { opacity: 0.45; }
+      }
+
+      /* --- Conectores: se dibujan solos --- */
+      .wire {
+        stroke-dasharray: 1;
+        stroke-dashoffset: 1;
+        animation: drawWire 0.9s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+      }
+      .wire-1 { animation-delay: 1.45s; }
+      .wire-2 { animation-delay: 1.55s; }
+      .wire-3 { animation-delay: 1.65s; }
+      .wire-4 { animation-delay: 1.75s; }
+      @keyframes drawWire {
+        to { stroke-dashoffset: 0; }
+      }
+
+      /* --- Puntos estáticos de los conectores: aparecen + latido sutil --- */
+      .dot {
+        opacity: 0;
+        transform-box: fill-box;
+        transform-origin: center;
+        animation: dotIn 0.5s ease-out forwards,
+                   dotBeat 4s ease-in-out infinite;
+      }
+      .dot-a { animation-delay: 2.0s, 3.0s; }
+      .dot-b { animation-delay: 2.15s, 3.6s; }
+      @keyframes dotIn {
+        from { opacity: 0; transform: scale(0); }
+        to   { opacity: 1; transform: scale(1); }
+      }
+      @keyframes dotBeat {
+        0%, 100% { transform: scale(1); }
+        50%      { transform: scale(1.35); }
+      }
+
+      /* --- Accesibilidad: respetar reduced motion --- */
+      @media (prefers-reduced-motion: reduce) {
+        .layer, .stack-icon, .bolt-wrap, .node, .glow, .dot { opacity: 1; animation: none; }
+        .wire { stroke-dashoffset: 0; animation: none; }
+        .stack-float, .bolt { animation: none; }
+        .pulse { display: none; }
+      }
+    </style>
+
+    <linearGradient id="Degradado_sin_nombre_13" data-name="Degradado sin nombre 13" x1="-2071.72825" y1="-3486.55546" x2="-2073.09665" y2="-3487.7503" gradientTransform="translate(148959.4053 -132827.61705) scale(71.77509 -38.1264)" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#8b5cf6"/>
+      <stop offset="1" stop-color="#22d3ee"/>
+    </linearGradient>
+    <linearGradient id="Degradado_sin_nombre_131" data-name="Degradado sin nombre 13" x1="-2071.83155" y1="-3574.06541" x2="-2073.19995" y2="-3575.26025" gradientTransform="translate(148861.10759 -76226.9403) scale(71.72839 -21.36374)" xlink:href="#Degradado_sin_nombre_13"/>
+    <linearGradient id="Degradado_sin_nombre_132" data-name="Degradado sin nombre 13" x1="-2071.83155" y1="-3573.99904" x2="-2073.19995" y2="-3575.19388" gradientTransform="translate(148861.10759 -76210.14473) scale(71.72839 -21.36374)" xlink:href="#Degradado_sin_nombre_13"/>
+    <linearGradient id="Degradado_sin_nombre_133" data-name="Degradado sin nombre 13" x1="218.9538" y1="114.34323" x2="250.40193" y2="114.34323" gradientTransform="matrix(1,0,0,1,0,0)" xlink:href="#Degradado_sin_nombre_13"/>
+
+    <!-- Halos light mode: centro transparente, aro de color suave en el borde -->
+    <radialGradient id="glowTeal" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#14b8a6" stop-opacity="0"/>
+      <stop offset=".68" stop-color="#14b8a6" stop-opacity="0"/>
+      <stop offset=".85" stop-color="#14b8a6" stop-opacity=".2"/>
+      <stop offset="1" stop-color="#14b8a6" stop-opacity=".55"/>
+    </radialGradient>
+    <radialGradient id="glowBlue" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#4f46e5" stop-opacity="0"/>
+      <stop offset=".68" stop-color="#4f46e5" stop-opacity="0"/>
+      <stop offset=".85" stop-color="#4f46e5" stop-opacity=".2"/>
+      <stop offset="1" stop-color="#4f46e5" stop-opacity=".55"/>
+    </radialGradient>
+    <radialGradient id="glowMagenta" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#a855f7" stop-opacity="0"/>
+      <stop offset=".68" stop-color="#a855f7" stop-opacity="0"/>
+      <stop offset=".85" stop-color="#a855f7" stop-opacity=".2"/>
+      <stop offset="1" stop-color="#a855f7" stop-opacity=".55"/>
+    </radialGradient>
+    <radialGradient id="glowMagenta2" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#c026d3" stop-opacity="0"/>
+      <stop offset=".68" stop-color="#c026d3" stop-opacity="0"/>
+      <stop offset=".85" stop-color="#c026d3" stop-opacity=".2"/>
+      <stop offset="1" stop-color="#c026d3" stop-opacity=".55"/>
+    </radialGradient>
+
+    <!-- Glow para los pulsos viajeros -->
+    <filter id="pulseGlow" x="-200%" y="-200%" width="500%" height="500%">
+      <feGaussianBlur stdDeviation="2.2" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <g class="st13">
+    <g id="Capa_1">
+      <g>
+        <!-- ============ NODOS ============ -->
+        <g class="node node-user">
+          <g id="Elipse_67" class="st13">
+            <circle class="st22" cx="30" cy="30.29029" r="30"/>
+            <circle class="st22" cx="30" cy="30.29029" r="29.5"/>
+          </g>
+          <g id="user-round">
+            <circle id="Elipse_68" class="st9" cx="30.005" cy="23.83369" r="7.197"/>
+            <path id="Trazado_46" class="st9" d="M40.98,42.79031c0-6.06409-4.91591-10.98-10.98-10.98s-10.98,4.91591-10.98,10.98"/>
+          </g>
+          <circle class="st7" cx="30.005" cy="30.29029" r="29.5"/>
+        </g>
+
+        <g class="node node-message">
+          <g id="Elipse_71">
+            <circle class="st0" cx="35.30652" cy="297.89785" r="30"/>
+            <circle class="st11" cx="35.30652" cy="297.89785" r="29.5"/>
+          </g>
+          <g id="message-square-more">
+            <path id="Trazado_50" class="st8" d="M48.46552,305.32086c0,1.45361-1.17839,2.632-2.632,2.632h-17.333c-.6977.00021-1.36675.27754-1.86.771l-2.9,2.9c-.36554.36396-.95692.36267-1.32087-.00287-.1748-.17556-.27269-.41339-.27213-.66113v-21.43c0-1.45361,1.17839-2.632,2.632-2.632h21.054c1.45361,0,2.632,1.17839,2.632,2.632v15.791Z"/>
+            <path id="Trazado_51" class="st8" d="M35.30652,297.42486h.013"/>
+            <path id="Trazado_52" class="st8" d="M40.57052,297.42486h.013"/>
+            <path id="Trazado_53" class="st8" d="M30.04252,297.42486h.013"/>
+          </g>
+          <circle class="st5" cx="35.31952" cy="297.42486" r="29.5"/>
+        </g>
+
+        <g class="node node-code">
+          <g id="Elipse_69">
+            <circle class="st0" cx="431.94265" cy="30" r="30"/>
+            <circle class="st12" cx="431.94265" cy="30" r="29.5"/>
+          </g>
+          <g id="code">
+            <path id="Trazado_47" class="st4" d="M437.21316,37.807l7.9-7.9-7.9-7.907"/>
+            <path id="Trazado_48" class="st4" d="M426.67215,22l-7.9,7.9,7.9,7.9"/>
+          </g>
+          <circle class="st6" cx="431.94265" cy="30.5" r="29.5"/>
+        </g>
+
+        <g class="node node-clock">
+          <g id="Elipse_70">
+            <circle class="st0" cx="431.94265" cy="282.27207" r="30"/>
+            <circle class="st10" cx="431.94265" cy="282.27207" r="29.5"/>
+          </g>
+          <g id="clock">
+            <circle id="Elipse_72" class="st2" cx="431.94265" cy="282.27109" r="16"/>
+            <path id="Trazado_49" class="st2" d="M431.90865,272.81009v9.461l6.308,3.154"/>
+          </g>
+          <circle class="st3" cx="431.94265" cy="282.77207" r="29.5"/>
+        </g>
+
+        <!-- ============ CONECTORES ============ -->
+        <polyline class="st7 wire wire-1" pathLength="1" points="66.42009 54.13291 94.30398 73.74356 95.68285 96.878 122.18788 113.11807"/>
+        <circle class="st20 dot dot-a" cx="66.42009" cy="54.13291" r="2.68114"/>
+        <circle class="st20 dot dot-b" cx="94.30398" cy="73.74356" r="2.91096"/>
+
+        <polyline class="st6 wire wire-2" pathLength="1" points="390.17328 45.59155 362.28938 65.2022 360.91051 88.33664 334.40549 104.57672"/>
+        <circle class="st23 dot dot-a" cx="390.17328" cy="45.59155" r="2.68114"/>
+        <circle class="st23 dot dot-b" cx="362.28938" cy="65.2022" r="2.91096"/>
+
+        <g>
+          <polyline class="st5 wire wire-3" pathLength="1" points="74.39475 281.8781 102.27864 262.26745 103.65752 239.13301 130.16254 222.89294"/>
+          <circle class="st21 dot dot-a" cx="74.39475" cy="281.8781" r="2.68114"/>
+          <circle class="st21 dot dot-b" cx="102.27864" cy="262.26745" r="2.91096"/>
+          <polyline class="st3 wire wire-4" pathLength="1" points="392.85442 282.50881 364.97053 262.89816 363.59165 239.76372 337.08663 223.52364"/>
+          <circle class="st28 dot dot-a" cx="392.85442" cy="282.50881" r="2.68114"/>
+          <circle class="st28 dot dot-b" cx="364.97053" cy="262.89816" r="2.91096"/>
+        </g>
+
+        <!-- ============ PULSOS DE DATOS (una sola pasada, hacia el centro) ============ -->
+        <!-- Usuario → stack -->
+        <g class="pulse" filter="url(#pulseGlow)" opacity="0">
+          <circle r="3.4" fill="#14b8a6" opacity="0.28"/>
+          <circle r="1.7" fill="#0f9e92"/>
+          <animateMotion path="M66.42,54.133 L94.304,73.744 L95.683,96.878 L122.188,113.118" dur="2.6s" begin="2.6s" repeatCount="1" fill="remove" calcMode="spline" keyTimes="0;1" keySplines="0.4 0 0.6 1"/>
+          <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.12;0.85;1" dur="2.6s" begin="2.6s" repeatCount="1" fill="remove"/>
+        </g>
+        <!-- Código → stack -->
+        <g class="pulse" filter="url(#pulseGlow)" opacity="0">
+          <circle r="3.4" fill="#8b5cf6" opacity="0.28"/>
+          <circle r="1.7" fill="#7c3aed"/>
+          <animateMotion path="M390.173,45.592 L362.289,65.202 L360.911,88.337 L334.405,104.577" dur="2.6s" begin="3.9s" repeatCount="1" fill="remove" calcMode="spline" keyTimes="0;1" keySplines="0.4 0 0.6 1"/>
+          <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.12;0.85;1" dur="2.6s" begin="3.9s" repeatCount="1" fill="remove"/>
+        </g>
+        <!-- Mensajes → stack -->
+        <g class="pulse" filter="url(#pulseGlow)" opacity="0">
+          <circle r="3.4" fill="#4a7fdd" opacity="0.28"/>
+          <circle r="1.7" fill="#3e6fd0"/>
+          <animateMotion path="M74.395,281.878 L102.279,262.267 L103.658,239.133 L130.163,222.893" dur="2.6s" begin="3.25s" repeatCount="1" fill="remove" calcMode="spline" keyTimes="0;1" keySplines="0.4 0 0.6 1"/>
+          <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.12;0.85;1" dur="2.6s" begin="3.25s" repeatCount="1" fill="remove"/>
+        </g>
+        <!-- Reloj → stack -->
+        <g class="pulse" filter="url(#pulseGlow)" opacity="0">
+          <circle r="3.4" fill="#c964ec" opacity="0.28"/>
+          <circle r="1.7" fill="#bd54e8"/>
+          <animateMotion path="M392.854,282.509 L364.971,262.898 L363.592,239.764 L337.087,223.524" dur="2.6s" begin="4.55s" repeatCount="1" fill="remove" calcMode="spline" keyTimes="0;1" keySplines="0.4 0 0.6 1"/>
+          <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.12;0.85;1" dur="2.6s" begin="4.55s" repeatCount="1" fill="remove"/>
+        </g>
+
+        <!-- ============ STACK CENTRAL ============ -->
+        <g class="stack-float">
+          <g class="layer layer-1">
+            <path class="st14" d="M244.64392,136.03699c-6.55585-3.32519-14.08641-3.32519-20.64226,0l-106.56879,53.92738c-6.28396,3.08107-9.13193,11.24335-6.36113,18.23097,1.25222,3.15793,3.5212,5.68098,6.36113,7.07342l106.69314,54.06566c6.55585,3.3252,14.08641,3.3252,20.64226,0l106.69313-53.92739c6.28396-3.08107,9.13193-11.24335,6.36111-18.23097-1.2522-3.15793-3.52118-5.68098-6.36111-7.07342l-106.81749-54.06566Z"/>
+            <path class="st1" d="M244.64392,136.03699c-6.55585-3.32519-14.08641-3.32519-20.64226,0l-106.56879,53.92738c-6.28396,3.08107-9.13193,11.24335-6.36113,18.23097,1.25222,3.15793,3.5212,5.68098,6.36113,7.07342l106.69314,54.06566c6.55585,3.3252,14.08641,3.3252,20.64226,0l106.69313-53.92739c6.28396-3.08107,9.13193-11.24335,6.36111-18.23097-1.2522-3.15793-3.52118-5.68098-6.36111-7.07342l-106.81749-54.06566Z"/>
+          </g>
+          <g class="layer layer-2">
+            <path class="st14" d="M244.64392,111.04613c-6.55585-3.32519-14.08641-3.32519-20.64226,0l-106.56879,53.92738c-6.28396,3.08107-9.13193,11.24335-6.36113,18.23097,1.25222,3.15793,3.5212,5.68098,6.36113,7.07342l106.69314,54.06566c6.55585,3.3252,14.08641,3.3252,20.64226,0l106.69313-53.92739c6.28396-3.08107,9.13193-11.24335,6.36111-18.23097-1.2522-3.15793-3.52118-5.68098-6.36111-7.07342l-106.81749-54.06566Z"/>
+            <path class="st1" d="M244.64392,111.04613c-6.55585-3.32519-14.08641-3.32519-20.64226,0l-106.56879,53.92738c-6.28396,3.08107-9.13193,11.24335-6.36113,18.23097,1.25222,3.15793,3.5212,5.68098,6.36113,7.07342l106.69314,54.06566c6.55585,3.3252,14.08641,3.3252,20.64226,0l106.69313-53.92739c6.28396-3.08107,9.13193-11.24335,6.36111-18.23097-1.2522-3.15793-3.52118-5.68098-6.36111-7.07342l-106.81749-54.06566Z"/>
+          </g>
+          <g class="layer layer-3">
+            <path class="st14" d="M244.64392,84.57901c-6.55585-3.32519-14.08641-3.32519-20.64226,0l-106.56879,53.92738c-6.28396,3.08107-9.13193,11.24335-6.36113,18.23097,1.25222,3.15793,3.5212,5.68098,6.36113,7.07342l106.69314,54.06566c6.55585,3.3252,14.08641,3.3252,20.64226,0l106.69313-53.92739c6.28396-3.08107,9.13193-11.24335,6.36111-18.23097-1.2522-3.15793-3.52118-5.68098-6.36111-7.07342l-106.81749-54.06566Z"/>
+            <path class="st1" d="M244.64392,84.57901c-6.55585-3.32519-14.08641-3.32519-20.64226,0l-106.56879,53.92738c-6.28396,3.08107-9.13193,11.24335-6.36113,18.23097,1.25222,3.15793,3.5212,5.68098,6.36113,7.07342l106.69314,54.06566c6.55585,3.3252,14.08641,3.3252,20.64226,0l106.69313-53.92739c6.28396-3.08107,9.13193-11.24335,6.36111-18.23097-1.2522-3.15793-3.52118-5.68098-6.36111-7.07342l-106.81749-54.06566Z"/>
+          </g>
+          <g class="layer layer-4">
+            <path class="st15" d="M244.64392,60.21887c-6.55585-3.32519-14.08641-3.32519-20.64226,0l-106.56879,53.92738c-6.28396,3.08107-9.13193,11.24335-6.36113,18.23097,1.25222,3.15793,3.5212,5.68098,6.36113,7.07342l106.69314,54.06566c6.55585,3.3252,14.08641,3.3252,20.64226,0l106.69313-53.92739c6.28396-3.08107,9.13193-11.24335,6.36111-18.23097-1.2522-3.15793-3.52118-5.68098-6.36111-7.07342l-106.81749-54.06566Z"/>
+            <path class="st1" d="M244.64392,60.21887c-6.55585-3.32519-14.08641-3.32519-20.64226,0l-106.56879,53.92738c-6.28396,3.08107-9.13193,11.24335-6.36113,18.23097,1.25222,3.15793,3.5212,5.68098,6.36113,7.07342l106.69314,54.06566c6.55585,3.3252,14.08641,3.3252,20.64226,0l106.69313-53.92739c6.28396-3.08107,9.13193-11.24335,6.36111-18.23097-1.2522-3.15793-3.52118-5.68098-6.36111-7.07342l-106.81749-54.06566Z"/>
+          </g>
+
+          <g class="stack-icon">
+            <g id="layers">
+              <path id="Trazado_11" class="st27" d="M234.67804,90.36622c1.61768-.0023,3.21674.34523,4.68754,1.01876l36.28913,16.5177c3.56828,1.58503,5.17602,5.76261,3.59098,9.33088-.71092,1.60044-1.99054,2.88007-3.59098,3.59098l-36.24889,16.4762c-2.97677,1.35731-6.3958,1.35731-9.37257,0l-36.24889-16.51896c-3.56827-1.58503-5.17601-5.76261-3.59099-9.33088.71092-1.60044,1.99054-2.88007,3.59099-3.59099l36.20738-16.4762c1.47048-.67304,3.0691-1.02013,4.68628-1.0175ZM234.7208,132.63332c.80321.00207,1.59737-.16955,2.32805-.50309l36.26398-16.48374.02893-.01258c.69914-.30827,1.016-1.12494.70772-1.82408-.13931-.31596-.39175-.5684-.70772-.70772l-.03019-.01383-36.30423-16.52902c-1.47803-.67378-3.17556-.67378-4.65358,0l-36.23254,16.48248-.03019.01383c-.69914.30827-1.016,1.12494-.70772,1.82408.13932.31596.39176.5684.70772.70772l.03144.01383,36.26901,16.52148c.73021.33567,1.52438.50943,2.32805.50938l.00126.00126Z"/>
+              <path id="Trazado_12" class="st26" d="M234.69816,151.75357c-1.60509-.00072-3.19157-.34375-4.65358-1.00618l-36.34825-16.52651-.02516-.00754c-2.50251-1.16344-4.1023-3.67353-4.10018-6.43326-.02898-1.57027,1.22048-2.86673,2.79075-2.89571,1.57027-.02898,2.86673,1.22048,2.89571,2.79075.00073.0396.00063.0792-.00029.1188-.00198.53845.30862,1.02913.79614,1.25772l36.33567,16.51896c1.46943.66481,3.15396.66481,4.6234,0l36.25895-16.4762h.01132c.50038-.22491.8206-.72423.81627-1.27282.01814-1.57044,1.30592-2.82883,2.87635-2.8107,1.52729.01763,2.76786,1.23861,2.80982,2.76542.02175,2.80014-1.61068,5.3494-4.16307,6.50118l-36.25895,16.4762c-1.46614.66132-3.05651,1.00221-4.6649.99989Z"/>
+              <path id="Trazado_13" class="st24" d="M234.69816,167.13792c-1.60509-.00072-3.19157-.34375-4.65358-1.00618l-36.34825-16.5265-.02516-.00755c-2.50251-1.16344-4.1023-3.67353-4.10018-6.43327-.02898-1.57027,1.22048-2.86673,2.79075-2.89571,1.57027-.02898,2.86673,1.22048,2.89571,2.79075.00073.03959.00063.0792-.00029.11879-.00198.53845.30862,1.02913.79614,1.25772l36.33567,16.51896c1.46943.66481,3.15396.66481,4.6234,0l36.25895-16.4762h.01132c.50038-.22491.8206-.72423.81627-1.27282.01814-1.57044,1.30592-2.82883,2.87635-2.8107,1.52729.01763,2.76786,1.23861,2.80982,2.76542.02153,2.80043-1.61145,5.34978-4.16432,6.50118l-36.25769,16.4762c-1.46614.66132-3.05651,1.00221-4.6649.99989Z"/>
+            </g>
+          </g>
+
+          <g class="bolt-wrap">
+            <path class="st25 bolt" d="M237.40913,124.2509c-.09331,0-.18744-.00625-.28158-.01916-.7706-.1058-1.41624-.63481-1.672-1.36918l-4.12794-11.84855-3.1449,4.51241c-.38738.55525-1.02136.88599-1.69783.88599h-5.46171c-1.14299,0-2.06938-.92639-2.06938-2.06897s.92639-2.06897,2.06938-2.06897h4.38203l4.84439-6.95209c.44487-.63773,1.20547-.97513,1.97941-.86683.7706.10622,1.41624.63481,1.672,1.36918l4.12794,11.84814,3.14406-4.51241c.38738-.55525,1.02136-.88599,1.69783-.88599h5.46171c1.14299,0,2.06938.92639,2.06938,2.06897s-.92639,2.06897-2.06938,2.06897h-4.38119l-4.84439,6.95251c-.38988.55983-1.02719.88599-1.69783.88599Z"/>
+          </g>
+        </g>
+
+        <!-- ============ HALOS DE COLOR (aro suave en el borde de cada nodo) ============ -->
+        <circle class="st17 glow glow-2" cx="35.3195" cy="297.42484" r="30.11457"/>
+        <circle class="st16 glow glow-1" cx="30.62462" cy="30.29027" r="30.11457"/>
+        <circle class="st19 glow glow-3" cx="432.018" cy="30.43893" r="30.02926"/>
+        <circle class="st18 glow glow-4" cx="432.018" cy="282.77206" r="30.02926"/>
+      </g>
+    </g>
+  </g>
+</svg>
