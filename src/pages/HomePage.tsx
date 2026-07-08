@@ -8,6 +8,21 @@ import { Card } from '../components/Card'
 import { ClientOnly } from '../components/ClientOnly'
 import { CodeCopyButton } from '../components/CodeCopyButton'
 import { HeroInstallCommand } from '../components/HeroInstallCommand'
+import {
+  UserRound,
+  Code,
+  MessageSquareMore,
+  Clock3,
+  Download,
+  Layers,
+  BarChart3,
+  Send,
+  ShieldCheck,
+  Code2,
+  ReceiptText,
+  Radio,
+  Search,
+} from 'lucide-react'
 // HeroBackground is a ~1100-line canvas component that is suppressed on
 // viewports ≤ 639px (see useIsHeroCanvasSuppressed inside the component).
 // We lazy-load it AND gate the mount on the same media query at this level,
