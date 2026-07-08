@@ -566,13 +566,7 @@ h6 {
         0 12px 32px rgba(30,41,59,.06);
 }
 
-html[data-theme="light"] .invert {
-    filter: invert(1);
-}
 
-html[data-theme="dark"] .invert {
-    filter: none;
-}
 /* ==========================================================================
    Home page
    ========================================================================== */
@@ -619,5 +613,13 @@ html[data-theme="light"] .theme-dark {
 
 html[data-theme="light"] .theme-light {
   display: block;
+}
+
+html[data-theme="light"] .connector-logo-invert {
+    filter: invert(1);
+}
+
+html[data-theme="dark"] .connector-logo-invert {
+    filter: none;
 }
 

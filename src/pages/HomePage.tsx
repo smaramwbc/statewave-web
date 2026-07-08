@@ -728,118 +728,148 @@ function GovernanceSection() {
 }
 
 function ConnectorsTeaserSection() {
-  // Slim teaser — full detail lives at /connectors. Goal: surface "not just
-  // live chats" without bloating the home page. Six pills + one CTA.
-  // Each card deep-links to where you actually start: available connectors
-  // jump straight to their doc; planned ones land on /connectors so visitors
-  // can see scope and follow along.
   const DOCS = 'https://github.com/smaramwbc/statewave-docs/blob/main'
   const PACKAGES = 'https://github.com/smaramwbc/statewave-connectors/blob/main/packages'
-  const sources: ReadonlyArray<{
-    label: string
-    shape: string
-    status: 'available' | 'planned'
-    href: string
-    external?: boolean
-  }> = [
-    { label: 'GitHub', shape: 'Repo memory', status: 'available', href: `${DOCS}/connectors/github.md`, external: true },
-    { label: 'Markdown / docs', shape: 'Decision memory', status: 'available', href: `${DOCS}/connectors/markdown.md`, external: true },
-    { label: 'MCP', shape: 'Agent memory', status: 'available', href: `${DOCS}/connectors/mcp.md`, external: true },
-    { label: 'Slack', shape: 'Team memory', status: 'available', href: `${PACKAGES}/slack/README.md`, external: true },
-    { label: 'n8n · Zapier', shape: 'Workflow memory', status: 'available', href: `${PACKAGES}/n8n/README.md`, external: true },
-    { label: 'Zendesk', shape: 'Customer memory', status: 'available', href: `${PACKAGES}/zendesk/README.md`, external: true },
+
+  const connectors = [
+    {
+      name: 'GitHub',
+      type: 'Repo memory',
+      logo: '/connectors/GitHub_Invertocat_Black_Clearspace.svg',
+      href: `${DOCS}/connectors/github.md`,
+    },
+    {
+      name: 'Slack',
+      type: 'Team memory',
+      logo: '/connectors/Slack_icon_2019.svg',
+      href: `${PACKAGES}/slack/README.md`,
+    },
+    {
+      name: 'Zapier',
+      type: 'Workflow memory',
+      logo: '/connectors/zapier.svg',
+      href: `${PACKAGES}/zapier/README.md`,
+    },
+    {
+      name: 'n8n',
+      type: 'Workflow memory',
+      logo: '/connectors/n8n_pink+white_logo.svg',
+      href: `${PACKAGES}/n8n/README.md`,
+    },
+    {
+      name: 'Zendesk',
+      type: 'Customer memory',
+      logo: '/connectors/zendesk-1.svg',
+      href: `${PACKAGES}/zendesk/README.md`,
+    },
+    {
+      name: 'MCP',
+      type: 'Agent memory',
+      logo: '/connectors/Model_Context_Protocol_logo.svg',
+      href: `${DOCS}/connectors/mcp.md`,
+    },
+    {
+      name: 'Markdown',
+      type: 'Decision memory',
+      logo: '/connectors/markdown-svgrepo-com.svg',
+      href: `${DOCS}/connectors/markdown.md`,
+    },
+    {
+      name: 'Docs',
+      type: 'Decision memory',
+      logo: '/connectors/Docs-icon.svg',
+      href: `${DOCS}/connectors/index.md`,
+    },
   ]
 
   return (
     <Section>
-      <div className="grid md:grid-cols-2 gap-10 md:gap-16 items-start">
-        <div className="min-w-0">
+      <div className="grid lg:grid-cols-[0.46fr_0.54fr] gap-12 xl:gap-20 items-center">
+        <div>
+          <div className="section-eyebrow mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
+            CONNECTORS & INTEGRATIONS
+          </div>
+
           <Heading
             id="connectors"
-            className="text-3xl md:text-4xl font-bold text-theme-primary tracking-tight"
+            className="font-heading text-4xl md:text-[52px] font-bold leading-[1.08] tracking-[-0.03em] text-theme-primary"
           >
-            Not just live chats — connect your tools
+            Not just live chats — <br />
+            <span className="text-gradient-brand">connect your tools</span>
           </Heading>
-          <p className="mt-5 text-theme-muted leading-relaxed">
-            Connectors feed real-world events into Statewave as durable episodic memory. Agents
-            recall projects, customers, communities, decisions, and workflows — by subject — without
-            stuffing raw history into a prompt.
+
+          <p className="mt-6 max-w-[680px] text-[20px] leading-[1.65] text-theme-secondary">
+            Connectors feed real-world events into Statewave as durable episodic memory.
+            Agents recall projects, customers, communities, decisions, and workflows —
+            by subject — without stuffing raw history into a prompt.
           </p>
-          <p className="mt-3 text-sm text-theme-muted/85 leading-relaxed">
-            Modular packages — install only what you need. The core stays clean; connectors are
-            optional.
+
+          <p className="mt-6 text-[15px] leading-7 text-theme-secondary">
+            Modular packages — install only what you need. The core stays clean;
+            connectors are optional.
           </p>
-          <div className="mt-7 flex flex-wrap items-center gap-3">
+
+          <div className="mt-8 flex flex-wrap gap-4">
             <Link
               to="/connectors"
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium border border-accent/25 bg-accent/[0.06] text-accent hover:bg-accent/10 hover:border-accent/40 transition-colors"
+              className="inline-flex items-center rounded-full border border-brand-500/35 bg-brand-500/10 px-6 py-3 text-sm font-medium text-brand-300 hover:bg-brand-500/16 hover:border-brand-500/50 transition-colors"
             >
               Explore Statewave Connectors
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-              </svg>
             </Link>
+
             <a
-              href="https://github.com/smaramwbc/statewave-docs/blob/main/connectors/index.md"
+              href={`${DOCS}/connectors/index.md`}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-sm font-medium text-theme-secondary hover:text-accent transition-colors"
+              className="inline-flex items-center rounded-full border border-theme-primary/40 bg-transparent px-6 py-3 text-sm font-medium text-theme-primary hover:bg-surface-1/30 hover:border-theme-primary/35 transition-colors"
             >
               View connector docs
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5h5v5M19 5l-9 9M5 7v12h12" />
-              </svg>
             </a>
           </div>
         </div>
 
-        <div className="min-w-0 grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {sources.map((s, i) => {
-            const cardClass = 'rounded-xl border border-theme-border bg-surface-1 p-4 flex items-start justify-between gap-3 transition-colors hover:border-accent/30 focus-visible:border-accent/40 focus:outline-none h-full'
-            const inner = (
-              <>
-                <div className="min-w-0">
-                  <p className="text-[11px] font-medium uppercase tracking-wider text-accent">
-                    {s.shape}
-                  </p>
-                  <p className="mt-1 text-sm font-semibold text-theme-primary truncate">{s.label}</p>
-                </div>
-                <span
-                  className={`shrink-0 text-[10px] font-medium uppercase tracking-wider px-2 py-0.5 rounded-full ${
-                    s.status === 'available'
-                      ? 'bg-emerald-500/10 text-emerald-300'
-                      : 'bg-surface-2 text-theme-muted'
-                  }`}
-                >
-                  {s.status === 'available' ? 'Available' : 'Coming soon'}
-                </span>
-              </>
-            )
-            return (
-              <motion.div
-                key={s.label}
-                initial={{ opacity: 0, y: 12 }}
+        <div className="relative">
+          <div
+            className="absolute inset-0 rounded-full bg-accent/20 blur-[100px] scale-90"
+            aria-hidden="true"
+          />
+
+          <div className="relative z-10 grid grid-cols-2 md:grid-cols-3 gap-5">
+            {connectors.map((item, i) => (
+              <motion.a
+                key={item.name}
+                href={item.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                initial={{ opacity: 0, y: 16 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: i * 0.04, duration: 0.35 }}
+                transition={{ delay: i * 0.05 }}
+                className="sw-card block rounded-2xl border border-brand-500/25 bg-surface-1/45 p-6 shadow-[0_24px_80px_rgba(0,0,0,.16)] hover:border-brand-500/45 hover:bg-surface-1/60 transition-colors"
               >
-                {s.external ? (
-                  <a
-                    href={s.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={cardClass}
-                  >
-                    {inner}
-                  </a>
-                ) : (
-                  <Link to={s.href} className={cardClass}>
-                    {inner}
-                  </Link>
-                )}
-              </motion.div>
-            )
-          })}
+                <img
+                  src={item.logo}
+                  alt=""
+                  aria-hidden="true"
+                  className={`mb-7 object-contain ${
+                    item.name === 'n8n' ? 'h-9 w-12' : 'h-9 w-9'
+                  } ${
+                    ['GitHub', 'Zendesk', 'MCP', 'Markdown'].includes(item.name)
+                      ? 'connector-logo-invert'
+                      : ''
+                  }`}
+                />
+
+                <h3 className="font-heading text-[20px] font-bold leading-tight text-theme-primary">
+                  {item.name}
+                </h3>
+
+                <p className="mt-2 text-xs font-semibold uppercase tracking-[0.12em] text-brand-500">
+                  {item.type}
+                </p>
+              </motion.a>
+            ))}
+          </div>
         </div>
       </div>
     </Section>
@@ -847,43 +877,128 @@ function ConnectorsTeaserSection() {
 }
 
 function SupportProofSection() {
+  const workflowSteps = [
+    {
+      number: '01',
+      title: 'Session-aware context',
+      desc: 'Active sessions boosted, resolved issues deprioritized. Context is ranked by what matters right now.',
+      color: 'text-cyan-400 border-cyan-400 bg-cyan-400',
+    },
+    {
+      number: '02',
+      title: 'Handoff context packs',
+      desc: 'Compact escalation briefs with health, SLA, and issue context — ready for human or AI handoff.',
+      color: 'text-brand-500 border-brand-500 bg-brand-500',
+    },
+    {
+      number: '03',
+      title: 'Health scoring',
+      desc: 'Deterministic 0–100 health scores with explainable factors. Proactive webhook alerts on degradation.',
+      color: 'text-cyan-400 border-cyan-400 bg-cyan-400',
+    },
+    {
+      number: '04',
+      title: 'Resolution tracking',
+      desc: 'Track issue state per session. Surface resolution history when recurring patterns are detected.',
+      color: 'text-accent border-accent bg-accent',
+    },
+    {
+      number: '05',
+      title: 'SLA tracking',
+      desc: 'First-response time, resolution time, breach detection. Integrated into health scoring and handoff.',
+      color: 'text-brand-500 border-brand-500 bg-brand-500',
+    },
+    {
+      number: '06',
+      title: 'Repeat-issue detection',
+      desc: 'Automatically surface prior resolutions when recurring problems appear. Stop solving the same issue twice.',
+      color: 'text-cyan-400 border-cyan-400 bg-cyan-400',
+    },
+  ]
+
   return (
-    <Section className="bg-surface-1/50">
+    <Section className="bg-surface-1">
       <div className="text-center mb-16">
-        <Heading id="support-agent-proof" className="text-3xl md:text-4xl font-bold text-theme-primary tracking-tight">
-          Proven first in support-agent workflows
+        <div className="section-eyebrow mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
+          SUPPORT AGENT WORKFLOW
+        </div>
+
+        <Heading
+          id="support-agent-proof"
+          className="font-heading text-4xl md:text-[52px] font-bold leading-[1.06] tracking-[-0.03em] text-theme-primary"
+        >
+          Proven first in{' '}
+          <span className="text-gradient-brand">support-agent</span> workflows
         </Heading>
-        <p className="mt-4 text-theme-muted max-w-2xl mx-auto">
+
+        <p className="mt-6 text-[18px] leading-relaxed text-theme-secondary max-w-3xl mx-auto">
           Support agents are the first workflow where Statewave is deeply optimized and
-          rigorously evaluated — the clearest proof that structured memory outperforms naive approaches.
+          rigorously evaluated — the clearest proof that structured memory outperforms
+          naive approaches.
         </p>
       </div>
 
-      <div className="grid md:grid-cols-3 gap-6">
-        <Card
-          title="Session-aware context"
-          description="Active sessions boosted, resolved issues deprioritized. Context is ranked by what matters right now."
-        />
-        <Card
-          title="Handoff context packs"
-          description="Compact escalation briefs with health, SLA, and issue context — ready for human or AI handoff."
-        />
-        <Card
-          title="Health scoring"
-          description="Deterministic 0–100 health scores with explainable factors. Proactive webhook alerts on degradation."
-        />
-        <Card
-          title="Resolution tracking"
-          description="Track issue state per session. Surface resolution history when recurring patterns are detected."
-        />
-        <Card
-          title="SLA tracking"
-          description="First-response time, resolution time, breach detection. Integrated into health scoring and handoff."
-        />
-        <Card
-          title="Repeat-issue detection"
-          description="Automatically surface prior resolutions when recurring problems appear. Stop solving the same issue twice."
-        />
+      <div className="sw-card mx-auto max-w-[1040px] rounded-[2rem] border border-brand-500/25 bg-surface-1/45 p-10 md:p-14 shadow-[0_24px_80px_rgba(0,0,0,.16)]">
+        <div className="grid lg:grid-cols-[0.42fr_0.58fr] gap-12 xl:gap-16 items-center">
+          <div className="relative flex min-h-[420px] items-center justify-center">
+            <div
+              className="absolute h-[340px] w-[340px] rounded-full bg-[radial-gradient(circle,rgba(122,92,255,0.32)_0%,rgba(122,92,255,0.16)_35%,transparent_72%)] blur-2xl"
+              aria-hidden="true"
+            />
+
+            <div className="relative flex h-44 w-44 items-center justify-center rounded-full border-2 border-cyan-400/80 shadow-[0_0_80px_rgba(122,92,255,.28)]">
+              <div className="absolute inset-0 rounded-full border-2 border-brand-500/60 [clip-path:inset(0_0_0_50%)]" />
+
+              <img
+                src="/icons/icon-memory-proof.svg"
+                alt=""
+                aria-hidden="true"
+                className="relative z-10 h-20 w-20 object-contain"
+              />
+            </div>
+          </div>
+
+          <div className="relative">
+            <div
+              className="absolute left-[18px] top-4 bottom-4 w-px bg-gradient-to-b from-cyan-400 via-brand-500 to-cyan-400"
+              aria-hidden="true"
+            />
+
+            <div className="space-y-10">
+              {workflowSteps.map((step, i) => (
+                <motion.div
+                  key={step.title}
+                  initial={{ opacity: 0, x: 20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.07 }}
+                  className="relative grid grid-cols-[38px_40px_1fr] gap-5"
+                >
+                  <div
+                    className={`relative z-10 mt-1 h-9 w-9 rounded-full border-2 ${step.color.split(' ')[1]} bg-surface-1 flex items-center justify-center`}
+                  >
+                    <span
+                      className={`h-5 w-5 rounded-full ${step.color.split(' ')[2]}`}
+                    />
+                  </div>
+
+                  <div className={`pt-1.5 text-sm font-medium ${step.color.split(' ')[0]}`}>
+                    {step.number}
+                  </div>
+
+                  <div>
+                    <h3 className="font-heading text-[22px] font-bold leading-tight text-theme-primary">
+                      {step.title}
+                    </h3>
+                    <p className="mt-2 text-[15px] leading-7 text-theme-secondary">
+                      {step.desc}
+                    </p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
     </Section>
   )
