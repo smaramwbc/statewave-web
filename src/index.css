@@ -65,6 +65,8 @@
   --color-success: #6ee7b7;
   --color-danger: #f87171;
   --theme-eyebrow: var(--brand-400);
+  --theme-button-secondary-border: rgba(255,255,255,.15);
+  --theme-button-secondary-border-hover: rgba(255,255,255,.25);
 }
 
 /* Light theme tokens
@@ -108,6 +110,8 @@
   --color-success: #22c55e;
   --color-danger: #ef4444;
   --theme-eyebrow: #5B7CF5;
+  --theme-button-secondary-border: rgba(91,124,245,.28);
+  --theme-button-secondary-border-hover: rgba(91,124,245,.45);
 }
 
 /* ─── Use-case visual panel tokens ───────────────────────────────────────────
@@ -621,5 +625,56 @@ html[data-theme="light"] .connector-logo-invert {
 
 html[data-theme="dark"] .connector-logo-invert {
     filter: none;
+}
+
+.memory-proof-glow {
+    background: radial-gradient(
+        circle,
+        rgba(122,92,255,.32) 0%,
+        rgba(122,92,255,.16) 35%,
+        transparent 72%
+    );
+    filter: blur(32px);
+}
+
+[data-theme="light"] .memory-proof-glow {
+    background: radial-gradient(
+        circle,
+        rgba(122,92,255,.12) 0%,
+        rgba(122,92,255,.05) 42%,
+        transparent 78%
+    );
+    filter: blur(56px);
+}
+
+.memory-proof-circle {
+    box-shadow: 0 0 80px rgba(122,92,255,.28);
+}
+
+[data-theme="light"] .memory-proof-circle {
+    box-shadow: 0 0 48px rgba(122,92,255,.10);
+}
+
+.cta-card-glow {
+    background:
+        radial-gradient(circle at 50% 0%, rgba(124,92,255,.22), transparent 45%),
+        radial-gradient(circle at 20% 80%, rgba(73,168,255,.14), transparent 42%),
+        radial-gradient(circle at 80% 80%, rgba(139,92,246,.12), transparent 40%);
+}
+
+[data-theme="light"] .cta-card {
+    background: var(--theme-surface-1);
+    border-color: rgba(77,158,255,.16);
+    box-shadow: 0 16px 48px rgba(30,41,59,.08);
+}
+
+[data-theme="light"] .cta-card-glow {
+    background:
+        radial-gradient(
+            circle at 50% -10%,
+            rgba(77,158,255,.10) 0%,
+            rgba(77,158,255,.04) 35%,
+            transparent 70%
+        );
 }
 
