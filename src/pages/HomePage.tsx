@@ -257,6 +257,13 @@ function HeroSection() {
 }
 
 function WhatSection() {
+
+const [memoryRuntimeReplayKey, setMemoryRuntimeReplayKey] = useState(0)
+
+const replayMemoryRuntime = useCallback(() => {
+  setMemoryRuntimeReplayKey((k) => k + 1)
+}, [])
+
   return (
     <Section className="bg-surface-1">
       <div className="grid lg:grid-cols-[0.38fr_0.62fr] gap-12 xl:gap-20 items-center">
@@ -309,13 +316,26 @@ function WhatSection() {
             aria-hidden="true"
           />
 
-          <div className="diagram-card relative z-10 overflow-hidden rounded-3xl border border-theme-border">
+          <motion.div
+            className="diagram-card relative z-10 overflow-hidden rounded-3xl border border-theme-border"
+            onViewportEnter={replayMemoryRuntime}
+            viewport={{ amount: 0.35 }}
+            onMouseEnter={replayMemoryRuntime}
+          >
             <img
-              src="/memory-runtime-flow.svg"
-              alt="Memory runtime flow"
-              className="block w-full h-auto"
+              key={`memflow-dark-${memoryRuntimeReplayKey}`}
+              src={`/memory-runtime-flow-animated-dark.svg?r=${memoryRuntimeReplayKey}`}
+              alt="Diagrama del memory runtime: eventos crudos compilados en un context bundle"
+              className="theme-dark relative z-10 w-full h-auto"
             />
-          </div>
+            <img
+              key={`memflow-light-${memoryRuntimeReplayKey}`}
+              src={`/memory-runtime-flow-animated-light.svg?r=${memoryRuntimeReplayKey}`}
+              alt=""
+              aria-hidden="true"
+              className="theme-light relative z-10 w-full h-auto"
+            />
+          </motion.div>
         </div>
       </div>
     </Section>
