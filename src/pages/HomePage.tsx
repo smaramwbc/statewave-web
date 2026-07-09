@@ -125,7 +125,7 @@ function HeroSection() {
   // on the subordinate elements (badge, subhead, CTAs).
 
   return (
-    <section className="relative min-h-[92vh] flex items-center overflow-hidden">
+    <section className="relative min-h-screen flex items-center overflow-hidden">
       {showHeroCanvas && (
         <Suspense fallback={null}>
           <HeroBackground contentZoneRef={contentZoneRef} />
@@ -707,7 +707,7 @@ function GovernanceSection() {
   ]
 
   return (
-    <Section>
+    <Section className="bg-surface-1">
       <div className="text-center mb-16">
         <div className="section-eyebrow mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
           WHAT SETS STATEWAVE APART
