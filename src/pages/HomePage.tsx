@@ -320,7 +320,6 @@ const replayMemoryRuntime = useCallback(() => {
             className="diagram-card relative z-10 overflow-hidden rounded-3xl border border-theme-border"
             onViewportEnter={replayMemoryRuntime}
             viewport={{ amount: 0.35 }}
-            onMouseEnter={replayMemoryRuntime}
           >
             <img
               key={`memflow-dark-${memoryRuntimeReplayKey}`}
