@@ -26,7 +26,7 @@ export const Button = forwardRef<HTMLElement, Props>(function Button(
       'btn-gradient text-white shadow-[0_12px_34px_rgba(108,92,255,.22)] hover:shadow-[0_18px_48px_rgba(108,92,255,.34)]',
 
     secondary:
-      'bg-surface-1/50 border border-white/15 text-theme-primary hover:bg-surface-1/70 hover:border-white/25',
+      'bg-surface-1/50 border border-[var(--theme-button-secondary-border)] text-theme-primary hover:bg-surface-1/70 hover:border-[var(--theme-button-secondary-border-hover)]',
 
     ghost:
       'text-theme-secondary hover:text-theme-primary',

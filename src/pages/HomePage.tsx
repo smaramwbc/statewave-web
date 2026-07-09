@@ -968,7 +968,7 @@ function SupportProofSection() {
         <div className="grid lg:grid-cols-[0.42fr_0.58fr] gap-12 xl:gap-16 items-center">
           <div className="relative flex min-h-[420px] items-center justify-center">
             <div
-              className="absolute h-[340px] w-[340px] rounded-full bg-[radial-gradient(circle,rgba(122,92,255,0.32)_0%,rgba(122,92,255,0.16)_35%,transparent_72%)] blur-2xl"
+              className="memory-proof-glow absolute h-[340px] w-[340px] rounded-full"
               aria-hidden="true"
             />
 
@@ -1790,9 +1790,9 @@ function CTASection() {
   useTrackDemoCta(ctaDemoRef)
   return (
     <Section>
-      <div className="relative overflow-hidden rounded-[2.5rem] border border-brand-500/25 bg-surface-1/55 px-6 py-20 text-center shadow-[0_32px_120px_rgba(0,0,0,.18)]">
+      <div className="cta-card relative overflow-hidden rounded-[2.5rem] border border-brand-500/25 bg-surface-1/55 px-6 py-20 text-center">
         <div
-          className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(124,92,255,.22),transparent_45%),radial-gradient(circle_at_20%_80%,rgba(73,168,255,.14),transparent_42%),radial-gradient(circle_at_80%_80%,rgba(139,92,246,.12),transparent_40%)]"
+          className="cta-card-glow absolute inset-0"
           aria-hidden="true"
         />
 
