@@ -63,10 +63,9 @@ function HeroSection() {
             <UseCaseSwitcher currentSlug="personal-assistant-memory" />
           </div>
 
-          {/* Heading: Fustat, gradient on second line */}
+          {/* Heading: gradient on second line */}
           <h1
             style={{
-              fontFamily: "Fustat, Inter, sans-serif",
               fontSize: "clamp(2.5rem, 6vw, 82px)",
               fontWeight: 500,
               lineHeight: "102%",
@@ -394,7 +393,6 @@ function CostSection() {
       <h2
         className="text-center text-theme-primary mb-14 xl:mb-16"
         style={{
-          fontFamily: "Fustat, Inter, sans-serif",
           fontSize: "clamp(2.25rem, 4vw, 3.75rem)",
           fontWeight: 400,
           letterSpacing: "-0.02em",
@@ -424,7 +422,6 @@ function CostSection() {
               </svg>
               <h4
                 className="text-[17px] font-semibold leading-snug text-theme-primary xl:text-[19px]"
-                style={{ fontFamily: "Fustat, Inter, sans-serif" }}
               >
                 {item.title}
               </h4>
@@ -715,7 +712,6 @@ function MemoryMergingSection() {
         <h2
           className="mt-5 leading-[1.05] tracking-[-0.03em] text-theme-primary"
           style={{
-            fontFamily: "Fustat, Inter, sans-serif",
             fontSize: "clamp(2.25rem, 4vw, 3.75rem)",
             fontWeight: 400,
           }}
@@ -992,7 +988,6 @@ function QuickstartSection() {
         <h2
           className="mt-5 leading-[1.05] tracking-[-0.03em] text-theme-primary"
           style={{
-            fontFamily: "Fustat, Inter, sans-serif",
             fontSize: "clamp(2rem, 3.5vw, 3.25rem)",
             fontWeight: 500,
           }}
@@ -1140,7 +1135,6 @@ function ConfidenceSection() {
           <h2
             className="text-theme-primary tracking-tight mb-5"
             style={{
-              fontFamily: "Fustat, Inter, sans-serif",
               fontSize: "clamp(1.75rem, 3.5vw, 3rem)",
               fontWeight: 700,
               lineHeight: 1.08,
@@ -1315,7 +1309,6 @@ function ThreeEndpointsSection() {
           <h2
             className="text-theme-primary tracking-tight mb-5"
             style={{
-              fontFamily: "Fustat, Inter, sans-serif",
               fontSize: "clamp(2rem, 3.5vw, 3rem)",
               fontWeight: 700,
               lineHeight: 1.08,
@@ -1438,7 +1431,6 @@ function FeatureGridSection() {
           <h2
             className="mt-4 text-theme-primary tracking-tight"
             style={{
-              fontFamily: "Fustat, Inter, sans-serif",
               fontSize: "clamp(1.75rem, 3vw, 2.5rem)",
               fontWeight: 700,
               lineHeight: 1.1,
@@ -1495,7 +1487,6 @@ function CTASection() {
           <h2
             className="text-theme-primary"
             style={{
-              fontFamily: "Fustat, Inter, sans-serif",
               fontSize: "clamp(1.75rem, 5vw, 4.75rem)",
               fontWeight: 700,
               lineHeight: 1.02,
