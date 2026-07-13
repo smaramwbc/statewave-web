@@ -199,10 +199,12 @@ const USE_CASES: UseCase[] = [
   {
     title: 'Personal assistant memory',
     description: 'An AI assistant that remembers who you are across every session — role, preferences, open issues — without burning the context window. Structured, ranked memory replaces raw chat history injection.',
-    category: 'coding', status: 'good-fit',
+    category: 'coding', status: 'available',
     tags: ['coding', 'multi-tenant'],
     stack: ['Python', 'FastAPI', 'OpenAI'],
+    repo: 'statewave-personal-assistant',
     audience: 'Developers building user-facing AI assistants where returning users should not have to repeat themselves.',
+    pageHref: '/use-cases/personal-assistant-memory',
   },
 
   /* Workspace & knowledge */
@@ -368,6 +370,7 @@ const USE_CASES: UseCase[] = [
     category: 'infra', status: 'good-fit',
     tags: ['infra', 'multi-agent'],
     stack: ['Python', 'OpenAI'],
+    repo: 'statewave-multi-agent-shared-context',
     audience: 'Developers running parallel agent workflows where agents duplicate work or produce contradictory outputs.',
   },
 
