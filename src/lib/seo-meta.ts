@@ -44,6 +44,7 @@ export type RouteKey =
   | '/use-cases'
   | '/use-cases/multi-agent-memory'
   | '/use-cases/personal-assistant-memory'
+  | '/use-cases/multi-agent-shared-context'
   | '/connectors'
   | '/developers'
   | '/about'
@@ -60,6 +61,7 @@ export const PUBLIC_ROUTES: readonly RouteKey[] = [
   '/use-cases',
   '/use-cases/multi-agent-memory',
   '/use-cases/personal-assistant-memory',
+  '/use-cases/multi-agent-shared-context',
   '/connectors',
   '/developers',
   '/about',
@@ -138,6 +140,15 @@ export const PAGE_META: Record<RouteKey, PageMeta> = {
     description:
       'Give chat assistants persistent, cross-session memory: conversation turns become typed, confidence-ranked facts recalled within a fixed token budget, so returning users never repeat themselves and raw history never floods the prompt.',
     breadcrumbLabel: 'Personal Assistant',
+    ogType: 'article',
+    priority: 0.7,
+    changefreq: 'monthly',
+  },
+  '/use-cases/multi-agent-shared-context': {
+    title: 'Multi-Agent Shared Context: Multiple Agents, One Source Of Truth',
+    description:
+      'Coordinate parallel AI agents through one shared, authoritative context layer instead of message-passing: every decision is written as an episode, compiled into typed memories, and read by every agent before it acts, so conflicts are prevented rather than detected after wasted compute.',
+    breadcrumbLabel: 'Shared Context',
     ogType: 'article',
     priority: 0.7,
     changefreq: 'monthly',
