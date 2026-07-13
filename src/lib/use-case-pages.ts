@@ -25,6 +25,11 @@ export const USE_CASE_DETAIL_PAGES: readonly UseCaseDetailPage[] = [
     label: 'Personal Assistant',
     path: '/use-cases/personal-assistant-memory',
   },
+  {
+    slug: 'multi-agent-shared-context',
+    label: 'Shared Context',
+    path: '/use-cases/multi-agent-shared-context',
+  },
 ] as const
 
 export function useCaseDetailPage(

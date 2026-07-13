@@ -8,6 +8,7 @@ const WhyPage = lazy(() => import('./pages/WhyPage').then(m => ({ default: m.Why
 const UseCasesPage = lazy(() => import('./pages/UseCasesPage').then(m => ({ default: m.UseCasesPage })))
 const MultiAgentMemoryPage = lazy(() => import('./pages/MultiAgentMemoryPage').then(m => ({ default: m.MultiAgentMemoryPage })))
 const PersonalAssistantMemoryPage = lazy(() => import('./pages/PersonalAssistantMemoryPage').then(m => ({ default: m.PersonalAssistantMemoryPage })))
+const MultiAgentSharedContextPage = lazy(() => import('./pages/MultiAgentSharedContextPage').then(m => ({ default: m.MultiAgentSharedContextPage })))
 const ConnectorsPage = lazy(() => import('./pages/ConnectorsPage').then(m => ({ default: m.ConnectorsPage })))
 const DevelopersPage = lazy(() => import('./pages/DevelopersPage').then(m => ({ default: m.DevelopersPage })))
 const CookiesPage = lazy(() => import('./pages/CookiesPage').then(m => ({ default: m.CookiesPage })))
@@ -34,6 +35,7 @@ export default function App() {
           <Route path="/use-cases" element={<UseCasesPage />} />
           <Route path="/use-cases/multi-agent-memory" element={<MultiAgentMemoryPage />} />
           <Route path="/use-cases/personal-assistant-memory" element={<PersonalAssistantMemoryPage />} />
+          <Route path="/use-cases/multi-agent-shared-context" element={<MultiAgentSharedContextPage />} />
           <Route path="/connectors" element={<ConnectorsPage />} />
           <Route path="/developers" element={<DevelopersPage />} />
           <Route path="/launch" element={<LaunchPage />} />
