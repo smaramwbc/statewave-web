@@ -103,6 +103,66 @@
   --theme-scrollbar-thumb-hover: rgba(99, 102, 241, 0.5);
 }
 
+/* ─── Use-case visual panel tokens ───────────────────────────────────────────
+ * Product-style visual mockups on the use-case detail pages (chat windows,
+ * code cards, memory panels). Neutrals flip with the theme; brand accents
+ * (blue bubbles, green/amber/red status colors) are handled per token so the
+ * mockups stay legible on both light and dark surfaces. */
+:root,
+[data-theme="dark"] {
+  --viz-panel: #212025;               /* section visual panel behind mockups */
+  --viz-shell: #141416;               /* app-window shell */
+  --viz-shell-header: #101012;        /* window title bar */
+  --viz-shell-side: #121214;          /* side panel */
+  --viz-card: #141414;                /* stat/code card */
+  --viz-card-2: #18181b;              /* inner inactive card */
+  --viz-card-3: #232327;              /* muted list card */
+  --viz-code-bg: #101014;
+  --viz-border: rgba(255, 255, 255, 0.08);
+  --viz-border-strong: rgba(255, 255, 255, 0.12);
+  --viz-fill: rgba(255, 255, 255, 0.05);
+  --viz-track: rgba(255, 255, 255, 0.05);
+  --viz-text: rgba(255, 255, 255, 0.92);
+  --viz-text-2: rgba(255, 255, 255, 0.7);
+  --viz-text-3: rgba(255, 255, 255, 0.5);
+  --viz-text-muted: rgba(255, 255, 255, 0.33);
+  --viz-indigo: #a5b4fc;
+  --viz-green: #34d399;
+  --viz-amber: #f2d16b;
+  --viz-code-text: #e2e8f0;
+  --viz-code-muted: #8b949e;
+  --viz-code-keyword: #818cf8;
+  --viz-code-string: #f9a8d4;
+  --viz-code-attr: #fbbf24;
+}
+
+[data-theme="light"] {
+  --viz-panel: #e9ecf2;
+  --viz-shell: #ffffff;
+  --viz-shell-header: #f4f6fa;
+  --viz-shell-side: #f8f9fc;
+  --viz-card: #ffffff;
+  --viz-card-2: #ffffff;
+  --viz-card-3: #f1f3f8;
+  --viz-code-bg: #f4f6fa;
+  --viz-border: rgba(15, 23, 42, 0.1);
+  --viz-border-strong: rgba(15, 23, 42, 0.14);
+  --viz-fill: rgba(15, 23, 42, 0.04);
+  --viz-track: rgba(15, 23, 42, 0.08);
+  --viz-text: #0f172a;
+  --viz-text-2: #334155;
+  --viz-text-3: #64748b;
+  --viz-text-muted: #94a3b8;
+  --viz-indigo: #4f46e5;
+  --viz-green: #059669;
+  --viz-amber: #b45309;
+  --viz-code-text: #334155;
+  --viz-code-muted: #64748b;
+  --viz-code-keyword: #4f46e5;
+  --viz-code-string: #be185d;
+  --viz-code-attr: #b45309;
+}
+
 html {
   scroll-behavior: smooth;
   /* Anchor links (e.g. /product#privacy) and programmatic scrolls land

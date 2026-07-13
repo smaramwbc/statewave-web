@@ -43,6 +43,7 @@ export type RouteKey =
   | '/why'
   | '/use-cases'
   | '/use-cases/multi-agent-memory'
+  | '/use-cases/personal-assistant-memory'
   | '/connectors'
   | '/developers'
   | '/about'
@@ -58,6 +59,7 @@ export const PUBLIC_ROUTES: readonly RouteKey[] = [
   '/why',
   '/use-cases',
   '/use-cases/multi-agent-memory',
+  '/use-cases/personal-assistant-memory',
   '/connectors',
   '/developers',
   '/about',
@@ -127,6 +129,15 @@ export const PAGE_META: Record<RouteKey, PageMeta> = {
     description:
       'Give multi-agent pipelines one shared, append-only memory layer: each agent writes findings as episodes and reads ranked, token-bounded context before acting — resumable across partial failures, without prompt chaining.',
     breadcrumbLabel: 'Multi-Agent Memory',
+    ogType: 'article',
+    priority: 0.7,
+    changefreq: 'monthly',
+  },
+  '/use-cases/personal-assistant-memory': {
+    title: 'Personal Assistant Memory: One Assistant, Every Session Remembered',
+    description:
+      'Give chat assistants persistent, cross-session memory: conversation turns become typed, confidence-ranked facts recalled within a fixed token budget, so returning users never repeat themselves and raw history never floods the prompt.',
+    breadcrumbLabel: 'Personal Assistant',
     ogType: 'article',
     priority: 0.7,
     changefreq: 'monthly',
