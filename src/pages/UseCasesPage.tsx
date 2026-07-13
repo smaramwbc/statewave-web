@@ -367,11 +367,12 @@ const USE_CASES: UseCase[] = [
   {
     title: 'Parallel agents, shared source of truth',
     description: 'Multiple agents working simultaneously read from and write to one authoritative context layer. Decisions are visible to all agents before they act — architectural conflicts caught before wasted compute, not after.',
-    category: 'infra', status: 'good-fit',
+    category: 'infra', status: 'available',
     tags: ['infra', 'multi-agent'],
-    stack: ['Python', 'OpenAI'],
+    stack: ['Python', 'LiteLLM'],
     repo: 'statewave-multi-agent-shared-context',
     audience: 'Developers running parallel agent workflows where agents duplicate work or produce contradictory outputs.',
+    pageHref: '/use-cases/multi-agent-shared-context',
   },
 
   /* Domain-specific */
@@ -1003,7 +1004,7 @@ function UseCaseCard({ uc, index }: { uc: UseCase; index: number }) {
       )}
 
       {uc.pageHref && (
-        <div className="mt-4 flex items-center gap-1 text-xs font-medium text-accent">
+        <div className="mt-auto pt-4 flex items-center gap-1 text-xs font-medium text-accent">
           View full page
           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
@@ -1013,7 +1014,7 @@ function UseCaseCard({ uc, index }: { uc: UseCase; index: number }) {
     </>
   )
 
-  const cardClass = `group scroll-mt-24 p-5 rounded-2xl border bg-surface-1 transition-colors ${
+  const cardClass = `group scroll-mt-24 flex h-full flex-col p-5 rounded-2xl border bg-surface-1 transition-colors ${
     hasExtra ? 'border-accent/20 hover:border-accent/40' : 'border-theme-border hover:border-accent/25'
   } ${active ? 'card-anchor-active' : ''}`
 
@@ -1026,8 +1027,9 @@ function UseCaseCard({ uc, index }: { uc: UseCase; index: number }) {
         viewport={{ once: true, margin: '-30px' }}
         transition={{ delay: Math.min(index * 0.03, 0.25), duration: 0.4 }}
         whileHover={{ y: -3 }}
+        className="h-full"
       >
-        <Link to={uc.pageHref} className={`block ${cardClass}`}>
+        <Link to={uc.pageHref} className={cardClass}>
           {inner}
         </Link>
       </motion.div>
