@@ -1,24 +1,17 @@
-import React from "react";
-import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
-import type { ReactNode } from "react";
-import { Button } from "../components/Button";
-import { useTheme } from "../lib/theme";
+import { motion } from 'framer-motion'
+import type { ReactNode } from 'react'
+import { Section } from '../components/Section'
+import { Heading } from '../components/Heading'
+import { Card } from '../components/Card'
+import { Button } from '../components/Button'
+import { CodeCopyButton } from '../components/CodeCopyButton'
+import { UseCaseSwitcher } from '../components/UseCaseSwitcher'
+import { usePageSEO } from '../lib/seo'
+import { breadcrumbJsonLd } from '../lib/seo-meta'
 
-const PAGE_RAIL_CLASS =
-  "mx-auto max-w-[1488px] px-5 sm:px-10 md:px-16 xl:px-[94px]"
-  + " border-b xl:border-l xl:border-r"
-  + " [border-color:rgba(230,230,230,0.36)]";
+/* ─── Small shared bits ──────────────────────────────────────────────────── */
 
-function GridSection({
-  children,
-  className = "",
-  innerClassName = "",
-}: {
-  children: ReactNode;
-  className?: string;
-  innerClassName?: string;
-}) {
+function EyebrowPill({ children }: { children: ReactNode }) {
   return (
     <section className={`relative bg-surface-1 ${className}`}>
       <div className={`${PAGE_RAIL_CLASS} ${innerClassName}`}>{children}</div>
@@ -29,12 +22,6 @@ function GridSection({
 /* ─── Hero ───────────────────────────────────────────────────────────────── */
 
 function HeroSection() {
-  const { resolvedTheme } = useTheme();
-  const heroSrc =
-    resolvedTheme === "dark"
-      ? "/statewave-multi-agent-memory-hero-img-dark-theme.svg"
-      : "/statewave-multi-agent-memory-hero-img-light-theme.svg";
-
   return (
     <section className="relative bg-surface-1 overflow-hidden">
       {/* Inner content — pt clears navbar (64px) + Figma top padding (41px). No border-b so no grid line appears between hero and CostSection. */}
@@ -132,13 +119,9 @@ function HeroSection() {
         {/* Hero image */}
         <div className="mt-12">
           <img
-            src={heroSrc}
+            src="/hero-multi-agent-memory.png"
             alt="Multi-agent memory demo"
-            className="w-full rounded-t-2xl"
-            style={{
-              border: "1px solid rgba(230,230,230,0.36)",
-              borderBottom: "none",
-            }}
+            className="w-full rounded-2xl border border-theme-border"
           />
         </div>
       </div>

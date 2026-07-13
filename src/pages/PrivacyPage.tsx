@@ -6,8 +6,9 @@ import { usePageSEO } from '../lib/seo'
  * /privacy — GDPR-compliant privacy policy for statewave.ai.
  *
  * NOTE FOR REVIEWERS: this draft is generic-OSS-friendly and reflects
- * the actual data flows of statewave.ai (no analytics, one strictly
- * necessary cookie, the newsletter, the demo widget). Before
+ * the actual data flows of statewave.ai (cookieless analytics via
+ * Plausible, one strictly necessary cookie, the newsletter, the demo
+ * widget). Before
  * publishing, get a DE/EU lawyer to vet the language — especially the
  * Article 6 lawful-basis claims and the third-party processor list.
  */
@@ -28,7 +29,7 @@ export function PrivacyPage() {
           <h1 className="mt-5 text-[clamp(1.75rem,5vw,2.5rem)] font-semibold text-theme-primary tracking-[-0.02em] leading-[1.15]">
             Privacy Policy
           </h1>
-          <p className="mt-5 text-sm text-theme-muted">Last updated: 10 June 2026</p>
+          <p className="mt-5 text-sm text-theme-muted">Last updated: 7 July 2026</p>
           <p className="mt-6 text-base text-theme-secondary leading-relaxed">
             statewave.ai is the marketing site for the Statewave open-source memory
             runtime. This policy describes what personal data we collect on this
@@ -69,12 +70,16 @@ export function PrivacyPage() {
             <div>
               <h3 className="text-theme-primary font-medium mb-2">Marketing site</h3>
               <p>
-                We do not run analytics, advertising, or third-party trackers on
-                statewave.ai. Server access logs (IP address, request URL, user
-                agent, timestamp) are retained for up to <strong>14 days</strong> for
-                security and abuse-prevention purposes (Art. 6(1)(f) GDPR &mdash;
-                legitimate interest in operating the service). After 14 days
-                logs are deleted.
+                For traffic analytics we use Plausible Analytics, a cookieless,
+                privacy-focused service that aggregates page views without
+                cookies, cross-site tracking, or storing personal data, and
+                builds no profiles of individual visitors (Art. 6(1)(f) GDPR
+                &mdash; legitimate interest in understanding site usage). We run
+                no advertising or third-party tracking. Server access logs (IP
+                address, request URL, user agent, timestamp) are retained for up
+                to <strong>14 days</strong> for security and abuse-prevention
+                purposes (Art. 6(1)(f) GDPR &mdash; legitimate interest in
+                operating the service). After 14 days logs are deleted.
               </p>
             </div>
             <div>
@@ -143,6 +148,12 @@ export function PrivacyPage() {
               powers the live demo.
             </li>
             <li>
+              <strong className="text-theme-primary">Analytics:</strong> Plausible
+              Analytics (EU-hosted) &mdash; cookieless, privacy-focused traffic
+              analytics. Aggregated page-view metrics only; no cookies, no
+              cross-site tracking, and no storage of personal data.
+            </li>
+            <li>
               <strong className="text-theme-primary">Email delivery:</strong> Resend
               (US; standard contractual clauses) &mdash; transactional emails
               (signup confirmations, password reset) and the newsletter.
@@ -156,8 +167,8 @@ export function PrivacyPage() {
               <strong className="text-theme-primary">LLM API providers:</strong> Demo
               conversations may be sent to one of OpenAI, Anthropic, or another
               LiteLLM-supported provider for inference. Which one is in use at any
-              given time is visible inside the demo widget. None of these providers
-              are used for analytics on this site.
+              given time is visible inside the demo widget. None of these LLM
+              providers are used for analytics or tracking on this site.
             </li>
           </ul>
         </div>

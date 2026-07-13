@@ -103,8 +103,8 @@ export const SUGGESTIONS: Record<
     [
       { text: "When's Sarah Chen's next 30-min Tuesday slot?",
         anchors: ['Sarah Chen', 'Tuesday'] },
-      { text: "Remind me of our wedge vs Mem0 on Cirrus — deterministic ranking?",
-        anchors: ['Mem0', 'deterministic ranking'] },
+      { text: "Remind me of our wedge on Cirrus — deterministic ranking?",
+        anchors: ['deterministic ranking'] },
       { text: "Recap the Q close: $94k ARR breakdown.",
         anchors: ['$94k'] },
     ],
@@ -178,8 +178,8 @@ export const SUGGESTIONS: Record<
     [
       { text: "Can I self-host Statewave?",
         anchors: ['self-hosted'] },
-      { text: "How is Statewave different from Mem0?",
-        anchors: ['Mem0'] },
+      { text: "How does Statewave's deterministic ranking compare to other memory layers?",
+        anchors: ['deterministic'] },
       { text: "What license is the core server under?",
         anchors: ['Apache-2.0'] },
     ],
