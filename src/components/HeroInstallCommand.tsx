@@ -22,20 +22,21 @@ export function HeroInstallCommand({ centered = false }: { centered?: boolean })
   )
   const active = INSTALL_TABS.find((t) => t.id === tab)!
   return (
-    <div>
-      {/* Tab strip — the command pill is inline-flex, so it centers under a
-          text-center parent on its own; the flex rows need justify-center. */}
-      <div className={`flex gap-1 mb-1.5 ${centered ? 'justify-center' : ''}`}>
+    <div className={`w-full min-w-0 ${centered ? 'text-center' : ''}`}>
+      <div
+        className={`mb-3 flex flex-wrap gap-1.5 ${centered ? 'justify-center' : ''
+          }`}
+      >
         {INSTALL_TABS.map(({ id, label }) => (
           <button
             key={id}
             type="button"
             onClick={() => setTab(id)}
             className={[
-              'px-2.5 py-0.5 rounded text-[11px] font-medium transition-colors',
+              'rounded-md px-3 py-1 text-[11px] font-semibold transition-colors sm:text-[12px]',
               tab === id
-                ? 'bg-accent/10 text-accent'
-                : 'text-theme-muted hover:text-theme-secondary',
+                ? 'bg-accent/15 text-accent'
+                : 'text-theme-muted hover:bg-surface-2/60 hover:text-theme-secondary',
             ].join(' ')}
           >
             {label}
@@ -43,17 +44,45 @@ export function HeroInstallCommand({ centered = false }: { centered?: boolean })
         ))}
       </div>
 
-      {/* Command pill */}
-      <div className="inline-flex items-center gap-2 rounded-lg border border-theme-border/70 bg-surface-2/70 backdrop-blur-sm px-3.5 py-2 font-mono text-xs sm:text-sm max-w-full">
-        <span className="select-none text-accent/70 shrink-0">{active.prompt}</span>
-        <code className="overflow-x-auto whitespace-nowrap text-theme-secondary">{active.cmd}</code>
-        <CodeCopyButton code={active.cmd} label="Copy install command" />
-      </div>
+      <div
+        className={[
+          'mx-auto inline-flex max-w-full min-w-0 items-center gap-2 rounded-xl',
+          'border border-[var(--theme-button-secondary-border)]',
+          'bg-surface-2/85 px-4 py-3 font-mono',
+          'shadow-[0_12px_35px_rgba(0,0,0,.14)] backdrop-blur-sm',
+          'sm:gap-3 sm:px-5 sm:py-3.5',
+        ].join(' ')}
+      >
+        <span className="shrink-0 select-none text-accent">
+          {active.prompt}
+        </span>
 
-      {/* Docs link — "no account / offline" already covered by the context
-          line above, so no trust chips here. */}
-      <div className={`mt-2 text-[11px] text-theme-muted ${centered ? 'text-center' : ''}`}>
-        <Link to="/developers" className="hover:text-accent transition-colors underline-offset-2 hover:underline">
+        <code
+          className={[
+            'min-w-0 overflow-x-auto whitespace-nowrap text-left tracking-[-0.02em] text-theme-primary',
+            tab === 'windows'
+              ? 'max-w-[48rem] text-[10px] sm:text-[11px] md:text-[12px]'
+              : 'text-[12px] sm:text-[13px] lg:text-sm',
+          ].join(' ')}
+        >
+          {active.cmd}
+        </code>
+
+        <div className="shrink-0">
+          <CodeCopyButton
+            code={active.cmd}
+            label="Copy install command"
+          />
+        </div>
+      </div>
+      <div
+        className={`mt-3 text-[12px] text-theme-muted ${centered ? 'text-center' : ''
+          }`}
+      >
+        <Link
+          to="/developers"
+          className="font-medium underline underline-offset-4 decoration-theme-border-hover transition-colors hover:text-accent hover:decoration-accent"
+        >
           Full guide →
         </Link>
       </div>
