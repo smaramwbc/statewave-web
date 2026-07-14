@@ -124,136 +124,168 @@ function HeroSection() {
   // headline so it paints with the first frame, and keep the stagger fade-in
   // on the subordinate elements (badge, subhead, CTAs).
 
-  return (
-    <section className="relative min-h-screen flex items-center overflow-hidden">
-      {showHeroCanvas && (
-        <Suspense fallback={null}>
-          <HeroBackground contentZoneRef={contentZoneRef} />
-        </Suspense>
-      )}
+ return (
+  <section className="relative min-h-screen flex items-center overflow-hidden">
+    {showHeroCanvas && (
+      <Suspense fallback={null}>
+        <HeroBackground contentZoneRef={contentZoneRef} />
+      </Suspense>
+    )}
 
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background:
-            'radial-gradient(48rem 32rem at 50% 34%, rgba(99,102,241,.10), transparent 70%)',
-        }}
-      />
+    <div
+      className="absolute inset-0 pointer-events-none"
+      style={{
+        background:
+          'radial-gradient(52rem 36rem at 50% 32%, rgba(99,102,241,.11), transparent 72%)',
+      }}
+    />
 
-      <div
-        className="absolute inset-0 pointer-events-none opacity-45"
-        style={{
-          backgroundImage:
-            'radial-gradient(var(--theme-hero-dot) 1px, transparent 1px)',
-          backgroundSize: '22px 22px',
-          maskImage:
-            'radial-gradient(ellipse 66% 58% at 50% 40%, #000 30%, transparent 76%)',
-          WebkitMaskImage:
-            'radial-gradient(ellipse 66% 58% at 50% 40%, #000 30%, transparent 76%)',
-        }}
-      />
+    <div
+      className="absolute inset-0 pointer-events-none opacity-45"
+      style={{
+        backgroundImage:
+          'radial-gradient(var(--theme-hero-dot) 1px, transparent 1px)',
+        backgroundSize: '22px 22px',
+        maskImage:
+          'radial-gradient(ellipse 70% 62% at 50% 38%, #000 28%, transparent 78%)',
+        WebkitMaskImage:
+          'radial-gradient(ellipse 70% 62% at 50% 38%, #000 28%, transparent 78%)',
+      }}
+    />
 
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background:
-            'linear-gradient(to bottom, transparent 0%, transparent 68%, var(--theme-surface-0) 100%)',
-        }}
-      />
+    <div
+      className="absolute inset-0 pointer-events-none"
+      style={{
+        background:
+          'linear-gradient(to bottom, transparent 0%, transparent 72%, var(--theme-surface-0) 100%)',
+      }}
+    />
 
-      <div className="relative z-10 w-full mx-auto max-w-7xl px-5 sm:px-6 pt-28 sm:pt-32 md:pt-36 pb-32 sm:pb-36 md:pb-44">
-        <motion.div
-          ref={contentZoneRef}
-          variants={stagger}
-          initial="hidden"
-          animate="show"
-          onMouseMove={(e) => e.stopPropagation()}
-          onClick={(e) => e.stopPropagation()}
-          className="max-w-5xl mx-auto text-center"
-        >
-          <motion.div variants={fadeUp}>
-            <span className="hero-badge inline-flex items-center gap-2 rounded-full border border-brand-500/35 bg-brand-500/[0.06] px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-400">
-              <span className="h-1.5 w-1.5 rounded-full bg-brand-500" />
-              Open source · Self-hosted · Apache 2.0
-            </span>
-          </motion.div>
-
-          <h1 className="mt-8 font-heading text-[clamp(2.8rem,6.6vw,5.8rem)] font-bold leading-[0.98] tracking-[-0.055em] text-theme-primary">
-            AI memory built{' '}
-            <span className="text-gradient-brand">for production</span>
-          </h1>
-
-          <p className="mt-7 mx-auto max-w-2xl text-[20px] md:text-[22px] leading-[1.6] text-theme-secondary/90">
-            Policies, sensitivity labels, and tamper-evident audit receipts — not just retrieval.
-            Every memory traces to its source. Governance built in from day one.
-          </p>
-
-          <motion.div
-            variants={fadeUp}
-            className="mt-7 flex flex-wrap items-center justify-center gap-3 text-[11px] font-medium uppercase tracking-[0.1em] text-theme-secondary/55"
-          >
-            {PROOF_STATS.map((stat, index) => (
-              <React.Fragment key={stat.label}>
-                {index > 0 && <span className="opacity-40">•</span>}
-                <span className="flex items-center gap-1">
-                  <span
-                    className={
-                      stat.label.toLowerCase().includes('support')
-                        ? 'font-semibold text-success'
-                        : stat.label.toLowerCase().includes('naive')
-                          ? 'font-semibold text-danger'
-                          : 'font-semibold text-theme-primary'
-                    }
-                  >
-                    {stat.value}
-                  </span>
-                  <span>{stat.label}</span>
-                </span>
-              </React.Fragment>
-            ))}
-          </motion.div>
-
-          <motion.div variants={fadeUp} className="mt-7">
-            <HeroInstallCommand centered />
-
-            <p className="mx-auto mt-4 max-w-[42rem] text-[15px] leading-7 text-theme-secondary/80">
-              One command boots Statewave locally — API, admin console, and Postgres —
-              and wires it into your MCP clients. No account, runs offline.
-            </p>
-          </motion.div>
-
-          <motion.div variants={fadeUp} className="mt-8 flex justify-center">
-            <Button
-              ref={heroCtaRef}
-              onClick={() => openWidget('support-agent', 'Support Agent')}
-              size="lg"
-            >
-              Try the agent demo
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-              </svg>
-            </Button>
-          </motion.div>
-
-          <motion.div variants={fadeUp} className="mt-6">
-            <a
-              href="https://github.com/smaramwbc/statewave"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hero-github-link inline-flex items-center gap-1.5 text-[13px] text-theme-secondary/55 hover:text-theme-primary transition-colors"
-            >
-              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
-              </svg>
-              <span className="underline underline-offset-2 decoration-theme-secondary/30 hover:decoration-theme-primary transition-colors">
-                View on GitHub
-              </span>
-            </a>
-          </motion.div>
+    <div className="relative z-10 w-full mx-auto max-w-[1500px] px-5 sm:px-6 pt-28 sm:pt-32 md:pt-36 pb-24 sm:pb-28 md:pb-32">
+      <motion.div
+        ref={contentZoneRef}
+        variants={stagger}
+        initial="hidden"
+        animate="show"
+        onMouseMove={(e) => e.stopPropagation()}
+        onClick={(e) => e.stopPropagation()}
+        className="mx-auto max-w-[1420px] text-center"
+      >
+        <motion.div variants={fadeUp}>
+          <span className="hero-badge inline-flex items-center gap-2 rounded-full border border-brand-500/35 bg-brand-500/[0.06] px-5 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-400">
+            <span className="h-1.5 w-1.5 rounded-full bg-brand-500" />
+            Open source · Self-hosted · Apache 2.0
+          </span>
         </motion.div>
-      </div>
-    </section>
-  )
+
+        <h1 className="mx-auto mt-9 max-w-[1420px] font-heading text-[clamp(3.4rem,7.4vw,7rem)] font-bold leading-[0.92] tracking-[-0.06em] text-theme-primary">
+          AI memory built{' '}
+          <span className="text-gradient-brand">for production</span>
+        </h1>
+
+        <p className="mx-auto mt-8 max-w-[68rem] text-[18px] leading-[1.6] text-theme-secondary/90 sm:text-[20px] md:text-[22px]">
+          Policies, sensitivity labels, and tamper-evident audit receipts — not just
+          retrieval. Every memory traces to its source. Governance built in from day one.
+        </p>
+
+        <motion.div
+          variants={fadeUp}
+          className="mt-8 flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-[11px] font-medium uppercase tracking-[0.1em] text-theme-secondary/55"
+        >
+          {PROOF_STATS.map((stat, index) => (
+            <React.Fragment key={stat.label}>
+              {index > 0 && (
+                <span className="hidden opacity-40 sm:inline">•</span>
+              )}
+
+              <span className="flex items-center gap-1">
+                <span
+                  className={
+                    stat.label.toLowerCase().includes('support')
+                      ? 'font-semibold text-success'
+                      : stat.label.toLowerCase().includes('naive')
+                        ? 'font-semibold text-danger'
+                        : 'font-semibold text-theme-primary'
+                  }
+                >
+                  {stat.value}
+                </span>
+
+                <span>{stat.label}</span>
+              </span>
+            </React.Fragment>
+          ))}
+        </motion.div>
+
+
+    <motion.div
+  variants={fadeUp}
+  className="mt-8 flex flex-wrap items-center justify-center gap-4"
+>
+  <Button
+    ref={heroCtaRef}
+    onClick={() => openWidget('support-agent', 'Support Agent')}
+    size="lg"
+  >
+    Try the agent demo
+
+    <svg
+      className="h-4 w-4"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M13 7l5 5m0 0l-5 5m5-5H6"
+      />
+    </svg>
+  </Button>
+
+  <a
+    href="https://github.com/smaramwbc/statewave"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="hero-github-link inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-[var(--theme-button-secondary-border)] bg-surface-1/50 px-6 text-sm font-medium text-theme-primary transition-colors hover:border-[var(--theme-button-secondary-border-hover)] hover:bg-surface-1/70"
+  >
+    <svg
+      className="h-5 w-5"
+      fill="currentColor"
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+    >
+      <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+    </svg>
+
+    View on GitHub
+  </a>
+</motion.div>
+
+<motion.div
+  variants={fadeUp}
+  className="hero-install-card relative mx-auto mt-10 w-full max-w-[62rem] overflow-hidden rounded-[1.75rem] border border-brand-500/35 bg-surface-1/75 px-5 py-7 shadow-[0_28px_90px_rgba(0,0,0,.22)] backdrop-blur-md sm:px-8 sm:py-8"
+>
+  <div
+    className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(99,102,241,.14),transparent_62%)]"
+    aria-hidden="true"
+  />
+
+  <div className="relative z-10">
+    <p className="mx-auto mb-5 max-w-[46rem] text-[14px] leading-6 text-theme-secondary/75 sm:text-[15px] sm:leading-7">
+      One command boots Statewave locally — API, admin console, and Postgres —
+      and wires it into your MCP clients. No account, runs offline.
+    </p>
+
+    <HeroInstallCommand centered />
+  </div>
+</motion.div>
+      </motion.div>
+    </div>
+  </section>
+)
 }
 
 function WhatSection() {
