@@ -4,9 +4,18 @@ import { Card } from '../components/Card'
 import { Heading } from '../components/Heading'
 import { HowStatewaveWorks } from '../components/HowStatewaveWorks'
 import { usePageSEO } from '../lib/seo'
+import { useCallback, useState } from "react";
+
 
 export function ProductPage() {
   usePageSEO()
+
+  const [replayKey, setReplayKey] = useState(0);
+
+  const replay = useCallback(() => {
+    setReplayKey((k) => k + 1);
+  }, []);
+
   return (
     <>
       <div className="relative">
@@ -46,31 +55,109 @@ export function ProductPage() {
       </div>
 
       <Section>
-        <Heading id="core-loop" className="text-2xl font-bold text-theme-primary mb-12">The core loop</Heading>
-        <div className="grid md:grid-cols-4 gap-6">
-          {[
-            { step: '01', title: 'Record', desc: 'Immutable episodes capture raw interaction truth — conversations, tool calls, decisions. Append-only, never mutated.' },
-            { step: '02', title: 'Compile', desc: 'Pluggable compilers derive typed memories with confidence scores, validity windows, and provenance back to source episodes.' },
-            { step: '03', title: 'Context', desc: 'Assembly service builds ranked, token-bounded, deterministic context bundles ready for any prompt.' },
-            { step: '04', title: 'Govern', desc: 'Provenance inspection, subject timelines, GDPR-style deletion, authentication, rate limiting, webhooks.' },
-          ].map((item, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.1 }}
-              className="p-6 rounded-2xl border border-theme-border bg-surface-1"
-            >
-              <span className="text-xs font-mono text-accent">{item.step}</span>
-              <h3 className="text-lg font-semibold text-theme-primary mt-2 mb-3">{item.title}</h3>
-              <p className="text-sm text-theme-muted leading-relaxed">{item.desc}</p>
-            </motion.div>
-          ))}
+        {/* Section header */}
+        <div className="max-w-3xl">
+          <div className="section-eyebrow mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
+            MEMORY LIFECYCLE
+          </div>
+
+          <Heading
+            id="core-loop"
+            className="font-heading text-4xl font-bold leading-[1.06] tracking-[-0.03em] text-theme-primary md:text-[52px]"
+          >
+            The core loop
+          </Heading>
+
+          <p className="mt-6 max-w-2xl text-[18px] leading-relaxed text-theme-secondary">
+            Every interaction follows the same deterministic lifecycle: record,
+            compile, retrieve and govern. Statewave transforms raw events into
+            durable, structured memory ready for production AI agents.
+          </p>
+        </div>
+
+        {/* Diagram + cards */}
+        <div className="mt-14 grid gap-14 items-start lg:grid-cols-[0.42fr_0.58fr]">
+          {/* Memory lifecycle diagram */}
+          <motion.div
+            className="flex justify-center lg:justify-start lg:pt-10"
+            onViewportEnter={replay}
+            viewport={{ amount: 0.35 }}
+          >
+            <div className="relative w-full max-w-[680px] lg:max-w-none">
+              <div
+                aria-hidden="true"
+                className="theme-dark pointer-events-none absolute left-1/2 top-1/2 z-0 h-[560px] w-[700px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(ellipse,rgba(74,140,255,0.22)_0%,rgba(90,112,255,0.12)_34%,rgba(122,92,255,0.07)_56%,transparent_80%)] blur-[40px]"
+              />
+
+              <img
+                key={`lifecycle-dark-${replayKey}`}
+                src={`/images/product/memory-lifecycle-dark.svg?r=${replayKey}`}
+                alt="Memory lifecycle: Record, Compile, Context, Govern"
+                className="theme-dark relative z-10 h-auto w-full select-none"
+                draggable={false}
+              />
+
+              <img
+                key={`lifecycle-light-${replayKey}`}
+                src={`/images/product/memory-lifecycle-light.svg?r=${replayKey}`}
+                alt=""
+                aria-hidden="true"
+                className="theme-light relative z-10 h-auto w-full select-none"
+                draggable={false}
+              />
+            </div>
+          </motion.div>
+
+          {/* Lifecycle cards */}
+          <div className="grid gap-6 sm:grid-cols-2">
+            {[
+              {
+                step: '01',
+                title: 'Record',
+                desc: 'Immutable episodes capture raw interaction truth — conversations, tool calls, decisions. Append-only, never mutated.',
+              },
+              {
+                step: '02',
+                title: 'Compile',
+                desc: 'Pluggable compilers derive typed memories with confidence scores, validity windows, and provenance back to source episodes.',
+              },
+              {
+                step: '03',
+                title: 'Context',
+                desc: 'Assembly service builds ranked, token-bounded, deterministic context bundles ready for any prompt.',
+              },
+              {
+                step: '04',
+                title: 'Govern',
+                desc: 'Provenance inspection, subject timelines, GDPR-style deletion, authentication, rate limiting, webhooks.',
+              },
+            ].map((item, i) => (
+              <motion.div
+                key={item.step}
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.45, delay: i * 0.08 }}
+                className="rounded-2xl border border-brand-500/20 bg-surface-1 p-8"
+              >
+                <div className="mb-6 flex h-11 w-11 items-center justify-center rounded-xl border border-brand-500/20 bg-brand-500/10 text-sm font-semibold text-brand-400">
+                  {item.step}
+                </div>
+
+                <h3 className="text-xl font-semibold text-theme-primary">
+                  {item.title}
+                </h3>
+
+                <p className="mt-4 text-base leading-relaxed text-theme-secondary">
+                  {item.desc}
+                </p>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </Section>
 
-      <Section className="bg-surface-1/50">
+      <Section className="bg-surface-1">
         <Heading id="domain-model" className="text-2xl font-bold text-theme-primary mb-12">Domain model</Heading>
         <div className="grid md:grid-cols-3 gap-8">
           <Card
