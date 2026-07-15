@@ -9,27 +9,41 @@ export function ProductPage() {
   usePageSEO()
   return (
     <>
-      <section className="pt-24 sm:pt-28 md:pt-32 pb-12 sm:pb-16">
-        <div className="mx-auto max-w-7xl px-5 sm:px-6">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
-            <h1 className="text-[clamp(1.875rem,6vw,3rem)] font-bold text-theme-primary tracking-tight break-anywhere">
-              How Statewave works
-            </h1>
-            <p className="mt-5 sm:mt-6 text-base sm:text-lg text-theme-muted max-w-2xl leading-[1.65] sm:leading-[1.7]">
-              A clear data lifecycle: record raw events, compile durable memories,
-              retrieve ranked context, govern with provenance and deletion.
-            </p>
-          </motion.div>
-        </div>
-      </section>
+      <div className="relative">
+        <div aria-hidden="true" className="page-hero-glow" />
 
-      <Section className="bg-surface-1/40">
-        <HowStatewaveWorks variant="full" id="how-it-works" showHeader={false} />
-      </Section>
+        <section className="relative z-10 pt-28 sm:pt-32 md:pt-36 pb-10 sm:pb-14">
+          <div className="mx-auto max-w-7xl px-5 sm:px-6">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="max-w-4xl"
+            >
+              <div className="section-eyebrow mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
+                HOW IT WORKS
+              </div>
+
+              <h1 className="font-heading text-[clamp(2.5rem,5.5vw,4rem)] font-bold leading-[1.06] tracking-[-0.03em] text-theme-primary">
+                How Statewave works
+              </h1>
+
+              <p className="mt-6 max-w-2xl text-[18px] leading-relaxed text-theme-secondary">
+                A clear data lifecycle that transforms raw events into durable,
+                structured memory your AI agents can retrieve, trust, and govern.
+              </p>
+            </motion.div>
+          </div>
+        </section>
+
+        <div className="relative z-10 mx-auto mt-2 sm:mt-4 md:mt-6 max-w-7xl px-5 sm:px-6 pb-28 sm:pb-32 md:pb-40">
+          <HowStatewaveWorks
+            variant="full"
+            id="how-it-works"
+            showHeader={false}
+          />
+        </div>
+      </div>
 
       <Section>
         <Heading id="core-loop" className="text-2xl font-bold text-theme-primary mb-12">The core loop</Heading>

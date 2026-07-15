@@ -678,3 +678,35 @@ html[data-theme="dark"] .connector-logo-invert {
         );
 }
 
+
+/* ==========================================================================
+   Product page
+   ========================================================================== */
+
+.page-hero-glow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+
+  background:
+    radial-gradient(
+      ellipse 75% 55% at 28% 32%,
+      rgba(74, 140, 255, 0.14) 0%,
+      rgba(74, 140, 255, 0.08) 28%,
+      rgba(122, 92, 255, 0.05) 48%,
+      transparent 74%
+    );
+
+  filter: blur(24px);
+}
+
+[data-theme="light"] .page-hero-glow {
+  background:
+    radial-gradient(
+      ellipse 75% 55% at 28% 32%,
+      rgba(74, 140, 255, 0.09) 0%,
+      rgba(74, 140, 255, 0.05) 30%,
+      rgba(122, 92, 255, 0.03) 50%,
+      transparent 74%
+    );
+}
