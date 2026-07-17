@@ -1153,8 +1153,8 @@ function ConfidenceSection() {
           </h2>
           <p className="text-[16px] text-theme-muted leading-relaxed mb-5">
             get_context ranks every compiled memory and returns only what fits
-            STATEWAVE_MAX_TOKENS (800 by default) as one ready-to-inject
-            string.
+            the demo&apos;s STATEWAVE_MAX_TOKENS (800 by default) as one
+            ready-to-inject string.
           </p>
           <ul className="space-y-3 text-[15px] text-theme-muted mb-8">
             <li className="flex items-center gap-2">

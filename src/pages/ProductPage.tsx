@@ -65,7 +65,7 @@ export function ProductPage() {
           />
           <Card
             title="Memories"
-            description="Compiled typed facts with confidence scores, validity windows, embeddings, and provenance back to source episodes. Kinds: profile_fact, preference, procedure, episode_summary."
+            description="Compiled typed facts with confidence scores, validity windows, embeddings, and provenance back to source episodes. Kinds: profile_fact, episode_summary, procedure, artifact_ref."
           />
           <Card
             title="Context Bundles"

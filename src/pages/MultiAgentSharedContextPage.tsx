@@ -515,7 +515,7 @@ function ReadBeforeWriteVisual() {
   const steps = [
     {
       n: "1",
-      title: "write_episode()",
+      title: "create_episode()",
       body: "Planner records its decision",
       active: false,
     },
@@ -1274,7 +1274,7 @@ function TwoCallsSection() {
 const FEATURE_GRID = [
   {
     title: "Typed, Ranked Memory",
-    body: "Every fact is classified and scored: profile_fact, preference, open_issue, so agents always surface the right context.",
+    body: "Every fact is classified and scored: profile_fact, episode_summary, procedure, so agents always surface the right context.",
   },
   {
     title: "Multi-User by Default",
