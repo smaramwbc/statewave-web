@@ -137,49 +137,41 @@ function FlowHeader({ variant, reduced, id }: { variant: FlowVariant; reduced: b
       ? 'Durable memory for AI agents: episodes → memories → ranked context.'
       : 'Statewave assembles a token-bounded, ranked context bundle so every reply is grounded in the subject\'s real history.'
 
-  return (
-    <div className="text-center">
-      <motion.p
-        initial={reduced ? false : { opacity: 0, y: 6 }}
-        whileInView={reduced ? undefined : { opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.5 }}
-        className="text-[11px] font-medium uppercase tracking-[0.22em] text-accent"
-      >
-        {eyebrow}
-      </motion.p>
-      <motion.h2
-        initial={reduced ? false : { opacity: 0, y: 8 }}
-        whileInView={reduced ? undefined : { opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.55, delay: 0.05 }}
-        className="group mt-4 text-3xl md:text-4xl font-bold tracking-tight text-theme-primary"
-      >
-        {headline.split(/(Statewave Works|memory-aware answer)/).map((part, i) =>
-          part === 'Statewave Works' || part === 'memory-aware answer' ? (
-            <span
-              key={i}
-              className="bg-gradient-to-r from-accent via-brand-400 to-brand-300 bg-clip-text text-transparent"
-            >
-              {part}
-            </span>
-          ) : (
-            <span key={i}>{part}</span>
-          ),
-        )}
-        <SectionAnchorCopyButton id={id} />
-      </motion.h2>
-      <motion.p
-        initial={reduced ? false : { opacity: 0, y: 6 }}
-        whileInView={reduced ? undefined : { opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.55, delay: 0.1 }}
-        className="mt-4 text-base md:text-lg text-theme-muted max-w-2xl mx-auto"
-      >
-        {sub}
-      </motion.p>
-    </div>
-  )
+return (
+  <div className="max-w-3xl text-left">
+    <motion.div
+      initial={reduced ? false : { opacity: 0, y: 6 }}
+      whileInView={reduced ? undefined : { opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.5 }}
+      className="section-eyebrow mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75"
+    >
+      {eyebrow}
+    </motion.div>
+
+    <motion.h2
+      initial={reduced ? false : { opacity: 0, y: 8 }}
+      whileInView={reduced ? undefined : { opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.55, delay: 0.05 }}
+      className="group font-heading text-3xl font-bold leading-[1.08] tracking-[-0.03em] text-theme-primary md:text-[52px]"
+    >
+      {headline}
+
+      <SectionAnchorCopyButton id={id} />
+    </motion.h2>
+
+    <motion.p
+      initial={reduced ? false : { opacity: 0, y: 6 }}
+      whileInView={reduced ? undefined : { opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.55, delay: 0.1 }}
+      className="mt-6 max-w-2xl text-base leading-relaxed text-theme-secondary md:text-[18px]"
+    >
+      {sub}
+    </motion.p>
+  </div>
+);
 }
 
 /* ─── Connector line ─────────────────────────────────────────────────────── */
