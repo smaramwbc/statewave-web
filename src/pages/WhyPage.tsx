@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Section } from '../components/Section'
 import { Heading } from '../components/Heading'
@@ -18,40 +18,64 @@ import { usePageSEO } from '../lib/seo'
 
 export function WhyPage() {
   usePageSEO()
+
+  const [replayKey, setReplayKey] = useState(0);
+  const replay = useCallback(() => setReplayKey((k) => k + 1), []);
+
   return (
     <>
       <ManifestoHero />
 
       {/* Infrastructure gap */}
       <Section>
-        <div className="grid items-center gap-12 lg:grid-cols-[0.46fr_0.54fr] xl:gap-16">
-          <div className="max-w-2xl">
+        <div className="rounded-3xl border border-brand-500/15 bg-surface-1/40 px-7 py-10 sm:px-8 md:px-12 md:py-14">
+          <div className="max-w-4xl">
             <div className="section-eyebrow mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
               THE PROBLEM
             </div>
 
             <Heading
               id="infrastructure-gap"
-              className="font-heading text-3xl font-bold tracking-[-0.02em] text-theme-primary md:text-4xl"
+              className="scroll-mt-40 font-heading text-3xl font-bold tracking-[-0.02em] text-theme-primary md:text-4xl"
             >
               The infrastructure gap
             </Heading>
 
-            <p className="mt-6 text-[17px] leading-relaxed text-theme-secondary">
+            <p className="mt-8 max-w-3xl text-lg leading-8 text-theme-muted">
               AI support agents forget. Every session starts from zero. Returning
-              customers re-explain who they are, what plan they're on, what they
-              asked last time. Agents make the same mistakes they made before.
-              This isn't a capability gap in the LLM — it's an infrastructure
-              gap. Most AI applications have no memory layer.
+              customers re-explain who they are, what plan they're on, what they asked
+              last time. Agents make the same mistakes they made before. This isn't a
+              capability gap in the LLM — it's an infrastructure gap. Most AI
+              applications have no memory layer.
             </p>
-          </div>
 
-          {/* SVG placeholder */}
-          <div className="relative flex justify-center lg:justify-end">
-            <div className="flex aspect-[4/3] w-full max-w-[620px] items-center justify-center rounded-3xl border border-dashed border-brand-500/20 bg-surface-1/50">
-              <span className="text-sm text-theme-muted">
-                Infrastructure gap SVG
-              </span>
+            <div className="mt-10 grid gap-6 border-t border-theme-border/70 pt-8 sm:grid-cols-3">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-theme-muted">
+                  Session 01
+                </p>
+                <p className="mt-2 text-sm text-theme-secondary">
+                  Context is created.
+                </p>
+              </div>
+
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-theme-muted">
+                  Session 02
+                </p>
+                <p className="mt-2 text-sm text-theme-secondary">
+                  Context is lost.
+                </p>
+              </div>
+
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-theme-muted">
+                  Result
+                </p>
+                <p className="mt-2 text-sm text-theme-secondary">
+                  The agent starts again.
+                </p>
+              </div>
             </div>
           </div>
         </div>
@@ -138,8 +162,8 @@ export function WhyPage() {
                         >
                           <dt
                             className={`w-28 shrink-0 text-[11px] font-semibold uppercase tracking-[0.14em] ${accent
-                                ? 'text-brand-400'
-                                : 'text-theme-muted'
+                              ? 'text-brand-400'
+                              : 'text-theme-muted'
                               }`}
                           >
                             {label}
@@ -147,8 +171,8 @@ export function WhyPage() {
 
                           <dd
                             className={`text-sm leading-relaxed break-anywhere ${accent
-                                ? 'font-medium text-brand-400'
-                                : 'text-theme-secondary'
+                              ? 'font-medium text-brand-400'
+                              : 'text-theme-secondary'
                               }`}
                           >
                             {value}
@@ -233,13 +257,28 @@ export function WhyPage() {
         </div>
 
         <div className="mt-12 grid items-center gap-12 lg:grid-cols-[0.38fr_0.62fr] xl:gap-16">
-          {/* SVG placeholder */}
-          <div className="relative flex justify-center lg:justify-start">
-            <div className="flex aspect-square w-full max-w-[470px] items-center justify-center rounded-3xl border border-dashed border-brand-500/20 bg-surface-1/50">
-              <span className="text-sm text-theme-muted">
-                Technical properties SVG
-              </span>
-            </div>
+
+
+          <div className="relative flex justify-center lg:justify-start lg:pl-6 lg:-mt-4">
+            <motion.div
+              className="w-full max-w-[530px]"
+              onViewportEnter={replay}
+              viewport={{ amount: 0.35 }}
+            >
+              <img
+                key={`ingest-dark-${replayKey}`}
+                src={`/images/why-statewave/stateful-ingest-dark.svg?r=${replayKey}`}
+                alt="Event sources flowing into the stateful workflows stack"
+                className="theme-dark w-full h-auto"
+              />
+              <img
+                key={`ingest-light-${replayKey}`}
+                src={`/images/why-statewave/stateful-ingest-light.svg?r=${replayKey}`}
+                alt=""
+                aria-hidden="true"
+                className="theme-light w-full h-auto"
+              />
+            </motion.div>
           </div>
 
           <div className="grid gap-5 sm:grid-cols-2">
