@@ -360,13 +360,13 @@ function WhatSection() {
           >
             <img
               key={`memflow-dark-${memoryRuntimeReplayKey}`}
-              src={`/memory-runtime-flow-animated-dark.svg?r=${memoryRuntimeReplayKey}`}
+              src={`/images/home/memory-runtime-flow-animated-dark.svg?r=${memoryRuntimeReplayKey}`}
               alt="Diagrama del memory runtime: eventos crudos compilados en un context bundle"
               className="theme-dark relative z-10 w-full h-auto"
             />
             <img
               key={`memflow-light-${memoryRuntimeReplayKey}`}
-              src={`/memory-runtime-flow-animated-light.svg?r=${memoryRuntimeReplayKey}`}
+              src={`/images/home/memory-runtime-flow-animated-light.svg?r=${memoryRuntimeReplayKey}`}
               alt=""
               aria-hidden="true"
               className="theme-light relative z-10 w-full h-auto"
@@ -557,14 +557,14 @@ function UseCasesSection() {
 
           <img
             key={`map-dark-${replayKey}`}
-            src={`/stateful-workflows-map-animated-dark.svg?r=${replayKey}`}
+            src={`/images/home/stateful-workflows-map-animated-dark.svg?r=${replayKey}`}
             alt="Statewave workflow map"
             className="theme-dark relative z-10 w-[108%] max-w-none h-auto"
           />
 
           <img
             key={`map-light-${replayKey}`}
-            src={`/stateful-workflows-map-animated-light.svg?r=${replayKey}`}
+            src={`/images/home/stateful-workflows-map-animated-light.svg?r=${replayKey}`}
             alt=""
             aria-hidden="true"
             className="theme-light relative z-10 w-[108%] max-w-none h-auto"
