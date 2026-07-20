@@ -301,81 +301,84 @@ function WhatSection() {
     setMemoryRuntimeReplayKey((k) => k + 1)
   }, [])
 
-  return (
-    <Section className="bg-surface-1">
-      <div className="grid lg:grid-cols-[0.38fr_0.62fr] gap-12 xl:gap-20 items-center">
-        <div className="min-w-0">
-          <div className="section-eyebrow mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
-            THE STATEWAVE APPROACH
-          </div>
-
-          <Heading
-            id="memory-runtime"
-            className="font-heading text-4xl md:text-[49px] font-bold leading-[1.06] tracking-[-0.03em] text-theme-primary"
-          >
-            Memory runtime for <span className="text-gradient-brand">AI agents</span>
-          </Heading>
-
-          <p className="mt-6 max-w-[600px] text-[20px] leading-[1.65] text-theme-primary">
-            Most AI applications have no memory. Every conversation starts from scratch.
-            Context is lost between sessions. Statewave treats memory as a runtime —
-            a durable layer any AI system can build on.
-          </p>
-
-          <div className="mt-8 space-y-3">
-            {[
-              'Ingest raw events as immutable episodes',
-              'Compile typed memories with confidence scores',
-              'Retrieve ranked, token-bounded context bundles',
-              'Trace every memory to its source with provenance',
-              'Organize everything around subjects — users, accounts, agents, repos',
-            ].map((item, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                className="flex items-start gap-4"
-              >
-                <span className="h-px mt-2 w-3 shrink-0 bg-accent" />
-                <span className="text-sm text-theme-primary leading-5">
-                  {item}
-                </span>
-              </motion.div>
-            ))}
-          </div>
+return (
+  <Section className="bg-surface-1 overflow-hidden">
+    <div className="grid items-center gap-12 lg:grid-cols-[400px_minmax(0,1fr)] xl:grid-cols-[430px_minmax(0,1fr)] xl:gap-16">
+      <div className="min-w-0">
+        <div className="section-eyebrow mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
+          THE STATEWAVE APPROACH
         </div>
 
-        <div className="relative lg:-mr-32 xl:-mr-48 2xl:-mr-64">
-          <div
-            className="absolute inset-0 rounded-3xl bg-accent/20 blur-[80px] scale-95"
-            aria-hidden="true"
-          />
+        <Heading
+          id="memory-runtime"
+          className="font-heading text-4xl md:text-[49px] font-bold leading-[1.06] tracking-[-0.03em] text-theme-primary"
+        >
+          Memory runtime for{' '}
+          <span className="text-gradient-brand">AI agents</span>
+        </Heading>
 
-          <motion.div
-            className="diagram-card relative z-10 overflow-hidden rounded-3xl border border-theme-border"
-            onViewportEnter={replayMemoryRuntime}
-            viewport={{ amount: 0.35 }}
-          >
-            <img
-              key={`memflow-dark-${memoryRuntimeReplayKey}`}
-              src={`/images/home/memory-runtime-flow-animated-dark.svg?r=${memoryRuntimeReplayKey}`}
-              alt="Diagrama del memory runtime: eventos crudos compilados en un context bundle"
-              className="theme-dark relative z-10 w-full h-auto"
-            />
-            <img
-              key={`memflow-light-${memoryRuntimeReplayKey}`}
-              src={`/images/home/memory-runtime-flow-animated-light.svg?r=${memoryRuntimeReplayKey}`}
-              alt=""
-              aria-hidden="true"
-              className="theme-light relative z-10 w-full h-auto"
-            />
-          </motion.div>
+        <p className="mt-6 text-[20px] leading-[1.65] text-theme-primary">
+          Most AI applications have no memory. Every conversation starts from scratch.
+          Context is lost between sessions. Statewave treats memory as a runtime —
+          a durable layer any AI system can build on.
+        </p>
+
+        <div className="mt-8 space-y-3">
+          {[
+            'Ingest raw events as immutable episodes',
+            'Compile typed memories with confidence scores',
+            'Retrieve ranked, token-bounded context bundles',
+            'Trace every memory to its source with provenance',
+            'Organize everything around subjects — users, accounts, agents, repos',
+          ].map((item, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.1 }}
+              className="flex items-start gap-4"
+            >
+              <span className="mt-2 h-px w-3 shrink-0 bg-accent" />
+
+              <span className="text-sm leading-5 text-theme-primary">
+                {item}
+              </span>
+            </motion.div>
+          ))}
         </div>
       </div>
-    </Section>
-  )
+
+      <div className="relative min-w-0 lg:-mr-4 xl:-mr-8 2xl:-mr-12">
+        <div
+          className="absolute inset-0 scale-95 rounded-3xl bg-accent/20 blur-[80px]"
+          aria-hidden="true"
+        />
+
+        <motion.div
+          className="diagram-card relative z-10 overflow-hidden rounded-3xl border border-theme-border"
+          onViewportEnter={replayMemoryRuntime}
+          viewport={{ amount: 0.35 }}
+        >
+          <img
+            key={`memflow-dark-${memoryRuntimeReplayKey}`}
+            src={`/images/home/memory-runtime-flow-animated-dark.svg?r=${memoryRuntimeReplayKey}`}
+            alt="Diagrama del memory runtime: eventos crudos compilados en un context bundle"
+            className="theme-dark relative z-10 block h-auto w-full max-w-full"
+          />
+
+          <img
+            key={`memflow-light-${memoryRuntimeReplayKey}`}
+            src={`/images/home/memory-runtime-flow-animated-light.svg?r=${memoryRuntimeReplayKey}`}
+            alt=""
+            aria-hidden="true"
+            className="theme-light relative z-10 block h-auto w-full max-w-full"
+          />
+        </motion.div>
+      </div>
+    </div>
+  </Section>
+)
 }
 
 function WhyNotSection() {
