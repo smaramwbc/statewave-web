@@ -715,3 +715,22 @@ html[data-theme="dark"] .connector-logo-invert {
 [data-theme="light"] .page-hero-glow {
   display: none;
 }
+
+html[data-theme="light"] .connector-logo-invert {
+  filter: invert(1);
+}
+html[data-theme="dark"] .connector-logo-invert {
+  filter: none;
+}
+html[data-theme="light"] .connector-logo-white {
+  filter: invert(1);
+}
+html[data-theme="dark"] .connector-logo-white {
+  filter: none;
+}
+html[data-theme="light"] .connector-logo-black {
+  filter: none;
+}
+html[data-theme="dark"] .connector-logo-black {
+  filter: invert(1);
+}
