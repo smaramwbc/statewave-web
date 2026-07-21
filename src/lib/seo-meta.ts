@@ -212,7 +212,7 @@ export function organizationJsonLd(): JsonLd {
     '@type': 'Organization',
     name: SITE_NAME,
     url: BASE_URL,
-    logo: `${BASE_URL}/statewave_icon_dark.png`,
+    logo: `${BASE_URL}/brand/icon.svg`,
     sameAs: [REPOS.core, REPOS.docs],
     description: DEFAULT_DESCRIPTION,
   }
