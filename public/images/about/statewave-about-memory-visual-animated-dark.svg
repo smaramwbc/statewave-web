@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" viewBox="0 0 550 540">
+  <defs>
+    <style>
+      .st0 { fill: #c7b5ff; }
+      .st1 { fill: url(#Degradado_sin_nombre_3); }
+      .st1, .st2, .st3 { stroke: #659aff; stroke-opacity: .38; }
+      .st2 { fill: url(#Degradado_sin_nombre_2); }
+      .st3 { fill: url(#Degradado_sin_nombre_4); }
+      .st4 { isolation: isolate; }
+      .st5 { fill: #7a5cff; }
+      .st6 { stroke: #5b94ff; stroke-dasharray: 6 9; stroke-opacity: .56; stroke-width: 2px; }
+      .st6, .st7, .st8 { fill: none; }
+      .st9 { fill: url(#Degradado_sin_nombre); }
+      .st10 { fill-opacity: .15; }
+      .st10, .st11 { fill: #9bb9ec; }
+      .st11 { fill-opacity: .24; }
+      .st12 { fill: url(#Degradado_sin_nombre_8); }
+      .st13 { fill: #6366f1; }
+      .st7 { stroke-opacity: .1; }
+      .st7, .st8 { stroke: #5a91f7; }
+      .st8 { stroke-opacity: .14; }
+      .st14 { fill: #5b94ff; }
+      .st15 { fill: #00e0ff; }
+      .st16 { fill: #4d8dff; }
+
+      /* ---- Animación: una sola reproducción, sin bucle ---- */
+      .anim {
+        opacity: 0;
+        animation-fill-mode: both;
+        animation-iteration-count: 1;
+        animation-timing-function: cubic-bezier(.2, .7, .2, 1);
+        transform-box: fill-box;
+        transform-origin: center;
+      }
+      .a-circle { animation-name: circIn; animation-duration: 1s; }
+      .a-icon   { animation-name: popIn;  animation-duration: .9s; }
+      .a-line   { animation-name: fadeIn; animation-duration: .6s; }
+      .a-dot    { animation-name: dotPop; animation-duration: .5s; }
+      .a-card   { animation-name: cardIn; animation-duration: .8s; }
+
+      @keyframes circIn {
+        from { opacity: 0; transform: scale(.82); }
+        to   { opacity: 1; transform: scale(1); }
+      }
+      @keyframes popIn {
+        0%   { opacity: 0; transform: scale(.5); }
+        70%  { opacity: 1; transform: scale(1.05); }
+        100% { opacity: 1; transform: scale(1); }
+      }
+      @keyframes fadeIn {
+        from { opacity: 0; }
+        to   { opacity: 1; }
+      }
+      @keyframes dotPop {
+        0%   { opacity: 0; transform: scale(0); }
+        60%  { transform: scale(1.4); }
+        100% { opacity: 1; transform: scale(1); }
+      }
+      @keyframes cardIn {
+        from { opacity: 0; transform: translateY(16px) scale(.96); }
+        to   { opacity: 1; transform: translateY(0) scale(1); }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .anim { opacity: 1; animation: none; }
+      }
+    </style>
+    <radialGradient id="Degradado_sin_nombre" data-name="Degradado sin nombre" cx="-30.7963" cy="666.87407" fx="-30.7963" fy="666.87407" r="1" gradientTransform="translate(-179781 8585) rotate(90) scale(270 -270)" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#347dff" stop-opacity=".2"/>
+      <stop offset="1" stop-color="#347dff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="Degradado_sin_nombre_2" data-name="Degradado sin nombre 2" x1="82.74478" y1="638.59678" x2="270.74479" y2="457.59677" gradientTransform="translate(0 542) scale(1 -1)" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#172d58" stop-opacity=".96"/>
+      <stop offset="1" stop-color="#09162f" stop-opacity=".86"/>
+    </linearGradient>
+    <linearGradient id="Degradado_sin_nombre_3" data-name="Degradado sin nombre 3" x1="-169.81541" y1="376.26909" x2="18.1846" y2="195.26907" gradientTransform="translate(0 542) scale(1 -1)" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#172d58" stop-opacity=".96"/>
+      <stop offset="1" stop-color="#09162f" stop-opacity=".86"/>
+    </linearGradient>
+    <linearGradient id="Degradado_sin_nombre_4" data-name="Degradado sin nombre 4" x1="-1.45257" y1="551.14318" x2="186.54743" y2="370.14317" gradientTransform="translate(0 542) scale(1 -1)" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#172d58" stop-opacity=".96"/>
+      <stop offset="1" stop-color="#09162f" stop-opacity=".86"/>
+    </linearGradient>
+    <linearGradient id="Degradado_sin_nombre_8" data-name="Degradado sin nombre 8" x1="211.80821" y1="39.95652" x2="338.0122" y2="28.09523" gradientTransform="translate(0 208)" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#00c6ff"/>
+      <stop offset="1" stop-color="#7a5cff"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Anillos concéntricos -->
+  <circle class="st9 anim a-circle" cx="275" cy="270" r="270"/>
+  <circle class="st8 anim a-circle" cx="275" cy="270" r="227.5" style="animation-delay:.12s"/>
+  <circle class="st7 anim a-circle" cx="275" cy="270" r="150.5" style="animation-delay:.24s"/>
+
+  <!-- Líneas conectoras punteadas -->
+  <g>
+    <path class="st6 anim a-line" d="M275,174v-50" style="animation-delay:.9s"/>
+    <path class="st6 anim a-line" d="M183.62615,321.58763l-58.62615,46.41237" style="animation-delay:1s"/>
+    <path class="st6 anim a-line" d="M361.96977,324.96977l63.03023,43.03023" style="animation-delay:1.1s"/>
+  </g>
+
+  <!-- Puntos -->
+  <g>
+    <circle class="st14 anim a-dot" cx="275" cy="124" r="4" style="animation-delay:1.2s"/>
+    <circle class="st14 anim a-dot" cx="125" cy="368" r="4" style="animation-delay:1.3s"/>
+    <circle class="st14 anim a-dot" cx="425" cy="368" r="4" style="animation-delay:1.4s"/>
+  </g>
+
+  <!-- Tarjeta superior -->
+  <g class="anim a-card" style="animation-delay:1.5s">
+    <rect class="st2" x="175.5" y="34.5" width="199" height="108" rx="18.5" ry="18.5"/>
+    <path class="st16" d="M204.5,62h51c1.93298,0,3.5,1.567,3.5,3.5h0c0,1.933-1.56702,3.5-3.5,3.5h-51c-1.93298,0-3.5-1.567-3.5-3.5h0c0-1.933,1.56702-3.5,3.5-3.5Z"/>
+    <path class="st11" d="M204,88h142c1.65686,0,3,1.34314,3,3h0c0,1.65686-1.34314,3-3,3h-142c-1.65686,0-3-1.34314-3-3h0c0-1.65686,1.34314-3,3-3Z"/>
+    <path class="st10" d="M204,106h96c1.65686,0,3,1.34314,3,3h0c0,1.65686-1.34314,3-3,3h-96c-1.65686,0-3-1.34314-3-3h0c0-1.65686,1.34314-3,3-3Z"/>
+  </g>
+
+  <!-- Tarjeta inferior izquierda -->
+  <g class="anim a-card" style="animation-delay:1.65s">
+    <rect class="st1" x=".5" y="371.5" width="199" height="108" rx="18.5" ry="18.5"/>
+    <path class="st16" d="M29.5,399h41c1.933,0,3.5,1.56702,3.5,3.5h0c0,1.93298-1.567,3.5-3.5,3.5H29.5c-1.933,0-3.5-1.56702-3.5-3.5h0c0-1.93298,1.567-3.5,3.5-3.5Z"/>
+    <path class="st11" d="M29,425h142c1.65686,0,3,1.34314,3,3h0c0,1.65686-1.34314,3-3,3H29c-1.65685,0-3-1.34314-3-3h0c0-1.65686,1.34315-3,3-3Z"/>
+    <path class="st10" d="M29,443h106c1.65686,0,3,1.34314,3,3h0c0,1.65686-1.34314,3-3,3H29c-1.65685,0-3-1.34314-3-3h0c0-1.65686,1.34315-3,3-3Z"/>
+  </g>
+
+  <!-- Tarjeta inferior derecha -->
+  <g class="anim a-card" style="animation-delay:1.8s">
+    <rect class="st3" x="350.5" y="371.5" width="199" height="108" rx="18.5" ry="18.5"/>
+    <path class="st16" d="M379.5,399h61c1.93298,0,3.5,1.56702,3.5,3.5h0c0,1.93298-1.56702,3.5-3.5,3.5h-61c-1.93298,0-3.5-1.56702-3.5-3.5h0c0-1.93298,1.56702-3.5,3.5-3.5Z"/>
+    <path class="st11" d="M379,425h142c1.65686,0,3,1.34314,3,3h0c0,1.65686-1.34314,3-3,3h-142c-1.65686,0-3-1.34314-3-3h0c0-1.65686,1.34314-3,3-3Z"/>
+    <path class="st10" d="M379,443h76c1.65686,0,3,1.34314,3,3h0c0,1.65686-1.34314,3-3,3h-76c-1.65686,0-3-1.34314-3-3h0c0-1.65686,1.34314-3,3-3Z"/>
+  </g>
+
+  <!-- Icono central -->
+  <g class="anim a-icon" style="animation-delay:.45s">
+    <path class="st12" d="M260.86232,199.75142l-40.13675,26.75783c-6.70074,4.46716-10.72557,11.98762-10.72557,20.04091v.00003c0,9.51859,5.60566,18.14437,14.30386,22.01023l40.13675,17.83855c6.22785,2.76793,13.3368,2.76793,19.56465,0l40.13675-17.83855c8.6982-3.86586,14.30386-12.49164,14.30386-22.01023v-.00003c0-8.0533-4.02483-15.57376-10.72558-20.04091l-40.13675-26.75783c-8.09053-5.39369-18.63069-5.39369-26.72122,0h0Z"/>
+    <path class="st15" d="M274.2236,270.9365c-.02642,0-.05262-.00044-.07925-.00088-1.52189-.03522-2.83266-1.08357-3.20184-2.56033l-8.48695-33.94737-6.61591,13.2316c-.57283,1.14565-1.74358,1.86928-3.0244,1.86928h-28.54338c-1.86752,0-3.38148-1.51396-3.38148-3.38149s1.51396-3.38149,3.38148-3.38149h26.45351l9.76931-19.53819c.63293-1.26563,1.98596-2.00247,3.39337-1.84903,1.40653.15432,2.56825,1.16833,2.91146,2.54118l7.71996,30.87893,7.16848-23.89472c.36654-1.22226,1.39024-2.13412,2.64663-2.35757,1.25595-.22235,2.53171.27937,3.29739,1.30042l9.6894,12.91899h26.85264c1.86753,0,3.38148,1.51396,3.38148,3.38149s-1.51397,3.38149-3.38148,3.38149h-28.54338c-1.06441,0-2.06654-.50106-2.70519-1.35259l-6.6846-8.91272-8.77909,29.26326c-.42973,1.43273-1.74864,2.40975-3.23817,2.40975h0Z"/>
+    <g class="st4">
+      <path class="st13" d="M333.53483,273.65788c-2.0114-.51431-4.14102-.28279-5.99491.65175l-40.4936,20.41238c-8.07895,4.00905-17.56803,4.00905-25.64699,0l-37.37381-18.54606c-2.46891-1.22515-5.36932-1.22235-7.83586.00754h0c-6.56362,3.27284-6.55459,12.64106.0153,15.90124l45.19438,22.42688c8.07896,4.00904,17.56803,4.00904,25.64699,0l48.20173-24.65821c2.04605-1.04668,3.58737-2.86956,4.27939-5.06112l.07105-.22501c1.48502-4.70285-1.28564-9.68765-6.06366-10.90937h0v-.00002s0,0,0,0Z"/>
+    </g>
+    <path class="st5" d="M333.53483,300.43334c-2.0114-.51431-4.14102-.28279-5.99491.65175l-40.4936,20.41238c-8.07895,4.00905-17.56803,4.00905-25.64699,0l-37.37381-18.54606c-2.46891-1.22515-5.36932-1.22235-7.83586.00754h0c-6.56362,3.27284-6.55459,12.64106.0153,15.90124l45.19438,22.42688c8.07896,4.00904,17.56803,4.00904,25.64699,0l48.20173-24.65821c2.04605-1.04668,3.58737-2.86956,4.27939-5.06112l.07105-.22501c1.48502-4.70285-1.28564-9.68765-6.06366-10.90937h0v-.00002s0,0,0,0Z"/>
+    <circle class="st0" cx="274.22283" cy="299.26689" r="5.35191"/>
+    <circle class="st0" cx="274.22283" cy="326.93954" r="5.35191"/>
+  </g>
+</svg>
