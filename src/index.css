@@ -752,3 +752,17 @@ html[data-theme="dark"] .connector-logo-black {
 [data-theme="light"] .page-hero-glow {
   display: none;
 }
+/* ==========================================================================
+   Blog page
+   ========================================================================== */
+
+.giscus {
+  width: 100%;
+}
+
+.giscus-frame {
+  display: block;
+  width: 100%;
+  border: 0;
+}
+

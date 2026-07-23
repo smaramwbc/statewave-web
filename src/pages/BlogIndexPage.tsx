@@ -55,22 +55,21 @@ export function BlogIndexPage() {
 
   return (
     <>
-      <section className="relative pt-24 sm:pt-28 md:pt-32 pb-8 sm:pb-12">
-        <div className="mx-auto max-w-3xl px-5 sm:px-6">
-          <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-accent">
+      <section className="relative pt-28 sm:pt-32 md:pt-36">
+        <div className="mx-auto max-w-5xl px-5 sm:px-6">
+          <p className="section-eyebrow mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
             Blog
           </p>
-          <h1 className="mt-5 text-[clamp(1.75rem,5vw,2.75rem)] font-semibold text-theme-primary tracking-[-0.02em] leading-[1.15]">
+
+          <h1 className="font-heading text-4xl font-bold leading-[1.05] tracking-[-0.035em] text-theme-primary sm:text-5xl md:text-[56px]">
             Notes from the Statewave project
           </h1>
-          <p className="mt-6 text-base sm:text-lg text-theme-secondary leading-relaxed">
-            How agent memory works under the hood, deployment patterns we
-            land on, and the design choices behind a Postgres-only,
-            self-hosted memory runtime. Subscribe via{' '}
-            <a
-              href="/blog/rss.xml"
-              className="text-accent hover:underline"
-            >
+
+          <p className="mt-6 text-base leading-relaxed text-theme-secondary sm:text-lg">
+            How agent memory works under the hood, deployment patterns we land on,
+            and the design choices behind a Postgres-only, self-hosted memory
+            runtime. Subscribe via{' '}
+            <a href="/blog/rss.xml" className="text-accent hover:underline">
               RSS
             </a>
             .
@@ -79,36 +78,51 @@ export function BlogIndexPage() {
       </section>
 
       <Section>
-        <div className="mx-auto max-w-3xl">
+        <div className="mx-auto max-w-5xl">
           {BLOG_POSTS.length === 0 ? (
-            <p className="text-theme-muted">
-              No posts yet — check back soon.
-            </p>
+            <p className="text-theme-muted">No posts yet — check back soon.</p>
           ) : (
-            <ul className="space-y-5">
+            <ul className="space-y-6">
               {BLOG_POSTS.map((p) => (
                 <li
                   key={p.meta.slug}
-                  className="rounded-2xl border border-theme-border bg-surface-1 p-6 hover:border-accent/40 transition-colors"
+                  className="sw-card rounded-2xl border border-brand-500/20 p-6 transition-[border-color,transform,background-color] duration-300 hover:-translate-y-0.5 hover:border-brand-500/45"
                 >
-                  <Link to={blogPostUrl(p.meta.slug)} className="block">
-                    <p className="text-xs text-theme-muted mb-2">
-                      <time dateTime={p.meta.date}>{formatDate(p.meta.date)}</time>
-                      {p.meta.tags && p.meta.tags.length > 0 && (
-                        <>
-                          <span className="mx-2 text-theme-border">·</span>
-                          <span>{p.meta.tags.join(' · ')}</span>
-                        </>
-                      )}
-                    </p>
-                    <h2 className="text-xl sm:text-2xl font-semibold text-theme-primary leading-tight">
+                  <Link to={blogPostUrl(p.meta.slug)} className="group block">
+                    <div className="mb-3 flex flex-wrap items-center gap-2 text-[13px]">
+                      <time
+                        dateTime={p.meta.date}
+                        className="text-theme-muted/80"
+                      >
+                        {formatDate(p.meta.date)}
+                      </time>
+
+                      {p.meta.tags?.map((tag) => (
+                        <span
+                          key={tag}
+                          className="rounded-full border border-brand-500/20 bg-brand-500/8 px-2.5 py-1 text-[11px] font-medium tracking-[0.02em] text-theme-secondary"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+
+                    <h2 className="text-xl font-semibold leading-tight text-theme-primary sm:text-2xl">
                       {p.meta.title}
                     </h2>
-                    <p className="mt-3 text-sm sm:text-base text-theme-secondary leading-relaxed">
+
+                    <p className="mt-3 text-sm leading-relaxed text-theme-secondary sm:text-base">
                       {p.meta.description}
                     </p>
+
                     <p className="mt-4 text-sm text-accent">
-                      Read post <span aria-hidden>→</span>
+                      Read post{' '}
+                      <span
+                        aria-hidden
+                        className="inline-block transition-transform duration-300 group-hover:translate-x-1"
+                      >
+                        →
+                      </span>
                     </p>
                   </Link>
                 </li>
