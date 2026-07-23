@@ -8,12 +8,12 @@
   "theme_color": "#06b6d4",
   "icons": [
     {
-      "src": "/statewave_icon_dark.png",
+      "src": "/brand/icon.svg",
       "sizes": "512x512",
       "type": "image/png"
     },
     {
-      "src": "/statewave_icon_light.png",
+      "src": "/brand/icon.svg",
       "sizes": "512x512",
       "type": "image/png"
     }
