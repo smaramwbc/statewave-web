@@ -570,6 +570,18 @@ h6 {
         0 12px 32px rgba(30,41,59,.06);
 }
 
+.icon-gradient {
+  color: transparent;
+  background: linear-gradient(
+    135deg,
+    var(--theme-gradient-text-from) 0%,
+    var(--theme-gradient-text-via) 55%,
+    var(--theme-gradient-text-to) 100%
+  );
+  -webkit-mask: var(--icon-mask) center / contain no-repeat;
+  mask: var(--icon-mask) center / contain no-repeat;
+}
+
 
 /* ==========================================================================
    Home page
