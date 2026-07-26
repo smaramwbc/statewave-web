@@ -1,4 +1,4 @@
-import { Link, useLocation, type Location } from 'react-router-dom'
+import { Link, useLocation, type Location } from 'react-router'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   useCallback,

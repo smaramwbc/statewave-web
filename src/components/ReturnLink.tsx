@@ -1,4 +1,4 @@
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router'
 
 /**
  * Cross-page return affordance. When a page is navigated to via a `<Link>` /
