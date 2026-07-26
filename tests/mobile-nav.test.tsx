@@ -16,7 +16,7 @@
  */
 import { describe, it, expect, afterEach, beforeEach } from 'vitest'
 import { render, screen, cleanup, fireEvent, waitFor, within } from '@testing-library/react'
-import { MemoryRouter } from 'react-router-dom'
+import { MemoryRouter } from 'react-router'
 import { ThemeProvider } from '../src/lib/theme'
 import { ChatWidgetProvider } from '../src/lib/widget-context'
 import { Navbar } from '../src/components/Navbar'

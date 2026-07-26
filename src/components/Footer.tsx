@@ -1,5 +1,5 @@
 import { useRef } from 'react'
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router'
 import { Logo } from './Logo'
 import { useChatWidget, useTrackDemoCta } from '../lib/widget-context-api'
 

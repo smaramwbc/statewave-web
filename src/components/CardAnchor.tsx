@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 
 interface CardAnchorProps {
   /** DOM id used as the anchor target. Slug-style, lowercase, dashes. */

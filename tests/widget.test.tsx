@@ -7,7 +7,7 @@
 import React from 'react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen } from '@testing-library/react'
-import { BrowserRouter } from 'react-router-dom'
+import { BrowserRouter } from 'react-router'
 import { ThemeProvider } from '../src/lib/theme'
 import { ChatWidgetProvider } from '../src/lib/widget-context'
 import {

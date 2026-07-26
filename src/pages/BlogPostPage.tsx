@@ -1,4 +1,4 @@
-import { useParams, Link, Navigate } from 'react-router-dom'
+import { useParams, Link, Navigate } from 'react-router'
 import { MDXProvider } from '@mdx-js/react'
 import { Section } from '../components/Section'
 import { ClientOnly } from '../components/ClientOnly'
