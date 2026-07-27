@@ -570,6 +570,30 @@ h6 {
         0 12px 32px rgba(30,41,59,.06);
 }
 
+.section-glow {
+  position: absolute;
+  inset: -2rem;
+  pointer-events: none;
+
+  background:
+    radial-gradient(
+      circle at 35% 45%,
+      color-mix(in srgb, var(--color-brand-500) 30%, transparent),
+      transparent 48%
+    ),
+    radial-gradient(
+      circle at 72% 58%,
+      color-mix(in srgb, var(--color-accent) 28%, transparent),
+      transparent 46%
+    );
+
+  filter: blur(58px);
+  opacity: 1;
+}
+
+[data-theme="light"] .section-glow {
+  opacity: .5;
+}
 
 /* ==========================================================================
    Home page
@@ -677,4 +701,5 @@ html[data-theme="dark"] .connector-logo-invert {
             transparent 70%
         );
 }
+
 
