@@ -671,6 +671,19 @@ html[data-theme="dark"] .connector-logo-invert {
   filter: none;
 }
 
+html[data-theme="light"] .connector-logo-white {
+  filter: invert(1);
+}
+html[data-theme="dark"] .connector-logo-white {
+  filter: none;
+}
+html[data-theme="light"] .connector-logo-black {
+  filter: none;
+}
+html[data-theme="dark"] .connector-logo-black {
+  filter: invert(1);
+}
+
 .memory-proof-glow {
   background: radial-gradient(circle,
       rgba(122, 92, 255, .32) 0%,
