@@ -1,6 +1,6 @@
 import { type ReactNode } from 'react'
 import { motion, useReducedMotion, type Variants } from 'framer-motion'
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router'
 import { SectionAnchorCopyButton } from './Heading'
 
 /* ─── HowStatewaveWorks ──────────────────────────────────────────────────────

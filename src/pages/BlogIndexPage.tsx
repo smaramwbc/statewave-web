@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router'
 import { Section } from '../components/Section'
 import { usePageSEO } from '../lib/seo'
 import { BLOG_POSTS, blogPostUrl } from '../lib/blog'

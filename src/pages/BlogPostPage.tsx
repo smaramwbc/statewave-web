@@ -1,4 +1,4 @@
-import { useParams, Link, Navigate } from 'react-router-dom'
+import { useParams, Link, Navigate } from 'react-router'
 import { MDXProvider } from '@mdx-js/react'
 import { Section } from '../components/Section'
 import { ClientOnly } from '../components/ClientOnly'
@@ -104,7 +104,7 @@ export function BlogPostPage() {
                 url: BASE_URL,
                 logo: {
                   '@type': 'ImageObject',
-                  url: `${BASE_URL}/statewave_icon_dark.png`,
+                  url: `${BASE_URL}/brand/icon.svg`,
                 },
               },
               mainEntityOfPage: { '@type': 'WebPage', '@id': url },

@@ -1,5 +1,5 @@
 import { useRef } from 'react'
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router'
 import { Logo } from './Logo'
 import { useChatWidget, useTrackDemoCta } from '../lib/widget-context-api'
 
@@ -13,10 +13,7 @@ export function Footer() {
         <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-10 md:gap-12">
           <div className="col-span-2 md:col-span-1">
             <Link to="/" className="flex items-center gap-2">
-              <Logo variant="icon" className="h-7 w-7" />
-              <span className="text-base font-semibold tracking-tight">
-                <span className="text-theme-primary">State</span><span className="bg-gradient-to-r from-brand-400 to-accent bg-clip-text text-transparent">wave</span>
-              </span>
+              <Logo variant="full" className="w-34" />
             </Link>
             <p className="mt-4 text-sm text-theme-muted leading-relaxed">
               Open-source memory runtime for AI agents.<br />

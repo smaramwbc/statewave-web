@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router'
 import { USE_CASE_DETAIL_PAGES } from '../lib/use-case-pages'
 
 /* Reusable breadcrumb + switcher for use-case detail pages:

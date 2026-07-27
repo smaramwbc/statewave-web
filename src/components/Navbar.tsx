@@ -1,4 +1,4 @@
-import { Link, useLocation, type Location } from 'react-router-dom'
+import { Link, useLocation, type Location } from 'react-router'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   useCallback,
@@ -121,14 +121,11 @@ export function Navbar() {
       transition={{ duration: 0.4, ease: 'easeOut' }}
       className="fixed top-0 left-0 right-0 z-50 border-b border-theme-border bg-surface-0/80 backdrop-blur-xl pt-safe pl-safe pr-safe"
     >
-      <nav aria-label="Main navigation" className="mx-auto max-w-7xl px-5 sm:px-6 h-[60px] flex items-center justify-between">
-        {/* Logo */}
-        <Link to="/" className="flex items-center gap-2.5 shrink-0 -my-2 py-2">
-          <Logo variant="icon" className="h-7 w-7" />
-          <span className="text-[1.05rem] font-semibold tracking-tight">
-            <span className="text-theme-primary">State</span><span className="bg-gradient-to-r from-brand-400 to-accent bg-clip-text text-transparent">wave</span>
-          </span>
-        </Link>
+        <nav aria-label="Main navigation" className="mx-auto max-w-7xl px-5 sm:px-6 h-[60px] flex items-center justify-between">
+          {/* Logo */}
+          <Link to="/" className="flex items-center shrink-0 -my-2 py-2">
+            <Logo variant="full" className="w-36" />
+          </Link>
 
         {/* Desktop nav — priority+ overflow.
             As browser width shrinks past the point where all 7 links fit,

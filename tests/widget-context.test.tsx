@@ -10,7 +10,7 @@
 
 import React from 'react'
 import { act, render, screen, waitFor } from '@testing-library/react'
-import { BrowserRouter } from 'react-router-dom'
+import { BrowserRouter } from 'react-router'
 import { ThemeProvider } from '../src/lib/theme'
 import { ChatWidgetProvider } from '../src/lib/widget-context'
 import { useChatWidget } from '../src/lib/widget-context-api'

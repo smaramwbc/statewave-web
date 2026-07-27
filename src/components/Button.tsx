@@ -1,5 +1,5 @@
 import { forwardRef, type ReactNode, type Ref } from 'react'
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router'
 
 interface Props {
   children: ReactNode
