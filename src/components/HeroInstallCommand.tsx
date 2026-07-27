@@ -16,16 +16,29 @@ const INSTALL_TABS: { id: InstallTab; label: string; cmd: string; prompt: string
   { id: 'windows', label: 'Windows', cmd: INSTALL_WIN, prompt: '>' },
 ]
 
-export function HeroInstallCommand({ centered = false }: { centered?: boolean }) {
+type HeroInstallCommandProps = {
+  centered?: boolean
+  showGuide?: boolean
+}
+
+export function HeroInstallCommand({
+  centered = false,
+  showGuide = true,
+}: HeroInstallCommandProps) {
   const [tab, setTab] = useState<InstallTab>(() =>
-    typeof navigator !== 'undefined' && /Win/i.test(navigator.userAgent) ? 'windows' : 'node'
+    typeof navigator !== 'undefined' && /Win/i.test(navigator.userAgent)
+      ? 'windows'
+      : 'node'
   )
+
   const active = INSTALL_TABS.find((t) => t.id === tab)!
+
   return (
     <div className={`w-full min-w-0 ${centered ? 'text-center' : ''}`}>
       <div
-        className={`mb-3 flex flex-wrap gap-1.5 ${centered ? 'justify-center' : ''
-          }`}
+        className={`mb-3 flex flex-wrap gap-1.5 ${
+          centered ? 'justify-center' : ''
+        }`}
       >
         {INSTALL_TABS.map(({ id, label }) => (
           <button
@@ -75,17 +88,21 @@ export function HeroInstallCommand({ centered = false }: { centered?: boolean })
           />
         </div>
       </div>
-      <div
-        className={`mt-3 text-[12px] text-theme-muted ${centered ? 'text-center' : ''
+
+      {showGuide && (
+        <div
+          className={`mt-3 text-[12px] text-theme-muted ${
+            centered ? 'text-center' : ''
           }`}
-      >
-        <Link
-          to="/developers"
-          className="font-medium underline underline-offset-4 decoration-theme-border-hover transition-colors hover:text-accent hover:decoration-accent"
         >
-          Full guide →
-        </Link>
-      </div>
+          <Link
+            to="/developers"
+            className="font-medium underline underline-offset-4 decoration-theme-border-hover transition-colors hover:text-accent hover:decoration-accent"
+          >
+            Full guide →
+          </Link>
+        </div>
+      )}
     </div>
   )
 }
