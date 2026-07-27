@@ -38,10 +38,10 @@
 /* Dark theme tokens (default) */
 :root,
 [data-theme="dark"] {
---theme-surface-0: #08152E;
---theme-surface-1: #0C1833;
---theme-surface-2: #12213F;
---theme-surface-3: #1A2C4F;
+  --theme-surface-0: #08152E;
+  --theme-surface-1: #0C1833;
+  --theme-surface-2: #12213F;
+  --theme-surface-3: #1A2C4F;
   --theme-text-primary: #B7C5E3;
   --theme-text-secondary: #c7d6f2;
   --theme-text-muted: #8898B8;
@@ -65,8 +65,8 @@
   --color-success: #6ee7b7;
   --color-danger: #f87171;
   --theme-eyebrow: var(--brand-400);
-  --theme-button-secondary-border: rgba(255,255,255,.15);
-  --theme-button-secondary-border-hover: rgba(255,255,255,.25);
+  --theme-button-secondary-border: rgba(255, 255, 255, .15);
+  --theme-button-secondary-border-hover: rgba(255, 255, 255, .25);
 }
 
 /* Light theme tokens
@@ -82,10 +82,10 @@
  * slate-900 — the issue was the bg, not the foreground.
  */
 [data-theme="light"] {
---theme-surface-0: #FAFBFD;
---theme-surface-1: #F2F6FC;
---theme-surface-2: #E8EEF8;
---theme-surface-3: #DCE6F4;
+  --theme-surface-0: #FAFBFD;
+  --theme-surface-1: #F2F6FC;
+  --theme-surface-2: #E8EEF8;
+  --theme-surface-3: #DCE6F4;
   --theme-text-primary: #0f172a;
   --theme-text-secondary: #475569;
   --theme-text-muted: #64748b;
@@ -110,8 +110,8 @@
   --color-success: #22c55e;
   --color-danger: #ef4444;
   --theme-eyebrow: #5B7CF5;
-  --theme-button-secondary-border: rgba(91,124,245,.28);
-  --theme-button-secondary-border-hover: rgba(91,124,245,.45);
+  --theme-button-secondary-border: rgba(91, 124, 245, .28);
+  --theme-button-secondary-border-hover: rgba(91, 124, 245, .45);
 }
 
 /* ─── Use-case visual panel tokens ───────────────────────────────────────────
@@ -121,57 +121,77 @@
  * mockups stay legible on both light and dark surfaces. */
 :root,
 [data-theme="dark"] {
-  --viz-panel: #212025;               /* section visual panel behind mockups */
-  --viz-shell: #141416;               /* app-window shell */
-  --viz-shell-header: #101012;        /* window title bar */
-  --viz-shell-side: #121214;          /* side panel */
-  --viz-card: #141414;                /* stat/code card */
-  --viz-card-2: #18181b;              /* inner inactive card */
-  --viz-card-3: #232327;              /* muted list card */
-  --viz-code-bg: #101014;
-  --viz-border: rgba(255, 255, 255, 0.08);
-  --viz-border-strong: rgba(255, 255, 255, 0.12);
-  --viz-fill: rgba(255, 255, 255, 0.05);
-  --viz-track: rgba(255, 255, 255, 0.05);
-  --viz-text: rgba(255, 255, 255, 0.92);
-  --viz-text-2: rgba(255, 255, 255, 0.7);
-  --viz-text-3: rgba(255, 255, 255, 0.5);
-  --viz-text-muted: rgba(255, 255, 255, 0.33);
-  --viz-indigo: #a5b4fc;
-  --viz-green: #34d399;
-  --viz-amber: #f2d16b;
-  --viz-code-text: #e2e8f0;
-  --viz-code-muted: #8b949e;
-  --viz-code-keyword: #818cf8;
-  --viz-code-string: #f9a8d4;
-  --viz-code-attr: #fbbf24;
+  --viz-panel: var(--theme-surface-2);
+  --viz-shell: #0B1933;
+  --viz-shell-header: #0A162D;
+  --viz-shell-side: #0D1C38;
+
+  --viz-card: #10203D;
+  --viz-card-2: #132542;
+  --viz-card-3: #172A49;
+  --viz-code-bg: #09162E;
+
+  --viz-border: rgba(183, 197, 227, 0.1);
+  --viz-border-strong: rgba(74, 140, 255, 0.28);
+
+  --viz-fill: rgba(255, 255, 255, .06);
+  --viz-track: rgba(183, 197, 227, 0.09);
+
+  --viz-text: var(--theme-text-primary);
+  --viz-text-2: var(--theme-text-secondary);
+  --viz-text-3: var(--theme-text-muted);
+  --viz-text-muted: rgba(136, 152, 184, 0.65);
+
+  --viz-indigo: #7E97F7;
+  --viz-green: var(--color-success);
+  --viz-amber: #F2D16B;
+
+  --viz-code-text: #C7D6F2;
+  --viz-code-muted: #7385A8;
+  --viz-code-keyword: #8FA5FF;
+  --viz-code-string: #C69BFF;
+  --viz-code-attr: #F2C66D;
+
+  --viz-hero-glow-primary: rgba(74, 140, 255, 0.18);
+  --viz-hero-glow-secondary: rgba(122, 92, 255, 0.14);
+  --viz-shell-shadow: 0 32px 100px rgba(0, 0, 0, 0.26);
 }
 
 [data-theme="light"] {
-  --viz-panel: #e9ecf2;
-  --viz-shell: #ffffff;
-  --viz-shell-header: #f4f6fa;
-  --viz-shell-side: #f8f9fc;
-  --viz-card: #ffffff;
-  --viz-card-2: #ffffff;
-  --viz-card-3: #f1f3f8;
-  --viz-code-bg: #f4f6fa;
-  --viz-border: rgba(15, 23, 42, 0.1);
-  --viz-border-strong: rgba(15, 23, 42, 0.14);
-  --viz-fill: rgba(15, 23, 42, 0.04);
-  --viz-track: rgba(15, 23, 42, 0.08);
-  --viz-text: #0f172a;
-  --viz-text-2: #334155;
-  --viz-text-3: #64748b;
-  --viz-text-muted: #94a3b8;
-  --viz-indigo: #4f46e5;
+  --viz-panel: var(--theme-surface-2);
+  --viz-shell: #F7F9FD;
+  --viz-shell-header: #EEF3FA;
+  --viz-shell-side: #F2F6FC;
+
+  --viz-card: #FFFFFF;
+  --viz-card-2: #F4F7FC;
+  --viz-card-3: #EAF0F8;
+  --viz-code-bg: #EEF3FA;
+
+  --viz-border: rgba(15, 23, 42, 0.09);
+  --viz-border-strong: rgba(91, 124, 245, 0.3);
+
+  --viz-fill: rgba(91, 124, 245, 0.055);
+  --viz-track: rgba(91, 124, 245, 0.1);
+
+  --viz-text: var(--theme-text-primary);
+  --viz-text-2: var(--theme-text-secondary);
+  --viz-text-3: var(--theme-text-muted);
+  --viz-text-muted: rgba(100, 116, 139, 0.7);
+
+  --viz-indigo: #4F46E5;
   --viz-green: #059669;
-  --viz-amber: #b45309;
+  --viz-amber: #B45309;
+
   --viz-code-text: #334155;
-  --viz-code-muted: #64748b;
-  --viz-code-keyword: #4f46e5;
-  --viz-code-string: #be185d;
-  --viz-code-attr: #b45309;
+  --viz-code-muted: #64748B;
+  --viz-code-keyword: #4F46E5;
+  --viz-code-string: #9333EA;
+  --viz-code-attr: #B45309;
+
+  --viz-hero-glow-primary: rgba(79, 70, 229, 0.035);
+  --viz-hero-glow-secondary: rgba(37, 99, 235, 0.025);
+  --viz-shell-shadow: 0 24px 60px rgba(30, 64, 175, 0.1);
 }
 
 html {
@@ -560,14 +580,14 @@ h6 {
 }
 
 .sw-card {
-    box-shadow: 0 24px 80px rgba(0,0,0,.16);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, .16);
 }
 
 [data-theme="light"] .sw-card {
-    background: #f8fbff;
-    border-color: rgba(77,158,255,.16);
-    box-shadow:
-        0 12px 32px rgba(30,41,59,.06);
+  background: #f8fbff;
+  border-color: rgba(77, 158, 255, .16);
+  box-shadow:
+    0 12px 32px rgba(30, 41, 59, .06);
 }
 
 .section-glow {
@@ -644,52 +664,48 @@ html[data-theme="light"] .theme-light {
 }
 
 html[data-theme="light"] .connector-logo-invert {
-    filter: invert(1);
+  filter: invert(1);
 }
 
 html[data-theme="dark"] .connector-logo-invert {
-    filter: none;
+  filter: none;
 }
 
 .memory-proof-glow {
-    background: radial-gradient(
-        circle,
-        rgba(122,92,255,.32) 0%,
-        rgba(122,92,255,.16) 35%,
-        transparent 72%
-    );
-    filter: blur(32px);
+  background: radial-gradient(circle,
+      rgba(122, 92, 255, .32) 0%,
+      rgba(122, 92, 255, .16) 35%,
+      transparent 72%);
+  filter: blur(32px);
 }
 
 [data-theme="light"] .memory-proof-glow {
-    background: radial-gradient(
-        circle,
-        rgba(122,92,255,.12) 0%,
-        rgba(122,92,255,.05) 42%,
-        transparent 78%
-    );
-    filter: blur(56px);
+  background: radial-gradient(circle,
+      rgba(122, 92, 255, .12) 0%,
+      rgba(122, 92, 255, .05) 42%,
+      transparent 78%);
+  filter: blur(56px);
 }
 
 .memory-proof-circle {
-    box-shadow: 0 0 80px rgba(122,92,255,.28);
+  box-shadow: 0 0 80px rgba(122, 92, 255, .28);
 }
 
 [data-theme="light"] .memory-proof-circle {
-    box-shadow: 0 0 48px rgba(122,92,255,.10);
+  box-shadow: 0 0 48px rgba(122, 92, 255, .10);
 }
 
 .cta-card-glow {
-    background:
-        radial-gradient(circle at 50% 0%, rgba(124,92,255,.22), transparent 45%),
-        radial-gradient(circle at 20% 80%, rgba(73,168,255,.14), transparent 42%),
-        radial-gradient(circle at 80% 80%, rgba(139,92,246,.12), transparent 40%);
+  background:
+    radial-gradient(circle at 50% 0%, rgba(124, 92, 255, .22), transparent 45%),
+    radial-gradient(circle at 20% 80%, rgba(73, 168, 255, .14), transparent 42%),
+    radial-gradient(circle at 80% 80%, rgba(139, 92, 246, .12), transparent 40%);
 }
 
 [data-theme="light"] .cta-card {
-    background: var(--theme-surface-1);
-    border-color: rgba(77,158,255,.16);
-    box-shadow: 0 16px 48px rgba(30,41,59,.08);
+  background: var(--theme-surface-1);
+  border-color: rgba(77, 158, 255, .16);
+  box-shadow: 0 16px 48px rgba(30, 41, 59, .08);
 }
 
 [data-theme="light"] .cta-card-glow {

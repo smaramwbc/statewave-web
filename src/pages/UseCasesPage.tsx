@@ -8,6 +8,12 @@ import { CardAnchor } from '../components/CardAnchor'
 import { slugify } from '../lib/slugify'
 import { usePageSEO } from '../lib/seo'
 import { useChatWidget, useTrackDemoCta } from '../lib/widget-context-api'
+import {
+  Database,
+  Layers3,
+  BrainCircuit,
+  PackageCheck,
+} from 'lucide-react'
 
 /* ─── Hash-based active card highlight ───────────────────────────────────── */
 
@@ -536,46 +542,85 @@ export function UseCasesPage() {
 function HeroSection() {
   const total = USE_CASES.length + CONNECTORS.length + FRONTIER_IDEAS.length
   return (
-    <section className="relative pt-32 pb-12 overflow-hidden">
-      {/* Soft accent glow */}
+    <section className="relative overflow-hidden pb-16 pt-28 sm:pb-20 sm:pt-32 md:pt-36">
       <div
-        aria-hidden
-        className="absolute inset-0 pointer-events-none"
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0"
         style={{
           background:
-            'radial-gradient(60% 50% at 20% 0%, rgba(99,102,241,0.08), transparent 70%), radial-gradient(50% 40% at 80% 10%, rgba(96,165,250,0.06), transparent 70%)',
+            'radial-gradient(48rem 30rem at 18% 0%, rgba(99,102,241,.09), transparent 72%), radial-gradient(38rem 26rem at 82% 8%, rgba(96,165,250,.06), transparent 72%)',
         }}
       />
-      <div className="relative mx-auto max-w-7xl px-5 sm:px-6">
+
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 opacity-35"
+        style={{
+          backgroundImage:
+            'radial-gradient(var(--theme-hero-dot) 1px, transparent 1px)',
+          backgroundSize: '22px 22px',
+          maskImage:
+            'radial-gradient(ellipse 70% 70% at 24% 18%, #000 15%, transparent 72%)',
+          WebkitMaskImage:
+            'radial-gradient(ellipse 70% 70% at 24% 18%, #000 15%, transparent 72%)',
+        }}
+      />
+
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            'linear-gradient(to bottom, transparent 0%, transparent 76%, var(--theme-surface-0) 100%)',
+        }}
+      />
+
+      <div className="relative z-10 mx-auto max-w-7xl px-5 sm:px-6">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="max-w-3xl"
+          className="max-w-4xl"
         >
-          <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-accent/20 bg-accent/[0.04] text-accent text-[11px] font-medium tracking-wide uppercase">
-            <span className="w-1.5 h-1.5 rounded-full bg-accent/80" />
+          <span className="hero-badge inline-flex items-center gap-2 rounded-full border border-brand-500/35 bg-brand-500/[0.06] px-5 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-400">
+            <span className="h-1.5 w-1.5 rounded-full bg-brand-500" />
             {total}+ ideas to build
           </span>
-          <h1 className="mt-6 sm:mt-8 text-[clamp(2rem,7vw,3.75rem)] font-bold text-theme-primary tracking-[-0.025em] leading-[1.08] break-anywhere">
-            Build with{' '}
-            <span className="bg-gradient-to-r from-accent via-brand-400 to-brand-300 bg-clip-text text-transparent">
-              durable memory
-            </span>
+
+          <h1 className="mt-7 max-w-4xl font-heading text-[clamp(2.75rem,6vw,5.5rem)] font-bold leading-[0.98] tracking-[-0.05em] text-theme-primary sm:mt-8">
+            Build with durable memory
           </h1>
-          <p className="mt-5 sm:mt-6 text-base sm:text-lg text-theme-muted max-w-[40rem] leading-[1.65] sm:leading-[1.7]">
-            Statewave is an open-source memory runtime for AI agents. Support agents are the
-            strongest workflow today — but the same primitives power coding copilots, account
-            assistants, voice continuity, multi-agent platforms, and far more. This page is the
-            map.
+
+          <p className="mt-6 max-w-[46rem] text-base leading-[1.7] text-theme-secondary/85 sm:mt-7 sm:text-lg">
+            Statewave is an open-source memory runtime for AI agents. Support agents are
+            the strongest workflow today — but the same primitives power coding copilots,
+            account assistants, voice continuity, multi-agent platforms, and far more.
+            This page is the map.
           </p>
 
-          {/* Quick-jump nav */}
-          <div className="mt-8 flex flex-wrap gap-2">
-            <JumpChip href="#strongest" label="Strongest today" tone="accent" />
-            <JumpChip href="#explorer" label="Use case explorer" />
-            <JumpChip href="#connectors" label="Connectors & bootstrap" tone="emerald" />
-            <JumpChip href="#frontier" label="Frontier ideas" tone="muted" />
+          <div className="mt-8 flex flex-wrap gap-2.5 sm:mt-10">
+            <JumpChip
+              href="#strongest"
+              label="Strongest today"
+              tone="accent"
+            />
+
+            <JumpChip
+              href="#explorer"
+              label="Use case explorer"
+            />
+
+            <JumpChip
+              href="#connectors"
+              label="Connectors & bootstrap"
+              tone="emerald"
+            />
+
+            <JumpChip
+              href="#frontier"
+              label="Frontier ideas"
+              tone="muted"
+            />
           </div>
         </motion.div>
       </div>
@@ -594,20 +639,33 @@ function JumpChip({
 }) {
   const toneClass =
     tone === 'accent'
-      ? 'border-accent/30 bg-accent/[0.06] text-accent hover:bg-accent/10'
+      ? 'border-accent/35 bg-accent/[0.07] text-accent hover:border-accent/50 hover:bg-accent/12'
       : tone === 'emerald'
-        ? 'border-emerald-500/25 bg-emerald-500/[0.05] text-emerald-300 hover:bg-emerald-500/10'
+        ? 'border-[color:var(--color-success)]/30 bg-[color:var(--color-success)]/[0.06] text-[color:var(--color-success)] hover:border-[color:var(--color-success)]/45 hover:bg-[color:var(--color-success)]/[0.1]'
         : tone === 'muted'
-          ? 'border-theme-border bg-surface-2 text-theme-muted hover:text-theme-secondary'
-          : 'border-theme-border bg-surface-2 text-theme-secondary hover:border-theme-border-hover hover:text-theme-primary'
+          ? 'border-theme-border bg-surface-1/40 text-theme-muted hover:border-theme-border-hover hover:bg-surface-2 hover:text-theme-secondary'
+          : 'border-brand-500/20 bg-brand-500/[0.04] text-brand-300 hover:border-brand-500/35 hover:bg-brand-500/[0.08] hover:text-brand-200'
+
   return (
     <a
       href={href}
-      className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${toneClass}`}
+      className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-[13px] font-medium transition-all duration-200 hover:-translate-y-[1px] ${toneClass}`}
     >
-      {label}
-      <svg className="w-3 h-3 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+      <span>{label}</span>
+
+      <svg
+        className="h-3.5 w-3.5 opacity-60"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+        aria-hidden="true"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M19 14l-7 7m0 0l-7-7m7 7V3"
+        />
       </svg>
     </a>
   )
@@ -617,56 +675,124 @@ function JumpChip({
 
 function MentalModelStrip() {
   const steps = [
-    { label: 'Existing data', desc: 'Tickets, code, docs, calls, events', tone: 'muted' as const },
-    { label: 'Episodes', desc: 'Immutable, append-only', tone: 'brand' as const },
-    { label: 'Compiled memory', desc: 'Typed facts with provenance', tone: 'accent' as const },
-    { label: 'Context bundles', desc: 'Ranked, token-bounded', tone: 'accent' as const },
+    {
+      label: 'Existing data',
+      desc: 'Tickets, code, docs, calls, events',
+      tone: 'muted' as const,
+      icon: Database,
+    },
+    {
+      label: 'Episodes',
+      desc: 'Immutable, append-only',
+      tone: 'brand' as const,
+      icon: Layers3,
+    },
+    {
+      label: 'Compiled memory',
+      desc: 'Typed facts with provenance',
+      tone: 'accent' as const,
+      icon: BrainCircuit,
+    },
+    {
+      label: 'Context bundles',
+      desc: 'Ranked, token-bounded',
+      tone: 'accent' as const,
+      icon: PackageCheck,
+    },
   ]
+
   return (
-    <Section className="!py-16">
-      <div className="rounded-2xl border border-theme-border bg-surface-1 p-6 md:p-8">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-          <div className="md:max-w-md">
-            <p className="text-[11px] font-medium uppercase tracking-wider text-accent">The unifying loop</p>
-            <Heading id="same-loop" className="mt-2 text-xl md:text-2xl font-semibold text-theme-primary">
+    <Section className="relative !py-16">
+      <div
+        aria-hidden="true"
+        className="section-glow pointer-events-none absolute inset-x-0 top-1/2 h-[34rem] -translate-y-1/2"
+      />
+
+      <div className="sw-card relative z-10 rounded-2xl border border-theme-border bg-surface-1 p-6 md:p-8">
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.45fr)] lg:items-center">
+          <div className="max-w-lg">
+            <p className="section-eyebrow mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
+              The unifying loop
+            </p>
+
+            <Heading
+              id="same-loop"
+              className="mt-3 max-w-md text-2xl font-semibold leading-tight text-theme-primary md:text-3xl"
+            >
               Every use case on this page is the same loop
             </Heading>
-            <p className="mt-3 text-sm text-theme-muted leading-relaxed">
-              Existing systems become episodes. Episodes compile into typed memory. Memory gets
-              ranked into a token-bounded bundle. Your agent gets the context it needs — and
-              nothing it doesn’t.
+
+            <p className="mt-4 max-w-md text-sm leading-7 text-theme-muted sm:text-[15px]">
+              Existing systems become episodes. Episodes compile into typed memory.
+              Memory gets ranked into a token-bounded bundle. Your agent gets the
+              context it needs — and nothing it doesn’t.
             </p>
           </div>
-          <div className="flex-1 grid grid-cols-2 md:grid-cols-4 gap-3">
-            {steps.map((s, i) => (
-              <div
-                key={i}
-                className={`relative p-4 rounded-xl border ${
-                  s.tone === 'accent'
-                    ? 'border-accent/25 bg-accent/[0.04]'
-                    : s.tone === 'brand'
-                      ? 'border-brand-500/25 bg-brand-500/[0.04]'
-                      : 'border-theme-border bg-surface-2'
-                }`}
-              >
-                <p
-                  className={`text-[10px] font-mono ${
-                    s.tone === 'accent' ? 'text-accent' : s.tone === 'brand' ? 'text-brand-300' : 'text-theme-muted'
-                  }`}
+
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            {steps.map((step, index) => {
+              const Icon = step.icon
+
+              const toneClass =
+                step.tone === 'accent'
+                  ? 'border-accent/25 bg-accent/[0.04]'
+                  : step.tone === 'brand'
+                    ? 'border-brand-500/25 bg-brand-500/[0.04]'
+                    : 'border-theme-border bg-surface-2'
+
+              const iconClass =
+                step.tone === 'accent'
+                  ? 'border-accent/20 bg-accent/[0.07] text-accent'
+                  : step.tone === 'brand'
+                    ? 'border-brand-500/20 bg-brand-500/[0.07] text-brand-300'
+                    : 'border-theme-border bg-surface-1 text-theme-muted'
+
+              const numberClass =
+                step.tone === 'accent'
+                  ? 'text-accent'
+                  : step.tone === 'brand'
+                    ? 'text-brand-300'
+                    : 'text-theme-muted'
+
+              return (
+                <div
+                  key={step.label}
+                  className={`relative min-h-[154px] rounded-xl border p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-theme-border-hover ${toneClass}`}
                 >
-                  0{i + 1}
-                </p>
-                <p className="mt-1 text-sm font-semibold text-theme-primary">{s.label}</p>
-                <p className="mt-1 text-xs text-theme-muted leading-relaxed">{s.desc}</p>
-              </div>
-            ))}
+                  <div className="flex items-start justify-between gap-4">
+                    <span
+                      className={`font-mono text-[10px] font-medium tracking-[0.08em] ${numberClass}`}
+                    >
+                      {String(index + 1).padStart(2, '0')}
+                    </span>
+
+                    <span
+                      className={`inline-flex h-8 w-8 items-center justify-center rounded-lg border ${iconClass}`}
+                    >
+                      <Icon
+                        className="h-4 w-4"
+                        strokeWidth={1.8}
+                        aria-hidden="true"
+                      />
+                    </span>
+                  </div>
+
+                  <p className="mt-5 text-sm font-semibold text-theme-primary">
+                    {step.label}
+                  </p>
+
+                  <p className="mt-1.5 text-xs leading-relaxed text-theme-muted">
+                    {step.desc}
+                  </p>
+                </div>
+              )
+            })}
           </div>
         </div>
       </div>
     </Section>
   )
 }
-
 /* ─── Strongest today (preserve the support wedge) ───────────────────────── */
 
 function StrongestTodaySection() {
@@ -675,9 +801,7 @@ function StrongestTodaySection() {
 
   const goToComparison = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault()
-    // The hash is what ScrollToTop reads to jump to the comparison table.
-    // Without it the visitor lands at the top of the manifesto hero instead
-    // of the section the link advertises.
+
     navigate(
       { pathname: '/why', hash: '#vs-alternatives' },
       {
@@ -692,34 +816,58 @@ function StrongestTodaySection() {
   }
 
   return (
-    <Section id="strongest" className="!pt-8 !pb-24">
-      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-10">
-        <div className="max-w-2xl">
-          <p className="text-[11px] font-medium uppercase tracking-wider text-accent">Strongest today</p>
-          <Heading id="proven-wedge" className="mt-3 text-3xl md:text-4xl font-bold text-theme-primary tracking-tight">
+    <Section id="strongest" className="!pb-24 !pt-8">
+      <div className="mb-10 grid gap-6 md:grid-cols-[minmax(0,1fr)_auto] md:items-end">
+        <div className="max-w-4xl">
+          <p className="section-eyebrow mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-accent">
+            Strongest today
+          </p>
+
+          <Heading
+            id="proven-wedge"
+            className="font-heading text-4xl md:text-[49px] font-bold leading-[1.06] tracking-[-0.03em] text-theme-primary"
+          >
             The proven wedge: support agents
           </Heading>
-          <p className="mt-4 text-theme-muted leading-relaxed">
-            Support is where Statewave is deeply optimized — session-aware ranking, handoff packs,
-            health and SLA scoring, repeat-issue detection. It’s the workflow with the most
-            evidence today, not the limit of the platform.
+
+          <p className="mt-4 max-w-[48rem] text-base leading-7 text-theme-muted sm:text-[17px] sm:leading-8">
+            Support is where Statewave is deeply optimized — session-aware ranking,
+            handoff packs, health and SLA scoring, and repeat-issue detection. It’s the
+            workflow with the most evidence today, not the limit of the platform.
           </p>
         </div>
+
         <a
           href="/why#vs-alternatives"
           onClick={goToComparison}
-          className="inline-flex items-center gap-2 text-sm text-accent hover:text-accent-light transition-colors whitespace-nowrap"
+          className="group inline-flex w-fit items-center gap-2 rounded-full border border-theme-border bg-surface-1/60 px-4 py-2.5 text-sm font-medium text-theme-secondary transition-all duration-200 hover:-translate-y-px hover:border-accent/35 hover:text-accent"
         >
           See the technical comparison
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+
+          <svg
+            className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M13 7l5 5m0 0l-5 5m5-5H6"
+            />
           </svg>
         </a>
       </div>
 
-      <div className="grid md:grid-cols-2 gap-5">
-        {featured.map((uc, i) => (
-          <FeaturedCard key={uc.title} uc={uc} index={i} />
+      <div className="grid gap-5 md:grid-cols-2">
+        {featured.map((uc, index) => (
+          <FeaturedCard
+            key={uc.title}
+            uc={uc}
+            index={index}
+          />
         ))}
       </div>
     </Section>
@@ -730,6 +878,7 @@ function FeaturedCard({ uc, index }: { uc: UseCase; index: number }) {
   const meta = statusMeta(uc.status)
   const slug = slugify(uc.title)
   const active = useHashActive(slug)
+
   return (
     <motion.div
       id={slug}
@@ -737,31 +886,29 @@ function FeaturedCard({ uc, index }: { uc: UseCase; index: number }) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-50px' }}
       transition={{ delay: index * 0.05, duration: 0.5 }}
-      className={`group relative scroll-mt-24 p-6 md:p-7 rounded-2xl border border-accent/25 bg-gradient-to-br from-accent/[0.04] to-transparent ring-1 ring-accent/10 hover:ring-accent/25 transition-all ${
-        active ? 'card-anchor-active' : ''
-      }`}
+      className={`sw-card group relative scroll-mt-24 rounded-2xl border border-theme-border bg-surface-1 p-6 transition-all duration-200 hover:-translate-y-0.5 hover:border-accent/30 ${active ? 'card-anchor-active' : ''
+        }`}
     >
-      <div className="flex items-center justify-between gap-3 mb-3">
-        <span
-          className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full border text-[10px] font-medium uppercase tracking-wider ${meta.pillClass}`}
-        >
-          <span className={`w-1.5 h-1.5 rounded-full ${meta.dotClass}`} />
+      <div className="mb-5 flex items-center justify-between gap-4">
+        <span className="text-[10px] font-medium uppercase tracking-[0.14em] text-theme-muted">
+          {categoryLabel(uc.category)}
+        </span>
+
+        <span className="inline-flex items-center gap-1.5 text-[10px] font-medium text-theme-muted">
+          <span className={`h-1.5 w-1.5 rounded-full ${meta.dotClass}`} />
           {meta.label}
         </span>
-        <span className="text-[10px] uppercase tracking-wider text-theme-muted">{categoryLabel(uc.category)}</span>
       </div>
-      <h3 className="flex items-center gap-2 text-lg md:text-xl font-semibold text-theme-primary">
+
+      <h3 className="flex items-start gap-2 text-lg font-semibold leading-snug text-theme-primary">
         <span>{uc.title}</span>
+
         <CardAnchor id={slug} />
       </h3>
-      <p className="mt-2 text-sm text-theme-muted leading-relaxed">{uc.description}</p>
-      {uc.tags && uc.tags.length > 0 && (
-        <div className="mt-4 flex flex-wrap gap-1.5">
-          {uc.tags.map((t) => (
-            <Tag key={t} label={t} />
-          ))}
-        </div>
-      )}
+
+      <p className="mt-3 line-clamp-2 text-sm leading-6 text-theme-muted">
+        {uc.description}
+      </p>
     </motion.div>
   )
 }
@@ -803,60 +950,77 @@ function ExplorerSection() {
 
   return (
     <Section id="explorer" className="bg-surface-1/50">
-      <div className="max-w-2xl mb-10">
-        <p className="text-[11px] font-medium uppercase tracking-wider text-accent">Use case explorer</p>
-        <Heading id="beyond-support" className="mt-3 text-3xl md:text-4xl font-bold text-theme-primary tracking-tight">
+      <div className="max-w-3xl mb-10">
+        <p className="section-eyebrow mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-400">
+          Use case explorer
+        </p>
+        <Heading id="beyond-support" className="font-heading text-4xl md:text-[49px] font-bold leading-[1.06] tracking-[-0.03em] text-theme-primary">
           Beyond support: what else fits
         </Heading>
-        <p className="mt-4 text-theme-muted leading-relaxed">
+        <p className="max-w-[38rem] mt-4 text-theme-muted leading-relaxed">
           The same memory primitives power developer copilots, workspace assistants, account
           intelligence, voice continuity, and multi-agent infrastructure. Filter by category or by
           how mature each shape is today.
         </p>
       </div>
 
-      {/* Category filter row */}
-      <div className="flex flex-wrap items-center gap-2">
-        <FilterChip
-          active={category === 'all'}
-          onClick={() => setCategory('all')}
-          label="All categories"
-          count={categoryCount('all')}
-        />
-        {CATEGORIES.map((c) => (
-          <FilterChip
-            key={c.id}
-            active={category === c.id}
-            onClick={() => setCategory(c.id)}
-            label={c.label}
-            count={categoryCount(c.id)}
-          />
-        ))}
-      </div>
+      <div className="mt-8 ">
+        {/* Categories */}
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-start">
+          <p className="section-eyebrow shrink-0 pt-2 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
+            Category
+          </p>
 
-      {/* Status filter row */}
-      <div className="mt-3 flex flex-wrap items-center gap-2">
-        <span className="text-[11px] font-medium uppercase tracking-wider text-theme-muted mr-1">
-          Status
-        </span>
-        <FilterChip
-          active={status === 'all'}
-          onClick={() => setStatus('all')}
-          label="Any"
-          count={statusCount('all')}
-          subtle
-        />
-        {STATUSES.filter((s) => s.id !== 'strongest' && s.id !== 'connector').map((s) => (
-          <FilterChip
-            key={s.id}
-            active={status === s.id}
-            onClick={() => setStatus(s.id)}
-            label={s.label}
-            count={statusCount(s.id)}
-            subtle
-            statusDotClass={s.dotClass}
-          />
-        ))}
+          <div className="flex flex-wrap gap-2">
+            <FilterChip
+              active={category === 'all'}
+              onClick={() => setCategory('all')}
+              label="All categories"
+              count={categoryCount('all')}
+            />
+
+            {CATEGORIES.map((c) => (
+              <FilterChip
+                key={c.id}
+                active={category === c.id}
+                onClick={() => setCategory(c.id)}
+                label={c.label}
+                count={categoryCount(c.id)}
+              />
+            ))}
+          </div>
+        </div>
+
+        <div className="my-6 h-px bg-theme-border" />
+
+        {/* Status */}
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-start">
+          <p className="section-eyebrow shrink-0 pt-2 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
+            Status
+          </p>
+
+          <div className="flex flex-wrap gap-2">
+            <FilterChip
+              active={status === 'all'}
+              onClick={() => setStatus('all')}
+              label="Any"
+              count={statusCount('all')}
+              subtle
+            />
+
+            {STATUSES.filter((s) => s.id !== 'strongest' && s.id !== 'connector').map((s) => (
+              <FilterChip
+                key={s.id}
+                active={status === s.id}
+                onClick={() => setStatus(s.id)}
+                label={s.label}
+                count={statusCount(s.id)}
+                subtle
+                statusDotClass={s.dotClass}
+              />
+            ))}
+          </div>
+        </div>
       </div>
 
       {/* Active filter description */}
@@ -868,7 +1032,7 @@ function ExplorerSection() {
       )}
 
       {/* Grid */}
-      <div className="mt-8 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="mt-10 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {filtered.map((uc, i) => (
           <UseCaseCard key={uc.title} uc={uc} index={i} />
         ))}
@@ -934,9 +1098,8 @@ function FilterChip({
       {statusDotClass && <span className={`w-1.5 h-1.5 rounded-full ${statusDotClass}`} />}
       <span>{label}</span>
       <span
-        className={`text-[10px] tabular-nums ${
-          active && !subtle ? 'text-accent/80' : 'text-theme-muted'
-        }`}
+        className={`text-[10px] tabular-nums ${active && !subtle ? 'text-accent/80' : 'text-theme-muted'
+          }`}
       >
         {count}
       </span>
@@ -1014,9 +1177,8 @@ function UseCaseCard({ uc, index }: { uc: UseCase; index: number }) {
     </>
   )
 
-  const cardClass = `group scroll-mt-24 flex h-full flex-col p-5 rounded-2xl border bg-surface-1 transition-colors ${
-    hasExtra ? 'border-accent/20 hover:border-accent/40' : 'border-theme-border hover:border-accent/25'
-  } ${active ? 'card-anchor-active' : ''}`
+  const cardClass = `group scroll-mt-24 flex h-full flex-col p-5 rounded-2xl border bg-surface-1 transition-colors ${hasExtra ? 'border-accent/20 hover:border-accent/40' : 'border-theme-border hover:border-accent/25'
+    } ${active ? 'card-anchor-active' : ''}`
 
   if (uc.pageHref) {
     return (
@@ -1076,11 +1238,11 @@ function ConnectorSection() {
       : CONNECTORS.filter((c) => connectorBucket(c) === key).length
   return (
     <Section id="connectors">
-      <div className="max-w-2xl mb-8">
-        <p className="text-[11px] font-medium uppercase tracking-wider text-emerald-400">
+      <div className="max-w-4xl mb-8">
+        <p className="section-eyebrow mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-[color:var(--color-success)]">
           Connectors & bootstrap
         </p>
-        <Heading id="not-just-live-chats" className="mt-3 text-3xl md:text-4xl font-bold text-theme-primary tracking-tight">
+        <Heading id="not-just-live-chats" className="font-heading text-4xl md:text-[49px] font-bold leading-[1.06] tracking-[-0.03em] text-theme-primary">
           Statewave is not just for live chats
         </Heading>
         <p className="mt-4 text-theme-muted leading-relaxed">
@@ -1132,43 +1294,50 @@ function ConnectorSection() {
         </p>
       </div>
 
-      {/* Status filter — Available (usable today) / Coming soon (planned) / All */}
-      <div className="mb-8 flex flex-wrap items-center gap-2">
-        <span className="text-[11px] font-medium uppercase tracking-wider text-theme-muted mr-1">
+      {/* Status filter — Available / Recipe / Coming soon / All */}
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-start mb-6">
+        <p className="section-eyebrow shrink-0 pt-2 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
           Status
-        </span>
-        <FilterChip
-          active={connectorStatus === 'available'}
-          onClick={() => setConnectorStatus('available')}
-          label="Available"
-          count={connectorCount('available')}
-          subtle
-          statusDotClass="bg-emerald-400"
-        />
-        <FilterChip
-          active={connectorStatus === 'recipe'}
-          onClick={() => setConnectorStatus('recipe')}
-          label="Recipe"
-          count={connectorCount('recipe')}
-          subtle
-          statusDotClass="bg-brand-400"
-        />
-        <FilterChip
-          active={connectorStatus === 'coming-soon'}
-          onClick={() => setConnectorStatus('coming-soon')}
-          label="Coming soon"
-          count={connectorCount('coming-soon')}
-          subtle
-          statusDotClass="bg-theme-muted"
-        />
-        <FilterChip
-          active={connectorStatus === 'all'}
-          onClick={() => setConnectorStatus('all')}
-          label="All"
-          count={connectorCount('all')}
-          subtle
-        />
+        </p>
+
+        <div className="flex flex-wrap gap-2">
+          <FilterChip
+            active={connectorStatus === 'available'}
+            onClick={() => setConnectorStatus('available')}
+            label="Available"
+            count={connectorCount('available')}
+            subtle
+            statusDotClass="bg-[color:var(--color-success)]"
+          />
+
+          <FilterChip
+            active={connectorStatus === 'recipe'}
+            onClick={() => setConnectorStatus('recipe')}
+            label="Recipe"
+            count={connectorCount('recipe')}
+            subtle
+            statusDotClass="bg-brand-400"
+          />
+
+          <FilterChip
+            active={connectorStatus === 'coming-soon'}
+            onClick={() => setConnectorStatus('coming-soon')}
+            label="Coming soon"
+            count={connectorCount('coming-soon')}
+            subtle
+            statusDotClass="bg-theme-muted"
+          />
+
+          <FilterChip
+            active={connectorStatus === 'all'}
+            onClick={() => setConnectorStatus('all')}
+            label="All"
+            count={connectorCount('all')}
+            subtle
+          />
+        </div>
       </div>
+
 
       {/* Connector groups */}
       <div className="space-y-10">
@@ -1357,10 +1526,10 @@ function FrontierSection() {
   return (
     <Section id="frontier" className="bg-surface-1/50">
       <div className="max-w-2xl mb-10">
-        <p className="text-[11px] font-medium uppercase tracking-wider text-theme-muted">
-          Frontier
+        <p className="section-eyebrow mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-theme-muted">
+          Frontier ideas
         </p>
-        <Heading id="ideas-at-the-edge" className="mt-3 text-3xl md:text-4xl font-bold text-theme-primary tracking-tight">
+        <Heading id="ideas-at-the-edge" className="font-heading text-4xl md:text-[49px] font-bold leading-[1.06] tracking-[-0.03em] text-theme-primary">
           Ideas at the edge
         </Heading>
         <p className="mt-4 text-theme-muted leading-relaxed">
@@ -1370,7 +1539,7 @@ function FrontierSection() {
         </p>
       </div>
 
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+      <div className="mt-12 grid gap-x-12 md:grid-cols-2">
         {FRONTIER_IDEAS.map((idea, i) => (
           <FrontierCard key={idea.title} idea={idea} index={i} />
         ))}
@@ -1388,29 +1557,54 @@ function FrontierCard({
 }) {
   const slug = slugify(idea.title)
   const active = useHashActive(slug)
+
   return (
-    <motion.div
+    <motion.article
       id={slug}
       initial={{ opacity: 0, y: 10 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-30px' }}
       transition={{ delay: index * 0.04, duration: 0.4 }}
-      className={`group scroll-mt-24 p-5 rounded-2xl border border-dashed border-theme-border bg-surface-2/30 ${
+      className={`group relative scroll-mt-24 border-t border-theme-border py-7 transition-colors duration-300 ${
         active ? 'card-anchor-active' : ''
       }`}
     >
-      <div className="flex items-center gap-2 mb-2">
-        <span className="w-1.5 h-1.5 rounded-full bg-theme-muted" aria-hidden />
-        <span className="text-[10px] font-medium uppercase tracking-wider text-theme-muted">
-          Frontier
+      <div
+        className="absolute inset-y-4 -left-4 w-px origin-center scale-y-0 bg-gradient-to-b from-transparent via-theme-muted/60 to-transparent transition-transform duration-300 group-hover:scale-y-100"
+        aria-hidden="true"
+      />
+
+      <div className="grid grid-cols-[3rem_1fr] gap-4">
+        <span
+          className="font-heading text-sm font-semibold tabular-nums text-theme-muted/45 transition-colors duration-300 group-hover:text-theme-muted"
+          aria-hidden="true"
+        >
+          {String(index + 1).padStart(2, '0')}
         </span>
+
+        <div>
+          <div className="mb-3 flex items-center gap-2">
+            <span
+              className="h-1.5 w-1.5 rounded-full bg-theme-muted transition-colors duration-300 group-hover:bg-brand-400"
+              aria-hidden="true"
+            />
+
+            <span className="text-[10px] font-medium uppercase tracking-[0.18em] text-theme-muted">
+              Frontier
+            </span>
+          </div>
+
+          <h3 className="flex items-start gap-2 font-heading text-lg font-semibold leading-snug text-theme-secondary transition-colors duration-300 group-hover:text-theme-primary">
+            <span>{idea.title}</span>
+            <CardAnchor id={slug} />
+          </h3>
+
+          <p className="mt-3 max-w-xl text-sm leading-relaxed text-theme-muted">
+            {idea.description}
+          </p>
+        </div>
       </div>
-      <h3 className="flex items-center gap-2 text-base font-semibold text-theme-secondary">
-        <span>{idea.title}</span>
-        <CardAnchor id={slug} />
-      </h3>
-      <p className="mt-2 text-sm text-theme-muted leading-relaxed">{idea.description}</p>
-    </motion.div>
+    </motion.article>
   )
 }
 
@@ -1419,30 +1613,81 @@ function FrontierCard({
 function CTASection() {
   const { openWidget } = useChatWidget()
   const ctaDemoRef = useRef<HTMLElement>(null)
+
   useTrackDemoCta(ctaDemoRef)
+
   return (
     <Section>
-      <div className="rounded-3xl border border-accent/20 bg-gradient-to-br from-accent/[0.05] via-surface-1 to-surface-1 p-10 md:p-14 text-center">
-        <Heading id="see-your-idea" className="text-3xl md:text-4xl font-bold text-theme-primary tracking-tight">
-          See your idea on this page
-        </Heading>
-        <p className="mt-5 text-theme-muted max-w-2xl mx-auto leading-relaxed">
-          If you’re building any AI workflow with multi-session memory, Statewave is the layer
-          underneath. Run it locally in two minutes — or try the live demo first.
-        </p>
-        <div className="mt-10 flex flex-wrap justify-center gap-3">
-          <Button href="https://github.com/smaramwbc/statewave-docs/blob/main/getting-started.md" size="lg">
-            Get started
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-            </svg>
-          </Button>
-          <Button ref={ctaDemoRef} onClick={() => openWidget()} variant="secondary" size="lg">
-            Try the live demo
-          </Button>
-          <Button to="/developers" variant="secondary" size="lg">
-            Developer resources
-          </Button>
+      <div className="cta-card relative overflow-hidden rounded-[2.5rem] border border-brand-500/25 bg-surface-1/55 px-6 py-20 text-center">
+        <div
+          className="cta-card-glow absolute inset-0"
+          aria-hidden="true"
+        />
+
+        <div
+          className="absolute inset-x-20 top-0 h-px bg-gradient-to-r from-transparent via-brand-500/60 to-transparent"
+          aria-hidden="true"
+        />
+
+        <div className="relative z-10 mx-auto max-w-4xl">
+          <div className="section-eyebrow mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
+            EXPLORE THE POSSIBILITIES
+          </div>
+
+          <Heading
+            id="see-your-idea"
+            className="font-heading text-4xl md:text-[64px] font-bold leading-[1.02] tracking-[-0.04em] text-theme-primary"
+          >
+            See your idea{' '}
+            <span className="text-gradient-brand">on this page</span>
+          </Heading>
+
+          <p className="mt-6 mx-auto max-w-2xl text-[20px] leading-[1.65] text-theme-secondary/85">
+            If you’re building any AI workflow with multi-session memory,
+            Statewave is the layer underneath. Run it locally in two minutes —
+            or try the live demo first.
+          </p>
+
+          <div className="mt-10 flex flex-wrap justify-center gap-4">
+            <Button
+              href="https://github.com/smaramwbc/statewave-docs/blob/main/getting-started.md"
+              size="lg"
+            >
+              Get Started
+
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M13 7l5 5m0 0l-5 5m5-5H6"
+                />
+              </svg>
+            </Button>
+
+            <Button
+              ref={ctaDemoRef}
+              onClick={() => openWidget()}
+              variant="secondary"
+              size="lg"
+            >
+              Try Live Demo
+            </Button>
+
+            <Button
+              to="/developers"
+              variant="secondary"
+              size="lg"
+            >
+              Developer Resources
+            </Button>
+          </div>
         </div>
       </div>
     </Section>

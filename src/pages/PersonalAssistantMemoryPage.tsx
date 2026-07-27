@@ -7,9 +7,7 @@ import { usePageSEO } from "../lib/seo";
 import { breadcrumbJsonLd } from "../lib/seo-meta";
 
 const PAGE_RAIL_CLASS =
-  "mx-auto max-w-[1488px] px-5 sm:px-10 md:px-16 xl:px-[94px]"
-  + " border-b xl:border-l xl:border-r"
-  + " border-theme-border";
+  "mx-auto max-w-[1488px] px-5 sm:px-10 md:px-16 xl:px-[94px]";
 
 /* All product mockups below use the `--viz-*` tokens (src/index.css) so their
  * neutrals flip with the light/dark theme; blue chat bubbles and status
@@ -51,66 +49,105 @@ function VisualPanel({
 
 function HeroSection() {
   return (
-    <section className="relative bg-surface-1 overflow-hidden">
-      <div className="mx-auto max-w-[1488px] px-5 sm:px-10 md:px-16 xl:px-[94px] xl:border-l xl:border-r border-theme-border relative pt-[105px] pb-10 text-center xl:pb-10">
+    <section className="relative overflow-hidden bg-surface-1">
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background:
+            'radial-gradient(52rem 36rem at 50% 22%, rgba(99,102,241,.11), transparent 72%)',
+        }}
+      />
+
+      <div
+        className="absolute inset-0 pointer-events-none opacity-45"
+        style={{
+          backgroundImage:
+            'radial-gradient(var(--theme-hero-dot) 1px, transparent 1px)',
+          backgroundSize: '22px 22px',
+          maskImage:
+            'radial-gradient(ellipse 70% 58% at 50% 30%, #000 24%, transparent 78%)',
+          WebkitMaskImage:
+            'radial-gradient(ellipse 70% 58% at 50% 30%, #000 24%, transparent 78%)',
+        }}
+        aria-hidden="true"
+      />
+
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background:
+            'linear-gradient(to bottom, transparent 0%, transparent 76%, var(--theme-surface-1) 100%)',
+        }}
+        aria-hidden="true"
+      />
+
+      <div className="relative z-10 mx-auto max-w-[1488px] px-5 pt-28 pb-10 text-center sm:px-6 sm:pt-32 md:px-16 md:pt-36 xl:px-[94px] xl:pb-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
+          className="mx-auto max-w-[1420px]"
         >
-          {/* Breadcrumb: "Use Cases / [Personal Assistant ⌄]" */}
           <div className="mb-8">
             <UseCaseSwitcher currentSlug="personal-assistant-memory" />
           </div>
 
-          {/* Heading: gradient on second line */}
-          <h1
-            style={{
-              fontSize: "clamp(2.5rem, 6vw, 82px)",
-              fontWeight: 500,
-              lineHeight: "102%",
-              letterSpacing: "-0.055em",
-            }}
-            className="text-theme-primary"
-          >
+          <h1 className="mx-auto max-w-[1180px] font-heading text-[clamp(3.2rem,6.8vw,6.5rem)] font-bold leading-[0.94] tracking-[-0.06em] text-theme-primary">
             One Assistant. Every
             <br />
-            <span
-              style={{
-                background:
-                  "linear-gradient(90deg, #4F46E5 0%, #60A5FA 50%, #93C5FD 100%)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                backgroundClip: "text",
-              }}
-            >
-              Session Remembered
-            </span>
+            <span className="text-gradient-brand">
+              Session
+            </span>{' '}
+            Remembered
           </h1>
 
-          <p className="mt-5 text-sm sm:text-base text-theme-muted max-w-sm mx-auto leading-relaxed">
-            Agents work better when they actually know who they're helping,
+          <p className="mx-auto mt-8 max-w-[46rem] text-[18px] leading-[1.6] text-theme-secondary/90 sm:text-[20px]">
+            Agents work better when they actually know who they&apos;re helping,
             every session, every time.
           </p>
 
-          <div className="mt-8">
+          <motion.div
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.18, duration: 0.5 }}
+            className="mt-8 flex justify-center"
+          >
             <Button
               href="https://github.com/smaramwbc/statewave-personal-assistant"
               variant="primary"
               size="lg"
             >
               Get Started Free
+
+              <svg
+                className="h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M13 7l5 5m0 0l-5 5m5-5H6"
+                />
+              </svg>
             </Button>
-          </div>
+          </motion.div>
         </motion.div>
 
-        {/* Hero visual: assistant chat + memory-state panel */}
-        <div className="mt-12">
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.22, duration: 0.6 }}
+          className="mt-12"
+        >
           <HeroChatVisual />
-        </div>
+        </motion.div>
       </div>
     </section>
-  );
+  )
 }
 
 /* Hero chat window: left = conversation, right = MEMORY STATE panel */
@@ -141,227 +178,228 @@ const HERO_MEMORY_FACTS = [
 function TypeBadge({ label }: { label: string }) {
   return (
     <span
-      className="rounded-[4px] px-1.5 py-0.5 font-mono text-[9px]"
-      style={{
-        color: "var(--viz-indigo)",
-        background: "rgba(129,140,248,0.1)",
-        border: "1px solid rgba(129,140,248,0.25)",
-      }}
+      className="rounded-[4px] border border-brand-500/30 bg-brand-500/[0.08] px-1.5 py-0.5 font-mono text-[9px] text-brand-300"
     >
       {label}
     </span>
-  );
+  )
 }
 
 function MemoryUsedBadge({ note }: { note: string }) {
   return (
     <div className="mt-2 flex items-center gap-2">
-      <span
-        className="rounded-[4px] px-1.5 py-0.5 font-mono text-[9px]"
-        style={{
-          color: "var(--viz-green)",
-          background: "rgba(16,185,129,0.08)",
-          border: "1px solid rgba(16,185,129,0.2)",
-        }}
-      >
+      <span className="rounded-[4px] border border-success/25 bg-success/[0.07] px-1.5 py-0.5 font-mono text-[9px] text-success">
         memory used
       </span>
-      <span className="font-mono text-[9px]" style={{ color: "var(--viz-text-muted)" }}>
+
+      <span className="font-mono text-[9px] text-theme-muted">
         {note}
       </span>
     </div>
-  );
+  )
 }
 
 function HeroChatVisual() {
   return (
-    <div
-      className="mx-auto w-full overflow-hidden rounded-t-2xl text-left"
-      style={{
-        maxWidth: 1120,
-        background: "var(--viz-shell)",
-        border: "1px solid var(--viz-border-strong)",
-        borderBottom: "none",
-      }}
-    >
-      {/* Window title bar */}
-      <div
-        className="flex items-center justify-between px-4 sm:px-5"
+    <div className="relative mx-auto w-full max-w-[1120px]">
+        <div
+        className="pointer-events-none absolute inset-x-[10%] -top-6 bottom-6 rounded-[3rem] blur-[90px]"
         style={{
-          height: 44,
-          borderBottom: "1px solid var(--viz-border)",
-          background: "var(--viz-shell-header)",
+          background: 'var(--viz-hero-glow-primary)',
+        }}
+        aria-hidden="true"
+      />
+
+
+      <div
+        className="pointer-events-none absolute inset-x-[30%] -top-8 h-28 rounded-full blur-[70px]"
+        style={{
+          background: 'var(--viz-hero-glow-secondary)',
+        }}
+        aria-hidden="true"
+      />
+
+       <div
+        className="relative z-10 w-full overflow-hidden rounded-t-2xl border border-brand-500/25 bg-[var(--viz-shell)] text-left"
+        style={{
+          borderBottom: 'none',
+          boxShadow: 'var(--viz-shell-shadow)',
         }}
       >
-        <div className="flex items-center gap-3">
-          <span
-            className="flex items-center gap-1.5 font-mono text-[11px]"
-            style={{ color: "var(--viz-text-3)" }}
-          >
-            <span style={{ color: "var(--viz-green)", fontSize: 8 }}>●</span>
-            statewave
-            <span style={{ color: "var(--viz-text-muted)" }}>on</span>
-          </span>
-          <span
-            className="hidden sm:inline-flex items-center gap-1.5 rounded-[5px] px-2 py-1 font-mono text-[11px] text-white"
-            style={{
-              background: "#2d47c9",
-              border: "1px solid rgba(255,255,255,0.14)",
-            }}
-          >
-            ▸ dev_alice
-            <span className="text-white/60">switch user</span>
-          </span>
-        </div>
-        <span className="font-mono text-[11px]" style={{ color: "var(--viz-text-muted)" }}>
-          token budget: 800
-        </span>
-      </div>
-
-      {/* Body: chat + memory panel */}
-      <div className="grid md:grid-cols-[1.45fr_1fr]">
-        {/* Chat column */}
+        {/* Window title bar */}
         <div
-          className="flex flex-col p-4 sm:p-6"
-          style={{ borderRight: "1px solid var(--viz-border)" }}
+          className="flex items-center justify-between border-b border-theme-border px-4 sm:px-5"
+          style={{
+            height: 44,
+            background: 'var(--viz-shell-header)',
+          }}
         >
-          <p
-            className="mb-4 font-mono text-[10px] uppercase tracking-[0.14em]"
-            style={{ color: "var(--viz-text-muted)" }}
-          >
-            Chat
-          </p>
-
-          {/* Assistant / user turns */}
-          <div className="flex-1 space-y-3 text-[13px] leading-relaxed">
-            <div
-              className="max-w-[75%] rounded-[8px] px-3.5 py-2.5"
-              style={{
-                background: "var(--viz-fill)",
-                border: "1px solid var(--viz-border)",
-                color: "var(--viz-text-2)",
-              }}
-            >
-              Hey, picking back up. Where did we leave off?
-            </div>
-
-            <div className="flex justify-end">
-              <div
-                className="max-w-[75%] rounded-[8px] px-3.5 py-2.5 text-white"
-                style={{ background: "#2e52d7" }}
-              >
-                What was the bug I was debugging last session?
-              </div>
-            </div>
-
-            <div
-              className="max-w-[85%] rounded-[8px] px-3.5 py-2.5"
-              style={{
-                background: "var(--viz-fill)",
-                border: "1px solid var(--viz-border)",
-                color: "var(--viz-text-2)",
-              }}
-            >
-              You were hitting 429s on batch embedding jobs, an undocumented
-              per-IP burst limit (~500 req/10s). Did the tenacity backoff fix
-              land?
-              <MemoryUsedBadge note="ep_0012 · 761 tok" />
-            </div>
-          </div>
-
-          {/* Suggestion chips */}
-          <div className="mt-6 flex flex-wrap gap-2">
-            {["What was I building?", "Any open issues?"].map((s) => (
-              <span
-                key={s}
-                className="rounded-full px-3 py-1.5 text-[11px]"
-                style={{
-                  border: "1px solid var(--viz-border-strong)",
-                  color: "var(--viz-text-3)",
-                }}
-              >
-                {s}
-              </span>
-            ))}
-          </div>
-
-          {/* Input row */}
-          <div
-            className="mt-3 flex items-center justify-between gap-3 rounded-[8px] px-3.5 py-2.5"
-            style={{
-              background: "var(--viz-fill)",
-              border: "1px solid var(--viz-border)",
-            }}
-          >
-            <span className="text-[12px]" style={{ color: "var(--viz-text-muted)" }}>
-              Type a message…
-            </span>
+          <div className="flex items-center gap-3">
             <span
-              className="rounded-[6px] px-3.5 py-1.5 text-[11px] font-medium text-white"
-              style={{ background: "#2e52d7" }}
+              className="flex items-center gap-1.5 font-mono text-[11px]"
+              style={{ color: 'var(--viz-text-3)' }}
             >
-              Send
+              <span className="text-success text-[8px]">●</span>
+              statewave
+              <span style={{ color: 'var(--viz-text-muted)' }}>on</span>
+            </span>
+
+            <span className="hidden items-center gap-1.5 rounded-[5px] border border-brand-400/35 bg-brand-500/80 px-2 py-1 font-mono text-[11px] text-white shadow-[0_6px_20px_rgba(74,140,255,.18)] sm:inline-flex">
+              ▸ dev_alice
+              <span className="text-white/65">switch user</span>
             </span>
           </div>
+
+          <span
+            className="font-mono text-[11px]"
+            style={{ color: 'var(--viz-text-muted)' }}
+          >
+            token budget: 800
+          </span>
         </div>
 
-        {/* Memory state column */}
-        <div
-          className="flex flex-col p-4 sm:p-6"
-          style={{ background: "var(--viz-shell-side)" }}
-        >
-          <div className="mb-4 flex items-center justify-between">
+        {/* Body: chat + memory panel */}
+        <div className="grid md:grid-cols-[1.45fr_1fr]">
+          {/* Chat column */}
+          <div
+            className="flex flex-col p-4 sm:p-6"
+            style={{ borderRight: '1px solid var(--viz-border)' }}
+          >
             <p
-              className="font-mono text-[10px] uppercase tracking-[0.14em]"
-              style={{ color: "var(--viz-text-muted)" }}
+              className="mb-4 font-mono text-[10px] uppercase tracking-[0.14em]"
+              style={{ color: 'var(--viz-text-muted)' }}
             >
-              Memory state
+              Chat
             </p>
-            <span className="font-mono text-[10px]" style={{ color: "var(--viz-text-muted)" }}>
-              /v1/context
-            </span>
-          </div>
 
-          <div className="flex-1 space-y-2.5">
-            {HERO_MEMORY_FACTS.map((f) => (
+            <div className="flex-1 space-y-3 text-[13px] leading-relaxed">
               <div
-                key={f.type + f.text}
-                className="rounded-[7px] px-3 py-2.5"
+                className="max-w-[75%] rounded-[8px] px-3.5 py-2.5"
                 style={{
-                  background: "var(--viz-fill)",
-                  border: "1px solid var(--viz-border)",
+                  background: 'var(--viz-fill)',
+                  border: '1px solid var(--viz-border)',
+                  color: 'var(--viz-text-2)',
                 }}
               >
-                <div className="mb-1.5 flex items-center justify-between gap-2">
-                  <TypeBadge label={f.type} />
-                  <span className="font-mono text-[9px]" style={{ color: "var(--viz-text-muted)" }}>
-                    {f.score}
-                  </span>
-                </div>
-                <p className="text-[12px] leading-relaxed" style={{ color: "var(--viz-text-2)" }}>
-                  {f.text}
-                </p>
+                Hey, picking back up. Where did we leave off?
               </div>
-            ))}
+
+              <div className="flex justify-end">
+                <div className="max-w-[75%] rounded-[8px] bg-gradient-to-r from-brand-500 to-accent px-3.5 py-2.5 text-white shadow-[0_8px_24px_rgba(74,140,255,.16)]">
+                  What was the bug I was debugging last session?
+                </div>
+              </div>
+
+              <div
+                className="max-w-[85%] rounded-[8px] px-3.5 py-2.5"
+                style={{
+                  background: 'var(--viz-fill)',
+                  border: '1px solid var(--viz-border)',
+                  color: 'var(--viz-text-2)',
+                }}
+              >
+                You were hitting 429s on batch embedding jobs, an undocumented
+                per-IP burst limit (~500 req/10s). Did the tenacity backoff fix
+                land?
+
+                <MemoryUsedBadge note="ep_0012 · 761 tok" />
+              </div>
+            </div>
+
+            <div className="mt-6 flex flex-wrap gap-2">
+              {['What was I building?', 'Any open issues?'].map((suggestion) => (
+                <span
+                  key={suggestion}
+                  className="rounded-full border border-theme-border px-3 py-1.5 text-[11px] text-theme-secondary transition-colors hover:border-brand-500/35 hover:text-theme-primary"
+                >
+                  {suggestion}
+                </span>
+              ))}
+            </div>
+
+            <div
+              className="mt-3 flex items-center justify-between gap-3 rounded-[8px] px-3.5 py-2.5"
+              style={{
+                background: 'var(--viz-fill)',
+                border: '1px solid var(--viz-border)',
+              }}
+            >
+              <span
+                className="text-[12px]"
+                style={{ color: 'var(--viz-text-muted)' }}
+              >
+                Type a message…
+              </span>
+
+              <span className="rounded-[6px] bg-brand-500 px-3.5 py-1.5 text-[11px] font-medium text-white">
+                Send
+              </span>
+            </div>
           </div>
 
-          {/* Footer badge */}
+          {/* Memory state column */}
           <div
-            className="mt-4 flex items-center gap-2 rounded-[6px] px-3 py-2"
-            style={{
-              background: "rgba(16,185,129,0.07)",
-              border: "1px solid rgba(16,185,129,0.18)",
-            }}
+            className="flex flex-col p-4 sm:p-6"
+            style={{ background: 'var(--viz-shell-side)' }}
           >
-            <span style={{ color: "var(--viz-green)", fontSize: 9 }}>✓</span>
-            <span className="font-mono text-[11px]" style={{ color: "var(--viz-green)" }}>
-              4 memories compiled · 761 tokens
-            </span>
+            <div className="mb-4 flex items-center justify-between">
+              <p
+                className="font-mono text-[10px] uppercase tracking-[0.14em]"
+                style={{ color: 'var(--viz-text-muted)' }}
+              >
+                Memory state
+              </p>
+
+              <span
+                className="font-mono text-[10px]"
+                style={{ color: 'var(--viz-text-muted)' }}
+              >
+                /v1/context
+              </span>
+            </div>
+
+            <div className="flex-1 space-y-2.5">
+              {HERO_MEMORY_FACTS.map((fact) => (
+                <div
+                  key={fact.type + fact.text}
+                  className="rounded-[7px] border border-theme-border px-3 py-2.5 transition-colors hover:border-brand-500/25"
+                  style={{
+                    background: 'var(--viz-fill)',
+                  }}
+                >
+                  <div className="mb-1.5 flex items-center justify-between gap-2">
+                    <TypeBadge label={fact.type} />
+
+                    <span
+                      className="font-mono text-[9px]"
+                      style={{ color: 'var(--viz-text-muted)' }}
+                    >
+                      {fact.score}
+                    </span>
+                  </div>
+
+                  <p
+                    className="text-[12px] leading-relaxed"
+                    style={{ color: 'var(--viz-text-2)' }}
+                  >
+                    {fact.text}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-4 flex items-center gap-2 rounded-[6px] border border-success/25 bg-success/[0.07] px-3 py-2">
+              <span className="text-[9px] text-success">✓</span>
+
+              <span className="font-mono text-[11px] text-success">
+                4 memories compiled · 761 tokens
+              </span>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  );
+  )
 }
 
 /* ─── The Cost Of Stateless Chat Apps ────────────────────────────────────── */
@@ -383,57 +421,72 @@ const COST_ITEMS = [
 
 function CostSection() {
   return (
-    <GridSection innerClassName="relative py-20 sm:py-24 xl:py-28">
-      <div className="flex justify-center mb-8 xl:mb-10">
-        <span className="px-4 py-2 text-sm font-medium text-theme-primary border border-theme-border rounded-[8px]">
+    <GridSection innerClassName="relative py-20 sm:py-24 xl:py-28 bg-surface-1">
+      <div className="mx-auto max-w-[600px] text-center">
+        <div className="section-eyebrow mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
           Problems
-        </span>
+        </div>
+
+        <h2 className="font-heading text-4xl md:text-[56px] font-bold leading-[0.98] tracking-[-0.03em] text-theme-primary">
+          The cost of stateless{' '}
+          <span className="text-gradient-brand">chat apps</span>
+        </h2>
+
+        <p className="mt-6 text-[20px] leading-[1.65] text-theme-secondary/85">
+          Without durable memory, every session starts from scratch and every
+          prompt carries more history than it needs.
+        </p>
       </div>
 
-      <h2
-        className="text-center text-theme-primary mb-14 xl:mb-16"
-        style={{
-          fontSize: "clamp(2.25rem, 4vw, 3.75rem)",
-          fontWeight: 400,
-          letterSpacing: "-0.02em",
-          lineHeight: 1.05,
-        }}
-      >
-        The Cost Of Stateless Chat Apps
-      </h2>
-
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:gap-7">
-        {COST_ITEMS.map((item) => (
-          <div
+      <div className="mt-14 grid gap-4 sm:mt-16 sm:grid-cols-2 lg:grid-cols-3 xl:gap-6">
+        {COST_ITEMS.map((item, index) => (
+          <motion.article
             key={item.title}
-            className="flex flex-col justify-between p-8 sm:p-10 xl:p-12 border border-theme-border rounded-[10px]"
-            style={{ minHeight: "clamp(260px, 22vw, 420px)" }}
+            initial={{ opacity: 0, y: 18 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-40px' }}
+            transition={{ delay: index * 0.08, duration: 0.45 }}
+            className="sw-card group flex min-h-[280px] flex-col rounded-2xl border border-theme-border bg-surface-2/35 p-7 transition-all duration-300 hover:-translate-y-1 hover:border-danger/25 sm:p-8"
           >
             <div>
-              <svg width="28" height="28" viewBox="0 0 28 28" fill="none" className="mb-6 text-theme-muted">
-                <circle cx="14" cy="14" r="13" stroke="currentColor" strokeOpacity="0.4" strokeWidth="1.5" />
-                <path
-                  d="M9.5 9.5L18.5 18.5M18.5 9.5L9.5 18.5"
-                  stroke="currentColor"
-                  strokeOpacity="0.6"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                />
-              </svg>
-              <h4
-                className="text-[17px] font-semibold leading-snug text-theme-primary xl:text-[19px]"
-              >
+              <div className="mb-6 text-danger">
+                <svg
+                  className="h-8 w-8"
+                  viewBox="0 0 28 28"
+                  fill="none"
+                  aria-hidden="true"
+                >
+                  <circle
+                    cx="14"
+                    cy="14"
+                    r="12"
+                    stroke="currentColor"
+                    strokeOpacity="0.5"
+                    strokeWidth="1.5"
+                  />
+
+                  <path
+                    d="M9.5 9.5L18.5 18.5M18.5 9.5L9.5 18.5"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                  />
+                </svg>
+              </div>
+
+              <h3 className="font-heading text-[19px] font-semibold leading-snug text-theme-primary">
                 {item.title}
-              </h4>
+              </h3>
             </div>
-            <p className="mt-10 text-[14px] leading-relaxed text-theme-muted sm:text-[15px] xl:text-[16px]">
+
+            <p className="mt-auto pt-8 text-[15px] leading-[1.7] text-theme-muted">
               {item.body}
             </p>
-          </div>
+          </motion.article>
         ))}
       </div>
     </GridSection>
-  );
+  )
 }
 
 /* ─── The Memory Does The Merging ────────────────────────────────────────── */
@@ -485,16 +538,15 @@ function EpisodeVisual() {
       {sessions.map((s) => (
         <div
           key={s.time}
-          className={`rounded-[6px] p-3 ${
-            s.current ? "shadow-[0_10px_28px_rgba(0,0,0,0.26)]" : ""
-          }`}
+          className={`rounded-[6px] p-3 ${s.current ? "shadow-[0_10px_28px_rgba(0,0,0,0.26)]" : ""
+            }`}
           style={
             s.current
               ? { border: "1px solid #3d65ff", background: "#213a9f" }
               : {
-                  border: "1px solid var(--viz-border)",
-                  background: "var(--viz-card-3)",
-                }
+                border: "1px solid var(--viz-border)",
+                background: "var(--viz-card-3)",
+              }
           }
         >
           {s.current && (
@@ -570,9 +622,9 @@ function EndpointVisual() {
               step.active
                 ? { border: "1px solid #4b69ff", background: "#1d43b7" }
                 : {
-                    border: "1px solid var(--viz-border)",
-                    background: "var(--viz-card-2)",
-                  }
+                  border: "1px solid var(--viz-border)",
+                  background: "var(--viz-card-2)",
+                }
             }
           >
             <p
@@ -609,9 +661,9 @@ function FrameworkVisual() {
               t === "CrewAI"
                 ? { background: "#4f46e5", color: "#fff" }
                 : {
-                    border: "1px solid var(--viz-border-strong)",
-                    color: "var(--viz-text-3)",
-                  }
+                  border: "1px solid var(--viz-border-strong)",
+                  color: "var(--viz-text-3)",
+                }
             }
           >
             {t}
@@ -703,46 +755,50 @@ function SupersedeVisual() {
 }
 
 function MemoryMergingSection() {
-  return (
-    <GridSection innerClassName="py-20 sm:py-24">
-      <div className="mx-auto mb-10 max-w-xl text-center sm:mb-14">
-        <span className="inline-flex rounded-[6px] border border-theme-border px-4 py-2 text-sm font-medium text-theme-muted">
-          Features
-        </span>
-        <h2
-          className="mt-5 leading-[1.05] tracking-[-0.03em] text-theme-primary"
-          style={{
-            fontSize: "clamp(2.25rem, 4vw, 3.75rem)",
-            fontWeight: 400,
-          }}
+return (
+  <GridSection
+     innerClassName="py-20 sm:py-24 xl:py-28"
+  >
+    <div className="mx-auto mb-12 max-w-[620px] text-center sm:mb-16">
+      <div className="section-eyebrow mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
+        Features
+      </div>
+
+      <h2 className="font-heading text-4xl font-bold leading-[0.98] tracking-[-0.03em] text-theme-primary md:text-[56px]">
+        The memory{' '}
+        <span className="text-gradient-brand">does the merging</span>
+      </h2>
+
+      <p className="mx-auto mt-6 max-w-[760px] text-[20px] leading-[1.65] text-theme-secondary/85">
+        Statewave keeps every episode intact, compiles what matters, and returns
+        the right memory without losing the history behind it.
+      </p>
+    </div>
+
+    <div className="mx-auto grid max-w-[1100px] gap-5 sm:grid-cols-2">
+      {MEMORY_CARDS_DATA.map((card) => (
+        <article
+          key={card.title}
+          className="sw-card group overflow-hidden rounded-2xl border border-theme-border bg-surface-1 transition-all duration-300 hover:-translate-y-1 hover:border-brand-500/25"
         >
-          The Memory
-          <br />
-          Does The Merging
-        </h2>
-      </div>
-      <div className="mx-auto grid max-w-[1100px] gap-5 sm:grid-cols-2">
-        {MEMORY_CARDS_DATA.map((card) => (
-          <div
-            key={card.title}
-            className="overflow-hidden rounded-[10px] border border-theme-border"
-          >
-            <VisualPanel className="flex min-h-[300px] sm:min-h-[380px] md:min-h-[440px] items-center justify-center px-4 sm:px-8 py-10">
-              <card.Visual />
-            </VisualPanel>
-            <div className="px-7 py-7 sm:px-8 bg-surface-0">
-              <h3 className="mb-3 text-[20px] font-semibold leading-tight text-theme-primary">
-                {card.title}
-              </h3>
-              <p className="max-w-[400px] text-[15px] leading-relaxed text-theme-muted">
-                {card.body}
-              </p>
-            </div>
+          <VisualPanel className="flex min-h-[300px] items-center justify-center px-4 py-10 sm:min-h-[380px] sm:px-8 md:min-h-[440px]">
+            <card.Visual />
+          </VisualPanel>
+
+          <div className="bg-surface-1 px-7 py-7 sm:px-8 sm:py-8">
+            <h3 className="font-heading text-[20px] font-semibold leading-tight text-theme-primary">
+              {card.title}
+            </h3>
+
+            <p className="mt-3 max-w-[400px] text-[15px] leading-[1.7] text-theme-muted">
+              {card.body}
+            </p>
           </div>
-        ))}
-      </div>
-    </GridSection>
-  );
+        </article>
+      ))}
+    </div>
+  </GridSection>
+)
 }
 
 /* ─── Three quickstart examples ──────────────────────────────────────────── */
@@ -980,146 +1036,261 @@ function AgentFrameworkVisual() {
 
 function QuickstartSection() {
   return (
-    <GridSection innerClassName="py-28 sm:py-36">
-      <div className="mx-auto mb-14 max-w-3xl text-center sm:mb-20">
-        <span className="inline-flex rounded-[6px] border border-theme-border px-4 py-2 text-sm font-medium text-theme-muted">
-          Reference Builds
-        </span>
-        <h2
-          className="mt-5 leading-[1.05] tracking-[-0.03em] text-theme-primary"
-          style={{
-            fontSize: "clamp(2rem, 3.5vw, 3.25rem)",
-            fontWeight: 500,
-          }}
-        >
-          Three quickstart examples. One live comparison.
+    <GridSection
+      className="bg-surface-1"
+      innerClassName="py-20 sm:py-24 xl:py-28"
+    >
+      <div className="mx-auto mb-14 max-w-[760px] text-center sm:mb-16">
+        <div className="section-eyebrow mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
+          Reference builds
+        </div>
+
+        <h2 className="font-heading text-4xl font-bold leading-[0.98] tracking-[-0.03em] text-theme-primary md:text-[56px]">
+          Three quickstart examples.{' '}
+          <span className="text-gradient-brand">
+            One live comparison.
+          </span>
         </h2>
+
+        <p className="mx-auto mt-6 max-w-[680px] text-[20px] leading-[1.65] text-theme-secondary/85">
+          Start with the smallest possible integration, add a visible memory
+          panel, or wire the same pattern into an agent framework.
+        </p>
       </div>
+
       <div className="mx-auto max-w-[1100px] space-y-5">
-        {QUICKSTART_ROWS_DATA.map((row, i) => (
-          <motion.div
-            key={i}
+        {QUICKSTART_ROWS_DATA.map((row, index) => (
+          <motion.article
+            key={row.label}
             initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-60px" }}
-            transition={{ duration: 0.5 }}
-            className="overflow-hidden rounded-[12px] border border-theme-border md:grid md:min-h-[400px] md:grid-cols-[1fr_1.1fr]"
+            viewport={{ once: true, margin: '-60px' }}
+            transition={{
+              delay: index * 0.08,
+              duration: 0.5,
+            }}
+            className="sw-card group overflow-hidden rounded-2xl border border-theme-border bg-surface-0 transition-all duration-300 hover:-translate-y-1 hover:border-brand-500/25 md:grid md:min-h-[400px] md:grid-cols-[1fr_1.1fr]"
           >
-            <div className="flex flex-col justify-center border-b border-theme-border p-8 md:border-b-0 md:border-r md:p-14 bg-surface-0">
-              <h3 className="max-w-[340px] text-[20px] sm:text-[22px] font-semibold leading-[1.12] tracking-[-0.02em] text-theme-primary sm:text-[26px]">
+            <div className="flex flex-col justify-center border-b border-theme-border bg-surface-0 p-8 md:border-b-0 md:border-r md:p-14">
+              <h3 className="max-w-[360px] font-heading text-[22px] font-semibold leading-[1.12] tracking-[-0.02em] text-theme-primary sm:text-[26px]">
                 {row.label}
               </h3>
-              <p className="mt-5 max-w-[380px] text-[15px] leading-relaxed text-theme-muted">
+
+              <p className="mt-5 max-w-[400px] text-[15px] leading-[1.7] text-theme-muted">
                 {row.body}
               </p>
-              <div className="mt-6 flex gap-2">
-                {row.tags.map((t) => (
+
+              <div className="mt-6 flex flex-wrap gap-2">
+                {row.tags.map((tag) => (
                   <span
-                    key={t}
-                    className="rounded-[6px] border border-theme-border px-2.5 py-1 text-[12px] text-theme-muted"
+                    key={tag}
+                    className="rounded-full border border-theme-border bg-surface-1/60 px-3 py-1 text-[12px] font-medium text-theme-muted"
                   >
-                    {t}
+                    {tag}
                   </span>
                 ))}
               </div>
             </div>
-            <VisualPanel className="flex min-h-[280px] sm:min-h-[320px] items-center justify-center px-4 sm:px-8 py-10 md:min-h-0 md:px-12">
+
+            <VisualPanel className="flex min-h-[280px] items-center justify-center px-4 py-10 sm:min-h-[320px] sm:px-8 md:min-h-0 md:px-12">
               <row.Visual />
             </VisualPanel>
-          </motion.div>
+          </motion.article>
         ))}
       </div>
     </GridSection>
-  );
+  )
 }
 
 /* ─── Only the highest-confidence facts reach the prompt ─────────────────── */
 
 function TokenComparisonCard() {
-  const label: React.CSSProperties = { fontSize: 12, color: "var(--viz-text-3)" };
+  const label: React.CSSProperties = {
+    fontSize: 12,
+    color: "var(--viz-text-3)",
+  };
+
   const chip: React.CSSProperties = {
     fontSize: 11,
     color: "var(--viz-text-muted)",
     border: "1px solid var(--viz-border)",
-    borderRadius: 4,
-    padding: "2px 7px",
-  };
-  const track: React.CSSProperties = {
-    background: "var(--viz-track)",
     borderRadius: 6,
-    height: 12,
-    overflow: "hidden",
-    marginBottom: 8,
+    padding: "3px 8px",
   };
-  const note: React.CSSProperties = { fontSize: 11, color: "var(--viz-text-muted)" };
+
+  const track: React.CSSProperties = {
+    height: 10,
+    marginBottom: 8,
+    overflow: "hidden",
+    borderRadius: 999,
+    background: "var(--viz-track)",
+  };
+
+  const note: React.CSSProperties = {
+    fontSize: 11,
+    lineHeight: 1.6,
+    color: "var(--viz-text-muted)",
+  };
+
   return (
     <div
       style={{
-        background: "var(--viz-card)",
-        border: "1px solid var(--viz-border-strong)",
-        borderRadius: 14,
-        padding: "28px",
+        position: "relative",
         width: "100%",
         maxWidth: 480,
-        position: "relative",
+        padding: 32,
+        border: "1px solid var(--viz-border-strong)",
+        borderRadius: 18,
+        background: "var(--viz-shell)",
       }}
     >
-      {/* Top: raw conversation history */}
+      {/* Raw conversation history */}
       <div
         style={{
-          borderBottom: "1px solid var(--viz-border)",
-          paddingBottom: 28,
           marginBottom: 28,
+          paddingBottom: 28,
+          borderBottom: "1px solid var(--viz-border)",
         }}
       >
-        <p style={{ fontSize: 15, fontWeight: 600, color: "var(--viz-text)", marginBottom: 16 }}>
+        <p
+          style={{
+            marginBottom: 16,
+            fontSize: 16,
+            fontWeight: 700,
+            color: "var(--viz-text)",
+          }}
+        >
           Raw conversation history
         </p>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-          <span style={label}>tokens to LLM</span>
+
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 12,
+            marginBottom: 7,
+          }}
+        >
+          <span style={label}>Tokens to LLM</span>
           <span style={chip}>~2,800 / session</span>
         </div>
+
         <div style={track}>
-          <div style={{ background: "#ef4444", borderRadius: 6, height: "100%", width: "88%" }} />
+          <div
+            style={{
+              width: "88%",
+              height: "100%",
+              borderRadius: 999,
+              background: "#ef4444",
+            }}
+          />
         </div>
-        <p style={note}>6 sessions of raw history. No ranking signal.</p>
+
+        <p style={note}>
+          6 sessions of raw history. No ranking signal.
+        </p>
       </div>
 
-      {/* Bottom: Statewave context bundle */}
+      {/* Statewave context bundle */}
       <div>
-        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
-          <svg width="13" height="12" viewBox="0 0 13 12" fill="none">
-            <circle cx="6.5" cy="6" r="5" stroke="#818cf8" strokeWidth="1.5" />
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 9,
+            marginBottom: 16,
+          }}
+        >
+          <svg
+            width="13"
+            height="12"
+            viewBox="0 0 13 12"
+            fill="none"
+            aria-hidden="true"
+          >
+            <circle
+              cx="6.5"
+              cy="6"
+              r="5"
+              stroke="#818cf8"
+              strokeWidth="1.5"
+            />
             <circle cx="6.5" cy="6" r="2" fill="#818cf8" />
           </svg>
-          <p style={{ fontSize: 14, fontWeight: 600, color: "var(--viz-text)" }}>
+
+          <p
+            style={{
+              fontSize: 16,
+              fontWeight: 700,
+              color: "var(--viz-text)",
+            }}
+          >
             Statewave context bundle
           </p>
         </div>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-          <span style={label}>Token Used (Avg)</span>
+
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 12,
+            marginBottom: 7,
+          }}
+        >
+          <span style={label}>Tokens used, average</span>
           <span style={chip}>761 / session</span>
         </div>
+
         <div style={track}>
-          <div style={{ background: "#818cf8", borderRadius: 6, height: "100%", width: "27%" }} />
+          <div
+            style={{
+              width: "27%",
+              height: "100%",
+              borderRadius: 999,
+              background: "#818cf8",
+            }}
+          />
         </div>
-        <p style={{ ...note, marginBottom: 16 }}>
-          Only the highest-confidence facts, in budget.
+
+        <p
+          style={{
+            ...note,
+            marginBottom: 18,
+          }}
+        >
+          Only the highest-confidence facts, within budget.
         </p>
+
         <div
           style={{
             display: "inline-flex",
             alignItems: "center",
-            gap: 6,
-            background: "rgba(16,185,129,0.08)",
+            gap: 7,
+            padding: "6px 11px",
             border: "1px solid rgba(16,185,129,0.18)",
-            borderRadius: 5,
-            padding: "5px 10px",
+            borderRadius: 6,
+            background: "rgba(16,185,129,0.08)",
           }}
         >
-          <span style={{ color: "var(--viz-green)", fontSize: 8 }}>●</span>
-          <span style={{ fontSize: 11, fontWeight: 500, color: "var(--viz-green)" }}>
-            Memory Connected
+          <span
+            style={{
+              fontSize: 8,
+              color: "var(--viz-green)",
+            }}
+          >
+            ●
+          </span>
+
+          <span
+            style={{
+              fontSize: 11,
+              fontWeight: 600,
+              color: "var(--viz-green)",
+            }}
+          >
+            Context compiled
           </span>
         </div>
       </div>
@@ -1129,62 +1300,67 @@ function TokenComparisonCard() {
 
 function ConfidenceSection() {
   return (
-    <GridSection innerClassName="py-28 sm:py-36">
-      <div className="grid md:grid-cols-2 gap-10 md:gap-16 xl:gap-24 items-center">
+    <GridSection
+      innerClassName="py-20 sm:py-24 xl:py-28"
+    >
+      <div className="grid items-center gap-14 md:grid-cols-2 xl:gap-20">
         <div>
-          <h2
-            className="text-theme-primary tracking-tight mb-5"
-            style={{
-              fontSize: "clamp(1.75rem, 3.5vw, 3rem)",
-              fontWeight: 700,
-              lineHeight: 1.08,
-              letterSpacing: "-0.02em",
-            }}
-          >
-            Only the highest-confidence
-            <br />
-            facts reach the prompt
+          <div className="section-eyebrow mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
+            Context retrieval
+          </div>
+
+          <h2 className="font-heading text-4xl md:text-[56px] font-bold leading-[0.98] tracking-[-0.03em] text-theme-primary">
+            Only the highest-confidence{' '}
+            <span className="text-gradient-brand">
+              facts reach the prompt
+            </span>
           </h2>
-          <p className="text-[16px] text-theme-muted leading-relaxed mb-5">
-            get_context ranks every compiled memory and returns only what fits
-            the demo&apos;s STATEWAVE_MAX_TOKENS (800 by default) as one
-            ready-to-inject string.
+
+          <p className="mt-6 text-[20px] leading-[1.65] text-theme-secondary/85">
+            <code>get_context()</code> ranks compiled memories and returns only
+            what fits the configured token budget, ready to inject into your
+            agent.
           </p>
-          <ul className="space-y-3 text-[15px] text-theme-muted mb-8">
-            <li className="flex items-center gap-2">
-              <svg className="w-4 h-4 text-theme-muted shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <circle cx="12" cy="12" r="9" strokeWidth={1.5} />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4" />
-              </svg>
-              STATEWAVE_MAX_TOKENS enforced on every call, never exceeded
-            </li>
-            <li className="flex items-center gap-2">
-              <svg className="w-4 h-4 text-theme-muted shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <circle cx="12" cy="12" r="9" strokeWidth={1.5} />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4" />
-              </svg>
-              Confidence-ranked: profile facts before throwaway remarks
-            </li>
-          </ul>
-          <Button
-            href="https://github.com/smaramwbc/statewave-personal-assistant"
-            variant="primary"
-            size="lg"
-          >
-            See the 5-Minute Path
-          </Button>
+
+          <div className="mt-8 space-y-3">
+            {[
+              "STATEWAVE_MAX_TOKENS enforced on every call",
+              "Confidence-ranked memories before throwaway conversation",
+            ].map((item) => (
+              <div
+                key={item}
+                className="flex items-start gap-4"
+              >
+                <span className="mt-2 h-px w-3 shrink-0 bg-accent" />
+
+                <span className="text-sm leading-6 text-theme-primary">
+                  {item}
+                </span>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-10">
+            <Button
+              href="https://github.com/smaramwbc/statewave-personal-assistant"
+              size="lg"
+            >
+              See the 5-Minute Path
+            </Button>
+          </div>
         </div>
+
         <div className="flex justify-center md:justify-end">
           <VisualPanel
-            className="w-full flex items-center justify-center rounded-[10px] border border-theme-border px-4 sm:px-8 py-10"
-            style={{ maxWidth: "min(560px, 100%)" }}
+            className="flex w-full items-center justify-center px-4 py-10 sm:px-8"
+            style={{ maxWidth: "min(560px,100%)" }}
           >
             <TokenComparisonCard />
           </VisualPanel>
         </div>
       </div>
     </GridSection>
-  );
+  )
 }
 
 /* ─── Three endpoints. That's the whole API. ─────────────────────────────── */
@@ -1210,41 +1386,57 @@ function SingleCodeCard({
   return (
     <div
       style={{
-        background: "var(--viz-card)",
-        border: "1px solid var(--viz-border-strong)",
-        borderRadius: 12,
-        overflow: "hidden",
         width: "100%",
+        overflow: "hidden",
+        borderRadius: 18,
+        background: "var(--viz-shell)",
+        border: "1px solid var(--viz-border-strong)",
       }}
     >
-      {/* Tab bar */}
       <div
         style={{
-          borderBottom: "1px solid var(--viz-border)",
           display: "flex",
+          alignItems: "center",
+          gap: 2,
+          padding: "0 10px",
+          borderBottom: "1px solid var(--viz-border)",
+          background: "var(--viz-shell-header)",
         }}
       >
-        {(["py", "curl"] as const).map((t) => {
-          const label = t === "py" ? "Python" : "cURL";
-          const active = activeTab === t;
+        {(["py", "curl"] as const).map((tab) => {
+          const active = activeTab === tab;
+
           return (
             <div
-              key={t}
+              key={tab}
               style={{
-                padding: "10px 16px",
                 ...MONO,
-                color: active ? "var(--viz-text)" : "var(--viz-text-muted)",
-                borderBottom: active ? "2px solid #818cf8" : "2px solid transparent",
-                marginBottom: -1,
+                padding: "12px 14px",
+                fontSize: 12,
+                fontWeight: 600,
+                color: active
+                  ? "var(--viz-text)"
+                  : "var(--viz-text-muted)",
+                borderBottom: active
+                  ? "2px solid #818cf8"
+                  : "2px solid transparent",
+                transition: "all .2s ease",
               }}
             >
-              {label}
+              {tab === "py" ? "Python" : "cURL"}
             </div>
           );
         })}
       </div>
-      {/* Code body */}
-      <div style={{ padding: "18px 18px 20px", ...MONO }}>{children}</div>
+
+      <div
+        style={{
+          ...MONO,
+          padding: "22px 22px 24px",
+        }}
+      >
+        {children}
+      </div>
     </div>
   );
 }
@@ -1253,40 +1445,51 @@ function CodeCardsStack() {
   return (
     <div
       style={{
+        width: "100%",
+        maxWidth: "min(440px, 100%)",
         display: "flex",
         flexDirection: "column",
-        gap: 12,
-        width: "100%",
-        maxWidth: "min(420px, 100%)",
+        gap: 16,
       }}
     >
-      {/* Python card */}
       <SingleCodeCard activeTab="py">
         <p style={{ margin: 0 }}>
           <span style={{ color: "var(--viz-code-keyword)" }}>from</span>
           <span style={{ color: "var(--viz-code-muted)" }}> </span>
-          <span style={{ color: "var(--viz-code-text)" }}>statewave_integration</span>
+          <span style={{ color: "var(--viz-code-text)" }}>
+            statewave_integration
+          </span>
           <span style={{ color: "var(--viz-code-muted)" }}> </span>
           <span style={{ color: "var(--viz-code-keyword)" }}>import</span>
           <span style={{ color: "var(--viz-code-muted)" }}> (</span>
         </p>
-        <p style={{ margin: 0 }}>
+
+        <p style={{ margin: "4px 0 0" }}>
           <span style={{ color: "var(--viz-code-muted)" }}>{"  "}</span>
-          <span style={{ color: "var(--viz-code-text)" }}>_get_context, _record_episode</span>
+          <span style={{ color: "var(--viz-code-text)" }}>
+            _get_context, _record_episode
+          </span>
         </p>
-        <p style={{ margin: 0 }}>
+
+        <p style={{ margin: "4px 0 0" }}>
           <span style={{ color: "var(--viz-code-muted)" }}>)</span>
         </p>
       </SingleCodeCard>
 
-      {/* cURL card */}
       <SingleCodeCard activeTab="curl">
         <p style={{ margin: 0 }}>
-          <span style={{ color: "var(--viz-code-text)" }}>curl localhost:8000/api/v1\</span>
+          <span style={{ color: "var(--viz-code-keyword)" }}>curl</span>
+          <span style={{ color: "var(--viz-code-muted)" }}> </span>
+          <span style={{ color: "var(--viz-code-text)" }}>
+            localhost:8000/api/v1\
+          </span>
         </p>
-        <p style={{ margin: 0 }}>
+
+        <p style={{ margin: "4px 0 0" }}>
           <span style={{ color: "var(--viz-code-muted)" }}>{"  "}</span>
-          <span style={{ color: "var(--viz-code-text)" }}>/memory/dev_alice</span>
+          <span style={{ color: "var(--viz-code-text)" }}>
+            /memory/dev_alice
+          </span>
         </p>
       </SingleCodeCard>
     </div>
@@ -1295,71 +1498,66 @@ function CodeCardsStack() {
 
 function ThreeEndpointsSection() {
   return (
-    <GridSection innerClassName="py-28 sm:py-36">
-      <div className="grid md:grid-cols-2 gap-10 md:gap-16 xl:gap-24 items-center">
+    <GridSection
+      className="bg-surface-1"
+      innerClassName="py-20 sm:py-24 xl:py-28"
+    >
+      <div className="grid items-center gap-14 md:grid-cols-2 xl:gap-20">
         <div className="flex justify-center md:justify-start">
           <VisualPanel
-            className="w-full flex items-center justify-center rounded-[10px] border border-theme-border px-4 sm:px-8 py-10"
+            className="flex w-full items-center justify-center px-4 py-10 sm:px-8"
             style={{ maxWidth: "min(560px, 100%)" }}
           >
             <CodeCardsStack />
           </VisualPanel>
         </div>
+
         <div>
-          <h2
-            className="text-theme-primary tracking-tight mb-5"
-            style={{
-              fontSize: "clamp(2rem, 3.5vw, 3rem)",
-              fontWeight: 700,
-              lineHeight: 1.08,
-              letterSpacing: "-0.02em",
-            }}
-          >
-            Three endpoints.
-            <br />
-            That's the whole API.
+          <div className="section-eyebrow mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
+            Developer API
+          </div>
+
+          <h2 className="font-heading text-4xl font-bold leading-[0.98] tracking-[-0.03em] text-theme-primary md:text-[56px]">
+            Three endpoints.{" "}
+            <span className="text-gradient-brand">
+              That's the whole API.
+            </span>
           </h2>
-          <p className="text-[16px] text-theme-muted leading-relaxed mb-6">
-            Two calls wrap your LLM call: get_context before, record_episode
-            after. Drop the client into any FastAPI app in minutes.
+
+          <p className="mt-6 text-[20px] leading-[1.65] text-theme-secondary/85">
+            Wrap your LLM with two calls—retrieve context before inference and
+            record the episode afterwards. The client drops into any FastAPI app
+            in minutes.
           </p>
-          <ul className="space-y-2.5 mb-8">
-            {ENDPOINT_FEATURES.map((f) => (
-              <li
-                key={f.label}
-                className="flex items-center gap-2.5 text-sm text-theme-muted"
+
+          <div className="mt-8 space-y-3">
+            {ENDPOINT_FEATURES.map((feature) => (
+              <div
+                key={feature.label}
+                className="flex items-start gap-4"
               >
-                <svg
-                  className="w-4 h-4 text-theme-muted shrink-0"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <circle cx="12" cy="12" r="9" strokeWidth={1.5} />
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={1.5}
-                    d="M9 12l2 2 4-4"
-                  />
-                </svg>
-                {f.label}
-              </li>
+                <span className="mt-2 h-px w-3 shrink-0 bg-accent" />
+
+                <span className="text-sm leading-6 text-theme-primary">
+                  {feature.label}
+                </span>
+              </div>
             ))}
-          </ul>
-          <Button
-            href="https://github.com/smaramwbc/statewave-docs/blob/main/getting-started.md"
-            variant="primary"
-            size="lg"
-          >
-            Integrate Statewave
-          </Button>
+          </div>
+
+          <div className="mt-10">
+            <Button
+              href="https://github.com/smaramwbc/statewave-docs/blob/main/getting-started.md"
+              size="lg"
+            >
+              Integrate Statewave
+            </Button>
+          </div>
         </div>
       </div>
     </GridSection>
   );
 }
-
 /* ─── Purpose-built feature grid ─────────────────────────────────────────── */
 
 const FEATURE_GRID = [
@@ -1397,9 +1595,16 @@ function CircleCheck() {
       viewBox="0 0 20 20"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      className="text-theme-muted shrink-0"
+      className="shrink-0 text-brand-500"
+      aria-hidden="true"
     >
-      <circle cx="10" cy="10" r="9" stroke="currentColor" strokeWidth="1.5" />
+      <circle
+        cx="10"
+        cy="10"
+        r="9"
+        stroke="currentColor"
+        strokeWidth="1.5"
+      />
       <path
         d="M6.5 10.5L8.5 12.5L13.5 7.5"
         stroke="currentColor"
@@ -1414,55 +1619,45 @@ function CircleCheck() {
 function FeatureGridSection() {
   return (
     <GridSection
-      innerClassName="relative"
-      className=""
+      innerClassName="py-20 sm:py-24 xl:py-28"
     >
-      <div
-        style={{
-          paddingTop: "clamp(60px, 8vw, 100px)",
-          paddingBottom: "clamp(60px, 8vw, 100px)",
-        }}
-      >
-        {/* Header */}
-        <div className="text-center mb-14">
-          <span className="inline-flex rounded-[6px] px-3.5 py-1.5 text-[13px] font-medium text-theme-secondary border border-theme-border">
-            Why Statewave
-          </span>
-          <h2
-            className="mt-4 text-theme-primary tracking-tight"
-            style={{
-              fontSize: "clamp(1.75rem, 3vw, 2.5rem)",
-              fontWeight: 700,
-              lineHeight: 1.1,
-              letterSpacing: "-0.02em",
-            }}
-          >
-            Purpose-Built Memory Layer for AI Agents
-          </h2>
+      <div className="mx-auto mb-12 max-w-[720px] text-center sm:mb-16">
+        <div className="section-eyebrow mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
+          Why Statewave
         </div>
 
-        {/* 3-col grid */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {FEATURE_GRID.map((f) => (
-            <div
-              key={f.title}
-              className="rounded-[10px] border border-theme-border bg-surface-0 p-5"
-            >
-              <div className="flex items-center gap-2.5 mb-3">
-                <CircleCheck />
-                <h3
-                  className="text-[15px] font-semibold text-theme-primary leading-snug"
-                  style={{ fontFamily: "Inter, sans-serif" }}
-                >
-                  {f.title}
+        <h2 className="font-heading text-4xl font-bold leading-[0.98] tracking-[-0.03em] text-theme-primary md:text-[56px]">
+          Purpose-built memory{" "}
+          <span className="text-gradient-brand">for AI agents</span>
+        </h2>
+
+        <p className="mx-auto mt-6 max-w-[640px] text-[20px] leading-[1.65] text-theme-secondary/85">
+          A focused memory layer designed for production agents, with durable
+          context, predictable token usage, and infrastructure you control.
+        </p>
+      </div>
+
+      <div className="mx-auto grid max-w-[1100px] gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        {FEATURE_GRID.map((feature) => (
+          <article
+            key={feature.title}
+            className="sw-card rounded-2xl border border-theme-border bg-surface-1/50 p-6 sm:p-7"
+          >
+            <div className="flex items-start gap-3">
+              <CircleCheck />
+
+              <div>
+                <h3 className="font-heading text-[17px] font-semibold leading-[1.25] tracking-[-0.01em] text-theme-primary">
+                  {feature.title}
                 </h3>
+
+                <p className="mt-3 text-[14px] leading-[1.7] text-theme-muted">
+                  {feature.body}
+                </p>
               </div>
-              <p className="text-[13px] leading-relaxed text-theme-muted">
-                {f.body}
-              </p>
             </div>
-          ))}
-        </div>
+          </article>
+        ))}
       </div>
     </GridSection>
   );
@@ -1472,75 +1667,68 @@ function FeatureGridSection() {
 
 function CTASection() {
   return (
-    <section className="relative bg-surface-1">
-      <div
-        className="mx-auto max-w-[1488px] px-5 sm:px-10 md:px-16 xl:px-[94px] xl:border-l xl:border-r border-theme-border"
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          paddingTop: "clamp(72px, 8vw, 120px)",
-          paddingBottom: "clamp(80px, 9vw, 140px)",
-        }}
-      >
-        <div className="text-center" style={{ maxWidth: 900 }}>
-          <h2
-            className="text-theme-primary"
-            style={{
-              fontSize: "clamp(1.75rem, 5vw, 4.75rem)",
-              fontWeight: 700,
-              lineHeight: 1.02,
-              letterSpacing: "-0.02em",
-              margin: 0,
-            }}
-          >
-            <span className="block" style={{ whiteSpace: "nowrap" }}>
-              Give your assistant
-            </span>
-            <span
-              className="block"
-              style={{
-                whiteSpace: "nowrap",
-                background: "linear-gradient(90deg, #4f46e5 0%, #60a5fa 50%, #93c5fd 100%)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                backgroundClip: "text",
-              }}
-            >
-              a memory
-            </span>
+    <GridSection
+      className="bg-surface-1"
+      innerClassName="py-20 sm:py-24 xl:py-28"
+    >
+      <div className="cta-card relative overflow-hidden rounded-[2.5rem] border border-brand-500/25 bg-surface-1/55 px-6 py-20 text-center">
+        <div
+          className="cta-card-glow absolute inset-0"
+          aria-hidden="true"
+        />
+
+        <div
+          className="absolute inset-x-20 top-0 h-px bg-gradient-to-r from-transparent via-brand-500/60 to-transparent"
+          aria-hidden="true"
+        />
+
+        <div className="relative z-10 mx-auto max-w-4xl">
+          <div className="section-eyebrow mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
+            START BUILDING
+          </div>
+
+          <h2 className="font-heading text-4xl font-bold leading-[1.02] tracking-[-0.04em] text-theme-primary md:text-[64px]">
+            Give your assistant{" "}
+            <span className="text-gradient-brand">memory</span>
           </h2>
 
-          <p
-            className="text-theme-muted mt-5"
-            style={{
-              fontSize: 15,
-              lineHeight: 1.5,
-              fontFamily: "Inter, sans-serif",
-              fontWeight: 400,
-            }}
-          >
-            Instant memory for LLMs for better, cheaper, personal.
+          <p className="mx-auto mt-6 max-w-2xl text-[20px] leading-[1.65] text-theme-secondary/85">
+            Start building with Statewave in about 5 minutes. Self-hosted,
+            open source, and ready for production.
           </p>
 
-          <div className="mt-14 flex flex-wrap justify-center gap-3">
+          <div className="mt-10 flex flex-wrap justify-center gap-4">
             <Button
               href="https://github.com/smaramwbc/statewave-docs/blob/main/getting-started.md"
-              variant="primary"
               size="lg"
             >
               Get Started
+
+              <svg
+                className="h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M13 7l5 5m0 0l-5 5m5-5H6"
+                />
+              </svg>
             </Button>
+
             <Button to="/pricing" variant="secondary" size="lg">
               Pricing
             </Button>
           </div>
         </div>
       </div>
-    </section>
+    </GridSection>
   );
 }
-
 /* ─── Page ───────────────────────────────────────────────────────────────── */
 
 export function PersonalAssistantMemoryPage() {
