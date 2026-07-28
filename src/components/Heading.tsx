@@ -7,7 +7,7 @@ interface HeadingProps {
   level?: 1 | 2 | 3 | 4
   children: ReactNode
   className?: string
-  /** Whether to show the anchor copy button. Defaults to true. */
+  /** Whether to show the anchor copy button. Defaults to false. */
   showAnchor?: boolean
 
 }
