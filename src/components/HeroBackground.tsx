@@ -566,7 +566,7 @@ export function HeroBackground({ contentZoneRef }: { contentZoneRef?: React.RefO
         { x: 0.78, y: 0.28 },  // Coding Assistant - mid right
         { x: 0.15, y: 0.65 },  // Sales Copilot - lower left
         { x: 0.85, y: 0.68 },  // DevOps Agent - lower right
-        { x: 0.50, y: 0.18 },  // Research Assistant - upper center
+        { x: 0.50, y: 0.1 },  // Research Assistant - upper center
       ]
     } else if (isWide) {
       // Wide screens: shift everything down significantly
@@ -575,7 +575,7 @@ export function HeroBackground({ contentZoneRef }: { contentZoneRef?: React.RefO
         { x: 0.92, y: 0.48 },  // Coding Assistant - right mid
         { x: 0.10, y: 0.85 },  // Sales Copilot - left bottom
         { x: 0.90, y: 0.82 },  // DevOps Agent - right bottom
-        { x: 0.50, y: 0.18 },  // Research Assistant - upper center
+        { x: 0.50, y: 0.13 },  // Research Assistant - upper center
       ]
     } else {
       // Default/tablet: balanced, shifted down
@@ -584,7 +584,7 @@ export function HeroBackground({ contentZoneRef }: { contentZoneRef?: React.RefO
         { x: 0.88, y: 0.44 },  // Coding Assistant - right mid
         { x: 0.10, y: 0.82 },  // Sales Copilot - left bottom
         { x: 0.90, y: 0.78 },  // DevOps Agent - right bottom
-        { x: 0.50, y: 0.16 },  // Research Assistant - upper center
+        { x: 0.50, y: 0.12 },  // Research Assistant - upper center
       ]
     }
 

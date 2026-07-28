@@ -4,9 +4,32 @@ import { Link } from 'react-router'
 import { Section } from '../components/Section'
 import { Button } from '../components/Button'
 import { Heading } from '../components/Heading'
-import { Card } from '../components/Card'
 import { ClientOnly } from '../components/ClientOnly'
 import { CodeCopyButton } from '../components/CodeCopyButton'
+import { HeroInstallCommand } from '../components/HeroInstallCommand'
+
+import {
+  UserRound,
+  Code,
+  MessageSquareMore,
+  Clock3,
+  Tag,
+  FileText,
+  ReceiptText,
+  Link2,
+  Users,
+  Trash2,
+  Download,
+  Layers,
+  BarChart3,
+  Send,
+  ShieldCheck,
+  Code2,
+  Radio,
+  Search,
+  RefreshCw,
+} from 'lucide-react'
+
 // HeroBackground is a ~1100-line canvas component that is suppressed on
 // viewports ≤ 639px (see useIsHeroCanvasSuppressed inside the component).
 // We lazy-load it AND gate the mount on the same media query at this level,
@@ -22,7 +45,7 @@ import { faqPageJsonLd, softwareApplicationJsonLd } from '../lib/seo-meta'
 import { FAQ_ENTRIES } from '../lib/faq'
 import { PROOF_STATS } from '../lib/proof-stats'
 import { useChatWidget, useTrackDemoCta } from '../lib/widget-context-api'
-import { useRef, useState, useEffect } from 'react'
+import { useCallback, useRef, useState, useEffect } from 'react'
 
 export function HomePage() {
   // Organization and WebSite are the only site-wide entities baked into
@@ -102,278 +125,260 @@ function HeroSection() {
   // on the subordinate elements (badge, subhead, CTAs).
 
   return (
-    <section className="relative min-h-[88vh] sm:min-h-[92vh] flex items-center overflow-hidden">
+    <section className="relative min-h-screen flex items-center overflow-hidden">
       {showHeroCanvas && (
         <Suspense fallback={null}>
           <HeroBackground contentZoneRef={contentZoneRef} />
         </Suspense>
       )}
 
-      {/* Depth layers — add visual weight so the centered content doesn't
-          float on flat (especially near-white light-theme) space. Both are
-          decorative + behind the content, and fade out toward the edges. */}
-      {/* 1. Soft accent glow behind the headline. */}
+      <div
+        ref={contentZoneRef}
+        className="pointer-events-none absolute left-1/2 top-[220px] bottom-20 w-[calc(100%-3rem)] max-w-[980px] -translate-x-1/2"
+        aria-hidden="true"
+      />
+
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
           background:
-            'radial-gradient(42rem 28rem at 50% 32%, rgba(99, 102, 241, 0.10), transparent 70%)',
+            'radial-gradient(52rem 36rem at 50% 32%, rgba(99,102,241,.11), transparent 72%)',
         }}
       />
-      {/* 2. Masked dot-grid texture (denser in the centre, fades at edges). */}
+
       <div
-        className="absolute inset-0 pointer-events-none"
+        className="absolute inset-0 pointer-events-none opacity-45"
         style={{
           backgroundImage:
             'radial-gradient(var(--theme-hero-dot) 1px, transparent 1px)',
-          backgroundSize: '24px 24px',
+          backgroundSize: '22px 22px',
           maskImage:
-            'radial-gradient(ellipse 65% 55% at 50% 38%, #000 38%, transparent 78%)',
+            'radial-gradient(ellipse 70% 62% at 50% 38%, #000 28%, transparent 78%)',
           WebkitMaskImage:
-            'radial-gradient(ellipse 65% 55% at 50% 38%, #000 38%, transparent 78%)',
+            'radial-gradient(ellipse 70% 62% at 50% 38%, #000 28%, transparent 78%)',
         }}
       />
 
-      {/* Bottom-edge fade — only mask the final ~35% so the section blends
-          into the page below without killing the lower particles' colors. */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
           background:
-            'linear-gradient(to bottom, transparent 0%, transparent 65%, var(--theme-surface-0) 100%)',
+            'linear-gradient(to bottom, transparent 0%, transparent 72%, var(--theme-surface-0) 100%)',
         }}
       />
 
-      <div className="relative z-10 w-full mx-auto max-w-7xl px-5 sm:px-6 pt-28 sm:pt-32 md:pt-36 pb-16 sm:pb-20 md:pb-24">
+      <div className="relative z-10 w-full mx-auto max-w-[1500px] px-5 sm:px-6 pt-28 sm:pt-32 md:pt-36 pb-24 sm:pb-28 md:pb-32">
         <motion.div
-          ref={contentZoneRef}
           variants={stagger}
           initial="hidden"
           animate="show"
           onMouseMove={(e) => e.stopPropagation()}
           onClick={(e) => e.stopPropagation()}
-          className="max-w-3xl mx-auto text-center"
+          className="mx-auto max-w-[1420px] text-center"
         >
-          {/* Badge */}
           <motion.div variants={fadeUp}>
-            <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-accent/20 bg-accent/[0.04] text-accent text-[11px] font-medium tracking-wide uppercase">
-              <span className="w-1.5 h-1.5 rounded-full bg-accent/80" />
+            <span className="hero-badge inline-flex items-center gap-2 rounded-full border border-brand-500/35 bg-brand-500/[0.06] px-5 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-400">
+              <span className="h-1.5 w-1.5 rounded-full bg-brand-500" />
               Open source · Self-hosted · Apache 2.0
             </span>
           </motion.div>
 
-          {/* Headline — clamps fluidly between 320px and desktop so the
-              hero never overflows on small phones (the previous 3.25rem
-              floor was wider than 320px after letter-spacing). */}
-          <h1 className="mt-6 sm:mt-8 text-[clamp(2.25rem,8vw,4.5rem)] font-bold text-theme-primary tracking-[-0.025em] leading-[1.08] break-anywhere">
+          <h1 className="mx-auto mt-9 max-w-[1420px] font-heading text-[clamp(3.4rem,7.4vw,7rem)] font-bold leading-[0.92] tracking-[-0.06em] text-theme-primary">
             AI memory built{' '}
-            <span className="bg-gradient-to-r from-accent via-brand-400 to-brand-300 bg-clip-text text-transparent">
-              for production
-            </span>
+            <span className="text-gradient-brand">for production</span>
           </h1>
 
-          {/* Subheadline — once the h1 paints instantly (no motion gate),
-              Lighthouse promotes this paragraph to the LCP element on mobile
-              because it's the largest remaining text block. Keeping it
-              animated re-creates the same 1s+ render delay we just removed.
-              Paint immediately; the badge + CTAs still stagger in below. */}
-          <p className="mt-5 sm:mt-6 text-base sm:text-lg md:text-[1.2rem] text-theme-muted max-w-[38rem] mx-auto leading-[1.65] sm:leading-[1.7]">
-            Policies, sensitivity labels, and tamper-evident audit receipts —
-            not just retrieval. Every memory traces to its source. Governance
-            built in from day one.
+          <p className="mx-auto mt-8 max-w-[68rem] text-[18px] leading-[1.6] text-theme-secondary/90 sm:text-[20px] md:text-[22px]">
+            Policies, sensitivity labels, and tamper-evident audit receipts — not just
+            retrieval. Every memory traces to its source. Governance built in from day one.
           </p>
 
-          {/* Credibility chips — proof numbers above the fold so visitors
-              see them without scrolling to ProofSection. */}
-          <motion.div variants={fadeUp} className="mt-6 flex flex-wrap items-center justify-center gap-2">
-            {PROOF_STATS.map((s) => {
-              // Purposeful colour, not rainbow: the 8/8 win reads positive,
-              // the 2/8 naive baseline reads negative (that's the comparison),
-              // the raw counts stay neutral.
-              const tone = /naive/i.test(s.label)
-                ? 'naive'
-                : /support workflow/i.test(s.label)
-                  ? 'win'
-                  : 'neutral'
-              // Tint only the chip (background + border); keep the text at the
-              // normal primary/muted colours so it stays readable.
-              const chip = {
-                neutral: 'border-theme-border bg-surface-2',
-                win: 'border-emerald-500/30 bg-emerald-500/10',
-                naive: 'border-red-500/25 bg-red-500/[0.08]',
-              }[tone]
-              return (
-                <span
-                  key={s.label}
-                  className={`inline-flex items-baseline gap-1.5 rounded-full border px-3 py-1 ${chip}`}
-                >
-                  <span className="text-sm font-semibold text-theme-primary">{s.value}</span>
-                  <span className="text-xs text-theme-muted">{s.label}</span>
+          <motion.div
+            variants={fadeUp}
+            className="mt-8 flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-[11px] font-medium uppercase tracking-[0.1em] text-theme-secondary/55"
+          >
+            {PROOF_STATS.map((stat, index) => (
+              <React.Fragment key={stat.label}>
+                {index > 0 && (
+                  <span className="hidden opacity-40 sm:inline">•</span>
+                )}
+
+                <span className="flex items-center gap-1">
+                  <span
+                    className={
+                      stat.label.toLowerCase().includes('support')
+                        ? 'font-semibold text-success'
+                        : stat.label.toLowerCase().includes('naive')
+                          ? 'font-semibold text-danger'
+                          : 'font-semibold text-theme-primary'
+                    }
+                  >
+                    {stat.value}
+                  </span>
+
+                  <span>{stat.label}</span>
                 </span>
-              )
-            })}
+              </React.Fragment>
+            ))}
           </motion.div>
 
-          {/* Install command — primary CTA. */}
-          <motion.div variants={fadeUp} className="mt-7 sm:mt-9">
-            <HeroInstallCommand centered />
-            <p className="mx-auto mt-3 max-w-[34rem] text-sm text-theme-muted leading-relaxed">
-              One command boots Statewave locally — API, admin console, and
-              Postgres — and wires it into your MCP clients. No account, runs
-              offline.
-            </p>
-          </motion.div>
 
-          <motion.div variants={fadeUp} className="mt-5 flex flex-wrap items-center justify-center gap-3">
-            <button
+          <motion.div
+            variants={fadeUp}
+            className="mt-8 flex flex-wrap items-center justify-center gap-4"
+          >
+            <Button
               ref={heroCtaRef}
-              type="button"
               onClick={() => openWidget('support-agent', 'Support Agent')}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-accent text-white text-sm font-medium shadow-lg shadow-accent/20 hover:bg-accent-light hover:shadow-accent/30 transition-[background-color,box-shadow] duration-150"
+              size="lg"
             >
               Try the agent demo
-              <svg className="w-[15px] h-[15px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+
+              <svg
+                className="h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M13 7l5 5m0 0l-5 5m5-5H6"
+                />
               </svg>
-            </button>
+            </Button>
+
             <a
               href="https://github.com/smaramwbc/statewave"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-surface-2 text-theme-primary border border-theme-border text-sm font-medium hover:bg-surface-3 hover:border-theme-border transition-[background-color,border-color] duration-150"
+              className="hero-github-link inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-[var(--theme-button-secondary-border)] bg-surface-1/50 px-6 text-sm font-medium text-theme-primary transition-colors hover:border-[var(--theme-button-secondary-border-hover)] hover:bg-surface-1/70"
             >
-              <svg className="w-[15px] h-[15px]" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+              <svg
+                className="h-5 w-5"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
               </svg>
+
               View on GitHub
             </a>
           </motion.div>
 
+          <motion.div
+            variants={fadeUp}
+            className="hero-install-card relative mx-auto mt-10 w-full max-w-[62rem] overflow-hidden rounded-[1.75rem] border border-brand-500/35 bg-surface-1/75 px-5 py-7 shadow-[0_28px_90px_rgba(0,0,0,.22)] backdrop-blur-md sm:px-8 sm:py-8"
+          >
+            <div
+              className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(99,102,241,.14),transparent_62%)]"
+              aria-hidden="true"
+            />
+
+            <div className="relative z-10">
+              <p className="mx-auto mb-5 max-w-[46rem] text-[14px] leading-6 text-theme-secondary/75 sm:text-[15px] sm:leading-7">
+                One command boots Statewave locally — API, admin console, and Postgres —
+                and wires it into your MCP clients. No account, runs offline.
+              </p>
+
+              <HeroInstallCommand centered />
+            </div>
+          </motion.div>
         </motion.div>
       </div>
     </section>
   )
 }
 
-const INSTALL_NPX  = 'npx @statewavedev/statewave'
-const INSTALL_UNIX = 'curl -fsSL https://www.statewave.ai/install | sh'
-const INSTALL_WIN  = 'powershell -Command "irm https://www.statewave.ai/install.ps1 | iex"'
+function WhatSection() {
 
-type InstallTab = 'node' | 'unix' | 'windows'
+  const [memoryRuntimeReplayKey, setMemoryRuntimeReplayKey] = useState(0)
 
-const INSTALL_TABS: { id: InstallTab; label: string; cmd: string; prompt: string }[] = [
-  { id: 'node',    label: 'Node',          cmd: INSTALL_NPX,  prompt: '$' },
-  { id: 'unix',    label: 'macOS / Linux', cmd: INSTALL_UNIX, prompt: '$' },
-  { id: 'windows', label: 'Windows',       cmd: INSTALL_WIN,  prompt: '>' },
-]
+  const replayMemoryRuntime = useCallback(() => {
+    setMemoryRuntimeReplayKey((k) => k + 1)
+  }, [])
 
-function HeroInstallCommand({ centered = false }: { centered?: boolean }) {
-  const [tab, setTab] = useState<InstallTab>(() =>
-    typeof navigator !== 'undefined' && /Win/i.test(navigator.userAgent) ? 'windows' : 'node'
-  )
-  const active = INSTALL_TABS.find((t) => t.id === tab)!
-  return (
-    <div>
-      {/* Tab strip — the command pill is inline-flex, so it centers under a
-          text-center parent on its own; the flex rows need justify-center. */}
-      <div className={`flex gap-1 mb-1.5 ${centered ? 'justify-center' : ''}`}>
-        {INSTALL_TABS.map(({ id, label }) => (
-          <button
-            key={id}
-            type="button"
-            onClick={() => setTab(id)}
-            className={[
-              'px-2.5 py-0.5 rounded text-[11px] font-medium transition-colors',
-              tab === id
-                ? 'bg-accent/10 text-accent'
-                : 'text-theme-muted hover:text-theme-secondary',
-            ].join(' ')}
-          >
-            {label}
-          </button>
-        ))}
+return (
+  <Section className="bg-surface-1 overflow-hidden">
+    <div className="grid items-center gap-12 lg:grid-cols-[400px_minmax(0,1fr)] xl:grid-cols-[430px_minmax(0,1fr)] xl:gap-16">
+      <div className="min-w-0">
+        <div className="section-eyebrow mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
+          THE STATEWAVE APPROACH
+        </div>
+
+        <Heading
+          id="memory-runtime"
+          className="font-heading text-4xl md:text-[49px] font-bold leading-[1.06] tracking-[-0.03em] text-theme-primary"
+        >
+          Memory runtime for{' '}
+          <span className="text-gradient-brand">AI agents</span>
+        </Heading>
+
+        <p className="mt-6 text-[20px] leading-[1.65] text-theme-primary">
+          Most AI applications have no memory. Every conversation starts from scratch.
+          Context is lost between sessions. Statewave treats memory as a runtime —
+          a durable layer any AI system can build on.
+        </p>
+
+        <div className="mt-8 space-y-3">
+          {[
+            'Ingest raw events as immutable episodes',
+            'Compile typed memories with confidence scores',
+            'Retrieve ranked, token-bounded context bundles',
+            'Trace every memory to its source with provenance',
+            'Organize everything around subjects — users, accounts, agents, repos',
+          ].map((item, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.1 }}
+              className="flex items-start gap-4"
+            >
+              <span className="mt-2 h-px w-3 shrink-0 bg-accent" />
+
+              <span className="text-sm leading-5 text-theme-primary">
+                {item}
+              </span>
+            </motion.div>
+          ))}
+        </div>
       </div>
 
-      {/* Command pill */}
-      <div className="inline-flex items-center gap-2 rounded-lg border border-theme-border/70 bg-surface-2/70 backdrop-blur-sm px-3.5 py-2 font-mono text-xs sm:text-sm max-w-full">
-        <span className="select-none text-accent/70 shrink-0">{active.prompt}</span>
-        <code className="overflow-x-auto whitespace-nowrap text-theme-secondary">{active.cmd}</code>
-        <CodeCopyButton code={active.cmd} label="Copy install command" />
-      </div>
+      <div className="relative min-w-0 lg:-mr-4 xl:-mr-8 2xl:-mr-12">
+        <div
+          className="absolute inset-0 scale-95 rounded-3xl bg-accent/20 blur-[80px]"
+          aria-hidden="true"
+        />
 
-      {/* Docs link — "no account / offline" already covered by the context
-          line above, so no trust chips here. */}
-      <div className={`mt-2 text-[11px] text-theme-muted ${centered ? 'text-center' : ''}`}>
-        <Link to="/developers" className="hover:text-accent transition-colors underline-offset-2 hover:underline">
-          Full guide →
-        </Link>
+        <motion.div
+          className="diagram-card relative z-10 overflow-hidden rounded-3xl border border-theme-border"
+          onViewportEnter={replayMemoryRuntime}
+          viewport={{ amount: 0.35 }}
+        >
+          <img
+            key={`memflow-dark-${memoryRuntimeReplayKey}`}
+            src={`/images/home/memory-runtime-flow-animated-dark.svg?r=${memoryRuntimeReplayKey}`}
+            alt="Diagrama del memory runtime: eventos crudos compilados en un context bundle"
+            className="theme-dark relative z-10 block h-auto w-full max-w-full"
+          />
+
+          <img
+            key={`memflow-light-${memoryRuntimeReplayKey}`}
+            src={`/images/home/memory-runtime-flow-animated-light.svg?r=${memoryRuntimeReplayKey}`}
+            alt=""
+            aria-hidden="true"
+            className="theme-light relative z-10 block h-auto w-full max-w-full"
+          />
+        </motion.div>
       </div>
     </div>
-  )
-}
-
-function WhatSection() {
-  return (
-    <Section>
-      <div className="grid md:grid-cols-2 gap-10 md:gap-16 items-center">
-        <div className="min-w-0">
-          <Heading id="memory-runtime" className="text-3xl md:text-4xl font-bold text-theme-primary tracking-tight">
-            Memory runtime for AI agents
-          </Heading>
-          <p className="mt-6 text-theme-muted leading-relaxed">
-            Most AI applications have no memory. Every conversation starts from scratch.
-            Context is lost between sessions. Statewave treats memory as a runtime —
-            a durable layer any AI system can build on.
-          </p>
-          <div className="mt-8 space-y-4">
-            {[
-              'Ingest raw events as immutable episodes',
-              'Compile typed memories with confidence scores',
-              'Retrieve ranked, token-bounded context bundles',
-              'Trace every memory to its source with provenance',
-              'Organize everything around subjects — users, accounts, agents, repos',
-            ].map((item, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                className="flex items-start gap-3"
-              >
-                <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-accent shrink-0" />
-                <span className="text-sm text-theme-secondary">{item}</span>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-
-        <div className="relative min-w-0">
-          <div className="rounded-2xl border border-theme-border bg-surface-1 p-5 sm:p-6 font-mono text-sm overflow-hidden">
-            <div className="flex items-center gap-2 mb-4 text-theme-muted text-xs">
-              <div className="w-3 h-3 rounded-full bg-red-500/60" />
-              <div className="w-3 h-3 rounded-full bg-yellow-500/60" />
-              <div className="w-3 h-3 rounded-full bg-green-500/60" />
-              <span className="ml-2 truncate">context_bundle.json</span>
-            </div>
-            <pre className="text-theme-secondary overflow-x-auto -mx-1 px-1"><code>{`{
-  "subject_id": "agent-7",
-  "task": "Continue code review",
-  "facts": [
-    "Prefers functional patterns",
-    "Project uses TypeScript + Postgres"
-  ],
-  "token_estimate": 284,
-  "provenance": {
-    "fact_ids": ["mem-1", "mem-3"],
-    "episode_ids": ["ep-12", "ep-19"]
-  }
-}`}</code></pre>
-          </div>
-        </div>
-      </div>
-    </Section>
-  )
+  </Section>
+)
 }
 
 function WhyNotSection() {
@@ -393,126 +398,233 @@ function WhyNotSection() {
   ]
 
   return (
-    <Section className="bg-surface-1/50">
+    <Section>
       <div className="text-center mb-16">
-        <Heading id="why-existing-approaches-fail" className="text-3xl md:text-4xl font-bold text-theme-primary tracking-tight">
-          Why existing approaches fail
+        <div className="section-eyebrow mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
+          WHY EXISTING APPROACHES FAIL
+        </div>
+
+        <Heading
+          id="why-existing-approaches-fail"
+          className="font-heading text-4xl md:text-[52px] font-bold leading-[1.06] tracking-[-0.03em] text-theme-primary"
+        >
+          Most <span className="text-gradient-brand">AI memory</span> systems fall short
         </Heading>
-        <p className="mt-4 text-theme-muted max-w-2xl mx-auto">
+
+        <p className="mt-6 text-[18px] leading-relaxed text-theme-secondary max-w-3xl mx-auto">
           Bolting on a vector database or dumping chat logs into a prompt creates fragile,
           unstructured context that degrades as it scales.
         </p>
       </div>
 
-      <div className="grid md:grid-cols-3 gap-6">
-        {approaches.map((a, i) => (
-          <motion.div
-            key={i}
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: i * 0.1 }}
-            className="p-6 rounded-2xl border border-red-500/10 bg-red-500/[0.02]"
-          >
-            <h3 className="text-base font-semibold text-theme-primary mb-4 flex items-center gap-2">
-              <svg className="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-              {a.title}
-            </h3>
-            <ul className="space-y-2">
-              {a.problems.map((p, j) => (
-                <li key={j} className="text-sm text-theme-muted flex items-start gap-2">
-                  <span className="text-red-400/60 mt-0.5">—</span>
-                  {p}
-                </li>
-              ))}
-            </ul>
-          </motion.div>
-        ))}
+      <div className="grid md:grid-cols-3 gap-8">
+        {approaches.map((a, i) => {
+          const icons = [
+            '/icons/icon-prompt-stuffing.svg',
+            '/icons/icon-naive-rag.svg',
+            '/icons/icon-raw-history.svg',
+          ]
+
+          return (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.1 }}
+              className="sw-card rounded-[2rem] border border-brand-500/25 bg-surface-1/45 p-10 shadow-[0_24px_80px_rgba(0,0,0,.16)]"
+            >
+              <div className="flex items-start gap-8">
+                <img
+                  src={icons[i]}
+                  alt=""
+                  aria-hidden="true"
+                  className="h-12 w-12 shrink-0"
+                />
+
+                <div className="min-w-0">
+                  <h3 className="font-heading text-[28px] font-bold leading-tight text-theme-primary mb-6">
+                    {a.title}
+                  </h3>
+
+                  <ul className="space-y-3">
+                    {a.problems.map((p, j) => (
+                      <li
+                        key={j}
+                        className="flex items-start gap-4 text-[16px] text-theme-secondary"
+                      >
+                        <span className="mt-[0.8em] h-px w-3 shrink-0 bg-red-500/80" />
+                        <span>{p}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </motion.div>
+          )
+        })}
+      </div>
+
+      <div className="sw-card mt-10 rounded-[2rem] border border-brand-500/25 bg-surface-1/45 p-8 shadow-[0_24px_80px_rgba(0,0,0,.16)]">
+        <div className="flex flex-col md:flex-row items-center justify-center gap-8 text-center md:text-left">
+          <img
+            src="/icons/icon-statewave-layers.svg"
+            alt=""
+            aria-hidden="true"
+            className="h-16 w-16 shrink-0"
+          />
+
+          <p className="max-w-[340px] text-[20px] leading-relaxed text-theme-secondary">
+            Statewave builds{' '}
+            <span className="text-cyan-400">durable</span>,{' '}
+            <span className="text-brand-400">ranked</span>, and{' '}
+            <span className="text-gradient-brand">structured</span> memory.
+          </p>
+        </div>
       </div>
     </Section>
   )
 }
 
 function UseCasesSection() {
+  const [replayKey, setReplayKey] = useState(0)
+  const replay = useCallback(() => setReplayKey((key) => key + 1), [])
   const useCases = [
     {
       title: 'Support agents',
-      status: 'Deeply optimized',
-      description: 'Session-aware context, resolution tracking, handoff packs, health scoring, SLA monitoring, repeat-issue detection. The first and most proven workflow.',
+      description:
+        'Session-aware context, resolution tracking, handoff packs, health scoring, SLA monitoring, repeat-issue detection. The first and most proven workflow.',
       badge: 'Primary wedge',
+      Icon: UserRound,
+      iconClass: 'border-accent/35 text-accent',
     },
     {
       title: 'Coding agents',
-      status: 'Proven',
-      description: 'Accumulate project knowledge across sessions — tech stack, architecture decisions, preferences. Your agent builds understanding over time.',
+      description:
+        'Accumulate project knowledge across sessions — tech stack, architecture decisions, preferences. Your agent builds understanding over time.',
       badge: 'Supported',
+      Icon: Code,
+      iconClass: 'border-brand-500/35 text-brand-500',
     },
     {
       title: 'Internal copilots',
-      status: 'Supported',
-      description: 'Give internal tools persistent memory of user workflows, past decisions, and organizational context. Every interaction builds on the last.',
+      description:
+        'Give internal tools persistent memory of user workflows, past decisions, and organizational context. Every interaction builds on the last.',
       badge: 'Supported',
+      Icon: MessageSquareMore,
+      iconClass: 'border-brand-500/35 text-brand-500',
     },
     {
       title: 'Long-lived agent systems',
-      status: 'Supported',
-      description: 'Any AI system that operates over time, across sessions, with subjects that have persistent identity. Statewave is the memory layer.',
+      description:
+        'Any AI system that operates over time, across sessions, with subjects that have persistent identity. Statewave is the memory layer.',
       badge: 'Supported',
+      Icon: Clock3,
+      iconClass: 'border-[#C68CFF]/45 text-[#D8CCFF]',
     },
+
   ]
 
   return (
-    <Section>
+    <Section className="bg-surface-1">
       <div className="text-center mb-16">
-        <Heading id="stateful-workflows" className="text-3xl md:text-4xl font-bold text-theme-primary tracking-tight">
-          Built for any stateful AI workflow
+        <div className="section-eyebrow mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
+          BUILT FOR ANY STATEFUL AI WORKFLOW
+        </div>
+
+        <Heading
+          id="stateful-workflows"
+          className="font-heading text-4xl md:text-[52px] font-bold leading-[1.06] tracking-[-0.03em] text-theme-primary"
+        >
+          Stateful memory for every kind of{' '}
+          <span className="text-gradient-brand">AI agent</span>
         </Heading>
-        <p className="mt-4 text-theme-muted max-w-2xl mx-auto">
-          Statewave is a runtime — not a vertical product. Any AI system that needs to
-          remember across sessions can build on it.
+
+        <p className="mt-6 text-[18px] leading-relaxed text-theme-secondary max-w-3xl mx-auto">
+          Statewave is a runtime — not a vertical product. Any AI system that needs
+          to remember across sessions can build on it.
         </p>
       </div>
 
-      <div className="grid md:grid-cols-2 gap-6">
-        {useCases.map((uc, i) => (
-          <motion.div
-            key={i}
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: i * 0.1 }}
-            className={`p-6 rounded-2xl border bg-surface-1 ${
-              i === 0 ? 'border-accent/20 ring-1 ring-accent/10' : 'border-theme-border'
-            }`}
-          >
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-lg font-semibold text-theme-primary">{uc.title}</h3>
-              <span className={`text-[10px] font-medium uppercase tracking-wider px-2 py-0.5 rounded-full ${
-                i === 0 ? 'bg-accent/10 text-accent' : 'bg-surface-2 text-theme-muted'
-              }`}>
-                {uc.badge}
-              </span>
-            </div>
-            <p className="text-sm text-theme-muted leading-relaxed">{uc.description}</p>
-          </motion.div>
-        ))}
+      <div className="grid lg:grid-cols-[0.38fr_0.62fr] gap-12 xl:gap-20 items-center">
+        <motion.div
+          className="relative flex justify-start lg:-ml-12"
+          onViewportEnter={replay}
+          viewport={{ amount: 0.35 }}
+          onMouseEnter={replay}
+        >
+          <div
+            className="absolute left-1/2 top-1/2 h-[700px] w-[700px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(122,92,255,0.45)_0%,rgba(122,92,255,0.22)_28%,rgba(122,92,255,0.08)_55%,transparent_75%)] blur-2xl"
+            aria-hidden="true"
+          />
+
+          <img
+            key={`map-dark-${replayKey}`}
+            src={`/images/home/stateful-workflows-map-animated-dark.svg?r=${replayKey}`}
+            alt="Statewave workflow map"
+            className="theme-dark relative z-10 w-[108%] max-w-none h-auto"
+          />
+
+          <img
+            key={`map-light-${replayKey}`}
+            src={`/images/home/stateful-workflows-map-animated-light.svg?r=${replayKey}`}
+            alt=""
+            aria-hidden="true"
+            className="theme-light relative z-10 w-[108%] max-w-none h-auto"
+          />
+        </motion.div>
+
+
+        <div className="grid md:grid-cols-2 gap-6">
+          {useCases.map((uc, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.1 }}
+              className="sw-card rounded-[2rem] border border-brand-500/25 bg-surface-1/45 p-8 shadow-[0_24px_80px_rgba(0,0,0,.16)]"
+            >
+              <div className="flex items-start gap-5 mb-6">
+                <div
+                  className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-full border ${uc.iconClass}`}
+                >
+                  <uc.Icon
+                    className="h-6 w-6"
+                    strokeWidth={1.8}
+                    aria-hidden="true"
+                  />
+                </div>
+
+                <div className="min-w-0">
+                  <h3 className="font-heading text-[22px] font-bold leading-tight text-theme-primary">
+                    {uc.title}
+                  </h3>
+
+                  <span
+                    className={`mt-2 inline-flex text-[11px] font-semibold uppercase tracking-[0.14em] ${i === 0 ? 'text-accent' : 'text-theme-muted'
+                      }`}
+                  >
+                    {uc.badge}
+                  </span>
+                </div>
+              </div>
+
+              <p className="text-[15px] leading-7 text-theme-secondary">
+                {uc.description}
+              </p>
+            </motion.div>
+          ))}
+        </div>
       </div>
 
-      <div className="mt-10 text-center">
+      <div className="mt-10 flex justify-end lg:w-[62%] lg:ml-auto">
         <Link
           to="/use-cases"
-          className="group inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium border border-accent/25 bg-accent/[0.06] text-accent hover:bg-accent/10 hover:border-accent/40 transition-colors"
+          className="group inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium border border-accent/25 bg-accent/[0.06] text-accent hover:bg-accent/10 hover:border-accent/40 transition-colors"
         >
           Browse the full map — 80+ ideas to build
-          <svg
-            className="w-4 h-4 transition-transform group-hover:translate-x-0.5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            aria-hidden
-          >
+          <svg className="w-4 h-4 transition-transform group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
           </svg>
         </Link>
@@ -523,49 +635,69 @@ function UseCasesSection() {
 
 function AIClientsSection() {
   const clients = [
-    { name: 'Claude Code',        note: 'Auto-configures via MCP server' },
-    { name: 'Claude Desktop',     note: 'Auto-configures via MCP server' },
-    { name: 'Cursor',             note: 'Auto-configures via MCP server' },
-    { name: 'VS Code Copilot',    note: 'Auto-configures via MCP server' },
-    { name: 'Codex CLI',          note: 'Auto-configures via MCP server' },
-    { name: 'Cline',              note: 'Any MCP-compatible client' },
-    { name: 'Continue',           note: 'Any MCP-compatible client' },
-    { name: 'Windsurf',           note: 'Any MCP-compatible client' },
-    { name: 'Zed',                note: 'Any MCP-compatible client' },
-    { name: 'Aider',              note: 'Any MCP-compatible client' },
-    { name: 'Goose',              note: 'Any MCP-compatible client' },
-    { name: 'Your own agent',     note: 'REST API · Python · TypeScript' },
+    { name: 'Claude Code', note: 'Auto-configures via MCP server' },
+    { name: 'Claude Desktop', note: 'Auto-configures via MCP server' },
+    { name: 'Cursor', note: 'Auto-configures via MCP server' },
+    { name: 'VS Code Copilot', note: 'Auto-configures via MCP server' },
+    { name: 'Codex CLI', note: 'Auto-configures via MCP server' },
+    { name: 'Cline', note: 'Any MCP-compatible client' },
+    { name: 'Continue', note: 'Any MCP-compatible client' },
+    { name: 'Windsurf', note: 'Any MCP-compatible client' },
+    { name: 'Zed', note: 'Any MCP-compatible client' },
+    { name: 'Aider', note: 'Any MCP-compatible client' },
+    { name: 'Goose', note: 'Any MCP-compatible client' },
+    { name: 'Your own agent', note: 'REST API · Python · TypeScript' },
   ]
 
   return (
-    <Section className="bg-surface-1/50">
-      <div className="text-center mb-12">
-        <Heading id="ai-clients" className="text-3xl md:text-4xl font-bold text-theme-primary tracking-tight">
-          Works with the tools you already use
+    <Section>
+      <div className="text-center mb-16">
+        <div className="section-eyebrow mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
+          AI CLIENTS & AGENTS
+        </div>
+
+        <Heading
+          id="ai-clients"
+          className="font-heading text-4xl md:text-[52px] font-bold leading-[1.06] tracking-[-0.03em] text-theme-primary"
+        >
+          Works with the tools{' '}
+          <span className="text-gradient-brand">you already use</span>
         </Heading>
-        <p className="mt-4 text-theme-muted max-w-2xl mx-auto">
+
+        <p className="mt-6 text-[18px] leading-relaxed text-theme-secondary max-w-3xl mx-auto">
           One quickstart command auto-detects and wires every installed AI tool.
           Any MCP-compatible client works — not just the ones we list here.
         </p>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-        {clients.map((c, i) => (
-          <motion.div
-            key={c.name}
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: i * 0.04 }}
-            className="flex flex-col gap-1 rounded-xl border border-theme-border bg-surface-1 px-4 py-3 hover:border-accent/30 transition-colors"
-          >
-            <p className="text-sm font-medium text-theme-primary">{c.name}</p>
-            <p className="text-[11px] text-theme-muted">{c.note}</p>
-          </motion.div>
-        ))}
+      <div className="relative">
+        <div
+          className="absolute inset-x-0 top-1/2 h-[360px] -translate-y-1/2 rounded-full bg-accent/10 blur-[100px]"
+          aria-hidden="true"
+        />
+
+        <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {clients.map((c, i) => (
+            <motion.div
+              key={c.name}
+              initial={{ opacity: 0, y: 12 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.035 }}
+              className="sw-card rounded-2xl border border-brand-500/20 bg-surface-1/45 p-5 shadow-[0_24px_80px_rgba(0,0,0,.12)] hover:border-brand-500/35 hover:bg-surface-1/60 transition-colors"
+            >
+              <h3 className="font-heading text-[18px] font-bold leading-tight text-theme-primary">
+                {c.name}
+              </h3>
+              <p className="mt-2 text-[13px] leading-6 text-theme-secondary">
+                {c.note}
+              </p>
+            </motion.div>
+          ))}
+        </div>
       </div>
 
-      <p className="mt-6 text-center text-xs text-theme-muted">
+      <p className="mt-8 text-center text-sm text-theme-secondary">
         Missing your tool?{' '}
         <a
           href="https://github.com/smaramwbc/statewave/issues"
@@ -585,85 +717,77 @@ function GovernanceSection() {
     {
       title: 'Sensitivity labels',
       desc: 'Tag memories as pii, financial, or secret. Auto-detected at ingest, operator-reviewed before promotion. Labels travel with the memory forever.',
-      icon: (
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-          d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A2 2 0 013 12V7a4 4 0 014-4z" />
-      ),
+      Icon: Tag,
     },
     {
       title: 'Declarative policies',
       desc: 'YAML policies gate access by caller identity. Deny or redact sensitive memories per tenant. log_only mode for audit before enforcement.',
-      icon: (
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-          d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-      ),
+      Icon: FileText,
     },
     {
       title: 'State-assembly receipts',
       desc: 'Every context call produces an immutable, ULID-addressable receipt with a byte-level integrity hash. Replay any call. Prove exactly what the agent saw.',
-      icon: (
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-          d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-      ),
+      Icon: ReceiptText,
     },
     {
       title: 'Full provenance',
       desc: 'Every compiled memory carries a chain back to its source episodes. Your agent can show its work — which conversations, commits, or documents produced each fact.',
-      icon: (
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-          d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-      ),
+      Icon: Link2,
     },
     {
       title: 'Multi-tenant isolation',
       desc: 'Subject-scoped architecture with app-layer query isolation. One instance serves many tenants without cross-tenant data leakage — by design, not by convention.',
-      icon: (
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-          d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
-      ),
+      Icon: Users,
     },
     {
       title: 'GDPR-ready erasure',
       desc: 'Subject deletion removes all episodes, memories, and receipts for a given subject in one call. No orphaned data, no manual cleanup.',
-      icon: (
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-      ),
+      Icon: Trash2,
     },
   ]
 
   return (
-    <Section>
-      <div className="text-center mb-12">
-        <span className="block mb-3 text-[11px] font-medium uppercase tracking-wider text-accent">
-          What sets Statewave apart
-        </span>
-        <Heading id="production-governance" className="text-3xl md:text-4xl font-bold text-theme-primary tracking-tight">
-          Memory with governance built in
+    <Section className="bg-surface-1">
+      <div className="text-center mb-16">
+        <div className="section-eyebrow mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
+          WHAT SETS STATEWAVE APART
+        </div>
+
+        <Heading
+          id="production-governance"
+          className="font-heading text-4xl md:text-[52px] font-bold leading-[1.06] tracking-[-0.03em] text-theme-primary"
+        >
+          Memory with <span className="text-gradient-brand">governance</span> built in
         </Heading>
-        <p className="mt-4 text-theme-muted max-w-2xl mx-auto">
-          Retrieval is a solved problem. Production AI needs policies, an audit trail, and
-          data boundaries — not just fast lookup. Statewave is built for that from the ground up.
+
+        <p className="mt-6 text-[18px] leading-relaxed text-theme-secondary max-w-3xl mx-auto">
+          Retrieval is a solved problem. Production AI needs policies, an audit trail,
+          and data boundaries — not just fast lookup. Statewave is built for that from
+          the ground up.
         </p>
       </div>
 
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
         {pillars.map((p, i) => (
           <motion.div
             key={p.title}
-            initial={{ opacity: 0, y: 16 }}
+            initial={{ opacity: 0, y: 18 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ delay: i * 0.08 }}
-            className="rounded-2xl border border-accent/10 bg-accent/[0.025] p-6"
+            transition={{ delay: i * 0.06 }}
+            className="sw-card rounded-[2rem] border border-brand-500/25 bg-surface-1/45 p-8 shadow-[0_24px_80px_rgba(0,0,0,.16)]"
           >
-            <div className="mb-4 inline-flex items-center justify-center w-9 h-9 rounded-lg bg-accent/10">
-              <svg className="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                {p.icon}
-              </svg>
+            <div className="mb-7 flex h-14 w-14 items-center justify-center rounded-full border border-accent/35 text-accent">
+              <p.Icon className="h-6 w-6" strokeWidth={1.8} aria-hidden="true" />
             </div>
-            <h3 className="text-base font-semibold text-theme-primary mb-2">{p.title}</h3>
-            <p className="text-sm text-theme-muted leading-relaxed">{p.desc}</p>
+
+            <h3 className="font-heading text-[22px] font-bold leading-tight text-theme-primary">
+              {p.title}
+            </h3>
+
+            <p className="mt-4 text-[15px] leading-7 text-theme-secondary">
+              {p.desc}
+            </p>
           </motion.div>
         ))}
       </div>
@@ -672,118 +796,146 @@ function GovernanceSection() {
 }
 
 function ConnectorsTeaserSection() {
-  // Slim teaser — full detail lives at /connectors. Goal: surface "not just
-  // live chats" without bloating the home page. Six pills + one CTA.
-  // Each card deep-links to where you actually start: available connectors
-  // jump straight to their doc; planned ones land on /connectors so visitors
-  // can see scope and follow along.
   const DOCS = 'https://github.com/smaramwbc/statewave-docs/blob/main'
   const PACKAGES = 'https://github.com/smaramwbc/statewave-connectors/blob/main/packages'
-  const sources: ReadonlyArray<{
-    label: string
-    shape: string
-    status: 'available' | 'planned'
-    href: string
-    external?: boolean
-  }> = [
-    { label: 'GitHub', shape: 'Repo memory', status: 'available', href: `${DOCS}/connectors/github.md`, external: true },
-    { label: 'Markdown / docs', shape: 'Decision memory', status: 'available', href: `${DOCS}/connectors/markdown.md`, external: true },
-    { label: 'MCP', shape: 'Agent memory', status: 'available', href: `${DOCS}/connectors/mcp.md`, external: true },
-    { label: 'Slack', shape: 'Team memory', status: 'available', href: `${PACKAGES}/slack/README.md`, external: true },
-    { label: 'n8n · Zapier', shape: 'Workflow memory', status: 'available', href: `${PACKAGES}/n8n/README.md`, external: true },
-    { label: 'Zendesk', shape: 'Customer memory', status: 'available', href: `${PACKAGES}/zendesk/README.md`, external: true },
+
+  const connectors = [
+    {
+      name: 'GitHub',
+      type: 'Repo memory',
+      logo: '/connectors/GitHub_Invertocat_Black_Clearspace.svg',
+      href: `${DOCS}/connectors/github.md`,
+    },
+    {
+      name: 'Slack',
+      type: 'Team memory',
+      logo: '/connectors/Slack_icon_2019.svg',
+      href: `${PACKAGES}/slack/README.md`,
+    },
+    {
+      name: 'Zapier',
+      type: 'Workflow memory',
+      logo: '/connectors/zapier.svg',
+      href: `${PACKAGES}/zapier/README.md`,
+    },
+    {
+      name: 'n8n',
+      type: 'Workflow memory',
+      logo: '/connectors/n8n_pink+white_logo.svg',
+      href: `${PACKAGES}/n8n/README.md`,
+    },
+    {
+      name: 'Zendesk',
+      type: 'Customer memory',
+      logo: '/connectors/zendesk-1.svg',
+      href: `${PACKAGES}/zendesk/README.md`,
+    },
+    {
+      name: 'MCP',
+      type: 'Agent memory',
+      logo: '/connectors/Model_Context_Protocol_logo.svg',
+      href: `${DOCS}/connectors/mcp.md`,
+    },
+    {
+      name: 'Markdown',
+      type: 'Decision memory',
+      logo: '/connectors/markdown-svgrepo-com.svg',
+      href: `${DOCS}/connectors/markdown.md`,
+    },
+    {
+      name: 'Docs',
+      type: 'Decision memory',
+      logo: '/connectors/Docs-icon.svg',
+      href: `${DOCS}/connectors/index.md`,
+    },
   ]
 
   return (
     <Section>
-      <div className="grid md:grid-cols-2 gap-10 md:gap-16 items-start">
-        <div className="min-w-0">
+      <div className="grid lg:grid-cols-[0.46fr_0.54fr] gap-12 xl:gap-20 items-center">
+        <div>
+          <div className="section-eyebrow mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
+            CONNECTORS & INTEGRATIONS
+          </div>
+
           <Heading
             id="connectors"
-            className="text-3xl md:text-4xl font-bold text-theme-primary tracking-tight"
+            className="font-heading text-4xl md:text-[52px] font-bold leading-[1.08] tracking-[-0.03em] text-theme-primary"
           >
-            Not just live chats — connect your tools
+            Not just live chats — <br />
+            <span className="text-gradient-brand">connect your tools</span>
           </Heading>
-          <p className="mt-5 text-theme-muted leading-relaxed">
-            Connectors feed real-world events into Statewave as durable episodic memory. Agents
-            recall projects, customers, communities, decisions, and workflows — by subject — without
-            stuffing raw history into a prompt.
+
+          <p className="mt-6 max-w-[680px] text-[20px] leading-[1.65] text-theme-secondary">
+            Connectors feed real-world events into Statewave as durable episodic memory.
+            Agents recall projects, customers, communities, decisions, and workflows —
+            by subject — without stuffing raw history into a prompt.
           </p>
-          <p className="mt-3 text-sm text-theme-muted/85 leading-relaxed">
-            Modular packages — install only what you need. The core stays clean; connectors are
-            optional.
+
+          <p className="mt-6 text-[15px] leading-7 text-theme-secondary">
+            Modular packages — install only what you need. The core stays clean;
+            connectors are optional.
           </p>
-          <div className="mt-7 flex flex-wrap items-center gap-3">
+
+          <div className="mt-8 flex flex-wrap gap-4">
             <Link
               to="/connectors"
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium border border-accent/25 bg-accent/[0.06] text-accent hover:bg-accent/10 hover:border-accent/40 transition-colors"
+              className="inline-flex items-center rounded-full border border-brand-500/35 bg-brand-500/10 px-6 py-3 text-sm font-medium text-brand-300 hover:bg-brand-500/16 hover:border-brand-500/50 transition-colors"
             >
               Explore Statewave Connectors
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-              </svg>
             </Link>
+
             <a
-              href="https://github.com/smaramwbc/statewave-docs/blob/main/connectors/index.md"
+              href={`${DOCS}/connectors/index.md`}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-sm font-medium text-theme-secondary hover:text-accent transition-colors"
+              className="inline-flex items-center rounded-full border border-theme-primary/40 bg-transparent px-6 py-3 text-sm font-medium text-theme-primary hover:bg-surface-1/30 hover:border-theme-primary/35 transition-colors"
             >
               View connector docs
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5h5v5M19 5l-9 9M5 7v12h12" />
-              </svg>
             </a>
           </div>
         </div>
 
-        <div className="min-w-0 grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {sources.map((s, i) => {
-            const cardClass = 'rounded-xl border border-theme-border bg-surface-1 p-4 flex items-start justify-between gap-3 transition-colors hover:border-accent/30 focus-visible:border-accent/40 focus:outline-none h-full'
-            const inner = (
-              <>
-                <div className="min-w-0">
-                  <p className="text-[11px] font-medium uppercase tracking-wider text-accent">
-                    {s.shape}
-                  </p>
-                  <p className="mt-1 text-sm font-semibold text-theme-primary truncate">{s.label}</p>
-                </div>
-                <span
-                  className={`shrink-0 text-[10px] font-medium uppercase tracking-wider px-2 py-0.5 rounded-full ${
-                    s.status === 'available'
-                      ? 'bg-emerald-500/10 text-emerald-300'
-                      : 'bg-surface-2 text-theme-muted'
-                  }`}
-                >
-                  {s.status === 'available' ? 'Available' : 'Coming soon'}
-                </span>
-              </>
-            )
-            return (
-              <motion.div
-                key={s.label}
-                initial={{ opacity: 0, y: 12 }}
+        <div className="relative">
+          <div
+            className="absolute inset-0 rounded-full bg-accent/20 blur-[100px] scale-90"
+            aria-hidden="true"
+          />
+
+          <div className="relative z-10 grid grid-cols-2 md:grid-cols-3 gap-5">
+            {connectors.map((item, i) => (
+              <motion.a
+                key={item.name}
+                href={item.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                initial={{ opacity: 0, y: 16 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: i * 0.04, duration: 0.35 }}
+                transition={{ delay: i * 0.05 }}
+                className="sw-card block rounded-2xl border border-brand-500/25 bg-surface-1/45 p-6 shadow-[0_24px_80px_rgba(0,0,0,.16)] hover:border-brand-500/45 hover:bg-surface-1/60 transition-colors"
               >
-                {s.external ? (
-                  <a
-                    href={s.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={cardClass}
-                  >
-                    {inner}
-                  </a>
-                ) : (
-                  <Link to={s.href} className={cardClass}>
-                    {inner}
-                  </Link>
-                )}
-              </motion.div>
-            )
-          })}
+                <img
+                  src={item.logo}
+                  alt=""
+                  aria-hidden="true"
+                  className={`mb-7 object-contain ${item.name === 'n8n' ? 'h-9 w-12' : 'h-9 w-9'
+                    } ${['GitHub', 'Zendesk', 'MCP', 'Markdown'].includes(item.name)
+                      ? 'connector-logo-invert'
+                      : ''
+                    }`}
+                />
+
+                <h3 className="font-heading text-[20px] font-bold leading-tight text-theme-primary">
+                  {item.name}
+                </h3>
+
+                <p className="mt-2 text-xs font-semibold uppercase tracking-[0.12em] text-brand-500">
+                  {item.type}
+                </p>
+              </motion.a>
+            ))}
+          </div>
         </div>
       </div>
     </Section>
@@ -791,43 +943,128 @@ function ConnectorsTeaserSection() {
 }
 
 function SupportProofSection() {
+  const workflowSteps = [
+    {
+      number: '01',
+      title: 'Session-aware context',
+      desc: 'Active sessions boosted, resolved issues deprioritized. Context is ranked by what matters right now.',
+      color: 'text-cyan-400 border-cyan-400 bg-cyan-400',
+    },
+    {
+      number: '02',
+      title: 'Handoff context packs',
+      desc: 'Compact escalation briefs with health, SLA, and issue context — ready for human or AI handoff.',
+      color: 'text-brand-500 border-brand-500 bg-brand-500',
+    },
+    {
+      number: '03',
+      title: 'Health scoring',
+      desc: 'Deterministic 0–100 health scores with explainable factors. Proactive webhook alerts on degradation.',
+      color: 'text-cyan-400 border-cyan-400 bg-cyan-400',
+    },
+    {
+      number: '04',
+      title: 'Resolution tracking',
+      desc: 'Track issue state per session. Surface resolution history when recurring patterns are detected.',
+      color: 'text-accent border-accent bg-accent',
+    },
+    {
+      number: '05',
+      title: 'SLA tracking',
+      desc: 'First-response time, resolution time, breach detection. Integrated into health scoring and handoff.',
+      color: 'text-brand-500 border-brand-500 bg-brand-500',
+    },
+    {
+      number: '06',
+      title: 'Repeat-issue detection',
+      desc: 'Automatically surface prior resolutions when recurring problems appear. Stop solving the same issue twice.',
+      color: 'text-cyan-400 border-cyan-400 bg-cyan-400',
+    },
+  ]
+
   return (
-    <Section className="bg-surface-1/50">
+    <Section className="bg-surface-1">
       <div className="text-center mb-16">
-        <Heading id="support-agent-proof" className="text-3xl md:text-4xl font-bold text-theme-primary tracking-tight">
-          Proven first in support-agent workflows
+        <div className="section-eyebrow mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
+          SUPPORT AGENT WORKFLOW
+        </div>
+
+        <Heading
+          id="support-agent-proof"
+          className="font-heading text-4xl md:text-[52px] font-bold leading-[1.06] tracking-[-0.03em] text-theme-primary"
+        >
+          Proven first in{' '}
+          <span className="text-gradient-brand">support-agent</span> workflows
         </Heading>
-        <p className="mt-4 text-theme-muted max-w-2xl mx-auto">
+
+        <p className="mt-6 text-[18px] leading-relaxed text-theme-secondary max-w-3xl mx-auto">
           Support agents are the first workflow where Statewave is deeply optimized and
-          rigorously evaluated — the clearest proof that structured memory outperforms naive approaches.
+          rigorously evaluated — the clearest proof that structured memory outperforms
+          naive approaches.
         </p>
       </div>
 
-      <div className="grid md:grid-cols-3 gap-6">
-        <Card
-          title="Session-aware context"
-          description="Active sessions boosted, resolved issues deprioritized. Context is ranked by what matters right now."
-        />
-        <Card
-          title="Handoff context packs"
-          description="Compact escalation briefs with health, SLA, and issue context — ready for human or AI handoff."
-        />
-        <Card
-          title="Health scoring"
-          description="Deterministic 0–100 health scores with explainable factors. Proactive webhook alerts on degradation."
-        />
-        <Card
-          title="Resolution tracking"
-          description="Track issue state per session. Surface resolution history when recurring patterns are detected."
-        />
-        <Card
-          title="SLA tracking"
-          description="First-response time, resolution time, breach detection. Integrated into health scoring and handoff."
-        />
-        <Card
-          title="Repeat-issue detection"
-          description="Automatically surface prior resolutions when recurring problems appear. Stop solving the same issue twice."
-        />
+      <div className="sw-card mx-auto max-w-[1040px] rounded-[2rem] border border-brand-500/25 bg-surface-1/45 p-10 md:p-14 shadow-[0_24px_80px_rgba(0,0,0,.16)]">
+        <div className="grid lg:grid-cols-[0.42fr_0.58fr] gap-12 xl:gap-16 items-center">
+          <div className="relative flex min-h-[420px] items-center justify-center">
+            <div
+              className="memory-proof-glow absolute h-[340px] w-[340px] rounded-full"
+              aria-hidden="true"
+            />
+
+            <div className="relative flex h-44 w-44 items-center justify-center rounded-full border-2 border-cyan-400/80 shadow-[0_0_80px_rgba(122,92,255,.28)]">
+              <div className="absolute inset-0 rounded-full border-2 border-brand-500/60 [clip-path:inset(0_0_0_50%)]" />
+
+              <img
+                src="/icons/icon-memory-proof.svg"
+                alt=""
+                aria-hidden="true"
+                className="relative z-10 h-20 w-20 object-contain"
+              />
+            </div>
+          </div>
+
+          <div className="relative">
+            <div
+              className="absolute left-[18px] top-4 bottom-4 w-px bg-gradient-to-b from-cyan-400 via-brand-500 to-cyan-400"
+              aria-hidden="true"
+            />
+
+            <div className="space-y-10">
+              {workflowSteps.map((step, i) => (
+                <motion.div
+                  key={step.title}
+                  initial={{ opacity: 0, x: 20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.07 }}
+                  className="relative grid grid-cols-[38px_40px_1fr] gap-5"
+                >
+                  <div
+                    className={`relative z-10 mt-1 h-9 w-9 rounded-full border-2 ${step.color.split(' ')[1]} bg-surface-1 flex items-center justify-center`}
+                  >
+                    <span
+                      className={`h-5 w-5 rounded-full ${step.color.split(' ')[2]}`}
+                    />
+                  </div>
+
+                  <div className={`pt-1.5 text-sm font-medium ${step.color.split(' ')[0]}`}>
+                    {step.number}
+                  </div>
+
+                  <div>
+                    <h3 className="font-heading text-[22px] font-bold leading-tight text-theme-primary">
+                      {step.title}
+                    </h3>
+                    <p className="mt-2 text-[15px] leading-7 text-theme-secondary">
+                      {step.desc}
+                    </p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
     </Section>
   )
@@ -835,48 +1072,171 @@ function SupportProofSection() {
 
 function CapabilitiesSection() {
   const capabilities = [
-    { label: 'Append-only episodes', desc: 'Immutable raw truth' },
-    { label: 'Pluggable compilers', desc: 'Heuristic or LLM (100+ providers via LiteLLM)' },
-    { label: 'Semantic search', desc: 'pgvector cosine similarity + text fallback' },
-    { label: 'Token-bounded context', desc: 'Configurable budget, ranked packing' },
-    { label: 'Provenance tracing', desc: 'Every memory → source episodes' },
-    { label: 'State-assembly receipts', desc: 'Immutable, ULID-addressable audit record per call with byte-level integrity hash' },
-    { label: 'Sensitivity labels & policy', desc: 'Per-memory capability tags + declarative YAML policy gates access by caller identity' },
-    { label: 'Idempotent compilation', desc: 'Safe recompilation, no duplicates' },
-    { label: 'Memory conflict resolution', desc: 'Auto-supersede older overlapping memories' },
-    { label: 'Multi-tenant isolation', desc: 'App-layer query scoping per tenant' },
-    { label: 'Per-tenant configuration', desc: 'Receipts emission, policy mode (log_only / enforce), caller-identity gate' },
-    { label: 'Webhooks', desc: 'Persistent delivery with retry + dead-letter' },
-    { label: 'Typed SDKs', desc: 'Python (sync + async) & TypeScript' },
-    { label: 'OpenTelemetry', desc: 'Optional distributed tracing' },
-    { label: 'Subject deletion', desc: 'GDPR-style erasure by subject' },
+    {
+      number: '01',
+      title: 'Ingest',
+      subtitle: 'Capture raw truth',
+      desc: 'Append-only episodes with immutable, token-bounded context. No overwrites, no ambiguity.',
+      Icon: Download,
+      iconClass: 'border-brand-500/55 text-brand-500',
+    },
+    {
+      number: '02',
+      title: 'Compile',
+      subtitle: 'Structure & enrich',
+      desc: 'Pluggable compilers turn raw episodes into ranked memory with heuristics or LLMs. Recompilation is idempotent — safe to re-run, never duplicates.',
+      Icon: Layers,
+      iconClass: 'border-accent/55 text-accent',
+    },
+    {
+      number: '03',
+      title: 'Govern',
+      subtitle: 'Trust & control',
+      desc: 'Provenance for every memory, policy enforcement, state receipts, and audit-ready integrity.',
+      Icon: BarChart3,
+      iconClass: 'border-cyan-400/55 text-cyan-400',
+    },
+    {
+      number: '04',
+      title: 'Deliver',
+      subtitle: 'Serve & integrate',
+      desc: 'Semantic search, SDKs, webhooks, and OpenTelemetry for reliable delivery at scale.',
+      Icon: Send,
+      iconClass: 'border-brand-500/55 text-brand-500',
+    },
+    {
+      number: '05',
+      title: 'Isolate',
+      subtitle: 'Secure by default',
+      desc: 'Multi-tenant isolation, per-tenant configuration, and subject-level deletion for compliance.',
+      Icon: UserRound,
+      iconClass: 'border-brand-secondary/55 text-brand-secondary',
+    },
+  ]
+
+  const extras = [
+    {
+      title: 'Conflict resolution',
+      desc: 'Auto-supersedes older overlapping memories',
+      Icon: ShieldCheck,
+    },
+    {
+      title: 'Idempotent compilation',
+      desc: 'Safe recompilation, no duplicates',
+      Icon: RefreshCw,
+    },
+    {
+      title: 'Typed SDKs',
+      desc: 'Python (async + sync) & TypeScript',
+      Icon: Code2,
+    },
+    {
+      title: 'State receipts',
+      desc: 'ULID-addressable audit records with byte-level integrity',
+      Icon: ReceiptText,
+    },
+    {
+      title: 'Webhooks',
+      desc: 'Persistent delivery with retry + dead-letter',
+      Icon: Radio,
+    },
+    {
+      title: 'Semantic search',
+      desc: 'pgvector cosine similarity + text fallback',
+      Icon: Search,
+    },
   ]
 
   return (
     <Section>
-      <div className="text-center mb-16">
-        <Heading id="core-capabilities" className="text-3xl md:text-4xl font-bold text-theme-primary tracking-tight">
+      <div className="text-center mb-20">
+        <div className="section-eyebrow mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
+          HOW IT WORKS
+        </div>
+
+        <Heading
+          id="core-capabilities"
+          className="font-heading text-4xl md:text-[52px] font-bold leading-[1.06] tracking-[-0.03em] text-theme-primary"
+        >
           Core capabilities
         </Heading>
-        <p className="mt-4 text-theme-muted max-w-2xl mx-auto">
-          Composable memory primitives for any AI system that needs persistent, structured memory.
+
+        <p className="mt-6 text-[18px] leading-relaxed text-theme-secondary max-w-3xl mx-auto">
+          Production-ready primitives for any AI system that needs persistent,
+          structured memory.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {capabilities.map((c, i) => (
+      <div className="relative">
+        <div
+          className="absolute left-0 right-0 top-[86px] h-px bg-gradient-to-r from-brand-500 via-cyan-400 to-brand-500"
+          aria-hidden="true"
+        />
+
+        <div className="grid lg:grid-cols-5 rounded-[2rem] bg-surface-1/35 overflow-hidden">
+          {capabilities.map((item, i) => (
+            <motion.div
+              key={item.title}
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.06 }}
+              className="relative px-7 pt-12 pb-10 text-center "
+            >
+              <div className={`mx-auto mb-7 flex h-18 w-18 items-center justify-center rounded-full border ${item.iconClass} bg-surface-1`}>
+                <item.Icon className="h-9 w-9" strokeWidth={1.8} aria-hidden="true" />
+              </div>
+
+              <div className={`mb-4 text-sm font-bold ${item.iconClass.split(' ')[1]}`}>
+                {item.number}
+              </div>
+
+              <h3 className="font-heading text-[22px] font-bold uppercase tracking-wide text-theme-primary">
+                {item.title}
+              </h3>
+
+              <p className={`mt-1 text-sm font-semibold ${item.iconClass.split(' ')[1]}`}>
+                {item.subtitle}
+              </p>
+
+              <p className="mt-5 text-[15px] leading-[1.6] text-theme-secondary/70">
+                {item.desc}
+              </p>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+        {extras.map((item, i) => (
           <motion.div
-            key={i}
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
+            key={item.title}
+            initial={{ opacity: 0, y: 12 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ delay: i * 0.03 }}
-            className="p-4 rounded-xl border border-theme-border bg-surface-2/50 hover:border-accent/20 transition-colors"
+            transition={{ delay: i * 0.04 }}
+            className="flex items-start gap-4"
           >
-            <p className="text-sm font-medium text-theme-primary">{c.label}</p>
-            <p className="text-xs text-theme-muted mt-1">{c.desc}</p>
+            <item.Icon className="mt-0 h-6 w-6 shrink-0 text-theme-secondary" strokeWidth={1.8} />
+            <div>
+              <h4 className="font-heading text-sm font-bold text-theme-primary">
+                {item.title}
+              </h4>
+              <p className="mt-3 text-sm leading-[1.6] text-theme-secondary/70">
+                {item.desc}
+              </p>
+            </div>
           </motion.div>
         ))}
+      </div>
+
+      <div className="mt-12 text-center">
+        <Link
+          to="/developers"
+          className="inline-flex items-center rounded-full border border-brand-500/25 bg-brand-500/[0.05] px-6 py-3 text-sm font-medium text-brand-400 hover:bg-brand-500/[0.08] hover:border-brand-500/40 transition-colors"
+        >
+          Explore all capabilities
+        </Link>
       </div>
     </Section>
   )
@@ -885,53 +1245,77 @@ function CapabilitiesSection() {
 function ProofSection() {
   const stats = PROOF_STATS
 
+  const proofs = [
+    'Identity facts persist across sessions',
+    'Relevant preferences surface for matching tasks',
+    'Token budgets are always respected',
+    'Provenance traces facts to source episodes',
+    'Compilation is idempotent — no duplicates',
+    'Session-aware ranking boosts active sessions',
+    'Repeat-issue detection surfaces prior fixes',
+    'Health scoring is deterministic and explainable',
+  ]
+
   return (
-    <Section className="bg-surface-1/50">
+    <Section className="bg-surface-1">
       <div className="text-center mb-16">
-        <Heading id="proven-not-promised" className="text-3xl md:text-4xl font-bold text-theme-primary tracking-tight">
-          Proven, not promised
+        <div className="section-eyebrow mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
+          VERIFIED BY EVALS
+        </div>
+
+        <Heading
+          id="proven-not-promised"
+          className="font-heading text-4xl md:text-[52px] font-bold leading-[1.06] tracking-[-0.03em] text-theme-primary"
+        >
+          Proven, <span className="text-gradient-brand">not promised</span>
         </Heading>
-        <p className="mt-4 text-theme-muted max-w-2xl mx-auto">
+
+        <p className="mt-6 text-[18px] leading-relaxed text-theme-secondary max-w-3xl mx-auto">
           Every claim is backed by automated evals and benchmarks that run in CI.
           Statewave scores 8/8 on support workflow criteria where naive approaches score 2/8.
         </p>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
         {stats.map((s, i) => (
           <motion.div
             key={i}
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
+            initial={{ opacity: 0, y: 14 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ delay: i * 0.1 }}
-            className="text-center p-6 rounded-2xl border border-theme-border bg-surface-1"
+            transition={{ delay: i * 0.06 }}
+            className="sw-card rounded-[1.75rem] border border-brand-500/20 bg-surface-1/45 p-7 text-center shadow-[0_24px_80px_rgba(0,0,0,.12)]"
           >
-            <p className="text-3xl md:text-4xl font-bold text-theme-primary">{s.value}</p>
-            <p className="text-sm text-theme-muted mt-2">{s.label}</p>
+            <p className="font-heading text-[42px] md:text-[52px] font-bold leading-none text-theme-primary">
+              {s.value}
+            </p>
+            <p className="mt-3 text-sm text-theme-secondary/80">
+              {s.label}
+            </p>
           </motion.div>
         ))}
       </div>
 
-      <div className="mt-12 rounded-2xl border border-theme-border bg-surface-1 p-8">
-        <h3 className="text-lg font-semibold text-theme-primary mb-4">What the evals prove</h3>
-        <div className="grid md:grid-cols-2 gap-4 text-sm text-theme-muted">
-          {[
-            'Identity facts persist across sessions',
-            'Relevant preferences surface for matching tasks',
-            'Token budgets are always respected',
-            'Provenance traces facts to source episodes',
-            'Compilation is idempotent — no duplicates',
-            'Session-aware ranking boosts active sessions',
-            'Repeat-issue detection surfaces prior fixes',
-            'Health scoring is deterministic and explainable',
-          ].map((item, i) => (
-            <div key={i} className="flex items-start gap-2">
-              <svg className="w-4 h-4 text-green-400 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-              <span>{item}</span>
-            </div>
+      <div className="sw-card mt-10 rounded-[2rem] border border-brand-500/20 bg-surface-1/45 p-8 md:p-10 shadow-[0_24px_80px_rgba(0,0,0,.12)]">
+        <h3 className="font-heading text-[22px] font-bold text-theme-primary mb-8">
+          What the evals prove
+        </h3>
+
+        <div className="grid md:grid-cols-2 gap-x-14 gap-y-5">
+          {proofs.map((item, i) => (
+            <motion.div
+              key={item}
+              initial={{ opacity: 0, x: -8 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.035 }}
+              className="flex items-start gap-4"
+            >
+              <span className="mt-1.5 text-brand-success">✓</span>
+              <span className="text-[15px] leading-7 text-theme-secondary/85">
+                {item}
+              </span>
+            </motion.div>
           ))}
         </div>
       </div>
@@ -1052,31 +1436,41 @@ console.log(ctx.assembledContext);
 
   const blocks =
     tab === 'npx' ? npxBlocks :
-    tab === 'docker' ? dockerBlocks :
-    tab === 'python' ? pythonBlocks : tsBlocks
+      tab === 'docker' ? dockerBlocks :
+        tab === 'python' ? pythonBlocks : tsBlocks
 
   return (
     <Section>
-      <div className="grid md:grid-cols-2 gap-10 md:gap-16 items-center">
+      <div className="grid lg:grid-cols-[0.45fr_0.55fr] gap-12 xl:gap-20 items-center">
         <div className="min-w-0">
-          <Heading id="self-hosted" className="text-3xl md:text-4xl font-bold text-theme-primary tracking-tight">
-            Self-hosted. Framework-neutral.
+          <div className="section-eyebrow mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
+            DEPLOY YOUR WAY
+          </div>
+
+          <Heading
+            id="self-hosted"
+            className="font-heading text-4xl md:text-[52px] font-bold leading-[1.08] tracking-[-0.03em] text-theme-primary"
+          >
+            Self-hosted.{' '}
+            <span className="text-gradient-brand">Framework-neutral.</span>
           </Heading>
-          <p className="mt-6 text-theme-muted leading-relaxed">
-            Run Statewave alongside any AI application. The storage layer is Postgres-only and runs in
-            your infrastructure — no Statewave-managed cloud sees your episodes or memories.
+
+          <p className="mt-6 max-w-[680px] text-[20px] leading-[1.65] text-theme-secondary">
+            Run Statewave alongside any AI application. The storage layer is Postgres-only
+            and runs in your infrastructure — no Statewave-managed cloud sees your episodes
+            or memories.
           </p>
-          <p className="mt-3 text-xs text-theme-muted/80 leading-relaxed">
-            What leaves your network depends on the compiler and embedding you configure. The default
-            heuristic compiler is fully local; choosing the LLM compiler or a hosted embedding model
-            sends content to that provider. <Link to="/product#privacy" className="text-accent hover:underline">See the data-flow breakdown →</Link>
+
+          <p className="mt-5 text-[15px] leading-7 text-theme-secondary/80">
+            What leaves your network depends on the compiler and embedding you configure.
+            The default heuristic compiler is fully local; choosing the LLM compiler or a
+            hosted embedding model sends content to that provider.{' '}
+            <Link to="/product#privacy" className="text-accent hover:underline">
+              See the data-flow breakdown →
+            </Link>
           </p>
-          {/* Bullets prioritize "how easy is it to run Statewave?" — Docker
-              Hub and Compose come first, then the runtime properties, then
-              integrations and SDKs. Each links to the most relevant doc /
-              registry / repo, opened in a new tab so the visitor doesn't
-              lose their place on the homepage. */}
-          <ul className="mt-8 space-y-3">
+
+          <ul className="mt-6 space-y-1">
             {(() => {
               const DOCS = 'https://github.com/smaramwbc/statewave-docs/blob/main'
               type Bullet = { node: React.ReactNode }
@@ -1138,11 +1532,10 @@ console.log(ctx.assembledContext);
                   ),
                 },
               ]
+
               return items.map((item, i) => (
-                <li key={i} className="flex items-start gap-3 text-sm text-theme-secondary">
-                  <svg className="w-4 h-4 text-accent mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
+                <li key={i} className="text-sm flex items-start gap-4 leading-7 text-theme-secondary">
+                  <span className="mt-3 h-px w-3 shrink-0 bg-accent" />
                   <span>{item.node}</span>
                 </li>
               ))
@@ -1150,14 +1543,15 @@ console.log(ctx.assembledContext);
           </ul>
         </div>
 
-        <div className="min-w-0 rounded-2xl border border-theme-border bg-surface-1 p-5 sm:p-6 font-mono text-sm overflow-hidden">
-          <div className="flex items-center justify-between gap-3 mb-4">
+        <div className="min-w-0 rounded-[2rem] border border-brand-500/20 bg-surface-1/55 p-5 sm:p-6 font-mono text-sm overflow-hidden shadow-[0_24px_80px_rgba(0,0,0,.16)]">
+          <div className="flex items-center justify-between gap-3 mb-5">
             <div className="flex items-center gap-2 text-theme-muted text-xs">
-              <div className="w-3 h-3 rounded-full bg-red-500/60" />
-              <div className="w-3 h-3 rounded-full bg-yellow-500/60" />
-              <div className="w-3 h-3 rounded-full bg-green-500/60" />
+              <div className="w-3 h-3 rounded-full bg-red-500/70" />
+              <div className="w-3 h-3 rounded-full bg-yellow-500/70" />
+              <div className="w-3 h-3 rounded-full bg-green-500/70" />
             </div>
-            <div role="tablist" aria-label="Quickstart" className="flex gap-1 rounded-lg bg-surface-2 p-0.5">
+
+            <div role="tablist" aria-label="Quickstart" className="flex gap-1 rounded-xl bg-surface-2/70 p-1">
               {(
                 [
                   { id: 'npx', label: 'npx' },
@@ -1172,31 +1566,38 @@ console.log(ctx.assembledContext);
                   type="button"
                   aria-selected={tab === id}
                   onClick={() => setTab(id)}
-                  className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
-                    tab === id
-                      ? 'bg-surface-0 text-theme-primary shadow-sm'
-                      : 'text-theme-muted hover:text-theme-secondary'
-                  }`}
+                  className={`px-4 py-2 rounded-lg text-xs font-semibold transition-colors ${tab === id
+                    ? 'bg-brand-500/10 text-brand-300'
+                    : 'text-theme-muted hover:text-theme-secondary'
+                    }`}
                 >
                   {label}
                 </button>
               ))}
             </div>
           </div>
-          <div className="space-y-3">
+
+          <div className="space-y-4">
             {blocks.map((block) => (
-              <div key={block.label} className="rounded-lg border border-theme-border/60 bg-surface-2/40">
-                <div className="flex items-center justify-between gap-3 px-3 pt-2 pb-1">
-                  <p className="text-[10.5px] font-medium uppercase tracking-wider text-theme-muted/85">
+              <div
+                key={block.label}
+                className="rounded-2xl border border-theme-primary/10 bg-surface-2/35"
+              >
+                <div className="flex items-center justify-between gap-3 px-4 pt-4 pb-2">
+                  <p className="text-[10.5px] font-semibold uppercase tracking-[0.18em] text-theme-muted/85">
                     {block.label}
                   </p>
                   <CodeCopyButton code={block.copy} label={`Copy: ${block.label}`} />
                 </div>
-                <pre className="text-theme-secondary overflow-x-auto px-3 pb-3 text-[12.5px] leading-relaxed"><code>{block.display}</code></pre>
+
+                <pre className="text-theme-secondary/90 overflow-x-auto px-4 pb-4 text-[13px] leading-7">
+                  <code>{block.display}</code>
+                </pre>
               </div>
             ))}
+
             {(tab === 'npx' || tab === 'docker') && (
-              <p className="pt-1 text-right text-xs text-theme-muted">
+              <p className="pt-1 text-right text-xs leading-6 text-theme-muted">
                 Runs in demo mode by default — add an LLM key for semantic search.{' '}
                 <a
                   href="https://github.com/smaramwbc/statewave#run-the-server"
@@ -1226,15 +1627,20 @@ console.log(ctx.assembledContext);
 
 function FAQSection() {
   return (
-    <Section className="bg-surface-1/50">
-      <div className="text-center mb-14">
+    <Section className="bg-surface-1">
+      <div className="text-center mb-16">
+        <div className="section-eyebrow mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
+          GOT QUESTIONS?
+        </div>
+
         <Heading
           id="faq"
-          className="text-3xl md:text-4xl font-bold text-theme-primary tracking-tight"
+          className="font-heading text-4xl md:text-[52px] font-bold leading-[1.08] tracking-[-0.03em] text-theme-primary"
         >
           Frequently asked questions
         </Heading>
-        <p className="mt-4 text-theme-muted max-w-2xl mx-auto">
+
+        <p className="mt-6 max-w-3xl mx-auto text-[20px] leading-[1.65] text-theme-secondary">
           Honest, technical answers about Statewave, AI agent memory,
           and how it fits with the rest of your stack.
         </p>
@@ -1246,69 +1652,82 @@ function FAQSection() {
           the answer as a paragraph in the disclosure body. The visible HTML
           is the same content the FAQPage JSON-LD emits, so search and
           answer engines see one source of truth. */}
-      <div className="mx-auto max-w-3xl divide-y divide-theme-border rounded-2xl border border-theme-border bg-surface-1">
+      <div className="mx-auto max-w-4xl space-y-3">
         {FAQ_ENTRIES.map((entry, i) => (
           <details
             key={entry.question}
-            className="group p-6 [&_summary::-webkit-details-marker]:hidden"
             // First item open by default so the section reads as content,
             // not a wall of collapsed accordions, on first paint.
             {...(i === 0 ? { open: true } : {})}
+            className="group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35"
           >
-            <summary className="flex cursor-pointer items-start justify-between gap-4 text-left">
-              <h3 className="text-base md:text-lg font-semibold text-theme-primary leading-snug">
+            <summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none [&::-webkit-details-marker]:hidden">
+              <h3 className="text-[18px] font-semibold leading-snug text-theme-primary">
                 {entry.question}
               </h3>
-              <svg
-                className="mt-1 h-5 w-5 shrink-0 text-theme-muted transition-transform duration-200 group-open:rotate-180"
-                aria-hidden
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M19 9l-7 7-7-7"
-                />
-              </svg>
+
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40 transition-all group-open:rotate-180 group-hover:border-brand-500/40">
+                <svg
+                  className="h-5 w-5 text-theme-secondary"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={1.8}
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+              </div>
             </summary>
-            <p className="mt-3 text-sm md:text-[15px] text-theme-muted leading-[1.7]">
-              {entry.answer}
-            </p>
-            {entry.links && entry.links.length > 0 && (
-              <FaqLinks links={entry.links} />
-            )}
+
+            <div className="px-7 pb-7">
+              <div className="h-px bg-theme-primary/10 mb-6" />
+
+              <p className="text-[16px] leading-8 text-theme-secondary/80">
+                {entry.answer}
+              </p>
+
+              {entry.links && entry.links.length > 0 && (
+                <div className="mt-5">
+                  <FaqLinks links={entry.links} />
+                </div>
+              )}
+            </div>
           </details>
         ))}
       </div>
 
-      <p className="mt-10 text-center text-sm text-theme-muted">
-        More questions? Read the{' '}
+      <div className="mt-14 text-center text-[15px] text-theme-secondary/75">
+        More questions? Read the{" "}
         <a
           href="https://github.com/smaramwbc/statewave-docs"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-accent hover:underline"
+          className="text-accent hover:text-accent/80 transition-colors"
         >
           docs
         </a>
-        , browse the{' '}
-        <Link to="/use-cases" className="text-accent hover:underline">
+        , browse the{" "}
+        <Link
+          to="/use-cases"
+          className="text-accent hover:text-accent/80 transition-colors"
+        >
           use cases
         </Link>
-        , or open an{' '}
+        , or open an{" "}
         <a
           href="https://github.com/smaramwbc/statewave/issues"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-accent hover:underline"
+          className="text-accent hover:text-accent/80 transition-colors"
         >
           issue on GitHub
         </a>
         .
-      </p>
+      </div>
     </Section>
   )
 }
@@ -1411,32 +1830,69 @@ function CTASection() {
   useTrackDemoCta(ctaDemoRef)
   return (
     <Section>
-      <div className="text-center">
-        <Heading id="give-ai-memory" className="text-3xl md:text-5xl font-bold text-theme-primary tracking-tight">
-          Give your AI system memory
-        </Heading>
-        <p className="mt-6 text-lg text-theme-muted max-w-xl mx-auto">
-          Start building with Statewave in about 5 minutes.
-          Self-hosted, open source, and proven.
-        </p>
-        <div className="mt-10 flex flex-wrap justify-center gap-4">
-          <Button href="https://github.com/smaramwbc/statewave-docs/blob/main/getting-started.md" size="lg">
-            Get Started
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-            </svg>
-          </Button>
-          <Button ref={ctaDemoRef} onClick={() => openWidget('support-agent', 'Support Agent')} variant="secondary" size="lg">
-            Try Live Demo
-          </Button>
-          <Button href="https://github.com/smaramwbc/statewave" variant="secondary" size="lg">
-            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
-            </svg>
-            GitHub
-          </Button>
+      <div className="cta-card relative overflow-hidden rounded-[2.5rem] border border-brand-500/25 bg-surface-1/55 px-6 py-20 text-center">
+        <div
+          className="cta-card-glow absolute inset-0"
+          aria-hidden="true"
+        />
+
+        <div
+          className="absolute inset-x-20 top-0 h-px bg-gradient-to-r from-transparent via-brand-500/60 to-transparent"
+          aria-hidden="true"
+        />
+
+        <div className="relative z-10 mx-auto max-w-4xl">
+          <div className="section-eyebrow mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
+            START BUILDING
+          </div>
+
+          <Heading
+            id="give-ai-memory"
+            className="font-heading text-4xl md:text-[64px] font-bold leading-[1.02] tracking-[-0.04em] text-theme-primary"
+          >
+            Give your AI system{' '}
+            <span className="text-gradient-brand">memory</span>
+          </Heading>
+
+          <p className="mt-6 mx-auto max-w-2xl text-[20px] leading-[1.65] text-theme-secondary/85">
+            Start building with Statewave in about 5 minutes. Self-hosted,
+            open source, and proven.
+          </p>
+
+          <div className="mt-10 flex flex-wrap justify-center gap-4">
+            <Button
+              href="https://github.com/smaramwbc/statewave-docs/blob/main/getting-started.md"
+              size="lg"
+            >
+              Get Started
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              </svg>
+            </Button>
+
+            <Button
+              ref={ctaDemoRef}
+              onClick={() => openWidget('support-agent', 'Support Agent')}
+              variant="secondary"
+              size="lg"
+            >
+              Try Live Demo
+            </Button>
+
+            <Button
+              href="https://github.com/smaramwbc/statewave"
+              variant="secondary"
+              size="lg"
+            >
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+              </svg>
+              GitHub
+            </Button>
+          </div>
         </div>
       </div>
     </Section>
   )
 }
+

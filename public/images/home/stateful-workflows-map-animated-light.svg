@@ -1,0 +1,354 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" viewBox="0 0 462.04897 327.89785">
+  <defs>
+    <linearGradient id="core-icon-gradient" x1="144.44951" y1="375.9717" x2="854.54" y2="309.23387" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#00c6ff"/>
+      <stop offset="1" stop-color="#7a5cff"/>
+    </linearGradient>
+    <style>
+      .shape-none, .layer-stroke, .icon-clock, .line-pink, .icon-code, .line-blue, .line-violet, .line-teal, .icon-message, .icon-user { fill: none; }
+      .node-clock-bg { fill: #f6eafd; }
+      .node-clock-bg, .node-message-bg, .node-code-bg, .layer-stroke, .iso, .layer-fill, .layer-fill-top { isolation: isolate; }
+      .node-message-bg { fill: #e8effc; }
+      .glow-user { fill: url(#glow-user-gradient); }
+      .node-code-bg { fill: #efe9fc; }
+      .layer-stroke { stroke: #5951f4; stroke-miterlimit: 10; }
+      .layer-stroke, .icon-code { stroke-width: 2px; }
+      .icon-clock { stroke: #bd54e8; }
+      .icon-clock, .icon-code, .icon-message, .icon-user { stroke-linecap: round; stroke-linejoin: round; }
+      .icon-clock, .icon-message, .icon-user { stroke-width: 1.5px; }
+      .line-pink { stroke: #cf9be3; }
+      .node-user-bg { fill: #e3f7f5; }
+      .glow-message { fill: url(#glow-message-gradient); }
+      .accent-violet { fill: #9a6ae0; }
+      .icon-code { stroke: #8b5cf6; }
+      .line-blue { stroke: #8babe6; }
+      .line-violet { stroke: #a98bd6; }
+      .line-teal { stroke: #6cc7bc; }
+      .icon-message { stroke: #3e6fd0; }
+      .accent-pink { fill: #c964ec; }
+      .icon-user { stroke: #0f9e92; }
+      .accent-teal { fill: #14b8a6; }
+      .accent-blue { fill: #4a7fdd; }
+      .layer-fill { opacity: .32; }
+      .layer-fill { fill: #ece9fb; }
+      .layer-fill-top { opacity: .62; fill: #f7f6fe; }
+      .glow-clock { fill: url(#glow-clock-gradient); }
+      .glow-code { fill: url(#glow-code-gradient); }
+
+      /* ============ ANIMACIÓN ============ */
+
+      /* --- Entrada: capas del stack (de abajo hacia arriba) --- */
+      .layer {
+        opacity: 0;
+        animation: layerIn 1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+      }
+      .layer-1 { animation-delay: 0.10s; }
+      .layer-2 { animation-delay: 0.26s; }
+      .layer-3 { animation-delay: 0.42s; }
+      .layer-4 { animation-delay: 0.58s; }
+      @keyframes layerIn {
+        from { opacity: 0; transform: translateY(16px); }
+        to   { opacity: 1; transform: translateY(0); }
+      }
+
+      /* --- Entrada: icono de capas y rayo --- */
+      .stack-icon {
+        opacity: 0;
+        transform-box: fill-box;
+        transform-origin: center;
+        animation: popIn 0.9s cubic-bezier(0.34, 1.4, 0.64, 1) 0.85s forwards;
+      }
+      @keyframes popIn {
+        from { opacity: 0; transform: scale(0.55); }
+        to   { opacity: 1; transform: scale(1); }
+      }
+
+      /* --- Rayo: pulso energético continuo --- */
+      @keyframes boltPulse {
+        0%, 100% { opacity: 1;   transform: scale(1); }
+        50%      { opacity: 0.72; transform: scale(0.94); }
+      }
+
+      /* --- Flotación ambiental del stack completo --- */
+      .stack-float {
+        animation: floatY 7s ease-in-out 1.4s infinite;
+      }
+      @keyframes floatY {
+        0%, 100% { transform: translateY(0); }
+        50%      { transform: translateY(-3.5px); }
+      }
+
+      /* --- Entrada: nodos de las esquinas --- */
+      .node {
+        opacity: 0;
+        transform-box: fill-box;
+        transform-origin: center;
+        animation: nodeIn 0.85s cubic-bezier(0.34, 1.45, 0.64, 1) forwards;
+      }
+      .node-user    { animation-delay: 0.95s; }
+      .node-code    { animation-delay: 1.08s; }
+      .node-clock   { animation-delay: 1.21s; }
+      .node-message { animation-delay: 1.34s; }
+      @keyframes nodeIn {
+        from { opacity: 0; transform: scale(0.6); }
+        to   { opacity: 1; transform: scale(1); }
+      }
+
+      /* --- Halos de los nodos: entrada + respiración --- */
+      .glow {
+        opacity: 0;
+        animation: glowIn 1.2s ease-out forwards,
+                   glowBreathe 6s ease-in-out infinite;
+      }
+      .glow-1 { animation-delay: 1.1s, 2.3s; }
+      .glow-2 { animation-delay: 1.25s, 3.4s; }
+      .glow-3 { animation-delay: 1.4s, 4.5s; }
+      .glow-4 { animation-delay: 1.55s, 5.6s; }
+      @keyframes glowIn {
+        from { opacity: 0; }
+        to   { opacity: 1; }
+      }
+      @keyframes glowBreathe {
+        0%, 100% { opacity: 1; }
+        50%      { opacity: 0.45; }
+      }
+
+      /* --- Conectores: se dibujan solos --- */
+      .wire {
+        stroke-dasharray: 1;
+        stroke-dashoffset: 1;
+        animation: drawWire 0.9s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+      }
+      .wire-1 { animation-delay: 1.45s; }
+      .wire-2 { animation-delay: 1.55s; }
+      .wire-3 { animation-delay: 1.65s; }
+      .wire-4 { animation-delay: 1.75s; }
+      @keyframes drawWire {
+        to { stroke-dashoffset: 0; }
+      }
+
+      /* --- Puntos estáticos de los conectores: aparecen + latido sutil --- */
+      .dot {
+        opacity: 0;
+        transform-box: fill-box;
+        transform-origin: center;
+        animation: dotIn 0.5s ease-out forwards,
+                   dotBeat 4s ease-in-out infinite;
+      }
+      .dot-a { animation-delay: 2.0s, 3.0s; }
+      .dot-b { animation-delay: 2.15s, 3.6s; }
+      @keyframes dotIn {
+        from { opacity: 0; transform: scale(0); }
+        to   { opacity: 1; transform: scale(1); }
+      }
+      @keyframes dotBeat {
+        0%, 100% { transform: scale(1); }
+        50%      { transform: scale(1.35); }
+      }
+
+      /* --- Accesibilidad: respetar reduced motion --- */
+      @media (prefers-reduced-motion: reduce) {
+        .layer, .stack-icon, .node, .glow, .dot { opacity: 1; animation: none; }
+        .wire { stroke-dashoffset: 0; animation: none; }
+        .stack-float,
+        .pulse { display: none; }
+      }
+      .ci-dot { fill: #c7b5ff; }
+      .ci-iso { isolation: isolate; }
+      .ci-layer-low { fill: #7a5cff; }
+      .ci-layer-top { fill: url(#core-icon-gradient); }
+      .ci-layer-mid { fill: #6366f1; }
+      .ci-bolt { fill: #00e0ff; transform-box: fill-box; transform-origin: center;
+        animation: boltPulse 3.2s ease-in-out 2.2s infinite; }
+    </style>
+
+    <linearGradient id="layers-gradient" x1="-2071.72825" y1="-3486.55546" x2="-2073.09665" y2="-3487.7503" gradientTransform="translate(148959.4053 -132827.61705) scale(71.77509 -38.1264)" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#8b5cf6"/>
+      <stop offset="1" stop-color="#22d3ee"/>
+    </linearGradient>
+    <linearGradient id="layers-gradient-b" x1="-2071.83155" y1="-3574.06541" x2="-2073.19995" y2="-3575.26025" gradientTransform="translate(148861.10759 -76226.9403) scale(71.72839 -21.36374)" xlink:href="#layers-gradient"/>
+    <linearGradient id="layers-gradient-c" x1="-2071.83155" y1="-3573.99904" x2="-2073.19995" y2="-3575.19388" gradientTransform="translate(148861.10759 -76210.14473) scale(71.72839 -21.36374)" xlink:href="#layers-gradient"/>
+    <linearGradient id="bolt-gradient" x1="218.9538" y1="114.34323" x2="250.40193" y2="114.34323" gradientTransform="matrix(1,0,0,1,0,0)" xlink:href="#layers-gradient"/>
+
+    <!-- Halos light mode: centro transparente, aro de color suave en el borde -->
+    <radialGradient id="glow-user-gradient" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#14b8a6" stop-opacity="0"/>
+      <stop offset=".68" stop-color="#14b8a6" stop-opacity="0"/>
+      <stop offset=".85" stop-color="#14b8a6" stop-opacity=".2"/>
+      <stop offset="1" stop-color="#14b8a6" stop-opacity=".55"/>
+    </radialGradient>
+    <radialGradient id="glow-message-gradient" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#4f46e5" stop-opacity="0"/>
+      <stop offset=".68" stop-color="#4f46e5" stop-opacity="0"/>
+      <stop offset=".85" stop-color="#4f46e5" stop-opacity=".2"/>
+      <stop offset="1" stop-color="#4f46e5" stop-opacity=".55"/>
+    </radialGradient>
+    <radialGradient id="glow-code-gradient" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#a855f7" stop-opacity="0"/>
+      <stop offset=".68" stop-color="#a855f7" stop-opacity="0"/>
+      <stop offset=".85" stop-color="#a855f7" stop-opacity=".2"/>
+      <stop offset="1" stop-color="#a855f7" stop-opacity=".55"/>
+    </radialGradient>
+    <radialGradient id="glow-clock-gradient" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#c026d3" stop-opacity="0"/>
+      <stop offset=".68" stop-color="#c026d3" stop-opacity="0"/>
+      <stop offset=".85" stop-color="#c026d3" stop-opacity=".2"/>
+      <stop offset="1" stop-color="#c026d3" stop-opacity=".55"/>
+    </radialGradient>
+
+    <!-- Glow para los pulsos viajeros -->
+    <filter id="pulseGlow" x="-200%" y="-200%" width="500%" height="500%">
+      <feGaussianBlur stdDeviation="2.2" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <g class="iso">
+    <g id="artwork">
+      <g>
+        <!-- ============ NODOS ============ -->
+        <g class="node node-user">
+          <g id="node-user-base" class="iso">
+            <circle class="node-user-bg" cx="30" cy="30.29029" r="30"/>
+            <circle class="node-user-bg" cx="30" cy="30.29029" r="29.5"/>
+          </g>
+          <g id="user-round">
+            <circle id="user-head" class="icon-user" cx="30.005" cy="23.83369" r="7.197"/>
+            <path id="user-body" class="icon-user" d="M40.98,42.79031c0-6.06409-4.91591-10.98-10.98-10.98s-10.98,4.91591-10.98,10.98"/>
+          </g>
+          <circle class="line-teal" cx="30.005" cy="30.29029" r="29.5"/>
+        </g>
+
+        <g class="node node-message">
+          <g id="node-message-base">
+            <circle class="shape-none" cx="35.30652" cy="297.89785" r="30"/>
+            <circle class="node-message-bg" cx="35.30652" cy="297.89785" r="29.5"/>
+          </g>
+          <g id="message-square-more">
+            <path id="message-bubble" class="icon-message" d="M48.46552,305.32086c0,1.45361-1.17839,2.632-2.632,2.632h-17.333c-.6977.00021-1.36675.27754-1.86.771l-2.9,2.9c-.36554.36396-.95692.36267-1.32087-.00287-.1748-.17556-.27269-.41339-.27213-.66113v-21.43c0-1.45361,1.17839-2.632,2.632-2.632h21.054c1.45361,0,2.632,1.17839,2.632,2.632v15.791Z"/>
+            <path id="message-dot-mid" class="icon-message" d="M35.30652,297.42486h.013"/>
+            <path id="message-dot-right" class="icon-message" d="M40.57052,297.42486h.013"/>
+            <path id="message-dot-left" class="icon-message" d="M30.04252,297.42486h.013"/>
+          </g>
+          <circle class="line-blue" cx="35.31952" cy="297.42486" r="29.5"/>
+        </g>
+
+        <g class="node node-code">
+          <g id="node-code-base">
+            <circle class="shape-none" cx="431.94265" cy="30" r="30"/>
+            <circle class="node-code-bg" cx="431.94265" cy="30" r="29.5"/>
+          </g>
+          <g id="code">
+            <path id="code-chevron-right" class="icon-code" d="M437.21316,37.807l7.9-7.9-7.9-7.907"/>
+            <path id="code-chevron-left" class="icon-code" d="M426.67215,22l-7.9,7.9,7.9,7.9"/>
+          </g>
+          <circle class="line-violet" cx="431.94265" cy="30.5" r="29.5"/>
+        </g>
+
+        <g class="node node-clock">
+          <g id="node-clock-base">
+            <circle class="shape-none" cx="431.94265" cy="282.27207" r="30"/>
+            <circle class="node-clock-bg" cx="431.94265" cy="282.27207" r="29.5"/>
+          </g>
+          <g id="clock">
+            <circle id="clock-face" class="icon-clock" cx="431.94265" cy="282.27109" r="16"/>
+            <path id="clock-hands" class="icon-clock" d="M431.90865,272.81009v9.461l6.308,3.154"/>
+          </g>
+          <circle class="line-pink" cx="431.94265" cy="282.77207" r="29.5"/>
+        </g>
+
+        <!-- ============ CONECTORES ============ -->
+        <polyline class="line-teal wire wire-1" pathLength="1" points="66.42009 54.13291 94.30398 73.74356 95.68285 96.878 122.18788 113.11807"/>
+        <circle class="accent-teal dot dot-a" cx="66.42009" cy="54.13291" r="2.68114"/>
+        <circle class="accent-teal dot dot-b" cx="94.30398" cy="73.74356" r="2.91096"/>
+
+        <polyline class="line-violet wire wire-2" pathLength="1" points="390.17328 45.59155 362.28938 65.2022 360.91051 88.33664 334.40549 104.57672"/>
+        <circle class="accent-violet dot dot-a" cx="390.17328" cy="45.59155" r="2.68114"/>
+        <circle class="accent-violet dot dot-b" cx="362.28938" cy="65.2022" r="2.91096"/>
+
+        <g>
+          <polyline class="line-blue wire wire-3" pathLength="1" points="74.39475 281.8781 102.27864 262.26745 103.65752 239.13301 130.16254 222.89294"/>
+          <circle class="accent-blue dot dot-a" cx="74.39475" cy="281.8781" r="2.68114"/>
+          <circle class="accent-blue dot dot-b" cx="102.27864" cy="262.26745" r="2.91096"/>
+          <polyline class="line-pink wire wire-4" pathLength="1" points="392.85442 282.50881 364.97053 262.89816 363.59165 239.76372 337.08663 223.52364"/>
+          <circle class="accent-pink dot dot-a" cx="392.85442" cy="282.50881" r="2.68114"/>
+          <circle class="accent-pink dot dot-b" cx="364.97053" cy="262.89816" r="2.91096"/>
+        </g>
+
+        <!-- ============ PULSOS DE DATOS (una sola pasada, hacia el centro) ============ -->
+        <!-- Usuario → stack -->
+        <g class="pulse" filter="url(#pulseGlow)" opacity="0">
+          <circle r="3.4" fill="#14b8a6" opacity="0.28"/>
+          <circle r="1.7" fill="#0f9e92"/>
+          <animateMotion path="M66.42,54.133 L94.304,73.744 L95.683,96.878 L122.188,113.118" dur="2.6s" begin="2.6s" repeatCount="1" fill="remove" calcMode="spline" keyTimes="0;1" keySplines="0.4 0 0.6 1"/>
+          <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.12;0.85;1" dur="2.6s" begin="2.6s" repeatCount="1" fill="remove"/>
+        </g>
+        <!-- Código → stack -->
+        <g class="pulse" filter="url(#pulseGlow)" opacity="0">
+          <circle r="3.4" fill="#8b5cf6" opacity="0.28"/>
+          <circle r="1.7" fill="#7c3aed"/>
+          <animateMotion path="M390.173,45.592 L362.289,65.202 L360.911,88.337 L334.405,104.577" dur="2.6s" begin="3.9s" repeatCount="1" fill="remove" calcMode="spline" keyTimes="0;1" keySplines="0.4 0 0.6 1"/>
+          <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.12;0.85;1" dur="2.6s" begin="3.9s" repeatCount="1" fill="remove"/>
+        </g>
+        <!-- Mensajes → stack -->
+        <g class="pulse" filter="url(#pulseGlow)" opacity="0">
+          <circle r="3.4" fill="#4a7fdd" opacity="0.28"/>
+          <circle r="1.7" fill="#3e6fd0"/>
+          <animateMotion path="M74.395,281.878 L102.279,262.267 L103.658,239.133 L130.163,222.893" dur="2.6s" begin="3.25s" repeatCount="1" fill="remove" calcMode="spline" keyTimes="0;1" keySplines="0.4 0 0.6 1"/>
+          <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.12;0.85;1" dur="2.6s" begin="3.25s" repeatCount="1" fill="remove"/>
+        </g>
+        <!-- Reloj → stack -->
+        <g class="pulse" filter="url(#pulseGlow)" opacity="0">
+          <circle r="3.4" fill="#c964ec" opacity="0.28"/>
+          <circle r="1.7" fill="#bd54e8"/>
+          <animateMotion path="M392.854,282.509 L364.971,262.898 L363.592,239.764 L337.087,223.524" dur="2.6s" begin="4.55s" repeatCount="1" fill="remove" calcMode="spline" keyTimes="0;1" keySplines="0.4 0 0.6 1"/>
+          <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.12;0.85;1" dur="2.6s" begin="4.55s" repeatCount="1" fill="remove"/>
+        </g>
+
+        <!-- ============ STACK CENTRAL ============ -->
+        <g class="stack-float">
+          <g class="layer layer-1">
+            <path class="layer-fill" d="M244.64392,136.03699c-6.55585-3.32519-14.08641-3.32519-20.64226,0l-106.56879,53.92738c-6.28396,3.08107-9.13193,11.24335-6.36113,18.23097,1.25222,3.15793,3.5212,5.68098,6.36113,7.07342l106.69314,54.06566c6.55585,3.3252,14.08641,3.3252,20.64226,0l106.69313-53.92739c6.28396-3.08107,9.13193-11.24335,6.36111-18.23097-1.2522-3.15793-3.52118-5.68098-6.36111-7.07342l-106.81749-54.06566Z"/>
+            <path class="layer-stroke" d="M244.64392,136.03699c-6.55585-3.32519-14.08641-3.32519-20.64226,0l-106.56879,53.92738c-6.28396,3.08107-9.13193,11.24335-6.36113,18.23097,1.25222,3.15793,3.5212,5.68098,6.36113,7.07342l106.69314,54.06566c6.55585,3.3252,14.08641,3.3252,20.64226,0l106.69313-53.92739c6.28396-3.08107,9.13193-11.24335,6.36111-18.23097-1.2522-3.15793-3.52118-5.68098-6.36111-7.07342l-106.81749-54.06566Z"/>
+          </g>
+          <g class="layer layer-2">
+            <path class="layer-fill" d="M244.64392,111.04613c-6.55585-3.32519-14.08641-3.32519-20.64226,0l-106.56879,53.92738c-6.28396,3.08107-9.13193,11.24335-6.36113,18.23097,1.25222,3.15793,3.5212,5.68098,6.36113,7.07342l106.69314,54.06566c6.55585,3.3252,14.08641,3.3252,20.64226,0l106.69313-53.92739c6.28396-3.08107,9.13193-11.24335,6.36111-18.23097-1.2522-3.15793-3.52118-5.68098-6.36111-7.07342l-106.81749-54.06566Z"/>
+            <path class="layer-stroke" d="M244.64392,111.04613c-6.55585-3.32519-14.08641-3.32519-20.64226,0l-106.56879,53.92738c-6.28396,3.08107-9.13193,11.24335-6.36113,18.23097,1.25222,3.15793,3.5212,5.68098,6.36113,7.07342l106.69314,54.06566c6.55585,3.3252,14.08641,3.3252,20.64226,0l106.69313-53.92739c6.28396-3.08107,9.13193-11.24335,6.36111-18.23097-1.2522-3.15793-3.52118-5.68098-6.36111-7.07342l-106.81749-54.06566Z"/>
+          </g>
+          <g class="layer layer-3">
+            <path class="layer-fill" d="M244.64392,84.57901c-6.55585-3.32519-14.08641-3.32519-20.64226,0l-106.56879,53.92738c-6.28396,3.08107-9.13193,11.24335-6.36113,18.23097,1.25222,3.15793,3.5212,5.68098,6.36113,7.07342l106.69314,54.06566c6.55585,3.3252,14.08641,3.3252,20.64226,0l106.69313-53.92739c6.28396-3.08107,9.13193-11.24335,6.36111-18.23097-1.2522-3.15793-3.52118-5.68098-6.36111-7.07342l-106.81749-54.06566Z"/>
+            <path class="layer-stroke" d="M244.64392,84.57901c-6.55585-3.32519-14.08641-3.32519-20.64226,0l-106.56879,53.92738c-6.28396,3.08107-9.13193,11.24335-6.36113,18.23097,1.25222,3.15793,3.5212,5.68098,6.36113,7.07342l106.69314,54.06566c6.55585,3.3252,14.08641,3.3252,20.64226,0l106.69313-53.92739c6.28396-3.08107,9.13193-11.24335,6.36111-18.23097-1.2522-3.15793-3.52118-5.68098-6.36111-7.07342l-106.81749-54.06566Z"/>
+          </g>
+          <g class="layer layer-4">
+            <path class="layer-fill-top" d="M244.64392,60.21887c-6.55585-3.32519-14.08641-3.32519-20.64226,0l-106.56879,53.92738c-6.28396,3.08107-9.13193,11.24335-6.36113,18.23097,1.25222,3.15793,3.5212,5.68098,6.36113,7.07342l106.69314,54.06566c6.55585,3.3252,14.08641,3.3252,20.64226,0l106.69313-53.92739c6.28396-3.08107,9.13193-11.24335,6.36111-18.23097-1.2522-3.15793-3.52118-5.68098-6.36111-7.07342l-106.81749-54.06566Z"/>
+            <path class="layer-stroke" d="M244.64392,60.21887c-6.55585-3.32519-14.08641-3.32519-20.64226,0l-106.56879,53.92738c-6.28396,3.08107-9.13193,11.24335-6.36113,18.23097,1.25222,3.15793,3.5212,5.68098,6.36113,7.07342l106.69314,54.06566c6.55585,3.3252,14.08641,3.3252,20.64226,0l106.69313-53.92739c6.28396-3.08107,9.13193-11.24335,6.36111-18.23097-1.2522-3.15793-3.52118-5.68098-6.36111-7.07342l-106.81749-54.06566Z"/>
+          </g>
+
+          <g class="stack-icon">
+            <g transform="translate(234.72,128.75) scale(0.09040) translate(-502,-499)">
+  <path class="ci-layer-top" d="M420.45392,104.74431l-225.83059,150.55373c-37.70193,25.13462-60.34775,67.44872-60.34775,112.7608v.00016c0,53.55661,31.54042,102.08982,80.48108,123.84122l225.83059,100.36915c35.0412,15.57386,75.03989,15.57386,110.08109,0l225.83059-100.36915c48.94065-21.7514,80.48108-70.28461,80.48108-123.84122v-.00016c0-45.31209-22.64582-87.62618-60.34775-112.7608l-225.83059-150.55373c-45.52163-30.34775-104.82611-30.34775-150.34774,0Z"/>
+  <path class="ci-bolt" d="M495.63155,505.26924c-.14864,0-.29604-.00248-.44592-.00495-8.56295-.19819-15.93801-6.09675-18.01526-14.40577l-47.75208-191.00585-37.2246,74.44796c-3.22303,6.44605-9.81029,10.51757-17.01689,10.51757h-160.60014c-10.50766,0-19.02602-8.51835-19.02602-19.02602s8.51835-19.02602,19.02602-19.02602h148.84142l54.96735-109.93223c3.56118-7.12113,11.17407-11.26697,19.09291-10.40361,7.91388.86831,14.45036,6.57364,16.38145,14.298l43.43654,173.74123,40.33367-134.44433c2.06239-6.87711,7.82222-12.0077,14.89133-13.26495,7.06663-1.25106,14.24474,1.57188,18.55284,7.31684l54.51771,72.68905h151.08714c10.50766,0,19.02602,8.51835,19.02602,19.02602s-8.51835,19.02602-19.02602,19.02602h-160.60014c-5.98898,0-11.62742-2.81922-15.22081-7.61041l-37.61107-50.14768-49.3958,164.6506c-2.41789,8.06128-9.83878,13.55851-18.21964,13.55851Z"/>
+  <g class="ci-iso">
+    <path class="ci-layer-mid" d="M829.34794,520.58116c-11.31723-2.89377-23.29954-1.59111-33.73053,3.66704l-227.83842,114.85091c-45.45651,22.55709-98.84703,22.55709-144.30354,0l-210.28486-104.34999c-13.89141-6.89337-30.21061-6.87765-44.08871.04242v.00008c-36.93042,18.41465-36.87963,71.12522.08609,89.46873l254.28748,126.18547c45.45651,22.55701,98.84703,22.55701,144.30354,0l271.20845-138.74012c11.51212-5.88917,20.18443-16.14567,24.07815-28.47653l.39979-1.26608c8.35549-26.46072-7.2337-54.50786-34.11736-61.38191l-.00007-.00002Z"/>
+  </g>
+  <path class="ci-layer-low" d="M829.34794,671.23408c-11.31723-2.89377-23.29954-1.59111-33.73053,3.66704l-227.83842,114.85091c-45.45651,22.55709-98.84703,22.55709-144.30354,0l-210.28486-104.34999c-13.89141-6.89337-30.21061-6.87765-44.08871.04242v.00008c-36.93042,18.41465-36.87963,71.12522.08609,89.46873l254.28748,126.18547c45.45651,22.55701,98.84703,22.55701,144.30354,0l271.20845-138.74012c11.51212-5.88917,20.18443-16.14567,24.07815-28.47653l.39979-1.26608c8.35549-26.46072-7.2337-54.50786-34.11736-61.38191l-.00007-.00002Z"/>
+  <circle class="ci-dot" cx="495.62721" cy="664.67102" r="30.11268"/>
+  <circle class="ci-dot" cx="495.62721" cy="820.37202" r="30.11268"/>
+            </g>
+          </g>
+
+                  </g>
+
+        <!-- ============ HALOS DE COLOR (aro suave en el borde de cada nodo) ============ -->
+        <circle class="glow-message glow glow-2" cx="35.3195" cy="297.42484" r="30.11457"/>
+        <circle class="glow-user glow glow-1" cx="30.62462" cy="30.29027" r="30.11457"/>
+        <circle class="glow-code glow glow-3" cx="432.018" cy="30.43893" r="30.02926"/>
+        <circle class="glow-clock glow glow-4" cx="432.018" cy="282.77206" r="30.02926"/>
+      </g>
+    </g>
+  </g>
+</svg>

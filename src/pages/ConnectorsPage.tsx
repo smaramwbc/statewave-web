@@ -1,5 +1,4 @@
 import { motion } from 'framer-motion'
-import { Link } from 'react-router'
 import { Section } from '../components/Section'
 import { Button } from '../components/Button'
 import { Heading } from '../components/Heading'
@@ -187,34 +186,34 @@ function ConnectorsHero() {
   }
 
   return (
-    <section className="pt-24 sm:pt-28 md:pt-32 pb-12 sm:pb-16">
+    <section className="pt-24 pb-14 sm:pt-28 sm:pb-16 md:pt-38">
       <div className="mx-auto max-w-7xl px-5 sm:px-6">
         <motion.div
           variants={stagger}
           initial="hidden"
           animate="show"
-          className="max-w-3xl"
+          className="max-w-4xl"
         >
           <motion.div variants={fadeUp}>
-            <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-accent/20 bg-accent/[0.04] text-accent text-[11px] font-medium tracking-wide uppercase">
-              <span className="w-1.5 h-1.5 rounded-full bg-accent/80" />
+            <span className="hero-badge inline-flex items-center gap-2 rounded-full border border-brand-500/35 bg-brand-500/[0.06] px-5 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-400">
+              <span className="h-1.5 w-1.5 rounded-full bg-brand-500" />
               Not just live chats
             </span>
           </motion.div>
 
           <motion.h1
             variants={fadeUp}
-            className="mt-6 sm:mt-8 text-[clamp(2rem,7vw,4rem)] font-bold text-theme-primary tracking-[-0.025em] leading-[1.08] break-anywhere"
+            className="mt-8 font-heading text-[clamp(2.8rem,5.6vw,4.7rem)] font-bold leading-[0.96] tracking-[-0.045em] text-theme-primary"
           >
-            Connect your tools.{' '}
-            <span className="bg-gradient-to-r from-accent via-brand-400 to-brand-300 bg-clip-text text-transparent">
+            <span className="block">Connect your tools.</span>
+            <span className="block max-w-[52rem] text-gradient-brand">
               Give your agents memory.
             </span>
           </motion.h1>
 
           <motion.p
             variants={fadeUp}
-            className="mt-5 sm:mt-6 text-base sm:text-lg md:text-[1.2rem] text-theme-muted max-w-[40rem] leading-[1.65] sm:leading-[1.7]"
+            className="mt-7 max-w-[44rem] text-[17px] leading-[1.7] text-theme-secondary/90 sm:text-[19px] md:text-[20px]"
           >
             Feed GitHub, Slack, Discord, docs, support tickets, email, and workflow events into
             Statewave as durable episodic memory — so your agents recall projects, customers,
@@ -223,26 +222,35 @@ function ConnectorsHero() {
 
           <motion.div
             variants={fadeUp}
-            className="mt-8 sm:mt-10 flex flex-wrap items-center gap-3 sm:gap-4"
+            className="mt-8 flex flex-wrap items-center gap-3 sm:gap-4"
           >
             <Button href={`${DOCS}/connectors/index.md`} size="lg">
               View connector docs
               <svg
-                className="w-4 h-4"
+                className="h-4 w-4"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
                 aria-hidden="true"
               >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M13 7l5 5m0 0l-5 5m5-5H6"
+                />
               </svg>
             </Button>
+
             <Button href={CONNECTORS_REPO} variant="secondary" size="lg">
               Explore Statewave Connectors
             </Button>
           </motion.div>
 
-          <motion.p variants={fadeUp} className="mt-4 text-xs text-theme-muted/85">
+          <motion.p
+            variants={fadeUp}
+            className="mt-5 max-w-[38rem] text-sm leading-[1.55] text-theme-muted/80"
+          >
             Modular packages — install only what you need. The full connector
             lineup — including the new Jira and database source connectors — is
             published on npm.
@@ -254,18 +262,41 @@ function ConnectorsHero() {
 }
 
 function ConnectorsGrid() {
+  const featuredSources = [
+    'MCP server',
+    'GitHub',
+    'Slack',
+    'Markdown / docs',
+    'n8n',
+    'Zendesk',
+  ]
+
+  const featured = CONNECTORS.filter((connector) =>
+    featuredSources.includes(connector.source)
+  )
+
+  const remaining = CONNECTORS.filter(
+    (connector) => !featuredSources.includes(connector.source)
+  )
+
   return (
     <Section>
-      <div className="mb-10 sm:mb-12">
+      <div className="mb-10 max-w-3xl sm:mb-12">
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-400">
+          Connectors & integrations
+        </p>
+
         <Heading
           id="connectors-by-source"
-          className="text-3xl md:text-4xl font-bold text-theme-primary tracking-tight"
+          className="mt-4 text-3xl font-bold tracking-tight text-theme-primary md:text-4xl"
         >
           One contract, many sources
         </Heading>
-        <p className="mt-4 text-theme-muted max-w-2xl leading-relaxed">
+
+        <p className="mt-4 max-w-2xl leading-relaxed text-theme-muted">
           Every connector normalizes its source events into the same Statewave episode shape — so
-          agents query memory by subject (<code className="font-mono text-[0.85em] text-theme-secondary">repo:</code>,{' '}
+          agents query memory by subject (
+          <code className="font-mono text-[0.85em] text-theme-secondary">repo:</code>,{' '}
           <code className="font-mono text-[0.85em] text-theme-secondary">customer:</code>,{' '}
           <code className="font-mono text-[0.85em] text-theme-secondary">community:</code>,{' '}
           <code className="font-mono text-[0.85em] text-theme-secondary">contact:</code>) without caring which
@@ -274,50 +305,236 @@ function ConnectorsGrid() {
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {CONNECTORS.map((c, i) => (
-          <ConnectorCardItem key={c.source} card={c} index={i} />
+        {featured.map((connector, index) => (
+          <ConnectorCardItem
+            key={connector.source}
+            card={connector}
+            index={index}
+            compact={false}
+          />
         ))}
+      </div>
+
+      <div className="mt-16">
+
+
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {remaining.map((connector, index) => (
+            <ConnectorCardItem
+              key={connector.source}
+              card={connector}
+              index={index}
+              compact
+            />
+          ))}
+        </div>
       </div>
     </Section>
   )
 }
 
-function ConnectorCardItem({ card, index }: { card: ConnectorCard; index: number }) {
+const CONNECTOR_ICONS: Record<string, string> = {
+  'MCP server': '/connectors/Model_Context_Protocol_logo.svg',
+
+  GitHub: '/connectors/GitHub_Invertocat_Black_Clearspace.svg',
+  GitLab: '/connectors/gitlab.svg',
+  Bitbucket: '/connectors/bitbucket.svg',
+  'Gitea / Forgejo': '/connectors/gitea.svg',
+  'Azure DevOps': '/connectors/azure-devops.svg',
+
+  Slack: '/connectors/Slack_icon_2019.svg',
+  Discord: '/connectors/discord.svg',
+
+  n8n: '/connectors/n8n_pink+white_logo.svg',
+  Zapier: '/connectors/zapier.svg',
+
+  Zendesk: '/connectors/zendesk-1.svg',
+  Intercom: '/connectors/intercom.svg',
+  Freshdesk: '/connectors/freshdesk.svg',
+
+  'Markdown / docs': '/connectors/markdown-svgrepo-com.svg',
+  Notion: '/connectors/notion.svg',
+
+  Gmail: '/connectors/gmail.svg',
+  Jira: '/connectors/jira.svg',
+  Database: '/connectors/database.svg',
+}
+
+const WHITE_CONNECTOR_LOGOS = new Set([
+  '/connectors/Model_Context_Protocol_logo.svg',
+  '/connectors/GitHub_Invertocat_Black_Clearspace.svg',
+  '/connectors/markdown-svgrepo-com.svg',
+  '/connectors/zendesk-1.svg',
+])
+
+const BLACK_CONNECTOR_LOGOS = new Set([
+  '/connectors/intercom.svg',
+  '/connectors/database.svg',
+])
+
+const getConnectorLogoClass = (icon: string) => {
+  if (WHITE_CONNECTOR_LOGOS.has(icon)) {
+    return 'connector-logo-white'
+  }
+
+  if (BLACK_CONNECTOR_LOGOS.has(icon)) {
+    return 'connector-logo-black'
+  }
+
+  return ''
+}
+
+
+function ConnectorCardItem({
+  card,
+  index,
+  compact = false,
+}: {
+  card: ConnectorCard
+  index: number
+  compact?: boolean
+}) {
   const isPlanned = card.status === 'planned'
-  const cardClass = `relative flex h-full flex-col rounded-2xl border bg-surface-1 p-6 transition-colors ${
-    isPlanned
-      ? 'border-theme-border/70'
-      : 'border-theme-border hover:border-accent/30'
-  }`
-  const inner = (
-    <>
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className="text-xs font-medium uppercase tracking-wider text-accent">{card.shape}</p>
-          <h3 className="mt-1 text-lg font-semibold text-theme-primary">{card.source}</h3>
+  const icon = CONNECTOR_ICONS[card.source]
+
+  if (compact) {
+    const compactClass = `
+  flex min-h-[82px] items-center justify-between gap-4 rounded-xl
+  border border-theme-border bg-surface-1/35 px-5 py-4 transition-all duration-200
+  ${isPlanned
+        ? ''
+        : 'hover:border-theme-border-hover hover:bg-surface-1/45'
+      }
+`
+
+    const compactContent = (
+      <>
+        <div className="flex min-w-0 items-center gap-4">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center">
+            {icon && (
+              <img
+                src={icon}
+                alt=""
+                className={`h-7 w-7 object-contain ${getConnectorLogoClass(icon)}`}
+                aria-hidden="true"
+              />
+            )}
+          </div>
+
+          <div className="min-w-0">
+            <p className="truncate font-medium text-theme-primary">
+              {card.source}
+            </p>
+
+            <p className="mt-1 truncate text-[10px] font-semibold uppercase tracking-[0.14em] text-theme-muted">
+              {card.shape}
+            </p>
+          </div>
         </div>
-        <span
-          className={`shrink-0 text-[10px] font-medium uppercase tracking-wider px-2 py-0.5 rounded-full ${
-            isPlanned
-              ? 'bg-surface-2 text-theme-muted'
-              : 'bg-emerald-500/10 text-emerald-300'
-          }`}
-        >
-          {isPlanned ? 'Coming soon' : 'Available'}
-        </span>
+
+        <div className="flex items-start">
+
+
+          {card.href && (
+            <svg
+              className="h-4 w-4 text-brand-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M13 7l5 5m0 0l-5 5m5-5H6"
+              />
+            </svg>
+          )}
+        </div>
+      </>
+    )
+
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ delay: index * 0.025, duration: 0.35 }}
+      >
+        {card.href ? (
+          <a
+            href={card.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={compactClass}
+          >
+            {compactContent}
+          </a>
+        ) : (
+          <div className={compactClass}>{compactContent}</div>
+        )}
+      </motion.div>
+    )
+  }
+
+  const featuredClass = `
+  group relative flex min-h-[250px] h-full flex-col rounded-2xl
+  border border-theme-border bg-surface-1/45 p-6 transition-all duration-200
+  ${isPlanned
+      ? ''
+      : 'hover:-translate-y-1 hover:border-theme-border-hover hover:bg-surface-1/55'
+    }
+`
+
+  const featuredContent = (
+    <>
+      <div className="flex items-start">
+        <div className="flex h-12 w-12 items-center justify-center">
+          {icon && (
+            <img
+              src={icon}
+              alt=""
+              className={`h-8 w-8 object-contain ${getConnectorLogoClass(icon)}`}
+              aria-hidden="true"
+            />
+          )}
+        </div>
+
+
       </div>
-      <p className="mt-3 text-sm text-theme-muted leading-relaxed">{card.description}</p>
+
+      <div className="mt-7">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-400">
+          {card.shape}
+        </p>
+
+        <h3 className="mt-2 text-xl font-semibold text-theme-primary">
+          {card.source}
+        </h3>
+
+        <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-theme-muted">
+          {card.description}
+        </p>
+      </div>
+
       {card.href && (
-        <span className="mt-5 inline-flex items-center gap-1.5 text-xs font-medium text-accent">
+        <span className="mt-auto inline-flex items-center gap-1.5 pt-6 text-sm font-medium text-brand-400">
           Read the docs
+
           <svg
-            className="w-3.5 h-3.5"
+            className="h-4 w-4"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
-            aria-hidden
+            aria-hidden="true"
           >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M13 7l5 5m0 0l-5 5m5-5H6"
+            />
           </svg>
         </span>
       )}
@@ -330,90 +547,178 @@ function ConnectorCardItem({ card, index }: { card: ConnectorCard; index: number
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ delay: index * 0.04, duration: 0.4 }}
+      className="h-full"
     >
       {card.href ? (
         <a
           href={card.href}
           target="_blank"
           rel="noopener noreferrer"
-          className={cardClass}
+          className={featuredClass}
         >
-          {inner}
+          {featuredContent}
         </a>
       ) : (
-        <div className={cardClass}>{inner}</div>
+        <div className={featuredClass}>{featuredContent}</div>
       )}
     </motion.div>
   )
 }
 
 function PackageModelSection() {
+  const installLines = [
+    '# Pick what you need — every package is independent',
+    'npm install @statewavedev/connectors-github',
+    'npm install @statewavedev/connectors-jira',
+    'npm install @statewavedev/connectors-database',
+    'npm install @statewavedev/connectors-markdown',
+    'npm install @statewavedev/connectors-slack',
+    'npm install @statewavedev/connectors-n8n',
+    'npm install @statewavedev/connectors-zapier',
+    'npm install @statewavedev/mcp-server',
+  ]
+
+  const features = [
+    'Per-connector credentials — no “all-or-nothing” token bag',
+    'Dry-run-first by default — preview mapped episodes before any ingestion',
+    'Built-in best-effort redaction for emails, phone numbers, and common API keys',
+    'Stable idempotency keys — re-running a sync deduplicates instead of double-storing',
+  ]
+
   return (
-    <Section className="bg-surface-1/50">
-      <div className="grid md:grid-cols-2 gap-10 md:gap-16 items-start">
-        <div className="min-w-0">
+    <Section className="bg-surface-1">
+      <div className="grid items-start gap-12 md:grid-cols-2 md:gap-16 lg:gap-20">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.5, ease: 'easeOut' }}
+          className="min-w-0"
+        >
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-400">
+            Modular architecture
+          </p>
+
           <Heading
             id="modular-by-design"
-            className="text-3xl md:text-4xl font-bold text-theme-primary tracking-tight"
+            className="mt-4 max-w-xl text-3xl font-bold tracking-tight text-theme-primary md:text-4xl"
           >
             Modular by design
           </Heading>
-          <p className="mt-6 text-theme-muted leading-relaxed">
+
+          <p className="mt-5 max-w-xl leading-relaxed text-theme-muted">
             Connectors live in their own monorepo and ship as separate packages. Install only what
             you need — using GitHub doesn’t pull in Slack, Notion, or Gmail dependencies, and
             credentials are scoped per connector.
           </p>
-          <ul className="mt-6 space-y-3 text-sm text-theme-secondary">
-            {[
-              'Per-connector credentials — no “all-or-nothing” token bag',
-              'Dry-run-first by default — preview mapped episodes before any ingestion',
-              'Built-in best-effort redaction for emails, phone numbers, and common API keys',
-              'Stable idempotency keys — re-running a sync deduplicates instead of double-storing',
-            ].map((item, i) => (
-              <li key={i} className="flex items-start gap-3">
+
+          <ul className="mt-7 space-y-4 text-sm text-theme-secondary">
+            {features.map((item, index) => (
+              <motion.li
+                key={item}
+                initial={{ opacity: 0, x: -10 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{
+                  delay: 0.12 + index * 0.07,
+                  duration: 0.35,
+                  ease: 'easeOut',
+                }}
+                className="flex items-start gap-3"
+              >
                 <svg
-                  className="mt-0.5 w-4 h-4 text-accent shrink-0"
+                  className="mt-0.5 h-4 w-4 shrink-0 text-brand-400"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
-                  aria-hidden
+                  aria-hidden="true"
                 >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M5 13l4 4L19 7"
+                  />
                 </svg>
-                <span>{item}</span>
-              </li>
+
+                <span className="leading-relaxed">{item}</span>
+              </motion.li>
             ))}
           </ul>
-          <p className="mt-6 text-xs text-theme-muted/85 leading-relaxed">
-            The convenience meta-package <code className="font-mono text-theme-secondary">@statewavedev/connectors</code>{' '}
-            re-exports the official connectors for the rare case where you want them all at once. It is
-            not required for normal usage.
-          </p>
-        </div>
 
-        <div className="min-w-0 rounded-2xl border border-theme-border bg-surface-1 p-5 sm:p-6 font-mono text-sm overflow-hidden">
-          <div className="flex items-center gap-2 mb-4 text-theme-muted text-xs">
-            <div className="w-3 h-3 rounded-full bg-red-500/60" />
-            <div className="w-3 h-3 rounded-full bg-yellow-500/60" />
-            <div className="w-3 h-3 rounded-full bg-green-500/60" />
-            <span className="ml-2 truncate">install — pick what you need</span>
+          <p className="mt-7 max-w-xl text-xs leading-relaxed text-theme-muted/85">
+            The convenience meta-package{' '}
+            <code className="font-mono text-theme-secondary">
+              @statewavedev/connectors
+            </code>{' '}
+            re-exports the official connectors for the rare case where you want them all at once. It
+            is not required for normal usage.
+          </p>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.35 }}
+          transition={{ duration: 0.55, ease: 'easeOut' }}
+          className="sw-card min-h-[390px] min-w-0 overflow-hidden rounded-2xl border border-theme-border bg-surface-1/70 p-5 font-mono text-sm sm:p-6"
+        >
+          <div className="mb-5 flex items-center gap-2 border-b border-theme-border pb-4 text-xs text-theme-muted">
+            <div className="h-3 w-3 rounded-full bg-red-500/70" />
+            <div className="h-3 w-3 rounded-full bg-yellow-500/70" />
+            <div className="h-3 w-3 rounded-full bg-green-500/70" />
+
+            <span className="ml-2 truncate">
+              install — pick what you need
+            </span>
           </div>
-          <pre className="text-theme-secondary overflow-x-auto -mx-1 px-1"><code>{`# Pick what you need — every package is independent
-npm install @statewavedev/connectors-github
-npm install @statewavedev/connectors-jira
-npm install @statewavedev/connectors-database
-npm install @statewavedev/connectors-markdown
-npm install @statewavedev/connectors-slack
-npm install @statewavedev/connectors-n8n
-npm install @statewavedev/connectors-zapier
-npm install @statewavedev/mcp-server`}</code></pre>
-          <p className="mt-4 text-[11px] text-theme-muted/85 leading-relaxed">
+
+          <div className="-mx-1 overflow-x-auto px-1 text-theme-secondary">
+            {installLines.map((line, index) => (
+              <motion.div
+                key={line}
+                initial={{ opacity: 0, x: -8 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{
+                  delay: 0.18 + index * 0.075,
+                  duration: 0.3,
+                  ease: 'easeOut',
+                }}
+                className={`whitespace-pre leading-[1.55] ${index === 0 ? 'mb-1 text-theme-muted' : ''
+                  }`}
+              >
+                {line}
+
+                {index === installLines.length - 1 && (
+                  <motion.span
+                    aria-hidden="true"
+                    animate={{ opacity: [1, 0, 1] }}
+                    transition={{
+                      duration: 1,
+                      repeat: Infinity,
+                      ease: 'linear',
+                    }}
+                    className="ml-1 inline-block h-[1.05em] w-[2px] translate-y-[2px] bg-brand-400"
+                  />
+                )}
+              </motion.div>
+            ))}
+          </div>
+
+          <motion.p
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: 1, duration: 0.4 }}
+            className="mt-10 md:mt-24 border-t border-theme-border pt-4 text-[11px] leading-relaxed text-theme-muted/85"
+          >
             Track the rollout in the{' '}
             <a
               href={`${DOCS}/connectors/roadmap.md`}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-accent hover:underline"
+              className="text-brand-400 hover:underline"
             >
               connectors roadmap
             </a>
@@ -422,13 +727,13 @@ npm install @statewavedev/mcp-server`}</code></pre>
               href={CONNECTORS_REPO}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-accent hover:underline"
+              className="text-brand-400 hover:underline"
             >
               monorepo
             </a>
             .
-          </p>
-        </div>
+          </motion.p>
+        </motion.div>
       </div>
     </Section>
   )
@@ -437,6 +742,7 @@ npm install @statewavedev/mcp-server`}</code></pre>
 function QuickExamplesSection() {
   const examples = [
     {
+      step: '01',
       label: 'Try GitHub repo memory',
       command: `statewave-connectors sync github \\
   --repo smaramwbc/statewave \\
@@ -445,6 +751,7 @@ function QuickExamplesSection() {
       docHref: `${DOCS}/connectors/github.md`,
     },
     {
+      step: '02',
       label: 'Sync local docs and ADRs',
       command: `statewave-connectors sync markdown \\
   --path ./docs \\
@@ -453,6 +760,7 @@ function QuickExamplesSection() {
       docHref: `${DOCS}/connectors/markdown.md`,
     },
     {
+      step: '03',
       label: 'Start the MCP server',
       command: `statewave-connectors mcp start`,
       docHref: `${DOCS}/connectors/mcp.md`,
@@ -461,43 +769,111 @@ function QuickExamplesSection() {
 
   return (
     <Section>
-      <div className="mb-10 sm:mb-12">
+      <div className="mb-12 max-w-3xl sm:mb-14">
+        <p className="section-eyebrow text-xs font-semibold uppercase tracking-[0.18em] text-brand-400">
+          Quick start
+        </p>
+
         <Heading
           id="quick-examples"
-          className="text-3xl md:text-4xl font-bold text-theme-primary tracking-tight"
+          className="mt-4 font-heading text-4xl font-bold leading-[1.05] tracking-[-0.035em] text-theme-primary md:text-5xl"
         >
-          Dry-run first, ingest second
+          Dry-run first,{' '}
+          <span className="text-gradient-brand">ingest second</span>
         </Heading>
-        <p className="mt-4 text-theme-muted max-w-2xl leading-relaxed">
-          Every connector supports <code className="font-mono text-[0.85em] text-theme-secondary">--dry-run</code> —
-          mapped episodes are printed without being sent anywhere. The CLI refuses to ingest unless{' '}
-          <code className="font-mono text-[0.85em] text-theme-secondary">STATEWAVE_URL</code> is set.
+
+        <p className="mt-6 max-w-2xl text-[17px] leading-[1.7] text-theme-secondary/85">
+          Every connector supports{' '}
+          <code className="font-mono text-[0.85em] text-theme-primary">
+            --dry-run
+          </code>{' '}
+          — mapped episodes are printed without being sent anywhere. The CLI
+          refuses to ingest unless{' '}
+          <code className="font-mono text-[0.85em] text-theme-primary">
+            STATEWAVE_URL
+          </code>{' '}
+          is set.
         </p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3">
-        {examples.map((ex, i) => (
-          <motion.div
-            key={ex.label}
-            initial={{ opacity: 0, y: 16 }}
+      <div className="grid gap-5 md:grid-cols-3">
+        {examples.map((example, index) => (
+          <motion.article
+            key={example.label}
+            initial={{ opacity: 0, y: 22 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: i * 0.05, duration: 0.4 }}
-            className="rounded-2xl border border-theme-border bg-surface-1 p-5 sm:p-6 flex flex-col"
+            viewport={{ once: true, amount: 0.25 }}
+            transition={{
+              delay: index * 0.08,
+              duration: 0.45,
+              ease: 'easeOut',
+            }}
+            className="group relative flex min-h-[280px] flex-col overflow-hidden rounded-2xl border border-theme-border bg-surface-1/55 p-5 transition-all duration-300 hover:-translate-y-1 hover:border-brand-400/45 hover:bg-surface-1/70 sm:p-6"
           >
-            <div className="flex items-center justify-between gap-3">
-              <p className="text-sm font-semibold text-theme-primary">{ex.label}</p>
+            <div
+              className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(74,140,255,0.10),transparent_45%)] opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+              aria-hidden="true"
+            />
+
+            <div
+              className="absolute inset-x-12 top-0 h-px bg-gradient-to-r from-transparent via-brand-500/45 to-transparent"
+              aria-hidden="true"
+            />
+
+            <div className="relative z-10 flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <span className="font-mono text-[11px] font-semibold tracking-[0.14em] text-brand-400">
+                  {example.step}
+                </span>
+
+                <span className="h-px w-6 bg-theme-border" />
+
+                <p className="text-sm font-semibold text-theme-primary">
+                  {example.label}
+                </p>
+              </div>
+
               <a
-                href={ex.docHref}
+                href={example.docHref}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-xs font-medium text-accent hover:underline"
+                className="inline-flex shrink-0 items-center gap-1 text-xs font-medium text-brand-400 transition hover:text-brand-300"
               >
                 Docs
+
+                <svg
+                  className="h-3.5 w-3.5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13 7l5 5m0 0l-5 5m5-5H6"
+                  />
+                </svg>
               </a>
             </div>
-            <pre className="mt-4 flex-1 text-[12.5px] font-mono text-theme-secondary bg-surface-2/50 rounded-lg p-3 overflow-x-auto whitespace-pre"><code>{ex.command}</code></pre>
-          </motion.div>
+
+            <div className="relative z-10 mt-6 flex flex-1 flex-col overflow-hidden rounded-xl border border-theme-border bg-surface-2/45">
+              <div className="flex items-center gap-1.5 border-b border-theme-border px-4 py-3">
+                <span className="h-2 w-2 rounded-full bg-red-500/65" />
+                <span className="h-2 w-2 rounded-full bg-yellow-500/65" />
+                <span className="h-2 w-2 rounded-full bg-green-500/65" />
+
+                <span className="ml-2 font-mono text-[10px] text-theme-muted">
+                  terminal
+                </span>
+              </div>
+
+              <pre className="flex-1 overflow-x-auto p-4 font-mono text-[12.5px] leading-[1.65] text-theme-secondary">
+                <code>{example.command}</code>
+              </pre>
+            </div>
+          </motion.article>
         ))}
       </div>
     </Section>
@@ -506,53 +882,87 @@ function QuickExamplesSection() {
 
 function CTASection() {
   return (
-    <Section className="bg-surface-1/50">
-      <div className="text-center">
-        <Heading
-          id="start-with-connectors"
-          className="text-3xl md:text-5xl font-bold text-theme-primary tracking-tight"
-        >
-          Start with one connector. Add more when you’re ready.
-        </Heading>
-        <p className="mt-6 text-lg text-theme-muted max-w-xl mx-auto">
-          The core stays clean — connectors are optional, modular, and never required to use Statewave.
-        </p>
-        <div className="mt-10 flex flex-wrap justify-center gap-4">
-          <Button href={`${DOCS}/connectors/index.md`} size="lg">
-            View connector docs
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              aria-hidden
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-            </svg>
-          </Button>
-          <Button href={CONNECTORS_REPO} variant="secondary" size="lg">
-            Explore Statewave Connectors
-          </Button>
-          <Button to="/use-cases" variant="secondary" size="lg">
-            See use-case patterns
-          </Button>
-        </div>
-        <p className="mt-6 text-xs text-theme-muted">
-          Building your own?{' '}
-          <a
-            href={`${DOCS}/connectors/index.md`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-accent hover:underline"
+    <Section>
+      <div className="cta-card relative overflow-hidden rounded-[2.5rem] border border-brand-500/25 bg-surface-1/55 px-6 py-20 text-center">
+        <div
+          className="cta-card-glow absolute inset-0"
+          aria-hidden="true"
+        />
+
+        <div
+          className="absolute inset-x-20 top-0 h-px bg-gradient-to-r from-transparent via-brand-500/60 to-transparent"
+          aria-hidden="true"
+        />
+
+        <div className="relative z-10 mx-auto max-w-4xl">
+          <div className="section-eyebrow mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
+            CONNECTORS
+          </div>
+
+          <Heading
+            id="start-with-connectors"
+            className="font-heading text-4xl md:text-[64px] font-bold leading-[1.02] tracking-[-0.04em] text-theme-primary"
           >
-            Read the connector contract
-          </a>
-          {' '}— one interface, one episode shape, dry-run-first by default. Or browse the{' '}
-          <Link to="/developers" className="text-accent hover:underline">
-            developer hub
-          </Link>
-          .
-        </p>
+            Start with one connector.
+            <br />
+            Add more when you're{' '}
+            <span className="text-gradient-brand">ready</span>
+          </Heading>
+
+          <p className="mx-auto mt-6 max-w-2xl text-[20px] leading-[1.65] text-theme-secondary/85">
+            The core stays clean. Connectors are optional, modular, independently
+            versioned, and never required to use Statewave.
+          </p>
+
+          <div className="mt-10 flex flex-wrap justify-center gap-4">
+            <Button href={`${DOCS}/connectors/index.md`} size="lg">
+              View connector docs
+              <svg
+                className="h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                aria-hidden
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M13 7l5 5m0 0l-5 5m5-5H6"
+                />
+              </svg>
+            </Button>
+
+            <Button
+              href={CONNECTORS_REPO}
+              variant="secondary"
+              size="lg"
+            >
+              Explore Connectors
+            </Button>
+
+            <Button
+              to="/developers"
+              variant="secondary"
+              size="lg"
+            >
+              Developer Hub
+            </Button>
+          </div>
+
+          <p className="mx-auto mt-8 max-w-3xl text-sm leading-relaxed text-theme-muted">
+            Building your own connector?{' '}
+            <a
+              href={`${DOCS}/connectors/index.md`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-brand-400 hover:underline"
+            >
+              Read the connector contract
+            </a>{' '}
+            to understand the shared interface, episode model and dry-run workflow.
+          </p>
+        </div>
       </div>
     </Section>
   )
