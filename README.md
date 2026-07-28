@@ -5,9 +5,13 @@
 
 The official product website for [Statewave](https://statewave.ai), the open-source memory runtime for AI agents.
 
-> **Live:** [statewave.ai](https://statewave.ai)
+> **Part of [Statewave](https://github.com/smaramwbc/statewave)** — the open-source memory runtime for AI agents.
+>
+> 📦 [Core runtime](https://github.com/smaramwbc/statewave) · 🐍 [Python SDK](https://github.com/smaramwbc/statewave-py) · 🟦 [TypeScript SDK](https://github.com/smaramwbc/statewave-ts) · 🔌 [Connectors](https://github.com/smaramwbc/statewave-connectors) · 📘 [Docs](https://github.com/smaramwbc/statewave-docs) · 💡 [Examples](https://github.com/smaramwbc/statewave-examples) · 🖥️ [Admin](https://github.com/smaramwbc/statewave-admin) · 🌐 **statewave.ai**
 >
 > 📋 **Issues & feature requests:** [statewave/issues](https://github.com/smaramwbc/statewave/issues) (centralized tracker)
+>
+> **Live:** [statewave.ai](https://statewave.ai)
 
 > **Frontend role:** This is the **public marketing site** — product positioning, features, developer resources, and an embedded chat-widget demo that talks to a live Statewave backend. For the operator console, see [statewave-admin](https://github.com/smaramwbc/statewave-admin).
 
