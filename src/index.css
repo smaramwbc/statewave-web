@@ -64,7 +64,7 @@
   --theme-scrollbar-thumb-hover: rgba(122, 92, 255, 0.52);
   --color-success: #6ee7b7;
   --color-danger: #f87171;
-  --theme-eyebrow: var(--brand-400);
+  --theme-eyebrow: var(--color-brand-400);
   --theme-button-secondary-border: rgba(255, 255, 255, .15);
   --theme-button-secondary-border-hover: rgba(255, 255, 255, .25);
 }
@@ -620,7 +620,7 @@ h6 {
    ========================================================================== */
 
 [data-theme="light"] .hero-badge {
-  color: var(--brand-600);
+  color: var(--color-brand-600);
   border-color: rgba(99, 102, 241, .22);
   background: rgba(99, 102, 241, .06);
 }
