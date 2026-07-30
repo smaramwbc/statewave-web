@@ -1,18 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="180 0 950 940">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="80 50 970 800">
   <style>
-    .plate-fill { fill: #ece9fb; opacity: .35; isolation: isolate; }
-    .plate-fill-top { fill: #f7f6fe; opacity: .62; isolation: isolate; }
-    .plate-stroke { fill: none; stroke: #5951f4; stroke-width: 1.4px; stroke-miterlimit: 10; }
-
     .tile { opacity:0; animation: tileIn .8s cubic-bezier(.22,1,.36,1) forwards; }
     .tile-1 { animation-delay:.1s; } .tile-2 { animation-delay:.22s; } .tile-3 { animation-delay:.34s; }
     .tile-4 { animation-delay:.46s; } .tile-5 { animation-delay:.58s; }
     @keyframes tileIn { from { opacity:0; transform:translateX(-22px);} to { opacity:1; transform:translateX(0);} }
-
-    .plate { opacity:0; animation: plateIn .85s cubic-bezier(.22,1,.36,1) forwards; }
-    .p1 { animation-delay:.5s; } .p2 { animation-delay:.65s; } .p3 { animation-delay:.8s; } .p4 { animation-delay:.95s; }
-    @keyframes plateIn { from { opacity:0; transform:translateY(10px);} to { opacity:1; transform:translateY(0);} }
 
     #layers-icon-wrap { opacity:0; transform-box:fill-box; transform-origin:center;
       animation: popIn .85s cubic-bezier(.34,1.4,.64,1) 1.25s forwards; }
@@ -36,37 +28,32 @@
 
     #stack-anchor { animation: floatY 7s ease-in-out 2.2s infinite; }
     @keyframes floatY { 0%,100% { transform:translateY(0);} 50% { transform:translateY(-4px);} }
-    #floor { opacity:0; animation: fadeIn 1.2s ease-out 1.1s forwards; }
-    @keyframes fadeIn { to { opacity:1; } }
 
     @media (prefers-reduced-motion: reduce) {
-      .tile,.plate,#layers-icon-wrap,#bolt-wrap,.ndot,#floor { opacity:1; animation:none; }
+      .tile,#layers-icon-wrap,#bolt-wrap,.ndot { opacity:1; animation:none; }
       .wire { stroke-dashoffset:0; animation:none; }
       #stack-anchor,#bolt-wrap path { animation:none; }
       .pulse { display:none; }
     }
   </style>
   <defs>
-    <linearGradient id="Degradado_sin_nombre_13" x1="-2071.72825" y1="-3486.55546" x2="-2073.09665" y2="-3487.7503" gradientTransform="translate(148959.4053 -132827.61705) scale(71.77509 -38.1264)" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#7c3aed"/>
-      <stop offset="1" stop-color="#22d3ee"/>
+    <linearGradient id="Degradado_sin_nombre_111" x1="144.44951" y1="375.9717" x2="854.54" y2="309.23387" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#00c6ff"/>
+      <stop offset="1" stop-color="#7a5cff"/>
     </linearGradient>
-    <linearGradient id="Degradado_sin_nombre_131" x1="-2071.83155" y1="-3574.06541" x2="-2073.19995" y2="-3575.26025" gradientTransform="translate(148861.10759 -76226.9403) scale(71.72839 -21.36374)" xlink:href="#Degradado_sin_nombre_13"/>
-    <linearGradient id="Degradado_sin_nombre_132" x1="-2071.83155" y1="-3573.99904" x2="-2073.19995" y2="-3575.19388" gradientTransform="translate(148861.10759 -76210.14473) scale(71.72839 -21.36374)" xlink:href="#Degradado_sin_nombre_13"/>
-    <linearGradient id="Degradado_sin_nombre_133" x1="218.9538" y1="114.34323" x2="250.40193" y2="114.34323" gradientTransform="matrix(1,0,0,1,0,0)" xlink:href="#Degradado_sin_nombre_13"/>
-<linearGradient id="wg-message" gradientUnits="userSpaceOnUse" x1="391" y1="0" x2="544" y2="0">
+<linearGradient id="wg-message" gradientUnits="userSpaceOnUse" x1="251" y1="0" x2="592" y2="0">
       <stop offset="0" stop-color="#0a9cc4"/><stop offset="1" stop-color="#0a9cc4"/>
     </linearGradient>
-    <linearGradient id="wg-code" gradientUnits="userSpaceOnUse" x1="376" y1="0" x2="544" y2="0">
+    <linearGradient id="wg-code" gradientUnits="userSpaceOnUse" x1="236" y1="0" x2="592" y2="0">
       <stop offset="0" stop-color="#7c3aed"/><stop offset="1" stop-color="#0a9cc4"/>
     </linearGradient>
-    <linearGradient id="wg-user" gradientUnits="userSpaceOnUse" x1="351" y1="0" x2="544" y2="0">
+    <linearGradient id="wg-user" gradientUnits="userSpaceOnUse" x1="211" y1="0" x2="592" y2="0">
       <stop offset="0" stop-color="#0ea5a0"/><stop offset="1" stop-color="#0a9cc4"/>
     </linearGradient>
-    <linearGradient id="wg-git" gradientUnits="userSpaceOnUse" x1="346" y1="0" x2="544" y2="0">
+    <linearGradient id="wg-git" gradientUnits="userSpaceOnUse" x1="206" y1="0" x2="592" y2="0">
       <stop offset="0" stop-color="#8b47e8"/><stop offset="1" stop-color="#0a9cc4"/>
     </linearGradient>
-    <linearGradient id="wg-clock" gradientUnits="userSpaceOnUse" x1="376" y1="0" x2="544" y2="0">
+    <linearGradient id="wg-clock" gradientUnits="userSpaceOnUse" x1="236" y1="0" x2="592" y2="0">
       <stop offset="0" stop-color="#3b6fd4"/><stop offset="1" stop-color="#0a9cc4"/>
     </linearGradient>
     <filter id="soft-glow" x="-40%" y="-40%" width="180%" height="180%">
@@ -79,120 +66,97 @@
     </filter>
   </defs>
 
-  <!-- Suelo isométrico tenue -->
-  <g id="floor" fill="none" stroke="#c5cfee">
-    <path d="M886.5,568.0 L1133.5,698.0 Q1160.0,712.0 1133.5,726.0 L886.5,856.0 Q860.0,870.0 833.5,856.0 L586.5,726.0 Q560.0,712.0 586.5,698.0 L833.5,568.0 Q860.0,554.0 886.5,568.0 Z" stroke-opacity=".55"/>
-    <path d="M895.4,526.6 L1244.6,709.4 Q1280.0,728.0 1244.6,746.6 L895.4,929.4 Q860.0,948.0 824.6,929.4 L475.4,746.6 Q440.0,728.0 475.4,709.4 L824.6,526.6 Q860.0,508.0 895.4,526.6 Z" stroke-opacity=".32"/>
-  </g>
-
   <!-- Stack central: figura original trasplantada -->
   <g id="stack-anchor">
-    <g id="stack" transform="translate(850,470) scale(1.9) translate(-234.6,-164.6)">
-      <g id="plate-1" class="plate p1">
-        <path class="plate-fill" d="M244.64392,136.03699c-6.55585-3.32519-14.08641-3.32519-20.64226,0l-106.56879,53.92738c-6.28396,3.08107-9.13193,11.24335-6.36113,18.23097,1.25222,3.15793,3.5212,5.68098,6.36113,7.07342l106.69314,54.06566c6.55585,3.3252,14.08641,3.3252,20.64226,0l106.69313-53.92739c6.28396-3.08107,9.13193-11.24335,6.36111-18.23097-1.2522-3.15793-3.52118-5.68098-6.36111-7.07342l-106.81749-54.06566Z"/>
-        <path class="plate-stroke" d="M244.64392,136.03699c-6.55585-3.32519-14.08641-3.32519-20.64226,0l-106.56879,53.92738c-6.28396,3.08107-9.13193,11.24335-6.36113,18.23097,1.25222,3.15793,3.5212,5.68098,6.36113,7.07342l106.69314,54.06566c6.55585,3.3252,14.08641,3.3252,20.64226,0l106.69313-53.92739c6.28396-3.08107,9.13193-11.24335,6.36111-18.23097-1.2522-3.15793-3.52118-5.68098-6.36111-7.07342l-106.81749-54.06566Z"/>
-      </g>
-      <g id="plate-2" class="plate p2">
-        <path class="plate-fill" d="M244.64392,111.04613c-6.55585-3.32519-14.08641-3.32519-20.64226,0l-106.56879,53.92738c-6.28396,3.08107-9.13193,11.24335-6.36113,18.23097,1.25222,3.15793,3.5212,5.68098,6.36113,7.07342l106.69314,54.06566c6.55585,3.3252,14.08641,3.3252,20.64226,0l106.69313-53.92739c6.28396-3.08107,9.13193-11.24335,6.36111-18.23097-1.2522-3.15793-3.52118-5.68098-6.36111-7.07342l-106.81749-54.06566Z"/>
-        <path class="plate-stroke" d="M244.64392,111.04613c-6.55585-3.32519-14.08641-3.32519-20.64226,0l-106.56879,53.92738c-6.28396,3.08107-9.13193,11.24335-6.36113,18.23097,1.25222,3.15793,3.5212,5.68098,6.36113,7.07342l106.69314,54.06566c6.55585,3.3252,14.08641,3.3252,20.64226,0l106.69313-53.92739c6.28396-3.08107,9.13193-11.24335,6.36111-18.23097-1.2522-3.15793-3.52118-5.68098-6.36111-7.07342l-106.81749-54.06566Z"/>
-      </g>
-      <g id="plate-3" class="plate p3">
-        <path class="plate-fill" d="M244.64392,84.57901c-6.55585-3.32519-14.08641-3.32519-20.64226,0l-106.56879,53.92738c-6.28396,3.08107-9.13193,11.24335-6.36113,18.23097,1.25222,3.15793,3.5212,5.68098,6.36113,7.07342l106.69314,54.06566c6.55585,3.3252,14.08641,3.3252,20.64226,0l106.69313-53.92739c6.28396-3.08107,9.13193-11.24335,6.36111-18.23097-1.2522-3.15793-3.52118-5.68098-6.36111-7.07342l-106.81749-54.06566Z"/>
-        <path class="plate-stroke" d="M244.64392,84.57901c-6.55585-3.32519-14.08641-3.32519-20.64226,0l-106.56879,53.92738c-6.28396,3.08107-9.13193,11.24335-6.36113,18.23097,1.25222,3.15793,3.5212,5.68098,6.36113,7.07342l106.69314,54.06566c6.55585,3.3252,14.08641,3.3252,20.64226,0l106.69313-53.92739c6.28396-3.08107,9.13193-11.24335,6.36111-18.23097-1.2522-3.15793-3.52118-5.68098-6.36111-7.07342l-106.81749-54.06566Z"/>
-      </g>
-      <g id="plate-4" class="plate p4">
-        <path class="plate-fill-top" d="M244.64392,60.21887c-6.55585-3.32519-14.08641-3.32519-20.64226,0l-106.56879,53.92738c-6.28396,3.08107-9.13193,11.24335-6.36113,18.23097,1.25222,3.15793,3.5212,5.68098,6.36113,7.07342l106.69314,54.06566c6.55585,3.3252,14.08641,3.3252,20.64226,0l106.69313-53.92739c6.28396-3.08107,9.13193-11.24335,6.36111-18.23097-1.2522-3.15793-3.52118-5.68098-6.36111-7.07342l-106.81749-54.06566Z"/>
-        <path class="plate-stroke" d="M244.64392,60.21887c-6.55585-3.32519-14.08641-3.32519-20.64226,0l-106.56879,53.92738c-6.28396,3.08107-9.13193,11.24335-6.36113,18.23097,1.25222,3.15793,3.5212,5.68098,6.36113,7.07342l106.69314,54.06566c6.55585,3.3252,14.08641,3.3252,20.64226,0l106.69313-53.92739c6.28396-3.08107,9.13193-11.24335,6.36111-18.23097-1.2522-3.15793-3.52118-5.68098-6.36111-7.07342l-106.81749-54.06566Z"/>
-      </g>
+    <g id="stack" transform="translate(850,470) scale(3.0) translate(-234.6,-164.6)">
       <g id="layers-icon-wrap">
-        <g id="layers">
-          <path id="Trazado_11" fill="url(#Degradado_sin_nombre_13)" d="M234.67804,90.36622c1.61768-.0023,3.21674.34523,4.68754,1.01876l36.28913,16.5177c3.56828,1.58503,5.17602,5.76261,3.59098,9.33088-.71092,1.60044-1.99054,2.88007-3.59098,3.59098l-36.24889,16.4762c-2.97677,1.35731-6.3958,1.35731-9.37257,0l-36.24889-16.51896c-3.56827-1.58503-5.17601-5.76261-3.59099-9.33088.71092-1.60044,1.99054-2.88007,3.59099-3.59099l36.20738-16.4762c1.47048-.67304,3.0691-1.02013,4.68628-1.0175ZM234.7208,132.63332c.80321.00207,1.59737-.16955,2.32805-.50309l36.26398-16.48374.02893-.01258c.69914-.30827,1.016-1.12494.70772-1.82408-.13931-.31596-.39175-.5684-.70772-.70772l-.03019-.01383-36.30423-16.52902c-1.47803-.67378-3.17556-.67378-4.65358,0l-36.23254,16.48248-.03019.01383c-.69914.30827-1.016,1.12494-.70772,1.82408.13932.31596.39176.5684.70772.70772l.03144.01383,36.26901,16.52148c.73021.33567,1.52438.50943,2.32805.50938l.00126.00126Z"/>
-          <path id="Trazado_12" fill="url(#Degradado_sin_nombre_131)" d="M234.69816,151.75357c-1.60509-.00072-3.19157-.34375-4.65358-1.00618l-36.34825-16.52651-.02516-.00754c-2.50251-1.16344-4.1023-3.67353-4.10018-6.43326-.02898-1.57027,1.22048-2.86673,2.79075-2.89571,1.57027-.02898,2.86673,1.22048,2.89571,2.79075.00073.0396.00063.0792-.00029.1188-.00198.53845.30862,1.02913.79614,1.25772l36.33567,16.51896c1.46943.66481,3.15396.66481,4.6234,0l36.25895-16.4762h.01132c.50038-.22491.8206-.72423.81627-1.27282.01814-1.57044,1.30592-2.82883,2.87635-2.8107,1.52729.01763,2.76786,1.23861,2.80982,2.76542.02175,2.80014-1.61068,5.3494-4.16307,6.50118l-36.25895,16.4762c-1.46614.66132-3.05651,1.00221-4.6649.99989Z"/>
-          <path id="Trazado_13" fill="url(#Degradado_sin_nombre_132)" d="M234.69816,167.13792c-1.60509-.00072-3.19157-.34375-4.65358-1.00618l-36.34825-16.5265-.02516-.00755c-2.50251-1.16344-4.1023-3.67353-4.10018-6.43327-.02898-1.57027,1.22048-2.86673,2.79075-2.89571,1.57027-.02898,2.86673,1.22048,2.89571,2.79075.00073.03959.00063.0792-.00029.11879-.00198.53845.30862,1.02913.79614,1.25772l36.33567,16.51896c1.46943.66481,3.15396.66481,4.6234,0l36.25895-16.4762h.01132c.50038-.22491.8206-.72423.81627-1.27282.01814-1.57044,1.30592-2.82883,2.87635-2.8107,1.52729.01763,2.76786,1.23861,2.80982,2.76542.02153,2.80043-1.61145,5.34978-4.16432,6.50118l-36.25769,16.4762c-1.46614.66132-3.05651,1.00221-4.6649.99989Z"/>
+        <g transform="translate(234.6,164.6) scale(.15038) translate(-500,-500)">
+          <path fill="url(#Degradado_sin_nombre_111)" d="M420.45392,104.74431l-225.83059,150.55373c-37.70193,25.13462-60.34775,67.44872-60.34775,112.7608v.00016c0,53.55661,31.54042,102.08982,80.48108,123.84122l225.83059,100.36915c35.0412,15.57386,75.03989,15.57386,110.08109,0l225.83059-100.36915c48.94065-21.7514,80.48108-70.28461,80.48108-123.84122v-.00016c0-45.31209-22.64582-87.62618-60.34775-112.7608l-225.83059-150.55373c-45.52163-30.34775-104.82611-30.34775-150.34774,0Z"/>
+          <g id="bolt-wrap">
+            <path fill="#00e0ff" d="M495.63155,505.26924c-.14864,0-.29604-.00248-.44592-.00495-8.56295-.19819-15.93801-6.09675-18.01526-14.40577l-47.75208-191.00585-37.2246,74.44796c-3.22303,6.44605-9.81029,10.51757-17.01689,10.51757h-160.60014c-10.50766,0-19.02602-8.51835-19.02602-19.02602s8.51835-19.02602,19.02602-19.02602h148.84142l54.96735-109.93223c3.56118-7.12113,11.17407-11.26697,19.09291-10.40361,7.91388.86831,14.45036,6.57364,16.38145,14.298l43.43654,173.74123,40.33367-134.44433c2.06239-6.87711,7.82222-12.0077,14.89133-13.26495,7.06663-1.25106,14.24474,1.57188,18.55284,7.31684l54.51771,72.68905h151.08714c10.50766,0,19.02602,8.51835,19.02602,19.02602s-8.51835,19.02602-19.02602,19.02602h-160.60014c-5.98898,0-11.62742-2.81922-15.22081-7.61041l-37.61107-50.14768-49.3958,164.6506c-2.41789,8.06128-9.83878,13.55851-18.21964,13.55851Z"/>
+          </g>
+          <g style="isolation:isolate">
+            <path fill="#6366f1" d="M829.34794,520.58116c-11.31723-2.89377-23.29954-1.59111-33.73053,3.66704l-227.83842,114.85091c-45.45651,22.55709-98.84703,22.55709-144.30354,0l-210.28486-104.34999c-13.89141-6.89337-30.21061-6.87765-44.08871.04242v.00008c-36.93042,18.41465-36.87963,71.12522.08609,89.46873l254.28748,126.18547c45.45651,22.55701,98.84703,22.55701,144.30354,0l271.20845-138.74012c11.51212-5.88917,20.18443-16.14567,24.07815-28.47653l.39979-1.26608c8.35549-26.46072-7.2337-54.50786-34.11736-61.38191l-.00007-.00002Z"/>
+          </g>
+          <path fill="#7a5cff" d="M829.34794,671.23408c-11.31723-2.89377-23.29954-1.59111-33.73053,3.66704l-227.83842,114.85091c-45.45651,22.55709-98.84703,22.55709-144.30354,0l-210.28486-104.34999c-13.89141-6.89337-30.21061-6.87765-44.08871.04242v.00008c-36.93042,18.41465-36.87963,71.12522.08609,89.46873l254.28748,126.18547c45.45651,22.55701,98.84703,22.55701,144.30354,0l271.20845-138.74012c11.51212-5.88917,20.18443-16.14567,24.07815-28.47653l.39979-1.26608c8.35549-26.46072-7.2337-54.50786-34.11736-61.38191l-.00007-.00002Z"/>
+          <circle fill="#c7b5ff" cx="495.62721" cy="664.67102" r="30.11268"/>
+          <circle fill="#c7b5ff" cx="495.62721" cy="820.37202" r="30.11268"/>
         </g>
-      </g>
-      <g id="bolt-wrap">
-        <path fill="url(#Degradado_sin_nombre_133)" d="M237.40913,124.2509c-.09331,0-.18744-.00625-.28158-.01916-.7706-.1058-1.41624-.63481-1.672-1.36918l-4.12794-11.84855-3.1449,4.51241c-.38738.55525-1.02136.88599-1.69783.88599h-5.46171c-1.14299,0-2.06938-.92639-2.06938-2.06897s.92639-2.06897,2.06938-2.06897h4.38203l4.84439-6.95209c.44487-.63773,1.20547-.97513,1.97941-.86683.7706.10622,1.41624.63481,1.672,1.36918l4.12794,11.84814,3.14406-4.51241c.38738-.55525,1.02136-.88599,1.69783-.88599h5.46171c1.14299,0,2.06938.92639,2.06938,2.06897s-.92639,2.06897-2.06938,2.06897h-4.38119l-4.84439,6.95251c-.38988.55983-1.02719.88599-1.69783.88599Z"/>
       </g>
     </g>
   </g>
 
   <!-- Tiles de fuentes -->
   <g id="sources">
-    <g transform="translate(140,0)"><g id="tile-message" class="tile tile-1">
-      <path d="M186.4,101.3 L239.6,130.7 Q251.0,137.0 239.6,143.3 L186.4,172.7 Q175.0,179.0 163.6,172.7 L110.4,143.3 Q99.0,137.0 110.4,130.7 L163.6,101.3 Q175.0,95.0 186.4,101.3 Z" fill="none" stroke="#0a9cc4" stroke-width="2" opacity=".28"/>
-      <path d="M186.4,94.3 L239.6,123.7 Q251.0,130.0 239.6,136.3 L186.4,165.7 Q175.0,172.0 163.6,165.7 L110.4,136.3 Q99.0,130.0 110.4,123.7 L163.6,94.3 Q175.0,88.0 186.4,94.3 Z" fill="#f7f8ff" fill-opacity=".9" stroke="#0a9cc4" stroke-width="2.5" stroke-linejoin="round" filter="url(#soft-glow)"/>
+    <g id="tile-message" class="tile tile-1">
+      <rect x="161" y="85" width="90" height="90" rx="18" fill="#f7f8ff" fill-opacity=".9" stroke="#0a9cc4" stroke-width="2.5" stroke-linejoin="round" filter="url(#soft-glow)"/>
       <g fill="none" stroke="#0a9cc4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-         transform="translate(154.6,109.6) scale(1.7)"><path d="M21,15 a2,2 0 0 1 -2,2 H7 l-4,4 V5 a2,2 0 0 1 2,-2 h14 a2,2 0 0 1 2,2 Z"/><circle cx="8" cy="10" r="1.1" fill="#0a9cc4" stroke="none"/><circle cx="12" cy="10" r="1.1" fill="#0a9cc4" stroke="none"/><circle cx="16" cy="10" r="1.1" fill="#0a9cc4" stroke="none"/></g>
-    </g></g>
-    <g transform="translate(140,0)"><g id="tile-code" class="tile tile-2">
-      <path d="M171.4,266.3 L224.6,295.7 Q236.0,302.0 224.6,308.3 L171.4,337.7 Q160.0,344.0 148.6,337.7 L95.4,308.3 Q84.0,302.0 95.4,295.7 L148.6,266.3 Q160.0,260.0 171.4,266.3 Z" fill="none" stroke="#7c3aed" stroke-width="2" opacity=".28"/>
-      <path d="M171.4,259.3 L224.6,288.7 Q236.0,295.0 224.6,301.3 L171.4,330.7 Q160.0,337.0 148.6,330.7 L95.4,301.3 Q84.0,295.0 95.4,288.7 L148.6,259.3 Q160.0,253.0 171.4,259.3 Z" fill="#f7f8ff" fill-opacity=".9" stroke="#7c3aed" stroke-width="2.5" stroke-linejoin="round" filter="url(#soft-glow)"/>
+         transform="translate(180.8,104.8) scale(2.1)"><path d="M21,15 a2,2 0 0 1 -2,2 H7 l-4,4 V5 a2,2 0 0 1 2,-2 h14 a2,2 0 0 1 2,2 Z"/><circle cx="8" cy="10" r="1.1" fill="#0a9cc4" stroke="none"/><circle cx="12" cy="10" r="1.1" fill="#0a9cc4" stroke="none"/><circle cx="16" cy="10" r="1.1" fill="#0a9cc4" stroke="none"/></g>
+    </g>
+    <g id="tile-code" class="tile tile-2">
+      <rect x="146" y="250" width="90" height="90" rx="18" fill="#f7f8ff" fill-opacity=".9" stroke="#7c3aed" stroke-width="2.5" stroke-linejoin="round" filter="url(#soft-glow)"/>
       <g fill="none" stroke="#7c3aed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-         transform="translate(139.6,274.6) scale(1.7)"><path d="M9,7 L4,12 L9,17"/><path d="M15,7 L20,12 L15,17"/><path d="M13.4,5 L10.6,19"/></g>
-    </g></g>
-    <g transform="translate(140,0)"><g id="tile-user" class="tile tile-3">
-      <path d="M146.4,426.3 L199.6,455.7 Q211.0,462.0 199.6,468.3 L146.4,497.7 Q135.0,504.0 123.6,497.7 L70.4,468.3 Q59.0,462.0 70.4,455.7 L123.6,426.3 Q135.0,420.0 146.4,426.3 Z" fill="none" stroke="#0ea5a0" stroke-width="2" opacity=".28"/>
-      <path d="M146.4,419.3 L199.6,448.7 Q211.0,455.0 199.6,461.3 L146.4,490.7 Q135.0,497.0 123.6,490.7 L70.4,461.3 Q59.0,455.0 70.4,448.7 L123.6,419.3 Q135.0,413.0 146.4,419.3 Z" fill="#f7f8ff" fill-opacity=".9" stroke="#0ea5a0" stroke-width="2.5" stroke-linejoin="round" filter="url(#soft-glow)"/>
+         transform="translate(165.8,269.8) scale(2.1)"><path d="M9,7 L4,12 L9,17"/><path d="M15,7 L20,12 L15,17"/><path d="M13.4,5 L10.6,19"/></g>
+    </g>
+    <g id="tile-user" class="tile tile-3">
+      <rect x="121" y="410" width="90" height="90" rx="18" fill="#f7f8ff" fill-opacity=".9" stroke="#0ea5a0" stroke-width="2.5" stroke-linejoin="round" filter="url(#soft-glow)"/>
       <g fill="none" stroke="#0ea5a0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-         transform="translate(114.6,434.6) scale(1.7)"><circle cx="12" cy="8" r="4"/><path d="M5,20 a7,7 0 0 1 14,0"/></g>
-    </g></g>
-    <g transform="translate(140,0)"><g id="tile-git" class="tile tile-4">
-      <path d="M141.4,586.3 L194.6,615.7 Q206.0,622.0 194.6,628.3 L141.4,657.7 Q130.0,664.0 118.6,657.7 L65.4,628.3 Q54.0,622.0 65.4,615.7 L118.6,586.3 Q130.0,580.0 141.4,586.3 Z" fill="none" stroke="#8b47e8" stroke-width="2" opacity=".28"/>
-      <path d="M141.4,579.3 L194.6,608.7 Q206.0,615.0 194.6,621.3 L141.4,650.7 Q130.0,657.0 118.6,650.7 L65.4,621.3 Q54.0,615.0 65.4,608.7 L118.6,579.3 Q130.0,573.0 141.4,579.3 Z" fill="#f7f8ff" fill-opacity=".9" stroke="#8b47e8" stroke-width="2.5" stroke-linejoin="round" filter="url(#soft-glow)"/>
+         transform="translate(140.8,429.8) scale(2.1)"><circle cx="12" cy="8" r="4"/><path d="M5,20 a7,7 0 0 1 14,0"/></g>
+    </g>
+    <g id="tile-git" class="tile tile-4">
+      <rect x="116" y="570" width="90" height="90" rx="18" fill="#f7f8ff" fill-opacity=".9" stroke="#8b47e8" stroke-width="2.5" stroke-linejoin="round" filter="url(#soft-glow)"/>
       <g fill="none" stroke="#8b47e8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-         transform="translate(109.6,594.6) scale(1.7)"><circle cx="5.5" cy="17.5" r="2.5"/><circle cx="17.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/><path d="M8.4,17.5 H14.6"/><path d="M17.5,9.4 V14.6"/></g>
-    </g></g>
-    <g transform="translate(140,0)"><g id="tile-clock" class="tile tile-5">
-      <path d="M171.4,746.3 L224.6,775.7 Q236.0,782.0 224.6,788.3 L171.4,817.7 Q160.0,824.0 148.6,817.7 L95.4,788.3 Q84.0,782.0 95.4,775.7 L148.6,746.3 Q160.0,740.0 171.4,746.3 Z" fill="none" stroke="#3b6fd4" stroke-width="2" opacity=".28"/>
-      <path d="M171.4,739.3 L224.6,768.7 Q236.0,775.0 224.6,781.3 L171.4,810.7 Q160.0,817.0 148.6,810.7 L95.4,781.3 Q84.0,775.0 95.4,768.7 L148.6,739.3 Q160.0,733.0 171.4,739.3 Z" fill="#f7f8ff" fill-opacity=".9" stroke="#3b6fd4" stroke-width="2.5" stroke-linejoin="round" filter="url(#soft-glow)"/>
+         transform="translate(135.8,589.8) scale(2.1)"><circle cx="5.5" cy="17.5" r="2.5"/><circle cx="17.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/><path d="M8.4,17.5 H14.6"/><path d="M17.5,9.4 V14.6"/></g>
+    </g>
+    <g id="tile-clock" class="tile tile-5">
+      <rect x="146" y="730" width="90" height="90" rx="18" fill="#f7f8ff" fill-opacity=".9" stroke="#3b6fd4" stroke-width="2.5" stroke-linejoin="round" filter="url(#soft-glow)"/>
       <g fill="none" stroke="#3b6fd4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-         transform="translate(139.6,754.6) scale(1.7)"><circle cx="12" cy="12" r="8.5"/><path d="M12,7.5 V12 l3.4,2"/></g>
-    </g></g>
+         transform="translate(165.8,749.8) scale(2.1)"><circle cx="12" cy="12" r="8.5"/><path d="M12,7.5 V12 l3.4,2"/></g>
+    </g>
   </g>
 
   <!-- Cables -->
   <g id="wires">
-    <path class="wire wire-1" pathLength="1" d="M391,130 C480,130 505,340 544,368" fill="none" stroke="url(#wg-message)" stroke-width="2.2" stroke-linecap="round"/>
-    <path class="wire wire-2" pathLength="1" d="M376,295 C455,295 500,405 544,420" fill="none" stroke="url(#wg-code)" stroke-width="2.2" stroke-linecap="round"/>
-    <path class="wire wire-3" pathLength="1" d="M351,455 C445,455 500,466 544,468" fill="none" stroke="url(#wg-user)" stroke-width="2.2" stroke-linecap="round"/>
-    <path class="wire wire-4" pathLength="1" d="M346,615 C455,615 500,530 544,516" fill="none" stroke="url(#wg-git)" stroke-width="2.2" stroke-linecap="round"/>
-    <path class="wire wire-5" pathLength="1" d="M376,775 C480,775 508,602 544,566" fill="none" stroke="url(#wg-clock)" stroke-width="2.2" stroke-linecap="round"/>
+    <path class="wire wire-1" pathLength="1" d="M251,130 C420,130 490,335 592,368" fill="none" stroke="url(#wg-message)" stroke-width="2.2" stroke-linecap="round"/>
+    <path class="wire wire-2" pathLength="1" d="M236,295 C400,295 490,405 592,420" fill="none" stroke="url(#wg-code)" stroke-width="2.2" stroke-linecap="round"/>
+    <path class="wire wire-3" pathLength="1" d="M211,455 C380,455 490,465 592,468" fill="none" stroke="url(#wg-user)" stroke-width="2.2" stroke-linecap="round"/>
+    <path class="wire wire-4" pathLength="1" d="M206,615 C400,615 490,530 592,516" fill="none" stroke="url(#wg-git)" stroke-width="2.2" stroke-linecap="round"/>
+    <path class="wire wire-5" pathLength="1" d="M236,775 C440,775 495,600 592,566" fill="none" stroke="url(#wg-clock)" stroke-width="2.2" stroke-linecap="round"/>
   </g>
 
   <!-- Puntos de entrada -->
   <g id="input-dots">
-    <circle class="ndot ndot-1" cx="552" cy="368" r="5.5" fill="#0a9cc4" filter="url(#node-glow)"/>
-    <circle class="ndot ndot-2" cx="552" cy="420" r="5.5" fill="#0a9cc4" filter="url(#node-glow)"/>
-    <circle class="ndot ndot-3" cx="552" cy="468" r="5.5" fill="#0a9cc4" filter="url(#node-glow)"/>
-    <circle class="ndot ndot-4" cx="552" cy="516" r="5.5" fill="#0a9cc4" filter="url(#node-glow)"/>
-    <circle class="ndot ndot-5" cx="552" cy="566" r="5.5" fill="#0a9cc4" filter="url(#node-glow)"/>
+    <circle class="ndot ndot-1" cx="600" cy="368" r="5.5" fill="#0a9cc4" filter="url(#node-glow)"/>
+    <circle class="ndot ndot-2" cx="600" cy="420" r="5.5" fill="#0a9cc4" filter="url(#node-glow)"/>
+    <circle class="ndot ndot-3" cx="600" cy="468" r="5.5" fill="#0a9cc4" filter="url(#node-glow)"/>
+    <circle class="ndot ndot-4" cx="600" cy="516" r="5.5" fill="#0a9cc4" filter="url(#node-glow)"/>
+    <circle class="ndot ndot-5" cx="600" cy="566" r="5.5" fill="#0a9cc4" filter="url(#node-glow)"/>
   </g>
 
   <!-- Pulsos (una pasada) -->
   <g class="pulse" filter="url(#node-glow)" opacity="0">
     <circle r="5" fill="#0a9cc4" opacity=".3"/><circle r="2.2" fill="#066d7e"/>
-    <animateMotion path="M391,130 C480,130 505,340 544,368" dur="1.5s" begin="3.0s" repeatCount="1" fill="remove" calcMode="spline" keyTimes="0;1" keySplines="0.4 0 0.6 1"/>
+    <animateMotion path="M251,130 C420,130 490,335 592,368" dur="1.5s" begin="3.0s" repeatCount="1" fill="remove" calcMode="spline" keyTimes="0;1" keySplines="0.4 0 0.6 1"/>
     <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;.1;.85;1" dur="1.5s" begin="3.0s" repeatCount="1" fill="remove"/>
   </g>
   <g class="pulse" filter="url(#node-glow)" opacity="0">
     <circle r="5" fill="#7c3aed" opacity=".3"/><circle r="2.2" fill="#066d7e"/>
-    <animateMotion path="M376,295 C455,295 500,405 544,420" dur="1.5s" begin="3.35s" repeatCount="1" fill="remove" calcMode="spline" keyTimes="0;1" keySplines="0.4 0 0.6 1"/>
+    <animateMotion path="M236,295 C400,295 490,405 592,420" dur="1.5s" begin="3.35s" repeatCount="1" fill="remove" calcMode="spline" keyTimes="0;1" keySplines="0.4 0 0.6 1"/>
     <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;.1;.85;1" dur="1.5s" begin="3.35s" repeatCount="1" fill="remove"/>
   </g>
   <g class="pulse" filter="url(#node-glow)" opacity="0">
     <circle r="5" fill="#0ea5a0" opacity=".3"/><circle r="2.2" fill="#066d7e"/>
-    <animateMotion path="M351,455 C445,455 500,466 544,468" dur="1.5s" begin="3.7s" repeatCount="1" fill="remove" calcMode="spline" keyTimes="0;1" keySplines="0.4 0 0.6 1"/>
+    <animateMotion path="M211,455 C380,455 490,465 592,468" dur="1.5s" begin="3.7s" repeatCount="1" fill="remove" calcMode="spline" keyTimes="0;1" keySplines="0.4 0 0.6 1"/>
     <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;.1;.85;1" dur="1.5s" begin="3.7s" repeatCount="1" fill="remove"/>
   </g>
   <g class="pulse" filter="url(#node-glow)" opacity="0">
     <circle r="5" fill="#8b47e8" opacity=".3"/><circle r="2.2" fill="#066d7e"/>
-    <animateMotion path="M346,615 C455,615 500,530 544,516" dur="1.5s" begin="4.05s" repeatCount="1" fill="remove" calcMode="spline" keyTimes="0;1" keySplines="0.4 0 0.6 1"/>
+    <animateMotion path="M206,615 C400,615 490,530 592,516" dur="1.5s" begin="4.05s" repeatCount="1" fill="remove" calcMode="spline" keyTimes="0;1" keySplines="0.4 0 0.6 1"/>
     <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;.1;.85;1" dur="1.5s" begin="4.05s" repeatCount="1" fill="remove"/>
   </g>
   <g class="pulse" filter="url(#node-glow)" opacity="0">
     <circle r="5" fill="#3b6fd4" opacity=".3"/><circle r="2.2" fill="#066d7e"/>
-    <animateMotion path="M376,775 C480,775 508,602 544,566" dur="1.5s" begin="4.4s" repeatCount="1" fill="remove" calcMode="spline" keyTimes="0;1" keySplines="0.4 0 0.6 1"/>
+    <animateMotion path="M236,775 C440,775 495,600 592,566" dur="1.5s" begin="4.4s" repeatCount="1" fill="remove" calcMode="spline" keyTimes="0;1" keySplines="0.4 0 0.6 1"/>
     <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;.1;.85;1" dur="1.5s" begin="4.4s" repeatCount="1" fill="remove"/>
   </g>
 </svg>
