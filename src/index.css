@@ -615,6 +615,14 @@ h6 {
   opacity: .5;
 }
 
+.install-cmd-field {
+  box-shadow: 0 12px 35px rgba(0, 0, 0, .14);
+}
+
+[data-theme="light"] .install-cmd-field {
+  box-shadow: 0 6px 18px rgba(30, 41, 59, .06);
+}
+
 /* ==========================================================================
    Home page
    ========================================================================== */
@@ -688,24 +696,24 @@ html[data-theme="dark"] .connector-logo-black {
   background: radial-gradient(circle,
       rgba(122, 92, 255, .32) 0%,
       rgba(122, 92, 255, .16) 35%,
-      transparent 72%);
+      transparent 95%);
   filter: blur(32px);
 }
 
 [data-theme="light"] .memory-proof-glow {
-  background: radial-gradient(circle,
-      rgba(122, 92, 255, .12) 0%,
-      rgba(122, 92, 255, .05) 42%,
-      transparent 78%);
-  filter: blur(56px);
+  display:none;
 }
 
 .memory-proof-circle {
-  box-shadow: 0 0 80px rgba(122, 92, 255, .28);
+  box-shadow: 0 0 80px rgba(122, 92, 255, .36);
 }
 
 [data-theme="light"] .memory-proof-circle {
-  box-shadow: 0 0 48px rgba(122, 92, 255, .10);
+  display: none;
+}
+
+[data-theme="light"] .hero-diagram-glow {
+  display: none;
 }
 
 .cta-card-glow {
@@ -729,6 +737,18 @@ html[data-theme="dark"] .connector-logo-black {
             rgba(77,158,255,.04) 35%,
             transparent 70%
         );
+}
+
+[data-theme="light"] .connectors-glow {
+  display: none;
+}
+
+[data-theme="light"] .hero-side-glow {
+  display: none;
+}
+
+[data-theme="light"] .section-band-glow {
+  display: none;
 }
 
 /* ==========================================================================

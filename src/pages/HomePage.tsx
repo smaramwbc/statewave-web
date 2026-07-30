@@ -271,7 +271,7 @@ function HeroSection() {
 
           <motion.div
             variants={fadeUp}
-            className="hero-install-card relative mx-auto mt-10 w-full max-w-[62rem] overflow-hidden rounded-[1.75rem] border border-brand-500/35 bg-surface-1/75 px-5 py-7 shadow-[0_28px_90px_rgba(0,0,0,.22)] backdrop-blur-md sm:px-8 sm:py-8"
+            className="sw-card relative mx-auto mt-10 w-full max-w-[62rem] overflow-hidden rounded-[1.75rem] border border-brand-500/35 px-5 py-7 backdrop-blur-md sm:px-8 sm:py-8"
           >
             <div
               className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(99,102,241,.14),transparent_62%)]"
@@ -351,7 +351,7 @@ return (
 
       <div className="relative min-w-0 lg:-mr-4 xl:-mr-8 2xl:-mr-12">
         <div
-          className="absolute inset-0 scale-95 rounded-3xl bg-accent/20 blur-[80px]"
+          className="hero-side-glow absolute inset-0 scale-95 rounded-3xl bg-accent/20 blur-[80px]"
           aria-hidden="true"
         />
 
@@ -554,7 +554,7 @@ function UseCasesSection() {
           onMouseEnter={replay}
         >
           <div
-            className="absolute left-1/2 top-1/2 h-[700px] w-[700px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(122,92,255,0.45)_0%,rgba(122,92,255,0.22)_28%,rgba(122,92,255,0.08)_55%,transparent_75%)] blur-2xl"
+            className="hero-diagram-glow absolute left-1/2 top-1/2 h-[700px] w-[700px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(122,92,255,0.45)_0%,rgba(122,92,255,0.22)_28%,rgba(122,92,255,0.08)_55%,transparent_75%)] blur-2xl"
             aria-hidden="true"
           />
 
@@ -672,7 +672,7 @@ function AIClientsSection() {
 
       <div className="relative">
         <div
-          className="absolute inset-x-0 top-1/2 h-[360px] -translate-y-1/2 rounded-full bg-accent/10 blur-[100px]"
+          className="section-band-glow absolute inset-x-0 top-1/2 h-[360px] -translate-y-1/2 rounded-full bg-accent/10 blur-[100px]"
           aria-hidden="true"
         />
 
@@ -898,7 +898,7 @@ function ConnectorsTeaserSection() {
 
         <div className="relative">
           <div
-            className="absolute inset-0 rounded-full bg-accent/20 blur-[100px] scale-90"
+            className="connectors-glow absolute inset-0 rounded-full bg-accent/20 blur-[100px] scale-90"
             aria-hidden="true"
           />
 
@@ -1004,7 +1004,7 @@ function SupportProofSection() {
         </p>
       </div>
 
-      <div className="sw-card mx-auto max-w-[1040px] rounded-[2rem] border border-brand-500/25 bg-surface-1/45 p-10 md:p-14 shadow-[0_24px_80px_rgba(0,0,0,.16)]">
+      <div className="sw-card mx-auto max-w-[1040px] rounded-[2rem] border border-brand-500/25 bg-surface-1/45 p-10 md:p-14]">
         <div className="grid lg:grid-cols-[0.42fr_0.58fr] gap-12 xl:gap-16 items-center">
           <div className="relative flex min-h-[420px] items-center justify-center">
             <div
@@ -1012,14 +1012,13 @@ function SupportProofSection() {
               aria-hidden="true"
             />
 
-            <div className="relative flex h-44 w-44 items-center justify-center rounded-full border-2 border-cyan-400/80 shadow-[0_0_80px_rgba(122,92,255,.28)]">
-              <div className="absolute inset-0 rounded-full border-2 border-brand-500/60 [clip-path:inset(0_0_0_50%)]" />
-
+            <div className="relative flex h-44 w-44 items-center justify-center rounded-full border-2 border-cyan-400/80">
+              <div className="absolute inset-0 rounded-full" />
               <img
-                src="/icons/icon-memory-proof.svg"
+                src="/brand/icon.svg"
                 alt=""
                 aria-hidden="true"
-                className="relative z-10 h-20 w-20 object-contain"
+                className="relative z-10 h-30 w-30 object-contain"
               />
             </div>
           </div>
