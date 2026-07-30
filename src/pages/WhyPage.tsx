@@ -259,7 +259,7 @@ export function WhyPage() {
         <div className="mt-12 grid items-center gap-12 lg:grid-cols-[0.38fr_0.62fr] xl:gap-16">
 
 
-          <div className="relative flex justify-center lg:justify-start lg:pl-6 lg:-mt-4">
+          <div className="relative flex justify-center lg:justify-start lg:-mt-4">
             <motion.div
               className="w-full max-w-[530px]"
               onViewportEnter={replay}
@@ -569,11 +569,11 @@ function ManifestoHero() {
               </p>
 
               <div className="mt-12 flex items-center gap-4">
-                <span className="h-px flex-1 bg-gradient-to-r from-transparent via-theme-border to-transparent" />
-                <span className="text-xs text-theme-muted tracking-wide">
+                <span className="h-px flex-1 bg-gradient-to-r from-theme-primary/40 to-transparent" />
+                <span className="text-xs tracking-wide text-theme-muted">
                   {copy.signoff}
                 </span>
-                <span className="h-px flex-1 bg-gradient-to-r from-transparent via-theme-border to-transparent" />
+                <span className="h-px flex-1 bg-gradient-to-l from-theme-primary/40 to-transparent" />
               </div>
             </motion.div>
           )}
@@ -583,10 +583,10 @@ function ManifestoHero() {
             locale changes — only its label translates. While the skeleton
             is up the label is intentionally blank to avoid flashing English
             below the placeholder. */}
-        <div className="mt-16 flex justify-center">
+        <div className="mt-16 flex justify-left">
           <a
             href="#infrastructure-gap"
-            className="group inline-flex items-center gap-2 text-xs text-theme-muted transition-colors hover:text-brand-400"
+            className="group inline-flex items-left gap-2 text-xs text-theme-muted transition-colors hover:text-brand-400"
             dir={dir}
             lang={lang}
           >
