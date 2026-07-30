@@ -541,14 +541,21 @@ export function UseCasesPage() {
 
 function HeroSection() {
   const total = USE_CASES.length + CONNECTORS.length + FRONTIER_IDEAS.length
+
+  const [durableOrbitReplayKey, setDurableOrbitReplayKey] = useState(0)
+
+  const replayDurableOrbit = () => {
+    setDurableOrbitReplayKey((current) => current + 1)
+  }
+
   return (
-    <section className="relative overflow-hidden pb-16 pt-28 sm:pb-20 sm:pt-32 md:pt-36">
+    <section className="relative overflow-hidden pb-8 sm:pb-10 sm:pt-32 md:pt-36">
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0"
         style={{
           background:
-            'radial-gradient(48rem 30rem at 18% 0%, rgba(99,102,241,.09), transparent 72%), radial-gradient(38rem 26rem at 82% 8%, rgba(96,165,250,.06), transparent 72%)',
+            'radial-gradient(38rem 22rem at 18% 0%, rgba(99,102,241,.06), transparent 68%), radial-gradient(30rem 20rem at 82% 8%, rgba(96,165,250,.04), transparent 68%)',
         }}
       />
 
@@ -575,55 +582,79 @@ function HeroSection() {
         }}
       />
 
-      <div className="relative z-10 mx-auto max-w-7xl px-5 sm:px-6">
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="max-w-4xl"
-        >
-          <span className="hero-badge inline-flex items-center gap-2 rounded-full border border-brand-500/35 bg-brand-500/[0.06] px-5 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-400">
-            <span className="h-1.5 w-1.5 rounded-full bg-brand-500" />
-            {total}+ ideas to build
-          </span>
+      <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6">
+        <div className="grid items-center gap-10 lg:grid-cols-[1fr_0.8fr] lg:gap-10">
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="max-w-4xl"
+          >
+            <span className="hero-badge inline-flex items-center gap-2 rounded-full border border-brand-500/35 bg-brand-500/[0.06] px-5 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-400">
+              <span className="h-1.5 w-1.5 rounded-full bg-brand-500" />
+              {total}+ ideas to build
+            </span>
 
-          <h1 className="mt-7 max-w-4xl font-heading text-[clamp(2.75rem,6vw,5.5rem)] font-bold leading-[0.98] tracking-[-0.05em] text-theme-primary sm:mt-8">
-            Build with durable memory
-          </h1>
+            <h1 className="mt-7 max-w-4xl font-heading text-[clamp(2.75rem,6vw,5.5rem)] font-bold leading-[0.98] tracking-[-0.05em] text-theme-primary sm:mt-8">
+              Build with durable memory
+            </h1>
 
-          <p className="mt-6 max-w-[46rem] text-base leading-[1.7] text-theme-secondary/85 sm:mt-7 sm:text-lg">
-            Statewave is an open-source memory runtime for AI agents. Support agents are
-            the strongest workflow today — but the same primitives power coding copilots,
-            account assistants, voice continuity, multi-agent platforms, and far more.
-            This page is the map.
-          </p>
+            <p className="mt-6 max-w-[46rem] text-base leading-[1.7] text-theme-secondary/85 sm:mt-7 sm:text-lg">
+              Statewave is an open-source memory runtime for AI agents. Support agents are
+              the strongest workflow today — but the same primitives power coding copilots,
+              account assistants, voice continuity, multi-agent platforms, and far more.
+              This page is the map.
+            </p>
+            <div className="mt-8 grid max-w-[28rem] grid-cols-2 gap-3 sm:mt-10">
+              <JumpChip
+                href="#strongest"
+                label="Strongest today"
+                tone="accent"
+              />
 
-          <div className="mt-8 flex flex-wrap gap-2.5 sm:mt-10">
-            <JumpChip
-              href="#strongest"
-              label="Strongest today"
-              tone="accent"
+              <JumpChip
+                href="#explorer"
+                label="Use case explorer"
+              />
+
+              <JumpChip
+                href="#connectors"
+                label="Connectors & bootstrap"
+                tone="emerald"
+              />
+
+              <JumpChip
+                href="#frontier"
+                label="Frontier ideas"
+                tone="muted"
+              />
+            </div>
+          </motion.div>
+
+          <motion.div
+            className="relative z-10 w-full"
+            onViewportEnter={replayDurableOrbit}
+            viewport={{ amount: 0.35 }}
+          >
+            <img
+              key={`durable-orbit-dark-${durableOrbitReplayKey}`}
+              src={`/images/use-cases/multi-agent-memory/durable-memory-orbit-dark.svg?r=${durableOrbitReplayKey}`}
+              alt="Durable memory connecting agents, tools, and applications"
+              className="theme-dark relative z-10 block h-auto w-full max-w-full"
             />
 
-            <JumpChip
-              href="#explorer"
-              label="Use case explorer"
+            <img
+              key={`durable-orbit-light-${durableOrbitReplayKey}`}
+              src={`/images/use-cases/multi-agent-memory/durable-memory-orbit-light.svg?r=${durableOrbitReplayKey}`}
+              alt=""
+              aria-hidden="true"
+              className="theme-light relative z-10 block h-auto w-full max-w-full"
             />
-
-            <JumpChip
-              href="#connectors"
-              label="Connectors & bootstrap"
-              tone="emerald"
-            />
-
-            <JumpChip
-              href="#frontier"
-              label="Frontier ideas"
-              tone="muted"
-            />
-          </div>
-        </motion.div>
+          </motion.div>
+        </div>
       </div>
+
+
     </section>
   )
 }
@@ -632,10 +663,12 @@ function JumpChip({
   href,
   label,
   tone = 'default',
+  className = '',
 }: {
   href: string
   label: string
   tone?: 'default' | 'accent' | 'emerald' | 'muted'
+  className?: string
 }) {
   const toneClass =
     tone === 'accent'
@@ -649,12 +682,12 @@ function JumpChip({
   return (
     <a
       href={href}
-      className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-[13px] font-medium transition-all duration-200 hover:-translate-y-[1px] ${toneClass}`}
+      className={`inline-flex w-full items-center justify-center gap-2 rounded-full border px-4 py-2 text-center text-[13px] font-medium transition-all duration-200 hover:-translate-y-[1px] ${toneClass} ${className}`}
     >
-      <span>{label}</span>
+      <span className="flex-1 text-center">{label}</span>
 
       <svg
-        className="h-3.5 w-3.5 opacity-60"
+        className="h-3.5 w-3.5 shrink-0 opacity-60"
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"
@@ -702,10 +735,10 @@ function MentalModelStrip() {
   ]
 
   return (
-    <Section className="relative !py-16">
+    <Section className="relative !py-10">
       <div
         aria-hidden="true"
-        className="section-glow pointer-events-none absolute inset-x-0 top-1/2 h-[34rem] -translate-y-1/2"
+        className="section-glow !opacity-30 pointer-events-none absolute inset-x-0 top-1/2 h-[18rem] -translate-y-1/2"
       />
 
       <div className="sw-card relative z-10 rounded-2xl border border-theme-border bg-surface-1 p-6 md:p-8">
@@ -816,7 +849,7 @@ function StrongestTodaySection() {
   }
 
   return (
-    <Section id="strongest" className="!pb-24 !pt-8">
+    <Section id="strongest" className="!pb-24 !pt-14">
       <div className="mb-10 grid gap-6 md:grid-cols-[minmax(0,1fr)_auto] md:items-end">
         <div className="max-w-4xl">
           <p className="section-eyebrow mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-accent">
@@ -1292,6 +1325,15 @@ function ConnectorSection() {
           historical import, then keep their connector running incrementally so the memory stays
           current as new events arrive.
         </p>
+
+        <Link
+          to="/connectors"
+          className="mt-5 inline-flex items-center gap-2 text-sm font-medium text-accent transition-colors hover:text-accent/80"
+        >
+          View Statewave Connectors
+          <span aria-hidden="true">→</span>
+        </Link>
+
       </div>
 
       {/* Status filter — Available / Recipe / Coming soon / All */}
@@ -1379,9 +1421,7 @@ function ConnectorSection() {
           Coming soon
         </span>{' '}
         ship as official packages — see the{' '}
-        <Link to="/connectors" className="text-accent hover:underline">
-          Statewave Connectors page
-        </Link>
+
         .
       </p>
     </Section>
@@ -1480,21 +1520,7 @@ function ConnectorCard({ connector }: { connector: Connector }) {
       <p className="mt-2 text-xs text-theme-muted leading-relaxed">{connector.description}</p>
       {pkg && (
         <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] font-medium">
-          <Link
-            to="/connectors"
-            className="inline-flex items-center gap-1 text-accent hover:underline"
-          >
-            View Statewave Connector
-            <svg
-              className="w-3 h-3"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              aria-hidden
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-            </svg>
-          </Link>
+
           {pkg.docHref && (
             <a
               href={pkg.docHref}
@@ -1565,9 +1591,8 @@ function FrontierCard({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-30px' }}
       transition={{ delay: index * 0.04, duration: 0.4 }}
-      className={`group relative scroll-mt-24 border-t border-theme-border py-7 transition-colors duration-300 ${
-        active ? 'card-anchor-active' : ''
-      }`}
+      className={`group relative scroll-mt-24 border-t border-theme-border py-7 transition-colors duration-300 ${active ? 'card-anchor-active' : ''
+        }`}
     >
       <div
         className="absolute inset-y-4 -left-4 w-px origin-center scale-y-0 bg-gradient-to-b from-transparent via-theme-muted/60 to-transparent transition-transform duration-300 group-hover:scale-y-100"
