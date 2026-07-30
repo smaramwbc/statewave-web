@@ -5,6 +5,15 @@ import { Heading } from '../components/Heading'
 import { HowStatewaveWorks } from '../components/HowStatewaveWorks'
 import { usePageSEO } from '../lib/seo'
 import { useCallback, useState } from "react";
+import {
+  ScrollText,
+  Brain,
+  Package,
+  Handshake,
+  Activity,
+  Timer,
+  CircleCheckBig,
+} from "lucide-react";
 
 
 export function ProductPage() {
@@ -157,60 +166,168 @@ export function ProductPage() {
         </div>
       </Section>
 
-      <Section>
-        <Heading
-          id="domain-model"
-          className="mb-10 font-heading text-3xl md:text-4xl font-bold tracking-[-0.02em] text-theme-primary"
-        >
-          Domain model
-        </Heading>
+      <Section >
+        <div className="relative mx-auto max-w-5xl">
+          {/* Glow */}
+          <div className="section-glow" />
 
-        <div className="grid gap-6 md:grid-cols-3">
-          <Card
-            title="Episodes"
-            description="Immutable raw event records. Conversations, tool calls, decisions, observations. The ground truth that Statewave remembers. Append-only, never mutated."
-          />
+          <div className="relative z-10 rounded-[2.5rem] border border-theme-border bg-surface-1 p-8 md:p-10 lg:p-12">
+            <div className="mx-auto max-w-3xl pt-4">
+              <Heading
+                id="domain-model"
+                className="mb-12 font-heading text-3xl font-bold tracking-[-0.02em] text-theme-primary md:text-4xl"
+              >
+                Domain model
+              </Heading>
+            </div>
 
-          <Card
-            title="Memories"
-            description="Compiled typed facts with confidence scores, validity windows, embeddings, and provenance back to source episodes. Kinds: profile_fact, episode_summary, procedure, artifact_ref."
-          />
+            <div className="mx-auto max-w-3xl space-y-7">
 
-          <Card
-            title="Context Bundles"
-            description="Runtime output: ranked, token-bounded, deterministic. Sections for task, facts, procedures, history, episodes. Ready to inject into any LLM prompt."
-          />
+              {/* Episodes */}
+              <div>
+                <div className="mb-3 flex items-center gap-3">
+                  <ScrollText
+                    className="h-6 w-6 text-[var(--theme-gradient-text-from)]"
+                    strokeWidth={1.8}
+                  />
+
+                  <h3 className="font-heading text-[1.5rem] font-semibold tracking-[-0.02em] text-theme-primary">
+                    Episodes
+                  </h3>
+                </div>
+
+                <Card
+                  title=""
+                  description="Immutable raw event records. Conversations, tool calls, decisions, observations. The ground truth that Statewave remembers. Append-only, never mutated."
+                />
+              </div>
+
+              {/* Memories */}
+              <div>
+                <div className="mb-3 flex items-center gap-3">
+                  <Brain
+                    className="h-6 w-6 text-[var(--theme-gradient-text-via)]"
+                    strokeWidth={1.8}
+                  />
+
+                  <h3 className="font-heading text-[1.5rem] font-semibold tracking-[-0.02em] text-theme-primary">
+                    Memories
+                  </h3>
+                </div>
+
+                <Card
+                  title=""
+                  description="Compiled typed facts with confidence scores, validity windows, embeddings, and provenance back to source episodes. Kinds: profile_fact, episode_summary, procedure, artifact_ref."
+                />
+              </div>
+
+              {/* Context Bundles */}
+              <div>
+                <div className="mb-3 flex items-center gap-3">
+                  <Package
+                    className="h-6 w-6 text-[var(--theme-gradient-text-to)]"
+                    strokeWidth={1.8}
+                  />
+
+                  <h3 className="font-heading text-[1.5rem] font-semibold tracking-[-0.02em] text-theme-primary">
+                    Context Bundles
+                  </h3>
+                </div>
+
+                <Card
+                  title=""
+                  description="Runtime output: ranked, token-bounded, deterministic. Sections for task, facts, procedures, history, episodes. Ready to inject into any LLM prompt."
+                />
+              </div>
+            </div>
+          </div>
         </div>
       </Section>
 
       <Section className="bg-surface-1">
         <Heading
           id="support-native"
-          className="mb-10 font-heading text-3xl md:text-4xl font-bold tracking-[-0.02em] text-theme-primary"
+          className="mb-12 font-heading text-3xl font-bold tracking-[-0.02em] text-theme-primary md:text-4xl"
         >
           Support-native intelligence
         </Heading>
 
-        <div className="grid gap-6 md:grid-cols-2">
-          <Card
-            title="Handoff packs"
-            description="Compact escalation briefs with customer summary, active issue, attempted steps, resolution history, health score, and SLA status — ready for human or AI handoff."
-          />
+        <div className="grid gap-x-8 gap-y-7 md:grid-cols-2">
+          {/* Handoff packs */}
+          <div>
+            <div className="mb-3 flex items-center gap-3">
+              <Handshake
+                className="h-6 w-6 text-[var(--theme-gradient-text-from)]"
+                strokeWidth={1.8}
+              />
 
-          <Card
-            title="Health scoring"
-            description="Deterministic 0–100 scores with explainable factors: unresolved issues, repeat problems, SLA breaches. States: healthy (≥70), watch (40–69), at_risk (<40)."
-          />
+              <h3 className="font-heading text-xl font-semibold tracking-[-0.015em] text-theme-primary">
+                Handoff packs
+              </h3>
+            </div>
 
-          <Card
-            title="SLA tracking"
-            description="First-response time, resolution time, per-session breach detection. Custom thresholds. Integrated into health scoring and handoff context."
-          />
+            <Card
+              title=""
+              description="Compact escalation briefs with customer summary, active issue, attempted steps, resolution history, health score, and SLA status — ready for human or AI handoff."
+            />
+          </div>
 
-          <Card
-            title="Resolution tracking"
-            description="Track issue state per session — open, resolved, unresolved. Surface resolution history when patterns recur. Repeat-issue detection built in."
-          />
+          {/* Health scoring */}
+          <div>
+            <div className="mb-3 flex items-center gap-3">
+              <Activity
+                className="h-6 w-6 text-[var(--theme-gradient-text-via)]"
+                strokeWidth={1.8}
+              />
+
+              <h3 className="font-heading text-xl font-semibold tracking-[-0.015em] text-theme-primary">
+                Health scoring
+              </h3>
+            </div>
+
+            <Card
+              title=""
+              description="Deterministic 0–100 scores with explainable factors: unresolved issues, repeat problems, SLA breaches. States: healthy (≥70), watch (40–69), at_risk (<40)."
+            />
+          </div>
+
+          {/* SLA tracking */}
+          <div>
+            <div className="mb-3 flex items-center gap-3">
+              <Timer
+                className="h-6 w-6 text-[var(--theme-gradient-text-to)]"
+                strokeWidth={1.8}
+              />
+
+              <h3 className="font-heading text-xl font-semibold tracking-[-0.015em] text-theme-primary">
+                SLA tracking
+              </h3>
+            </div>
+
+            <Card
+              title=""
+              description="First-response time, resolution time, per-session breach detection. Custom thresholds. Integrated into health scoring and handoff context."
+            />
+          </div>
+
+          {/* Resolution tracking */}
+          <div>
+            <div className="mb-3 flex items-center gap-3">
+              <CircleCheckBig
+                className="h-6 w-6 text-[var(--theme-gradient-text-from)]"
+                strokeWidth={1.8}
+              />
+
+              <h3 className="font-heading text-xl font-semibold tracking-[-0.015em] text-theme-primary">
+                Resolution tracking
+              </h3>
+            </div>
+
+            <Card
+              title=""
+              description="Track issue state per session — open, resolved, unresolved. Surface resolution history when patterns recur. Repeat-issue detection built in."
+            />
+          </div>
         </div>
       </Section>
 
@@ -334,30 +451,28 @@ export function ProductPage() {
       </Section>
 
       <Section className="bg-surface-1">
-        <div className="max-w-4xl">
-          <div className="section-eyebrow mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
-            GOVERNANCE
-          </div>
-
-          <Heading
-            id="audit-governance"
-            className="font-heading text-3xl font-bold tracking-[-0.02em] text-theme-primary md:text-4xl"
-          >
-            Audit &amp; governance
-          </Heading>
-
-          <p className="mt-6 max-w-4xl text-[17px] leading-relaxed text-theme-secondary">
-            The v0.8 governance layer &mdash; extended in v0.9 with HMAC-signed
-            receipts, receipt replay, detector-suggested labels (opt-in via{' '}
-            <code>STATEWAVE_AUTO_LABELING_ENABLED</code>), and per-region residency
-            pinning &mdash; lets every context assembly emit an immutable audit
-            artifact, and per-memory sensitivity labels feed a declarative policy
-            engine that filters memory access by caller identity. Both surfaces are
-            designed for compliance review &mdash; not a "trust us" log, but
-            addressable records with byte-level integrity hashes that a reviewer can
-            verify without trusting the application that wrote them.
-          </p>
+        <div className="section-eyebrow mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
+          GOVERNANCE
         </div>
+
+        <Heading
+          id="audit-governance"
+          className="font-heading text-3xl font-bold tracking-[-0.02em] text-theme-primary md:text-4xl"
+        >
+          Audit &amp; governance
+        </Heading>
+
+        <p className="mt-6 text-[17px] leading-relaxed text-theme-secondary">
+          The v0.8 governance layer &mdash; extended in v0.9 with HMAC-signed
+          receipts, receipt replay, detector-suggested labels (opt-in via{' '}
+          <code>STATEWAVE_AUTO_LABELING_ENABLED</code>), and per-region residency
+          pinning &mdash; lets every context assembly emit an immutable audit
+          artifact, and per-memory sensitivity labels feed a declarative policy
+          engine that filters memory access by caller identity. Both surfaces are
+          designed for compliance review &mdash; not a "trust us" log, but
+          addressable records with byte-level integrity hashes that a reviewer can
+          verify without trusting the application that wrote them.
+        </p>
 
         <div className="mt-12">
           {(() => {
