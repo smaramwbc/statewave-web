@@ -1,7 +1,6 @@
 import { type ReactNode } from 'react'
 import { motion, useReducedMotion, type Variants } from 'framer-motion'
 import { Link } from 'react-router'
-import { SectionAnchorCopyButton } from './Heading'
 
 /* ─── HowStatewaveWorks ──────────────────────────────────────────────────────
  * An animated walk-through of the Statewave runtime: the five steps that turn
@@ -126,7 +125,7 @@ const childVariants: Variants = {
 
 /* ─── Header / replay control ────────────────────────────────────────────── */
 
-function FlowHeader({ variant, reduced, id }: { variant: FlowVariant; reduced: boolean; id: string }) {
+function FlowHeader({ variant, reduced}: { variant: FlowVariant; reduced: boolean; id: string }) {
   const eyebrow = variant === 'full' ? 'Open source · Self-hosted · Apache 2.0' : 'How it works'
   const headline =
     variant === 'full'
@@ -157,8 +156,6 @@ return (
       className="group font-heading text-3xl font-bold leading-[1.08] tracking-[-0.03em] text-theme-primary md:text-[52px]"
     >
       {headline}
-
-      <SectionAnchorCopyButton id={id} />
     </motion.h2>
 
     <motion.p
