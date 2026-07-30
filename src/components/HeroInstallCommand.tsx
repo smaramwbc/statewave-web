@@ -62,7 +62,7 @@ export function HeroInstallCommand({
           'mx-auto inline-flex max-w-full min-w-0 items-center gap-2 rounded-xl',
           'border border-[var(--theme-button-secondary-border)]',
           'bg-surface-2/85 px-4 py-3 font-mono',
-          'shadow-[0_12px_35px_rgba(0,0,0,.14)] backdrop-blur-sm',
+          'install-cmd-field backdrop-blur-sm',
           'sm:gap-3 sm:px-5 sm:py-3.5',
         ].join(' ')}
       >
