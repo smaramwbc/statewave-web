@@ -18,13 +18,10 @@ function HeroSection() {
   }, [])
 
   return (
-    <section className="relative overflow-hidden bg-surface-1">
+    <section className="relative">
       <div
         className="absolute inset-0 pointer-events-none"
-        style={{
-          background:
-            'radial-gradient(52rem 36rem at 50% 22%, rgba(99,102,241,.11), transparent 72%)',
-        }}
+
       />
 
       <div
@@ -152,10 +149,10 @@ const COST_ITEMS = [
 
 function CostSection() {
   return (
-    <Section className="relative overflow-hidden bg-surface-0">
+    <Section className="relative overflow-hidden bg-surface-1">
       <div
         aria-hidden="true"
-        className="section-glow pointer-events-none absolute left-1/2 top-0 h-72 w-[42rem] -translate-x-1/2 rounded-full bg-danger/10 blur-3xl"
+        className="section-glow-full"
       />
 
       <div className="relative">
@@ -563,7 +560,7 @@ const MEMORY_CARDS = [
 
 function MemoryMergingSection() {
   return (
-    <Section>
+    <Section className="bg-surface-1">
       <div className="mx-auto mb-14 max-w-3xl text-center md:mb-16">
         <p className="section-eyebrow mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
           Features
@@ -1105,10 +1102,10 @@ const WRONG_FACT_BULLETS = [
 
 function WrongFactSection() {
   return (
-    <Section className="relative overflow-hidden">
+    <Section className="relative overflow-hidden bg-surface-1">
       <div
         aria-hidden="true"
-        className="section-glow pointer-events-none absolute right-[-10rem] top-1/2 h-[30rem] w-[30rem] -translate-y-1/2 rounded-full bg-accent/[0.08] blur-3xl"
+        className="section-glow-full"
       />
 
       <div className="relative grid items-center gap-14 md:grid-cols-2 lg:gap-20">
@@ -1266,7 +1263,7 @@ function ThreeEndpointsSection() {
     <Section className="relative overflow-hidden">
       <div
         aria-hidden="true"
-        className="section-glow pointer-events-none absolute left-[-10rem] top-1/2 h-[30rem] w-[30rem] -translate-y-1/2 rounded-full bg-accent/[0.08] blur-3xl"
+        className="section-glow-full"
       />
 
       <div className="relative grid items-center gap-14 md:grid-cols-2 lg:gap-20">
@@ -1408,7 +1405,7 @@ function FeatureGridSection() {
     <Section className="relative overflow-hidden">
       <div
         aria-hidden="true"
-        className="section-glow pointer-events-none absolute left-1/2 top-0 h-72 w-[44rem] -translate-x-1/2 rounded-full bg-accent/[0.08] blur-3xl"
+        className="section-glow-full"
       />
 
       <div className="relative">
