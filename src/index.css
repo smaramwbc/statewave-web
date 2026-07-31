@@ -611,6 +611,28 @@ h6 {
   opacity: .5;
 }
 
+.section-glow-full {
+  position: absolute;
+  left: 50%;
+  top: 7rem;
+  width: 900px;
+  height: 420px;
+  transform: translateX(-50%);
+  pointer-events: none;
+
+  background:
+    radial-gradient(circle,
+      color-mix(in srgb, var(--color-brand-500) 18%, transparent),
+      transparent 70%);
+
+  filter: blur(100px);
+  opacity: .9;
+}
+
+[data-theme="light"] .section-glow-full {
+  opacity: .45;
+}
+
 .install-cmd-field {
   box-shadow: 0 12px 35px rgba(0, 0, 0, .14);
 }

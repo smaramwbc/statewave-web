@@ -49,7 +49,7 @@ function VisualPanel({
 
 function HeroSection() {
   return (
-    <section className="relative overflow-hidden bg-surface-1">
+    <section className="relative">
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
@@ -757,7 +757,7 @@ function SupersedeVisual() {
 function MemoryMergingSection() {
 return (
   <GridSection
-     innerClassName="py-20 sm:py-24 xl:py-28"
+     innerClassName="py-20 sm:py-24 xl:py-28  bg-surface-1"
   >
     <div className="mx-auto mb-12 max-w-[620px] text-center sm:mb-16">
       <div className="section-eyebrow mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
@@ -1301,7 +1301,7 @@ function TokenComparisonCard() {
 function ConfidenceSection() {
   return (
     <GridSection
-      innerClassName="py-20 sm:py-24 xl:py-28"
+      innerClassName="py-20 sm:py-24 xl:py-28 Context retrieval"
     >
       <div className="grid items-center gap-14 md:grid-cols-2 xl:gap-20">
         <div>

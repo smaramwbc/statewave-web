@@ -15,9 +15,7 @@ import {
 } from "lucide-react";
 
 const PAGE_RAIL_CLASS =
-  'mx-auto max-w-[1488px] px-5 sm:px-10 md:px-16 xl:px-[94px]' +
-  ' border-b xl:border-l xl:border-r' +
-  ' border-theme-border'
+  'mx-auto max-w-[1488px] px-5 sm:px-10 md:px-16 xl:px-[94px]'
 
 /*
  * All product mockups below use the `--viz-*` tokens from src/index.css.
@@ -92,13 +90,13 @@ function GreenBadge({ label }: { label: string }) {
 
 function HeroSection() {
   return (
-    <section className="relative overflow-hidden bg-surface-1">
+    <section className="relative">
       <div
         aria-hidden="true"
-        className="section-glow pointer-events-none absolute left-1/2 top-0 h-80 w-[52rem] -translate-x-1/2 rounded-full bg-accent/[0.08] blur-3xl"
+        className="section-glow-full"
       />
 
-      <div className="relative mx-auto max-w-[1488px] border-theme-border px-5 pt-24 pb-10 text-center sm:px-10 md:px-16 md:pt-28 xl:border-l xl:border-r xl:px-[94px] xl:pt-32 xl:pb-12">
+      <div className="relative mx-auto max-w-[1488px] px-5 pt-24 pb-10 text-center sm:px-10 md:px-16 md:pt-28 xl:px-[94px] xl:pt-32 xl:pb-12">
         <motion.div
           initial={{ opacity: 0, y: 22 }}
           animate={{ opacity: 1, y: 0 }}
@@ -506,7 +504,7 @@ function CostSection() {
     <GridSection innerClassName="relative overflow-hidden bg-surface-1 py-20 sm:py-24 xl:py-28">
       <div
         aria-hidden="true"
-        className="section-glow pointer-events-none absolute left-1/2 top-0 h-72 w-[44rem] -translate-x-1/2 rounded-full bg-danger/[0.08] blur-3xl"
+        className="section-glow-full"
       />
 
       <div className="relative">
@@ -1166,7 +1164,7 @@ function FeatureCardsSection() {
     <GridSection innerClassName="relative overflow-hidden py-20 sm:py-24 xl:py-28">
       <div
         aria-hidden="true"
-        className="section-glow pointer-events-none absolute left-1/2 top-0 h-72 w-[44rem] -translate-x-1/2 rounded-full bg-accent/[0.08] blur-3xl"
+        className="section-glow-full"
       />
 
       <div className="relative">
@@ -1671,7 +1669,7 @@ function ReferenceBuildsSection() {
     <GridSection innerClassName="relative overflow-hidden py-20 sm:py-24 xl:py-28">
       <div
         aria-hidden="true"
-        className="section-glow pointer-events-none absolute left-1/2 top-0 h-72 w-[46rem] -translate-x-1/2 rounded-full bg-accent/[0.08] blur-3xl"
+        className="section-glow-full"
       />
 
       <div className="relative">
@@ -1916,7 +1914,7 @@ function PreventedSection() {
     <GridSection innerClassName="relative overflow-hidden py-20 sm:py-24 xl:py-28">
       <div
         aria-hidden="true"
-        className="section-glow pointer-events-none absolute right-0 top-1/2 h-80 w-[38rem] -translate-y-1/2 rounded-full bg-accent/[0.08] blur-3xl"
+        className="section-glow-full"
       />
 
       <div className="relative grid items-center gap-14 md:grid-cols-2 md:gap-16 xl:gap-24">
@@ -2154,7 +2152,7 @@ function TwoCallsSection() {
     <GridSection innerClassName="relative overflow-hidden py-20 sm:py-24 xl:py-28">
       <div
         aria-hidden="true"
-        className="section-glow pointer-events-none absolute left-0 top-1/2 h-80 w-[38rem] -translate-y-1/2 rounded-full bg-accent/[0.08] blur-3xl"
+        className="section-glow-full"
       />
 
       <div className="relative grid items-center gap-14 md:grid-cols-2 md:gap-16 xl:gap-24">
@@ -2286,7 +2284,7 @@ function FeatureGridSection() {
     <GridSection innerClassName="relative overflow-hidden py-20 sm:py-24 xl:py-28">
       <div
         aria-hidden="true"
-        className="section-glow pointer-events-none absolute left-1/2 top-0 h-72 w-[46rem] -translate-x-1/2 rounded-full bg-accent/[0.08] blur-3xl"
+        className="section-glow-full"
       />
 
       <div className="relative">
