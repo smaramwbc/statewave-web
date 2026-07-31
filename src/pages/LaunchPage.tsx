@@ -124,167 +124,319 @@ export function LaunchPage() {
 
   return (
     <>
-      <section className="relative pt-24 sm:pt-28 md:pt-32 pb-12 sm:pb-16">
-        <div className="mx-auto max-w-3xl px-5 sm:px-6 text-center">
-          <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-accent">
-            Statewave newsletter
+      <section className="relative overflow-hidden pt-24 pb-12 sm:pt-28 sm:pb-14 md:pt-36 md:pb-16">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute left-1/2 top-10 h-[24rem] w-[42rem] -translate-x-1/2 rounded-full bg-brand-500/[0.06] blur-3xl"
+        />
+
+        <div className="relative mx-auto max-w-4xl px-5 text-center sm:px-6">
+          <p className="section-eyebrow mb-5 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
+            Statewave Newsletter
           </p>
-          <h1 className="mt-5 text-[clamp(2rem,6vw,3.25rem)] font-semibold text-theme-primary tracking-[-0.02em] leading-[1.1]">
+
+          <h1 className="font-heading text-4xl font-bold leading-[0.98] tracking-[-0.03em] text-theme-primary sm:text-5xl md:text-[56px]">
             Stay current with Statewave.
           </h1>
-          <p className="mt-5 text-base sm:text-lg text-theme-secondary leading-relaxed">
-            Statewave v1.0 — the open-source memory runtime for AI agents — is available.
-            Subscribe for occasional updates on releases, connectors, SDKs, benchmarks,
-            governance features, and important project news.
+
+          <p className="mx-auto mt-6 max-w-[48rem] text-[17px] leading-[1.7] text-theme-secondary/85 sm:text-[19px] md:text-[20px]">
+            Statewave v1.0 — the open-source memory runtime for AI agents — is
+            available. Subscribe for occasional updates on releases, connectors,
+            SDKs, benchmarks, governance features, and important project news.
           </p>
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm">
-            <a href="/" className="text-accent hover:underline">Get started &rarr;</a>
-            <a href="https://github.com/smaramwbc/statewave" className="text-accent hover:underline">GitHub</a>
-            <a href="https://github.com/smaramwbc/statewave-docs" className="text-accent hover:underline">Documentation</a>
-            <a href="https://github.com/smaramwbc/statewave/releases/tag/v1.0.0" className="text-accent hover:underline">v1.0 release notes</a>
+
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-2.5">
+            <a
+              href="/"
+              className="inline-flex items-center gap-1.5 rounded-full border border-brand-500/25 bg-brand-500/[0.06] px-4 py-2 text-sm font-medium text-brand-400 transition-colors hover:border-brand-500/45 hover:bg-brand-500/[0.1]"
+            >
+              Get started
+              <span aria-hidden="true">→</span>
+            </a>
+
+            <a
+              href="https://github.com/smaramwbc/statewave"
+              className="inline-flex items-center rounded-full border border-theme-border bg-surface-1/45 px-4 py-2 text-sm font-medium text-theme-secondary transition-colors hover:border-brand-500/30 hover:text-theme-primary"
+            >
+              GitHub
+            </a>
+
+            <a
+              href="https://github.com/smaramwbc/statewave-docs"
+              className="inline-flex items-center rounded-full border border-theme-border bg-surface-1/45 px-4 py-2 text-sm font-medium text-theme-secondary transition-colors hover:border-brand-500/30 hover:text-theme-primary"
+            >
+              Documentation
+            </a>
+
+            <a
+              href="https://github.com/smaramwbc/statewave/releases/tag/v1.0.0"
+              className="inline-flex items-center rounded-full border border-theme-border bg-surface-1/45 px-4 py-2 text-sm font-medium text-theme-secondary transition-colors hover:border-brand-500/30 hover:text-theme-primary"
+            >
+              v1.0 release notes
+            </a>
           </div>
         </div>
       </section>
 
-      <Section>
+      <Section className="bg-surface-1">
         <div className="mx-auto max-w-2xl">
-          <div className="rounded-3xl border border-theme-border bg-surface-1 p-6 sm:p-8 md:p-10">
-            <Heading id="signup" className="text-2xl font-bold text-theme-primary mb-3">
-              Subscribe to Statewave updates
-            </Heading>
-            <p className="text-sm text-theme-secondary leading-relaxed mb-6">
-              Occasional emails — major releases, new connectors and SDK changes, benchmarks and
-              research, governance features, and meaningful project news. No spam, no third-party
-              trackers, and we never share your email.
-            </p>
+          <div className="relative">
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-x-12 -top-6 h-32 rounded-full bg-brand-500/[0.07] blur-3xl"
+            />
 
-            {state === 'success' ? (
-              <div
-                role="status"
-                className="rounded-2xl border border-accent/30 bg-accent/5 p-5 text-sm text-theme-primary"
+            <div className="relative rounded-[2rem] border border-theme-border bg-surface-2/35 p-6 backdrop-blur-sm sm:p-8 md:p-10">
+              <Heading
+                id="signup"
+                className="mb-3 font-heading text-2xl font-bold leading-tight tracking-[-0.02em] text-theme-primary sm:text-3xl"
               >
-                <p className="font-medium">You&rsquo;re subscribed.</p>
-                <p className="mt-2 text-theme-secondary leading-relaxed">
-                  Thanks — we&rsquo;ll be in touch when there&rsquo;s something worth sharing.
-                  Every email includes a one-click unsubscribe.
-                </p>
-              </div>
-            ) : (
-              <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-                <div>
-                  <label htmlFor="newsletter-email" className="block">
-                    <span className="block text-xs font-medium uppercase tracking-[0.16em] text-theme-muted mb-2">
-                      Email<span className="text-accent ml-1">*</span>
-                    </span>
-                    <input
-                      id="newsletter-email"
-                      name="email"
-                      type="email"
-                      required
-                      autoComplete="email"
-                      placeholder="you@example.com"
-                      value={email}
-                      aria-invalid={emailError ? true : undefined}
-                      aria-describedby={emailError ? 'newsletter-email-error' : undefined}
-                      onChange={(e) => handleEmailChange(e.target.value)}
-                      className={`w-full rounded-xl border bg-surface-0 px-4 py-3 text-sm text-theme-primary placeholder:text-theme-muted focus:outline-none focus:ring-2 transition-colors ${
-                        emailError
-                          ? 'border-red-500/60 focus:ring-red-500/30 focus:border-red-500'
-                          : 'border-theme-border focus:ring-accent/40 focus:border-accent'
-                      }`}
-                    />
-                  </label>
-                  {emailError ? (
-                    <p id="newsletter-email-error" role="alert" className="mt-1.5 text-xs text-red-600 dark:text-red-400">
-                      {emailError}
-                    </p>
-                  ) : null}
-                </div>
+                Subscribe to Statewave updates
+              </Heading>
 
-                {/* Honeypot — off-screen, never shown to humans, ignored by
-                    AT. A filled value tells the server it's a bot. */}
+              <p className="mb-7 max-w-xl text-[15px] leading-[1.7] text-theme-secondary/85">
+                Occasional emails — major releases, new connectors and SDK changes,
+                benchmarks and research, governance features, and meaningful project
+                news. No spam, no third-party trackers, and we never share your email.
+              </p>
+
+              {state === 'success' ? (
                 <div
-                  aria-hidden="true"
-                  style={{ position: 'absolute', left: '-9999px', width: 1, height: 1, overflow: 'hidden' }}
+                  role="status"
+                  className="rounded-2xl border border-brand-500/30 bg-brand-500/[0.06] p-5 text-sm text-theme-primary"
                 >
-                  <label htmlFor="hp_company_url">Company website</label>
-                  <input
-                    id="hp_company_url"
-                    name="hp_company_url"
-                    type="text"
-                    tabIndex={-1}
-                    autoComplete="off"
-                    value={honeypot}
-                    onChange={(e) => setHoneypot(e.target.value)}
-                  />
+                  <p className="font-semibold">You&rsquo;re subscribed.</p>
+
+                  <p className="mt-2 leading-relaxed text-theme-secondary/90">
+                    Thanks — we&rsquo;ll be in touch when there&rsquo;s something worth
+                    sharing. Every email includes a one-click unsubscribe.
+                  </p>
                 </div>
+              ) : (
+                <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+                  <div>
+                    <label htmlFor="newsletter-email" className="block">
+                      <span className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.18em] text-theme-muted">
+                        Email
+                        <span className="ml-1 text-brand-500">*</span>
+                      </span>
 
-                {turnstileEnabled ? (
-                  <Turnstile
-                    key={turnstileNonce}
-                    siteKey={TURNSTILE_SITE_KEY}
-                    onToken={setTurnstileToken}
-                  />
-                ) : null}
+                      <input
+                        id="newsletter-email"
+                        name="email"
+                        type="email"
+                        required
+                        autoComplete="email"
+                        placeholder="you@example.com"
+                        value={email}
+                        aria-invalid={emailError ? true : undefined}
+                        aria-describedby={
+                          emailError ? 'newsletter-email-error' : undefined
+                        }
+                        onChange={(e) => handleEmailChange(e.target.value)}
+                        className={`w-full rounded-2xl border bg-surface-0/80 px-4 py-3.5 text-sm text-theme-primary outline-none transition-all placeholder:text-theme-muted/70 focus:ring-2 ${emailError
+                          ? 'border-red-500/60 focus:border-red-500 focus:ring-red-500/20'
+                          : 'border-theme-border focus:border-brand-500/60 focus:ring-brand-500/20'
+                          }`}
+                      />
+                    </label>
 
-                <button
-                  type="submit"
-                  disabled={state === 'submitting'}
-                  className="mt-2 w-full rounded-xl bg-accent px-5 py-3 text-sm font-medium text-white hover:bg-accent/90 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
-                >
-                  {state === 'submitting' ? 'Subscribing…' : 'Subscribe'}
-                </button>
-
-                {state === 'error' && formError ? (
-                  <div
-                    role="alert"
-                    className="rounded-xl border border-red-500/30 bg-red-500/5 px-4 py-3 text-sm text-red-600 dark:text-red-400"
-                  >
-                    {formError}
+                    {emailError ? (
+                      <p
+                        id="newsletter-email-error"
+                        role="alert"
+                        className="mt-2 text-xs text-red-600 dark:text-red-400"
+                      >
+                        {emailError}
+                      </p>
+                    ) : null}
                   </div>
-                ) : null}
 
-                <p className="text-[11px] text-theme-muted leading-relaxed">
-                  By subscribing you agree to receive occasional Statewave project updates at the
-                  address above. We use your email only to send these updates; unsubscribe in one
-                  click from any email. See our{' '}
-                  <a href="/privacy" className="underline hover:text-theme-secondary">Privacy Policy</a>.
-                </p>
-              </form>
-            )}
+                  {/* Honeypot — off-screen, never shown to humans, ignored by
+                AT. A filled value tells the server it's a bot. */}
+                  <div
+                    aria-hidden="true"
+                    style={{
+                      position: 'absolute',
+                      left: '-9999px',
+                      width: 1,
+                      height: 1,
+                      overflow: 'hidden',
+                    }}
+                  >
+                    <label htmlFor="hp_company_url">Company website</label>
+
+                    <input
+                      id="hp_company_url"
+                      name="hp_company_url"
+                      type="text"
+                      tabIndex={-1}
+                      autoComplete="off"
+                      value={honeypot}
+                      onChange={(e) => setHoneypot(e.target.value)}
+                    />
+                  </div>
+
+                  {turnstileEnabled ? (
+                    <Turnstile
+                      key={turnstileNonce}
+                      siteKey={TURNSTILE_SITE_KEY}
+                      onToken={setTurnstileToken}
+                    />
+                  ) : null}
+
+                  <button
+                    type="submit"
+                    disabled={state === 'submitting'}
+                    className="group relative mt-2 inline-flex w-full items-center justify-center overflow-hidden rounded-full bg-gradient-to-r from-brand-400 via-brand-500 to-violet-500 px-6 py-4 text-sm font-semibold text-white shadow-[0_0_32px_rgba(99,102,241,0.22)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_40px_rgba(99,102,241,0.32)] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
+                  >
+                    <span
+                      aria-hidden="true"
+                      className="pointer-events-none absolute inset-0 bg-white/0 transition-colors duration-300 group-hover:bg-white/[0.06]"
+                    />
+
+                    <span className="relative z-10">
+                      {state === 'submitting' ? 'Subscribing…' : 'Subscribe'}
+                    </span>
+                  </button>
+
+
+
+                  {state === 'error' && formError ? (
+                    <div
+                      role="alert"
+                      className="rounded-2xl border border-red-500/30 bg-red-500/[0.06] px-4 py-3 text-sm text-red-600 dark:text-red-400"
+                    >
+                      {formError}
+                    </div>
+                  ) : null}
+
+                  <p className="pt-1 text-[11px] leading-relaxed text-theme-muted/85">
+                    By subscribing you agree to receive occasional Statewave project
+                    updates at the address above. We use your email only to send these
+                    updates; unsubscribe in one click from any email. See our{' '}
+                    <a
+                      href="/privacy"
+                      className="underline underline-offset-4 transition-colors hover:text-theme-secondary"
+                    >
+                      Privacy Policy
+                    </a>
+                    .
+                  </p>
+                </form>
+              )}
+            </div>
           </div>
         </div>
       </Section>
 
-      <Section className="bg-surface-1/40">
-        <div className="mx-auto max-w-3xl">
-          <Heading id="what" className="text-2xl font-bold text-theme-primary mb-6">
-            What you&rsquo;ll receive
-          </Heading>
-          <ul className="space-y-3 text-sm text-theme-secondary leading-relaxed">
-            <li>
-              <strong className="text-theme-primary">Releases</strong> &mdash; new Statewave
-              versions and what changed, the way developers want to read it.
-            </li>
-            <li>
-              <strong className="text-theme-primary">Connectors &amp; SDKs</strong> &mdash; new
-              integrations and notable Python / TypeScript SDK changes.
-            </li>
-            <li>
-              <strong className="text-theme-primary">Benchmarks &amp; research</strong> &mdash;
-              reproducible numbers and technical write-ups when we publish them.
-            </li>
-            <li>
-              <strong className="text-theme-primary">Governance &amp; project news</strong> &mdash;
-              meaningful governance features and important community announcements.
-            </li>
-          </ul>
-          <p className="mt-6 text-sm text-theme-secondary leading-relaxed">
-            Prefer to follow along directly? Star and watch{' '}
-            <a href="https://github.com/smaramwbc/statewave" className="text-accent hover:underline">the repository</a>{' '}
-            on GitHub, or read the{' '}
-            <a href="https://github.com/smaramwbc/statewave-docs" className="text-accent hover:underline">documentation</a>.
-          </p>
+      <Section className="relative overflow-hidden bg-surface-1/40">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute bottom-0 left-1/2 h-64 w-[38rem] -translate-x-1/2 rounded-full bg-brand-500/[0.05] blur-3xl"
+        />
+
+        <div className="relative mx-auto max-w-5xl">
+          <div className="mx-auto max-w-3xl text-center">
+            <p className="section-eyebrow mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
+              What to expect
+            </p>
+
+            <Heading
+              id="what"
+              className="font-heading text-3xl font-bold leading-tight tracking-[-0.025em] text-theme-primary sm:text-4xl"
+            >
+              What you&rsquo;ll receive
+            </Heading>
+
+            <p className="mx-auto mt-5 max-w-2xl text-[16px] leading-[1.7] text-theme-secondary/85 sm:text-[17px]">
+              Occasional updates focused on the releases, tools, research, and
+              decisions shaping Statewave.
+            </p>
+          </div>
+
+          <div className="mt-10 grid gap-4 sm:grid-cols-2">
+            <div className="rounded-[1.75rem] border border-theme-border bg-surface-2/35 p-6 backdrop-blur-sm transition-colors hover:border-theme-border-hover">
+              <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-brand-500/20 bg-brand-500/[0.07] text-sm font-semibold text-brand-400">
+                01
+              </span>
+
+              <h3 className="mt-5 font-heading text-lg font-semibold text-theme-primary">
+                Releases
+              </h3>
+
+              <p className="mt-2 text-sm leading-[1.7] text-theme-secondary/85">
+                New Statewave versions and clear summaries of what changed, written
+                the way developers want to read them.
+              </p>
+            </div>
+
+            <div className="rounded-[1.75rem] border border-theme-border bg-surface-2/35 p-6 backdrop-blur-sm transition-colors hover:border-theme-border-hover">
+              <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-brand-500/20 bg-brand-500/[0.07] text-sm font-semibold text-brand-400">
+                02
+              </span>
+
+              <h3 className="mt-5 font-heading text-lg font-semibold text-theme-primary">
+                Connectors &amp; SDKs
+              </h3>
+
+              <p className="mt-2 text-sm leading-[1.7] text-theme-secondary/85">
+                New integrations and notable changes across the Python and TypeScript
+                SDKs.
+              </p>
+            </div>
+
+            <div className="rounded-[1.75rem] border border-theme-border bg-surface-2/35 p-6 backdrop-blur-sm transition-colors hover:border-theme-border-hover">
+              <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-brand-500/20 bg-brand-500/[0.07] text-sm font-semibold text-brand-400">
+                03
+              </span>
+
+              <h3 className="mt-5 font-heading text-lg font-semibold text-theme-primary">
+                Benchmarks &amp; research
+              </h3>
+
+              <p className="mt-2 text-sm leading-[1.7] text-theme-secondary/85">
+                Reproducible results, technical experiments, and research write-ups
+                when we publish them.
+              </p>
+            </div>
+
+            <div className="rounded-[1.75rem] border border-theme-border bg-surface-2/35 p-6 backdrop-blur-sm transition-colors hover:border-theme-border-hover">
+              <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-brand-500/20 bg-brand-500/[0.07] text-sm font-semibold text-brand-400">
+                04
+              </span>
+
+              <h3 className="mt-5 font-heading text-lg font-semibold text-theme-primary">
+                Governance &amp; project news
+              </h3>
+
+              <p className="mt-2 text-sm leading-[1.7] text-theme-secondary/85">
+                Meaningful governance features, project decisions, and important
+                community announcements.
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-sm leading-relaxed text-theme-secondary/85">
+            <span>Prefer to follow along directly?</span>
+
+            <a
+              href="https://github.com/smaramwbc/statewave"
+              className="font-medium text-brand-400 transition-colors hover:text-brand-300"
+            >
+              Star and watch the repository
+            </a>
+
+            <span>on GitHub, or read the</span>
+
+            <a
+              href="https://github.com/smaramwbc/statewave-docs"
+              className="font-medium text-brand-400 transition-colors hover:text-brand-300"
+            >
+              documentation
+            </a>
+            <span>.</span>
+          </div>
         </div>
       </Section>
     </>

@@ -45,8 +45,8 @@
   --theme-text-primary: #B7C5E3;
   --theme-text-secondary: #c7d6f2;
   --theme-text-muted: #8898B8;
-  --theme-border: rgba(255, 255, 255, 0.05);
-  --theme-border-hover: rgba(255, 255, 255, 0.1);
+  --theme-border: rgba(126, 140, 255, 0.22);
+  --theme-border-hover: rgba(126, 140, 255, 0.38);
   --theme-card-bg: #0a0f1a;
   --theme-overlay: rgba(3, 7, 18, 0.8);
   --theme-code-bg: #0a0f1a;
@@ -89,8 +89,8 @@
   --theme-text-primary: #0f172a;
   --theme-text-secondary: #475569;
   --theme-text-muted: #64748b;
-  --theme-border: rgba(0, 0, 0, 0.06);
-  --theme-border-hover: rgba(0, 0, 0, 0.12);
+  --theme-border: rgba(255, 255, 255, 0.08);
+  --theme-border-hover: rgba(255, 255, 255, 0.16);
   --theme-card-bg: #fafbfc;
   --theme-overlay: rgba(250, 251, 252, 0.85);
   --theme-code-bg: #f3f5f9;
@@ -596,16 +596,12 @@ h6 {
   pointer-events: none;
 
   background:
-    radial-gradient(
-      circle at 35% 45%,
+    radial-gradient(circle at 35% 45%,
       color-mix(in srgb, var(--color-brand-500) 30%, transparent),
-      transparent 48%
-    ),
-    radial-gradient(
-      circle at 72% 58%,
+      transparent 48%),
+    radial-gradient(circle at 72% 58%,
       color-mix(in srgb, var(--color-accent) 28%, transparent),
-      transparent 46%
-    );
+      transparent 46%);
 
   filter: blur(58px);
   opacity: 1;
@@ -682,12 +678,15 @@ html[data-theme="dark"] .connector-logo-invert {
 html[data-theme="light"] .connector-logo-white {
   filter: invert(1);
 }
+
 html[data-theme="dark"] .connector-logo-white {
   filter: none;
 }
+
 html[data-theme="light"] .connector-logo-black {
   filter: none;
 }
+
 html[data-theme="dark"] .connector-logo-black {
   filter: invert(1);
 }
@@ -701,7 +700,7 @@ html[data-theme="dark"] .connector-logo-black {
 }
 
 [data-theme="light"] .memory-proof-glow {
-  display:none;
+  display: none;
 }
 
 .memory-proof-circle {
@@ -730,13 +729,11 @@ html[data-theme="dark"] .connector-logo-black {
 }
 
 [data-theme="light"] .cta-card-glow {
-    background:
-        radial-gradient(
-            circle at 50% -10%,
-            rgba(77,158,255,.10) 0%,
-            rgba(77,158,255,.04) 35%,
-            transparent 70%
-        );
+  background:
+    radial-gradient(circle at 50% -10%,
+      rgba(77, 158, 255, .10) 0%,
+      rgba(77, 158, 255, .04) 35%,
+      transparent 70%);
 }
 
 [data-theme="light"] .connectors-glow {
@@ -775,13 +772,11 @@ html[data-theme="dark"] .connector-logo-black {
   pointer-events: none;
 
   background:
-    radial-gradient(
-      ellipse 75% 55% at 28% 32%,
+    radial-gradient(ellipse 75% 55% at 28% 32%,
       rgba(74, 140, 255, 0.14) 0%,
       rgba(74, 140, 255, 0.08) 28%,
       rgba(122, 92, 255, 0.05) 48%,
-      transparent 74%
-    );
+      transparent 74%);
 
   filter: blur(24px);
 }
