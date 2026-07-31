@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion'
+import { motion, type Variants } from 'framer-motion'
 import { Section } from '../components/Section'
 import { Button } from '../components/Button'
 import { Heading } from '../components/Heading'
@@ -176,86 +176,194 @@ export function ConnectorsPage() {
 }
 
 function ConnectorsHero() {
-  const stagger = {
+  const stagger: Variants = {
     hidden: {},
-    show: { transition: { staggerChildren: 0.1, delayChildren: 0.05 } },
+    show: {
+      transition: {
+        staggerChildren: 0.1,
+        delayChildren: 0.05,
+      },
+    },
   }
-  const fadeUp = {
-    hidden: { opacity: 0, y: 16 },
-    show: { opacity: 1, y: 0, transition: { duration: 0.55 } },
+
+  const fadeUp: Variants = {
+    hidden: {
+      opacity: 0,
+      y: 16,
+    },
+    show: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.55,
+      },
+    },
   }
+
+  const gridStagger: Variants = {
+    hidden: {},
+    show: {
+      transition: {
+        staggerChildren: 0.12,
+        delayChildren: 0.2,
+      },
+    },
+  }
+
+  const iconPulse: Variants = {
+    hidden: {
+      scale: 1,
+      y: 0,
+    },
+    show: {
+      scale: [1, 1.13, 1],
+      y: [0, -3, 0],
+      transition: {
+        duration: 0.5,
+        ease: 'easeInOut',
+      },
+    },
+  }
+
+  const connectorEntries = Object.entries(CONNECTOR_ICONS)
 
   return (
-    <section className="pt-24 pb-14 sm:pt-28 sm:pb-16 md:pt-38">
+    <section className="overflow-hidden pt-24 pb-14 sm:pt-28 sm:pb-16 md:pt-38">
       <div className="mx-auto max-w-7xl px-5 sm:px-6">
-        <motion.div
-          variants={stagger}
-          initial="hidden"
-          animate="show"
-          className="max-w-4xl"
-        >
-          <motion.div variants={fadeUp}>
-            <span className="hero-badge inline-flex items-center gap-2 rounded-full border border-brand-500/35 bg-brand-500/[0.06] px-5 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-400">
-              <span className="h-1.5 w-1.5 rounded-full bg-brand-500" />
-              Not just live chats
-            </span>
-          </motion.div>
-
-          <motion.h1
-            variants={fadeUp}
-            className="mt-8 font-heading text-[clamp(2.8rem,5.6vw,4.7rem)] font-bold leading-[0.96] tracking-[-0.045em] text-theme-primary"
-          >
-            <span className="block">Connect your tools.</span>
-            <span className="block max-w-[52rem] text-gradient-brand">
-              Give your agents memory.
-            </span>
-          </motion.h1>
-
-          <motion.p
-            variants={fadeUp}
-            className="mt-7 max-w-[44rem] text-[17px] leading-[1.7] text-theme-secondary/90 sm:text-[19px] md:text-[20px]"
-          >
-            Feed GitHub, Slack, Discord, docs, support tickets, email, and workflow events into
-            Statewave as durable episodic memory — so your agents recall projects, customers,
-            communities, and decisions, not just the last few chat turns.
-          </motion.p>
-
+        <div className="grid items-center gap-14 lg:grid-cols-[minmax(0,1fr)_minmax(25rem,0.8fr)] lg:gap-10 xl:gap-16">
+          {/* Hero content */}
           <motion.div
-            variants={fadeUp}
-            className="mt-8 flex flex-wrap items-center gap-3 sm:gap-4"
+            variants={stagger}
+            initial="hidden"
+            animate="show"
+            className="min-w-0"
           >
-            <Button href={`${DOCS}/connectors/index.md`} size="lg">
-              View connector docs
-              <svg
-                className="h-4 w-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                aria-hidden="true"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M13 7l5 5m0 0l-5 5m5-5H6"
-                />
-              </svg>
-            </Button>
+            <motion.div variants={fadeUp}>
+              <span className="hero-badge inline-flex items-center gap-2 rounded-full border border-brand-500/35 bg-brand-500/[0.06] px-5 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-400">
+                <span className="h-1.5 w-1.5 rounded-full bg-brand-500" />
+                Not just live chats
+              </span>
+            </motion.div>
 
-            <Button href={CONNECTORS_REPO} variant="secondary" size="lg">
-              Explore Statewave Connectors
-            </Button>
+            <motion.h1
+              variants={fadeUp}
+              className="mt-8 font-heading text-[clamp(2.8rem,5.6vw,4.7rem)] font-bold leading-[0.96] tracking-[-0.045em] text-theme-primary"
+            >
+              <span className="block">Connect your tools.</span>
+
+              <span className="block max-w-[52rem] text-gradient-brand">
+                Give your agents memory.
+              </span>
+            </motion.h1>
+
+            <motion.p
+              variants={fadeUp}
+              className="mt-7 max-w-[44rem] text-[17px] leading-[1.7] text-theme-secondary/90 sm:text-[19px] md:text-[20px]"
+            >
+              Feed GitHub, Slack, Discord, docs, support tickets, email, and
+              workflow events into Statewave as durable episodic memory — so
+              your agents recall projects, customers, communities, and
+              decisions, not just the last few chat turns.
+            </motion.p>
+
+            <motion.div
+              variants={fadeUp}
+              className="mt-8 flex flex-wrap items-center gap-3 sm:gap-4"
+            >
+              <Button href={`${DOCS}/connectors/index.md`} size="lg">
+                View connector docs
+
+                <svg
+                  className="h-4 w-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13 7l5 5m0 0l-5 5m5-5H6"
+                  />
+                </svg>
+              </Button>
+
+              <Button
+                href={CONNECTORS_REPO}
+                variant="secondary"
+                size="lg"
+              >
+                Explore Statewave Connectors
+              </Button>
+            </motion.div>
+
+            <motion.p
+              variants={fadeUp}
+              className="mt-5 max-w-[38rem] text-sm leading-[1.55] text-theme-muted/80"
+            >
+              Modular packages — install only what you need. The full connector
+              lineup — including the new Jira and database source connectors —
+              is published on npm.
+            </motion.p>
           </motion.div>
 
-          <motion.p
-            variants={fadeUp}
-            className="mt-5 max-w-[38rem] text-sm leading-[1.55] text-theme-muted/80"
+          {/* Animated connector grid */}
+          <motion.div
+            initial={{ opacity: 0, x: 24 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{
+              duration: 0.7,
+              delay: 0.25,
+              ease: 'easeOut',
+            }}
+            className="relative mx-auto w-full max-w-[34rem] lg:mx-0 lg:max-w-none lg:translate-y-8"
           >
-            Modular packages — install only what you need. The full connector
-            lineup — including the new Jira and database source connectors — is
-            published on npm.
-          </motion.p>
-        </motion.div>
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-1/4 rounded-full bg-brand-500/[0.06] blur-3xl"
+            />
+
+            <motion.div
+              variants={gridStagger}
+              initial="hidden"
+              whileInView="show"
+              viewport={{
+                amount: 0.35,
+                once: false,
+              }}
+              className="relative grid grid-cols-4 gap-2.5 sm:gap-3"
+            >
+              {connectorEntries.map(([name, icon]) => (
+                <motion.div
+                  key={name}
+                  variants={iconPulse}
+                  whileHover={{
+                    scale: 1.13,
+                    y: -3,
+                    transition: {
+                      duration: 0.2,
+                      ease: 'easeOut',
+                    },
+                  }}
+                  className="group relative flex aspect-square items-center justify-center rounded-2xl border border-theme-border bg-surface-1/45 backdrop-blur-sm"
+                >
+                  <div className="pointer-events-none absolute inset-0 rounded-2xl bg-brand-500/0 transition-colors duration-200" />
+
+                  <img
+                    src={icon}
+                    alt=""
+                    className={`relative z-10 h-[44%] w-[44%] object-contain sm:h-[46%] sm:w-[46%] ${getConnectorLogoClass(
+                      icon,
+                    )}`}
+                  />
+
+                  <span className="sr-only">{name}</span>
+                </motion.div>
+              ))}
+            </motion.div>
+          </motion.div>
+        </div>
       </div>
     </section>
   )
