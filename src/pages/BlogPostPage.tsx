@@ -148,7 +148,7 @@ export function BlogPostPage() {
     <>
       <section className="relative pt-28 sm:pt-32 md:pt-36">
         <div className="mx-auto max-w-5xl px-5 sm:px-6">
-          <div className="sw-card rounded-2xl border border-brand-500/20 p-6 sm:p-8 md:p-10">
+          <div className="sw-card rounded-2xl border border-brand-500/20 bg-surface-1/45 p-6 sm:p-8 md:p-10">
             <p className="text-xs text-theme-muted">
               <Link
                 to="/blog"
@@ -201,7 +201,7 @@ export function BlogPostPage() {
 
       <section className="bg-surface-1/40 px-5 pb-10 pt-12 sm:px-6 sm:pb-12 sm:pt-16">
         <div className="mx-auto max-w-5xl">
-          <h2 className="mb-4 text-2xl font-semibold text-theme-primary">
+          <h2 className="mb-4 font-heading text-2xl font-semibold text-theme-primary">
             More from the blog
           </h2>
 
@@ -211,7 +211,7 @@ export function BlogPostPage() {
               .map((p) => (
                 <li
                   key={p.meta.slug}
-                  className="sw-card rounded-2xl border border-brand-500/20 p-5 transition-[border-color,transform,background-color] duration-300 hover:-translate-y-0.5 hover:border-brand-500/45"
+                  className="sw-card rounded-2xl border border-brand-500/20 bg-surface-1/45 p-5 transition-[border-color,transform,background-color] duration-300 hover:-translate-y-0.5 hover:border-brand-500/45"
                 >
                   <Link
                     to={blogPostUrl(p.meta.slug)}
@@ -224,7 +224,7 @@ export function BlogPostPage() {
                       {formatDate(p.meta.date)}
                     </time>
 
-                    <h3 className="mt-3 text-base font-semibold leading-snug text-theme-primary">
+                    <h3 className="mt-3 font-heading text-base font-semibold leading-snug text-theme-primary">
                       {p.meta.title}
                     </h3>
 
@@ -255,7 +255,7 @@ export function BlogPostPage() {
 
       <section className="px-5 pb-20 pt-10 sm:px-6 sm:pt-12">
         <div className="mx-auto max-w-4xl">
-          <h2 className="mb-4 text-2xl font-semibold text-theme-primary">
+          <h2 className="mb-4 font-heading text-2xl font-semibold text-theme-primary">
             Discussion
           </h2>
 

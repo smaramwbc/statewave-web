@@ -1004,7 +1004,7 @@ function SupportProofSection() {
         </p>
       </div>
 
-      <div className="sw-card mx-auto max-w-[1040px] rounded-[2rem] border border-brand-500/25 bg-surface-1/45 p-10 md:p-14]">
+      <div className="sw-card mx-auto max-w-[1040px] rounded-[2rem] border border-brand-500/25 bg-surface-1/45 p-10 md:p-14">
         <div className="grid lg:grid-cols-[0.42fr_0.58fr] gap-12 xl:gap-16 items-center">
           <div className="relative flex min-h-[420px] items-center justify-center">
             <div

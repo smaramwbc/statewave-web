@@ -13,7 +13,7 @@ export function Card({ icon, title, description, className = '' }: Props) {
     <motion.div
       whileHover={{ y: -4 }}
       transition={{ duration: 0.2 }}
-      className={`p-6 rounded-2xl border border-theme-border bg-surface-1 hover:border-theme-border transition-colors ${className}`}
+      className={`sw-card p-6 rounded-2xl border border-brand-500/20 bg-surface-1/45 hover:border-brand-500/35 transition-colors ${className}`}
     >
       {icon && <div className="mb-4 text-accent">{icon}</div>}
       <h3 className="text-lg font-semibold text-theme-primary mb-2">{title}</h3>

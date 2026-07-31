@@ -147,7 +147,7 @@ export function ProductPage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.45, delay: i * 0.08 }}
-                className="rounded-2xl border border-brand-500/20 bg-surface-1 p-8"
+                className="sw-card rounded-2xl border border-brand-500/20 bg-surface-1/45 p-8"
               >
                 <div className="mb-6 flex h-11 w-11 items-center justify-center rounded-xl border border-brand-500/20 bg-brand-500/10 text-sm font-semibold text-brand-400">
                   {item.step}
@@ -531,7 +531,7 @@ export function ProductPage() {
                   {rows.map((r) => (
                     <article
                       key={r.feature}
-                      className="rounded-2xl border border-brand-500/15 bg-surface-1 p-5"
+                      className="sw-card rounded-2xl border border-brand-500/20 bg-surface-1/45 p-5"
                     >
                       <h3 className="text-base font-semibold text-theme-primary break-anywhere">
                         {r.feature}
@@ -555,7 +555,7 @@ export function ProductPage() {
                 </div>
 
                 {/* Desktop */}
-                <div className="hidden overflow-hidden rounded-2xl border border-brand-500/15 bg-surface-1 md:block">
+                <div className="sw-card hidden overflow-hidden rounded-2xl border border-brand-500/20 bg-surface-1/45 md:block">
                   <div className="overflow-x-auto">
                     <table className="w-full table-fixed">
                       <thead className="bg-surface-2/40">
