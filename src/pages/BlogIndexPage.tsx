@@ -86,7 +86,7 @@ export function BlogIndexPage() {
               {BLOG_POSTS.map((p) => (
                 <li
                   key={p.meta.slug}
-                  className="sw-card rounded-2xl border border-brand-500/20 p-6 transition-[border-color,transform,background-color] duration-300 hover:-translate-y-0.5 hover:border-brand-500/45"
+                  className="sw-card rounded-2xl border border-brand-500/20 bg-surface-1/45 p-6 transition-[border-color,transform,background-color] duration-300 hover:-translate-y-0.5 hover:border-brand-500/45"
                 >
                   <Link to={blogPostUrl(p.meta.slug)} className="group block">
                     <div className="mb-3 flex flex-wrap items-center gap-2 text-[13px]">
@@ -107,7 +107,7 @@ export function BlogIndexPage() {
                       ))}
                     </div>
 
-                    <h2 className="text-xl font-semibold leading-tight text-theme-primary sm:text-2xl">
+                    <h2 className="font-heading text-xl font-semibold leading-tight text-theme-primary sm:text-2xl">
                       {p.meta.title}
                     </h2>
 

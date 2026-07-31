@@ -2434,7 +2434,7 @@ export function MultiAgentSharedContextPage() {
     ],
   });
   return (
-    <div className="bg-surface-1 font-fustat-headings">
+    <div className="bg-surface-1">
       <div>
         <HeroSection />
         <CostSection />
