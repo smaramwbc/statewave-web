@@ -24,6 +24,10 @@ export interface BlogPostFrontmatter {
   description: string
   author: string
   tags?: string[]
+  /** Site-relative path to this post's own social-share image (e.g.
+   *  "/blog/my-post/cover.png"). Optional — falls back to the site-wide
+   *  default OG image (DEFAULT_OG_IMAGE in lib/seo-meta.ts) when unset. */
+  image?: string
 }
 
 export interface BlogPost {

@@ -32,6 +32,17 @@
  * Rollback: revert this file, drop the build:postbuild step, restore the
  * static public/sitemap.xml. The site falls back to single-route prerender
  * (the previous shape) with no other code changes.
+ *
+ * Head metadata: the template's <head> (title, og:*, twitter:*, canonical)
+ * is otherwise static — it's whatever dist/index.html shipped with, because
+ * `render()` only returns the <body> tree and usePageSEO's client-side
+ * useEffect never runs during SSR. Left alone, every prerendered route
+ * (all blog posts included) shipped the SAME homepage title/description/
+ * image to link-preview bots (Slack, WhatsApp, X, ...), which don't execute
+ * JS and only ever see this static markup. applyHeadMeta() below patches
+ * the template's head tags per route right before writing the file, using
+ * the same values the SPA would set after hydration — so a crawler and a
+ * real browser agree on what a given URL is about.
  */
 
 import { readFile, writeFile, mkdir, rm } from 'node:fs/promises'
@@ -63,6 +74,60 @@ async function ssr(render, url, template) {
   return template.replace('<div id="root"></div>', `<div id="root">${appHtml}</div>`)
 }
 
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+}
+
+// All helpers below stay within a single tag's attribute list ([^>]*, never
+// [\s\S]*) so a lazy match can't skip past this tag's `>` and patch the
+// wrong element further down the document.
+function replaceTitle(html, newTitle) {
+  const re = /<title>[\s\S]*?<\/title>/
+  if (!re.test(html)) throw new Error('Could not find <title> in template')
+  return html.replace(re, `<title>${escapeHtml(newTitle)}</title>`)
+}
+
+function replaceCanonical(html, newUrl) {
+  const re = /(<link[^>]*\brel=["']canonical["'][^>]*\bhref=["'])[^"']*(["'])/i
+  if (!re.test(html)) throw new Error('Could not find <link rel="canonical"> in template')
+  return html.replace(re, (_m, pre, post) => `${pre}${escapeHtml(newUrl)}${post}`)
+}
+
+function replaceMetaContent(html, attrName, attrValue, newContent) {
+  const re = new RegExp(
+    `(<meta[^>]*\\b${attrName}=["']${attrValue}["'][^>]*\\bcontent=["'])[^"']*(["'])`,
+    'i',
+  )
+  if (!re.test(html)) {
+    throw new Error(`Could not find <meta ${attrName}="${attrValue}"> in template`)
+  }
+  return html.replace(re, (_m, pre, post) => `${pre}${escapeHtml(newContent)}${post}`)
+}
+
+/** Patch the template's <head> tags for one route's meta (title,
+ *  description, canonical, OG + Twitter card). See the header comment for
+ *  why this exists — it's what makes non-JS crawlers see the right thing. */
+function applyHeadMeta(html, meta) {
+  html = replaceTitle(html, meta.title)
+  html = replaceMetaContent(html, 'name', 'description', meta.description)
+  html = replaceCanonical(html, meta.url)
+  html = replaceMetaContent(html, 'property', 'og:title', meta.title)
+  html = replaceMetaContent(html, 'property', 'og:description', meta.description)
+  html = replaceMetaContent(html, 'property', 'og:image', meta.image)
+  html = replaceMetaContent(html, 'property', 'og:image:alt', meta.imageAlt)
+  html = replaceMetaContent(html, 'property', 'og:url', meta.url)
+  html = replaceMetaContent(html, 'property', 'og:type', meta.ogType)
+  html = replaceMetaContent(html, 'name', 'twitter:title', meta.title)
+  html = replaceMetaContent(html, 'name', 'twitter:description', meta.description)
+  html = replaceMetaContent(html, 'name', 'twitter:image', meta.image)
+  html = replaceMetaContent(html, 'name', 'twitter:image:alt', meta.imageAlt)
+  return html
+}
+
 async function writeRoutePage(routePath, html) {
   // Map `/` → dist/index.html (overwrite the Vite template), every other
   // route → dist/<route>/index.html so Vercel resolves it as a directory
@@ -76,7 +141,16 @@ async function writeRoutePage(routePath, html) {
 
 export async function runPrerender() {
   const entryUrl = pathToFileURL(path.join(SSR_DIST, 'entry.server.js')).href
-  const { render, BLOG_POSTS, blogPostUrl } = await import(entryUrl)
+  const {
+    render,
+    BLOG_POSTS,
+    blogPostUrl,
+    PAGE_META,
+    BASE_URL,
+    canonicalUrl,
+    DEFAULT_OG_IMAGE,
+    DEFAULT_OG_IMAGE_ALT,
+  } = await import(entryUrl)
 
   const template = await readFile(path.join(DIST, 'index.html'), 'utf-8')
   if (!template.includes('<div id="root"></div>')) {
@@ -87,15 +161,39 @@ export async function runPrerender() {
     )
   }
 
+  function metaForStaticRoute(routePath) {
+    const page = PAGE_META[routePath]
+    return {
+      title: page.title,
+      description: page.description,
+      image: DEFAULT_OG_IMAGE,
+      imageAlt: DEFAULT_OG_IMAGE_ALT,
+      ogType: page.ogType ?? 'website',
+      url: canonicalUrl(routePath),
+    }
+  }
+
+  function metaForPost(post) {
+    const hasImage = Boolean(post.meta.image)
+    return {
+      title: `${post.meta.title} — Statewave Blog`,
+      description: post.meta.description,
+      image: hasImage ? `${BASE_URL}${post.meta.image}` : DEFAULT_OG_IMAGE,
+      imageAlt: hasImage ? post.meta.title : DEFAULT_OG_IMAGE_ALT,
+      ogType: 'article',
+      url: canonicalUrl(blogPostUrl(post.meta.slug)),
+    }
+  }
+
   for (const route of STATIC_ROUTES) {
     const html = await ssr(render, route, template)
-    await writeRoutePage(route, html)
+    await writeRoutePage(route, applyHeadMeta(html, metaForStaticRoute(route)))
   }
 
   for (const post of BLOG_POSTS) {
     const route = blogPostUrl(post.meta.slug)
     const html = await ssr(render, route, template)
-    await writeRoutePage(route, html)
+    await writeRoutePage(route, applyHeadMeta(html, metaForPost(post)))
   }
 
   return {
