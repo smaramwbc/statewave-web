@@ -62,6 +62,16 @@ describe('Route rendering', () => {
     })
   })
 
+  it('renders benchmarks page at /benchmarks', async () => {
+    renderApp('/benchmarks')
+    await waitFor(() => {
+      expect(screen.getByRole('main')).toBeInTheDocument()
+    })
+    await waitFor(() => {
+      expect(screen.getByText(/tops a memory benchmark/i)).toBeInTheDocument()
+    })
+  })
+
   it('renders 404 for unknown routes', async () => {
     renderApp('/unknown-page')
     await waitFor(() => {

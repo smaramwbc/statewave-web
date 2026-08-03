@@ -41,6 +41,7 @@ export type RouteKey =
   | '/'
   | '/product'
   | '/why'
+  | '/benchmarks'
   | '/use-cases'
   | '/use-cases/multi-agent-memory'
   | '/use-cases/personal-assistant-memory'
@@ -58,6 +59,7 @@ export const PUBLIC_ROUTES: readonly RouteKey[] = [
   '/',
   '/product',
   '/why',
+  '/benchmarks',
   '/use-cases',
   '/use-cases/multi-agent-memory',
   '/use-cases/personal-assistant-memory',
@@ -115,6 +117,18 @@ export const PAGE_META: Record<RouteKey, PageMeta> = {
     breadcrumbLabel: 'Why Statewave',
     ogType: 'article',
     priority: 0.8,
+    changefreq: 'monthly',
+  },
+  '/benchmarks': {
+    title: 'Statewave Benchmarks: LoCoMo & LongMemEval vs. mem0',
+    description:
+      "Statewave beats mem0 OSS on both LoCoMo and LongMemEval, run on mem0's own harness at gpt-4o, and edges the paid mem0 cloud tier while staying free and self-hosted. Apache-2.0, fully reproducible.",
+    breadcrumbLabel: 'Benchmarks',
+    // Long-form editorial with a methodology and a scope section, not a
+    // landing page: 'article' is what tells social scrapers and answer
+    // engines to treat it as the writeup it is.
+    ogType: 'article',
+    priority: 0.9,
     changefreq: 'monthly',
   },
   '/use-cases': {
