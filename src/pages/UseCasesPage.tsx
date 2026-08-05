@@ -422,6 +422,16 @@ const USE_CASES: UseCase[] = [
     description: 'A careful, audit-grade application — patient as subject, encounters as episodes, compiled with provenance.',
     category: 'domain', status: 'future', tags: ['domain'],
   },
+  {
+    title: 'Grounded shop assistant',
+    description: 'A shopper and ops assistant pair that only answers from retrieved evidence, validates every citation, and turns ungrounded questions into coverage-gap episodes the content team resolves.',
+    category: 'domain', status: 'available',
+    tags: ['domain', 'ecommerce'],
+    stack: ['TypeScript', 'Node.js', 'LiteLLM'],
+    repo: 'statewave-grounded-shop-assistant',
+    audience: 'Teams building customer-facing shopping or product-advisor assistants where wrong answers about stock, safety, or policy are costly.',
+    pageHref: '/use-cases/grounded-shop-assistant',
+  },
 ]
 
 /* ─── Connector inventory (bootstrap patterns) ───────────────────────────── */
