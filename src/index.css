@@ -146,6 +146,16 @@
   --viz-green: var(--color-success);
   --viz-amber: #F2D16B;
 
+  /* Benchmark chart series (/benchmarks scoreboard, /vs/mem0). Categorical:
+   * each hue identifies one system, never its rank. Dark-mode steps are
+   * chosen against the --theme-surface-1 card (#0C1833), not flipped from
+   * the light set, and validated for the OKLCH lightness band, chroma
+   * floor, adjacent-pair CVD separation (worst pair ΔE 14.3 deutan, target
+   * >= 8), and 3:1 contrast. Re-run the validator if you change these. */
+  --series-statewave: #5E8CFF;
+  --series-mem0-cloud: #CC7A0D;
+  --series-mem0-oss: #12A594;
+
   --viz-code-text: #C7D6F2;
   --viz-code-muted: #7385A8;
   --viz-code-keyword: #8FA5FF;
@@ -182,6 +192,12 @@
   --viz-indigo: #4F46E5;
   --viz-green: #059669;
   --viz-amber: #B45309;
+
+  /* Benchmark chart series, light-mode steps, validated against the
+   * --theme-surface-1 card (#F2F6FC). See the dark block for the contract. */
+  --series-statewave: #4A72E8;
+  --series-mem0-cloud: #B86A08;
+  --series-mem0-oss: #0D9488;
 
   --viz-code-text: #334155;
   --viz-code-muted: #64748B;
@@ -631,6 +647,17 @@ h6 {
 
 [data-theme="light"] .section-glow-full {
   opacity: .45;
+}
+
+/* For sections that bring their own color — the /benchmarks scoreboard and
+   /vs/mem0 comparison charts run saturated categorical series hues — so the
+   ambient wash stays behind the data instead of washing over it. */
+.section-glow--soft {
+  opacity: .4;
+}
+
+[data-theme="light"] .section-glow--soft {
+  opacity: .2;
 }
 
 .install-cmd-field {

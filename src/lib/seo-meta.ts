@@ -45,6 +45,7 @@ export type RouteKey =
   | '/use-cases/multi-agent-memory'
   | '/use-cases/personal-assistant-memory'
   | '/use-cases/multi-agent-shared-context'
+  | '/vs/mem0'
   | '/connectors'
   | '/developers'
   | '/about'
@@ -62,6 +63,7 @@ export const PUBLIC_ROUTES: readonly RouteKey[] = [
   '/use-cases/multi-agent-memory',
   '/use-cases/personal-assistant-memory',
   '/use-cases/multi-agent-shared-context',
+  '/vs/mem0',
   '/connectors',
   '/developers',
   '/about',
@@ -149,6 +151,15 @@ export const PAGE_META: Record<RouteKey, PageMeta> = {
     description:
       'Coordinate parallel AI agents through one shared, authoritative context layer instead of message-passing: every decision is written as an episode, compiled into typed memories, and read by every agent before it acts, so conflicts are prevented rather than detected after wasted compute.',
     breadcrumbLabel: 'Shared Context',
+    ogType: 'article',
+    priority: 0.7,
+    changefreq: 'monthly',
+  },
+  '/vs/mem0': {
+    title: 'Statewave vs. Mem0 — Deterministic Context vs. Ranked Retrieval',
+    description:
+      'How Statewave compares to Mem0: deterministic, token-bounded context assembly with policy enforcement and integrity-hashed receipts vs. ranked similarity retrieval — plus LoCoMo and LongMemEval benchmark results measured on Mem0’s own harness.',
+    breadcrumbLabel: 'vs Mem0',
     ogType: 'article',
     priority: 0.7,
     changefreq: 'monthly',
