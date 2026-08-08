@@ -422,7 +422,7 @@ const GOVERNANCE_ROWS: CompareRow[] = [
 
 const OPS_ROWS: CompareRow[] = [
   { cap: 'Storage', m0: 'Pluggable vector stores', sw: 'Postgres and pgvector, nothing else to run' },
-  { cap: 'Graph / relationship memory', m0: 'Built-in entity linking; graph is a ranking signal, not traversable', sw: 'Typed memories with provenance, no graph tier' },
+  { cap: 'Graph / relationship memory', m0: 'OSS: graph config removed, relations no longer returned. Platform: graph affects the score, no graph payload to query', sw: 'Typed memories with provenance, no graph tier' },
   { cap: 'Interface', m0: 'Python and TypeScript SDKs, REST, CLI, hosted MCP server', sw: 'REST, Python and TypeScript SDKs, MCP server, connectors' },
   { cap: 'License', m0: 'Apache 2.0 core, paid platform', sw: 'Apache 2.0 throughout, runs fully offline' },
 ]
@@ -504,10 +504,14 @@ function ComparisonSection() {
       </div>
 
       <p className="mx-auto mt-5 max-w-3xl text-[12.5px] leading-[1.6] text-theme-muted">
-        Mem0 replaced external graph databases with built-in entity linking in
-        its v3 release (April 2026); the graph now feeds relevance scoring
-        rather than being a store you query. Rows reflect each product&apos;s
-        public docs as of August 2026.
+        Mem0 v3 deleted the open-source graph-store drivers (Neo4j, Memgraph,
+        Kuzu, Apache AGE, Neptune); the <code>graph_store</code> config block
+        is no longer read, and search results no longer carry a{' '}
+        <code>relations</code> field. On the managed Platform there is no
+        graph store to configure and no graph payload in the response &mdash;
+        entity connections reach the caller only through the combined{' '}
+        <code>score</code>. Rows reflect each product&apos;s public docs and
+        source as of August 2026.
       </p>
 
       <div className="mt-12 grid gap-5 sm:grid-cols-2">
