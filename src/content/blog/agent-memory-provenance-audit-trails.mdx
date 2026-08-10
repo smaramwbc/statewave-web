@@ -36,9 +36,15 @@ When the agent answers "your pipeline timed out at 9am UTC on April 14", you can
 
 Honest accounting. Storing `source_episode_ids` per memory adds:
 
-- **Storage**: a small array of UUIDs per memory. For a million memories averaging three source episodes each, that's ~3M UUIDs — call it 50 MB. Trivial relative to the embeddings.
-- **Compute**: zero at retrieval time — the IDs are already on the memory row, no extra lookup unless you want to fetch the source episodes themselves.
-- **API surface**: one extra field on the memory shape, one optional `expand=episodes` parameter on the context endpoint for callers who want the raw events alongside the compiled facts.
+<div className="section-eyebrow mt-8 mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">The honest cost</div>
+
+<div className="rounded-2xl border border-brand-500/25 bg-brand-500/[0.05] p-6 sm:p-7">
+<ul className="!my-0 !pl-0 space-y-3 list-none">
+<li className="flex items-start gap-3"><span className="mt-3.5 h-px w-3 shrink-0 bg-brand-500" /><span><strong className="text-theme-primary">Storage</strong> — a small array of UUIDs per memory. For a million memories averaging three source episodes each, that's ~3M UUIDs — call it 50 MB. Trivial relative to the embeddings.</span></li>
+<li className="flex items-start gap-3"><span className="mt-3.5 h-px w-3 shrink-0 bg-brand-500" /><span><strong className="text-theme-primary">Compute</strong> — zero at retrieval time. The IDs are already on the memory row, no extra lookup unless you want to fetch the source episodes themselves.</span></li>
+<li className="flex items-start gap-3"><span className="mt-3.5 h-px w-3 shrink-0 bg-brand-500" /><span><strong className="text-theme-primary">API surface</strong> — one extra field on the memory shape, one optional `expand=episodes` parameter on the context endpoint for callers who want the raw events alongside the compiled facts.</span></li>
+</ul>
+</div>
 
 That's it. No separate audit-log service. No log shipping pipeline to keep alive. No retention conflict between the operational data and the audit data — they're the same data, in the same Postgres, with the same lifecycle.
 
@@ -58,7 +64,9 @@ This isn't a feature you bolt on for an enterprise tier. It's the data model. Th
 
 ### 3. Trust
 
-The thing that breaks user trust in AI agents isn't being wrong sometimes — it's being wrong *and unable to explain why*. A support agent that says "your subscription is on the Pro plan because that's what you told us on April 12" is qualitatively different from one that says "your subscription is on the Pro plan" full stop. The first is auditable. The second is confidence theater.
+> The thing that breaks user trust in AI agents isn't being wrong sometimes — it's being wrong *and unable to explain why*.
+
+A support agent that says "your subscription is on the Pro plan because that's what you told us on April 12" is qualitatively different from one that says "your subscription is on the Pro plan" full stop. The first is auditable. The second is confidence theater.
 
 Provenance gives the agent the language to be honest about where its knowledge came from — and gives the human reviewer the language to verify it.
 
@@ -70,7 +78,7 @@ There's a school of thought that says provenance is an enterprise feature: ship 
 2. **The auditing audience is the same as the technical audience.** Engineers debugging the agent in dev want the same chain a compliance officer wants in prod. Building two paths to the same answer (a dev "trace" and a prod "audit log") doubles the surface area for bugs.
 3. **It's a forcing function for honest storage.** If every memory has to carry its sources, you can't sneak a "memory" in that isn't backed by an episode. The compiler can't hallucinate. The agent's "knowledge" is bounded by what actually happened.
 
-Provenance ends up being a constraint that makes the whole system easier to reason about, not a tax you pay for compliance theater.
+> Provenance ends up being a constraint that makes the whole system easier to reason about, not a tax you pay for compliance theater.
 
 ## What this looks like in the API
 
