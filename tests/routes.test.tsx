@@ -72,6 +72,16 @@ describe('Route rendering', () => {
     })
   })
 
+  it('renders vs-mem0 comparison page at /vs/mem0', async () => {
+    renderApp('/vs/mem0')
+    await waitFor(() => {
+      expect(screen.getByRole('main')).toBeInTheDocument()
+    })
+    await waitFor(() => {
+      expect(screen.getByText(/statewave decides what.s delivered/i)).toBeInTheDocument()
+    })
+  })
+
   it('renders 404 for unknown routes', async () => {
     renderApp('/unknown-page')
     await waitFor(() => {

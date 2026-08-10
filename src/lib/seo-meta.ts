@@ -47,6 +47,7 @@ export type RouteKey =
   | '/use-cases/personal-assistant-memory'
   | '/use-cases/multi-agent-shared-context'
   | '/use-cases/grounded-shop-assistant'
+  | '/vs/mem0'
   | '/connectors'
   | '/developers'
   | '/about'
@@ -66,6 +67,7 @@ export const PUBLIC_ROUTES: readonly RouteKey[] = [
   '/use-cases/personal-assistant-memory',
   '/use-cases/multi-agent-shared-context',
   '/use-cases/grounded-shop-assistant',
+  '/vs/mem0',
   '/connectors',
   '/developers',
   '/about',
@@ -174,6 +176,15 @@ export const PAGE_META: Record<RouteKey, PageMeta> = {
     description:
       'A shopper and ops assistant pair that answers strictly from retrieved evidence, validates every citation against what was actually retrieved, and turns ungrounded questions into coverage-gap episodes the content team resolves.',
     breadcrumbLabel: 'Grounded Shop Assistant',
+    ogType: 'article',
+    priority: 0.7,
+    changefreq: 'monthly',
+  },
+  '/vs/mem0': {
+    title: 'Statewave vs. Mem0 — Deterministic Context vs. Ranked Retrieval',
+    description:
+      'How Statewave compares to Mem0: deterministic, token-bounded context assembly with policy enforcement and integrity-hashed receipts vs. ranked similarity retrieval — plus LoCoMo and LongMemEval benchmark results measured on Mem0’s own harness.',
+    breadcrumbLabel: 'vs Mem0',
     ogType: 'article',
     priority: 0.7,
     changefreq: 'monthly',
