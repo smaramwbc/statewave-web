@@ -26,6 +26,9 @@ import { usePageSEO } from '../lib/seo'
  */
 
 const REPO_URL = 'https://github.com/smaramwbc/statewave-memory-benchmarks'
+const UPSTREAM_REPO = 'https://github.com/mem0ai/memory-benchmarks'
+/** Diffs the fork against the upstream repo it forked from (not against itself). */
+const UPSTREAM_DIFF_URL = `${UPSTREAM_REPO}/compare/main...smaramwbc:statewave-memory-benchmarks:main`
 
 /* ─── Data ──────────────────────────────────────────────────────────────────
  * Every number rendered on this page derives from SYSTEMS. Deltas, bar
@@ -1137,10 +1140,7 @@ function Methodology() {
       {/* Both links leave for the repo, so neither takes the gradient — the
           page's primary action is the "Run it" section directly below. */}
       <div className="mt-10 flex flex-wrap items-center gap-3.5">
-        <Button
-          href={`${REPO_URL}/compare/main...smaramwbc:statewave-memory-benchmarks:main`}
-          variant="secondary"
-        >
+        <Button href={UPSTREAM_DIFF_URL} variant="secondary">
           Diff the fork against upstream →
         </Button>
         <Button href={`${REPO_URL}/blob/main/NOTICE`} variant="secondary">
@@ -2043,26 +2043,40 @@ function Faq() {
 function ClosingCta() {
   return (
     <Section>
-      <div className="relative">
-        <div className="section-glow" aria-hidden="true" />
-        <div className="relative overflow-hidden rounded-3xl border border-theme-border bg-surface-1 px-8 py-14 text-center shadow-sm sm:px-10">
-          <p className="font-mono text-xs font-semibold uppercase tracking-wide text-accent">
-            Don&apos;t take our word for it
+      <div className="cta-card relative overflow-hidden rounded-[2.5rem] border border-brand-500/25 bg-surface-1/55 px-6 py-20 text-center">
+        <div className="cta-card-glow absolute inset-0" aria-hidden="true" />
+
+        <div
+          className="absolute inset-x-20 top-0 h-px bg-gradient-to-r from-transparent via-brand-500/60 to-transparent"
+          aria-hidden="true"
+        />
+
+        <div className="relative z-10 mx-auto max-w-4xl">
+          <div className="section-eyebrow mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
+            BENCHMARKS
+          </div>
+
+          <Heading
+            id="fork-the-harness"
+            className="font-heading text-4xl md:text-[64px] font-bold leading-[1.02] tracking-[-0.04em] text-theme-primary"
+          >
+            Don&apos;t take our word for it.{' '}
+            <span className="text-gradient-brand">Fork the harness</span>
+          </Heading>
+
+          <p className="mx-auto mt-6 max-w-2xl text-[20px] leading-[1.65] text-theme-secondary/85">
+            Apache-2.0, one code path, mem0&apos;s own judge unchanged. Clone
+            it, diff it against upstream, reproduce every result.
           </p>
-          <h2 className="mx-auto mt-3.5 max-w-[20ch] font-heading text-3xl font-bold tracking-[-0.02em] text-theme-primary md:text-4xl">
-            Fork the harness and re-run every number yourself
-          </h2>
-          <p className="mx-auto mt-4 max-w-xl text-base text-theme-secondary text-pretty">
-            Apache-2.0, one code path, mem0&apos;s own judge unchanged. Clone it, diff it against
-            upstream, reproduce every result.
-          </p>
-          <div className="mx-auto mt-8 flex flex-wrap justify-center gap-3">
+
+          <div className="mt-10 flex flex-wrap justify-center gap-4">
             <Button href={REPO_URL} size="lg">
               <GitHubIcon className="h-4 w-4" />
               Fork it on GitHub
             </Button>
+
             <Button to="/" variant="secondary" size="lg">
-              Explore Statewave →
+              Explore Statewave
             </Button>
           </div>
         </div>
