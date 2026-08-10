@@ -12,7 +12,9 @@ tags:
 
 Most teams building on LLMs end up with two patterns in the same codebase: **RAG** for looking things up in a corpus, and some hand-rolled **memory** for remembering what the agent has done or what the user has said. The two are often confused, and the confusion costs real engineering time when one is used in place of the other.
 
-A short, accurate version: RAG retrieves *content the agent doesn't already know*; memory retrieves *context the agent has already participated in*. They share a vector store but they answer different questions, store different shapes of data, and have different correctness requirements.
+> RAG retrieves *content the agent doesn't already know*. Memory retrieves *context the agent has already participated in*.
+
+They share a vector store but they answer different questions, store different shapes of data, and have different correctness requirements.
 
 ## The shared substrate
 
@@ -37,9 +39,15 @@ You can paper over each of these in your application code. Teams that do end up 
 
 A memory runtime adds three things on top of the vector store:
 
-- **Compilation**: a pass over raw episodes that produces typed memories — profile facts, preferences, procedures, episode summaries — with confidence scores and validity windows. This is what shrinks 200 turns into one fact.
-- **Deterministic ranking**: scoring that mixes similarity with kind priority (a procedure beats a casual mention), recency, temporal validity, and an explicit token budget. Same query → same bundle. No silent re-ordering.
-- **Provenance**: every compiled memory carries the IDs of the episodes it was derived from. When an agent answers from memory, the answer is auditable back to the raw event that produced it.
+<div className="section-eyebrow mt-8 mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">What memory adds</div>
+
+<div className="rounded-2xl border border-brand-500/25 bg-brand-500/[0.05] p-6 sm:p-7">
+<ul className="!my-0 !pl-0 space-y-3 list-none">
+<li className="flex items-start gap-3"><span className="mt-3.5 h-px w-3 shrink-0 bg-brand-500" /><span><strong className="text-theme-primary">Compilation</strong> — a pass over raw episodes that produces typed memories — profile facts, preferences, procedures, episode summaries — with confidence scores and validity windows. This is what shrinks 200 turns into one fact.</span></li>
+<li className="flex items-start gap-3"><span className="mt-3.5 h-px w-3 shrink-0 bg-brand-500" /><span><strong className="text-theme-primary">Deterministic ranking</strong> — scoring that mixes similarity with kind priority (a procedure beats a casual mention), recency, temporal validity, and an explicit token budget. Same query → same bundle. No silent re-ordering.</span></li>
+<li className="flex items-start gap-3"><span className="mt-3.5 h-px w-3 shrink-0 bg-brand-500" /><span><strong className="text-theme-primary">Provenance</strong> — every compiled memory carries the IDs of the episodes it was derived from. When an agent answers from memory, the answer is auditable back to the raw event that produced it.</span></li>
+</ul>
+</div>
 
 None of those are properties of "RAG" in the literature sense. They're what makes memory infrastructure rather than retrieval over chat logs.
 
@@ -53,7 +61,9 @@ None of those are properties of "RAG" in the literature sense. They're what make
 | Mutability | Append-only chunks; reindex on doc update | Episodes append-only; memories supersede; compaction is idempotent |
 | Output | Top-K chunks | Token-bounded bundle ready to drop into a prompt |
 
-Most production agents need both. The grounding corpus (docs, knowledge base) lives in RAG. The user / account / project context lives in memory. Trying to make either pattern do the other's job is the common architecture mistake — and it's the one we built Statewave to stop people from making.
+Most production agents need both. The grounding corpus (docs, knowledge base) lives in RAG. The user / account / project context lives in memory.
+
+> Trying to make either pattern do the other's job is the common architecture mistake — and it's the one we built Statewave to stop people from making.
 
 ## What Statewave is in this picture
 
