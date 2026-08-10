@@ -784,6 +784,24 @@ html[data-theme="dark"] .connector-logo-black {
   border: 0;
 }
 
+/* Collapsible FAQ entries inside blog post MDX content — mirrors the
+   home page's <details>/<summary> FAQ (HomePage.tsx FAQSection), but that
+   one uses Tailwind's `group-open:` variant, which needs a literal
+   `group` class on the ancestor. Blog posts are hand-authored MDX, so a
+   plain CSS rule keyed off :where([open]) is more robust than asking every
+   post author to remember the `group` class. */
+.blog-faq summary::-webkit-details-marker {
+  display: none;
+}
+
+.blog-faq-chevron {
+  transition: transform 0.2s ease;
+}
+
+.blog-faq:where([open]) .blog-faq-chevron {
+  transform: rotate(180deg);
+}
+
 /* ==========================================================================
    Product page
    ========================================================================== */
