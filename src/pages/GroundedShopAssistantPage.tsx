@@ -8,7 +8,7 @@ import { UseCaseSwitcher } from '../components/UseCaseSwitcher'
 import { usePageSEO } from '../lib/seo'
 import { breadcrumbJsonLd } from '../lib/seo-meta'
 
-const REPO_URL = 'https://github.com/Infrasity-Labs/statewave-grounded-shop-assistant'
+const REPO_URL = 'https://github.com/smaramwbc/statewave-grounded-shop-assistant'
 
 /* Mockups below use the `--viz-*` tokens (src/index.css) so their neutrals
  * flip with the light/dark theme while the grounded/gap accents stay
