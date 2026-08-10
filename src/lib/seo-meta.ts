@@ -46,6 +46,7 @@ export type RouteKey =
   | '/use-cases/multi-agent-memory'
   | '/use-cases/personal-assistant-memory'
   | '/use-cases/multi-agent-shared-context'
+  | '/use-cases/grounded-shop-assistant'
   | '/connectors'
   | '/developers'
   | '/about'
@@ -64,6 +65,7 @@ export const PUBLIC_ROUTES: readonly RouteKey[] = [
   '/use-cases/multi-agent-memory',
   '/use-cases/personal-assistant-memory',
   '/use-cases/multi-agent-shared-context',
+  '/use-cases/grounded-shop-assistant',
   '/connectors',
   '/developers',
   '/about',
@@ -163,6 +165,15 @@ export const PAGE_META: Record<RouteKey, PageMeta> = {
     description:
       'Coordinate parallel AI agents through one shared, authoritative context layer instead of message-passing: every decision is written as an episode, compiled into typed memories, and read by every agent before it acts, so conflicts are prevented rather than detected after wasted compute.',
     breadcrumbLabel: 'Shared Context',
+    ogType: 'article',
+    priority: 0.7,
+    changefreq: 'monthly',
+  },
+  '/use-cases/grounded-shop-assistant': {
+    title: 'Grounded Shop Assistant — Cited Answers with a Closed-Loop Coverage Gap',
+    description:
+      'A shopper and ops assistant pair that answers strictly from retrieved evidence, validates every citation against what was actually retrieved, and turns ungrounded questions into coverage-gap episodes the content team resolves.',
+    breadcrumbLabel: 'Grounded Shop Assistant',
     ogType: 'article',
     priority: 0.7,
     changefreq: 'monthly',

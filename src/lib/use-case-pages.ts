@@ -30,6 +30,11 @@ export const USE_CASE_DETAIL_PAGES: readonly UseCaseDetailPage[] = [
     label: 'Shared Context',
     path: '/use-cases/multi-agent-shared-context',
   },
+  {
+    slug: 'grounded-shop-assistant',
+    label: 'Grounded Shop Assistant',
+    path: '/use-cases/grounded-shop-assistant',
+  },
 ] as const
 
 export function useCaseDetailPage(
