@@ -27,6 +27,7 @@ interface NavLink {
 const links: NavLink[] = [
   { to: '/product', label: 'How it works' },
   { to: '/why', label: 'Why Statewave' },
+  { to: '/benchmarks', label: 'Benchmarks' },
   { to: '/use-cases', label: 'Use Cases' },
   { to: '/connectors', label: 'Connectors' },
   { to: '/developers', label: 'Developers' },

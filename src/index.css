@@ -79,7 +79,7 @@
  *
  * Border opacity stays at 0.06: against #fafbfc the contrast is gentler
  * than against #fff but still defines edges cleanly. Text-primary stays at
- * slate-900 — the issue was the bg, not the foreground.
+ * slate-900. The issue was the bg, not the foreground.
  */
 [data-theme="light"] {
   --theme-surface-0: #FAFBFD;
@@ -97,7 +97,7 @@
   --theme-selection: rgba(99, 102, 241, 0.15);
   --theme-hero-particle: #4f46e5;
   --theme-hero-opacity: 0.35;
-  /* Slightly stronger in light mode — the near-white surface needs the
+  /* Slightly stronger in light mode: the near-white surface needs the
      texture more than the dark theme does. */
   --theme-hero-dot: rgba(2, 6, 23, 0.06);
   --theme-hero-overlay-from: rgba(250, 251, 252, 0.5);
@@ -146,6 +146,16 @@
   --viz-green: var(--color-success);
   --viz-amber: #F2D16B;
 
+  /* Benchmark chart series (/benchmarks scoreboard, /vs/mem0). Categorical:
+   * each hue identifies one system, never its rank. Dark-mode steps are
+   * chosen against the --theme-surface-1 card (#0C1833), not flipped from
+   * the light set, and validated for the OKLCH lightness band, chroma
+   * floor, adjacent-pair CVD separation (worst pair ΔE 14.3 deutan, target
+   * >= 8), and 3:1 contrast. Re-run the validator if you change these. */
+  --series-statewave: #5E8CFF;
+  --series-mem0-cloud: #CC7A0D;
+  --series-mem0-oss: #12A594;
+
   --viz-code-text: #C7D6F2;
   --viz-code-muted: #7385A8;
   --viz-code-keyword: #8FA5FF;
@@ -183,6 +193,12 @@
   --viz-green: #059669;
   --viz-amber: #B45309;
 
+  /* Benchmark chart series, light-mode steps, validated against the
+   * --theme-surface-1 card (#F2F6FC). See the dark block for the contract. */
+  --series-statewave: #4A72E8;
+  --series-mem0-cloud: #B86A08;
+  --series-mem0-oss: #0D9488;
+
   --viz-code-text: #334155;
   --viz-code-muted: #64748B;
   --viz-code-keyword: #4F46E5;
@@ -198,7 +214,7 @@ html {
   scroll-behavior: smooth;
   /* Anchor links (e.g. /product#privacy) and programmatic scrolls land
    * below the 60px fixed navbar instead of being clipped by it. No snap
-   * here — proximity-based scroll-snap fought trackpad momentum and made
+   * here. Proximity-based scroll-snap fought trackpad momentum and made
    * the page feel sticky. */
   scroll-padding-top: 80px;
   /* Prevents iOS Safari bouncing the body (and its rubber-band background)
@@ -290,7 +306,7 @@ html[data-scroll-lock="true"] body {
  * element with a `transition` on a property tied to those variables (body
  * bg, card backgrounds, borders) starts an interpolation. The custom
  * scrollbar thumb is alpha-tinted, so as the body background transitions
- * underneath it, the thumb appears to change color through wrong shades —
+ * underneath it, the thumb appears to change color through wrong shades,
  * reading as "flicker."
  *
  * Standard fix: ThemeProvider toggles `theme-switching` on <html> for one
@@ -345,7 +361,7 @@ textarea:disabled {
   cursor: not-allowed;
 }
 
-/* Hero hint chip — attention bounce + subtle scale pulse */
+/* Hero hint chip: attention bounce + subtle scale pulse */
 @keyframes heroHintBounce {
 
   0%,
@@ -396,7 +412,7 @@ textarea:disabled {
   z-index: 1;
 }
 
-/* For elements that already have a corner radius — keep theirs. */
+/* For elements that already have a corner radius, keep theirs. */
 .tour-pulse--inherit-radius {
   border-radius: inherit;
 }
@@ -444,7 +460,7 @@ textarea:disabled {
  *
  * Theme-switch flicker fix: the scrollbar properties live on `html` (they're
  * inherited, so a global `*` selector is wasteful and causes unnecessary
- * style recalc on every theme swap). The thumb has NO transition either —
+ * style recalc on every theme swap). The thumb has NO transition either,
  * WebKit pseudo-element transitions are unreliable and produce a visible
  * flash when interpolating between the dark and light alpha values during a
  * theme change. Snappier is better here; the body's bg fade carries the
@@ -633,12 +649,34 @@ h6 {
   opacity: .45;
 }
 
+/* For sections that bring their own color — the /benchmarks scoreboard and
+   /vs/mem0 comparison charts run saturated categorical series hues — so the
+   ambient wash stays behind the data instead of washing over it. */
+.section-glow--soft {
+  opacity: .4;
+}
+
+[data-theme="light"] .section-glow--soft {
+  opacity: .2;
+}
+
 .install-cmd-field {
   box-shadow: 0 12px 35px rgba(0, 0, 0, .14);
 }
 
 [data-theme="light"] .install-cmd-field {
   box-shadow: 0 6px 18px rgba(30, 41, 59, .06);
+}
+
+/* For sections that bring their own color — the /benchmarks scoreboard runs
+   three saturated categorical hues — so the ambient wash stays behind the data
+   instead of washing over it. */
+.section-glow--soft {
+  opacity: .4;
+}
+
+[data-theme="light"] .section-glow--soft {
+  opacity: .2;
 }
 
 /* ==========================================================================

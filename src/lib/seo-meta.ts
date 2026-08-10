@@ -41,10 +41,13 @@ export type RouteKey =
   | '/'
   | '/product'
   | '/why'
+  | '/benchmarks'
   | '/use-cases'
   | '/use-cases/multi-agent-memory'
   | '/use-cases/personal-assistant-memory'
   | '/use-cases/multi-agent-shared-context'
+  | '/use-cases/grounded-shop-assistant'
+  | '/vs/mem0'
   | '/connectors'
   | '/developers'
   | '/about'
@@ -58,10 +61,13 @@ export const PUBLIC_ROUTES: readonly RouteKey[] = [
   '/',
   '/product',
   '/why',
+  '/benchmarks',
   '/use-cases',
   '/use-cases/multi-agent-memory',
   '/use-cases/personal-assistant-memory',
   '/use-cases/multi-agent-shared-context',
+  '/use-cases/grounded-shop-assistant',
+  '/vs/mem0',
   '/connectors',
   '/developers',
   '/about',
@@ -117,6 +123,18 @@ export const PAGE_META: Record<RouteKey, PageMeta> = {
     priority: 0.8,
     changefreq: 'monthly',
   },
+  '/benchmarks': {
+    title: 'Statewave Benchmarks: LoCoMo & LongMemEval vs. mem0',
+    description:
+      "Statewave beats mem0 OSS on both LoCoMo and LongMemEval, run on mem0's own harness at gpt-4o, and edges the paid mem0 cloud tier while staying free and self-hosted. Apache-2.0, fully reproducible.",
+    breadcrumbLabel: 'Benchmarks',
+    // Long-form editorial with a methodology and a scope section, not a
+    // landing page: 'article' is what tells social scrapers and answer
+    // engines to treat it as the writeup it is.
+    ogType: 'article',
+    priority: 0.9,
+    changefreq: 'monthly',
+  },
   '/use-cases': {
     title: 'Use Cases — Memory for Support Agents, Copilots, and AI Apps',
     description:
@@ -149,6 +167,24 @@ export const PAGE_META: Record<RouteKey, PageMeta> = {
     description:
       'Coordinate parallel AI agents through one shared, authoritative context layer instead of message-passing: every decision is written as an episode, compiled into typed memories, and read by every agent before it acts, so conflicts are prevented rather than detected after wasted compute.',
     breadcrumbLabel: 'Shared Context',
+    ogType: 'article',
+    priority: 0.7,
+    changefreq: 'monthly',
+  },
+  '/use-cases/grounded-shop-assistant': {
+    title: 'Grounded Shop Assistant — Cited Answers with a Closed-Loop Coverage Gap',
+    description:
+      'A shopper and ops assistant pair that answers strictly from retrieved evidence, validates every citation against what was actually retrieved, and turns ungrounded questions into coverage-gap episodes the content team resolves.',
+    breadcrumbLabel: 'Grounded Shop Assistant',
+    ogType: 'article',
+    priority: 0.7,
+    changefreq: 'monthly',
+  },
+  '/vs/mem0': {
+    title: 'Statewave vs. Mem0 — Deterministic Context vs. Ranked Retrieval',
+    description:
+      'How Statewave compares to Mem0: deterministic, token-bounded context assembly with policy enforcement and integrity-hashed receipts vs. ranked similarity retrieval — plus LoCoMo and LongMemEval benchmark results measured on Mem0’s own harness.',
+    breadcrumbLabel: 'vs Mem0',
     ogType: 'article',
     priority: 0.7,
     changefreq: 'monthly',

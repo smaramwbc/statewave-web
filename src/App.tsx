@@ -9,10 +9,13 @@ const UseCasesPage = lazy(() => import('./pages/UseCasesPage').then(m => ({ defa
 const MultiAgentMemoryPage = lazy(() => import('./pages/MultiAgentMemoryPage').then(m => ({ default: m.MultiAgentMemoryPage })))
 const PersonalAssistantMemoryPage = lazy(() => import('./pages/PersonalAssistantMemoryPage').then(m => ({ default: m.PersonalAssistantMemoryPage })))
 const MultiAgentSharedContextPage = lazy(() => import('./pages/MultiAgentSharedContextPage').then(m => ({ default: m.MultiAgentSharedContextPage })))
+const GroundedShopAssistantPage = lazy(() => import('./pages/GroundedShopAssistantPage').then(m => ({ default: m.GroundedShopAssistantPage })))
+const StatewaveVsMem0Page = lazy(() => import('./pages/StatewaveVsMem0Page').then(m => ({ default: m.StatewaveVsMem0Page })))
 const ConnectorsPage = lazy(() => import('./pages/ConnectorsPage').then(m => ({ default: m.ConnectorsPage })))
 const DevelopersPage = lazy(() => import('./pages/DevelopersPage').then(m => ({ default: m.DevelopersPage })))
 const CookiesPage = lazy(() => import('./pages/CookiesPage').then(m => ({ default: m.CookiesPage })))
 const LaunchPage = lazy(() => import('./pages/LaunchPage').then(m => ({ default: m.LaunchPage })))
+const BenchmarksPage = lazy(() => import('./pages/BenchmarksPage').then(m => ({ default: m.BenchmarksPage })))
 const PressPage = lazy(() => import('./pages/PressPage').then(m => ({ default: m.PressPage })))
 const WhitepaperPage = lazy(() => import('./pages/WhitepaperPage').then(m => ({ default: m.WhitepaperPage })))
 const DemoPage = lazy(() => import('./pages/DemoPage').then(m => ({ default: m.DemoPage })))
@@ -36,9 +39,12 @@ export default function App() {
           <Route path="/use-cases/multi-agent-memory" element={<MultiAgentMemoryPage />} />
           <Route path="/use-cases/personal-assistant-memory" element={<PersonalAssistantMemoryPage />} />
           <Route path="/use-cases/multi-agent-shared-context" element={<MultiAgentSharedContextPage />} />
+          <Route path="/use-cases/grounded-shop-assistant" element={<GroundedShopAssistantPage />} />
+          <Route path="/vs/mem0" element={<StatewaveVsMem0Page />} />
           <Route path="/connectors" element={<ConnectorsPage />} />
           <Route path="/developers" element={<DevelopersPage />} />
           <Route path="/launch" element={<LaunchPage />} />
+          <Route path="/benchmarks" element={<BenchmarksPage />} />
           <Route path="/press" element={<PressPage />} />
           <Route path="/whitepaper" element={<WhitepaperPage />} />
           <Route path="/demo" element={<DemoPage />} />

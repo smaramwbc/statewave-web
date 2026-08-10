@@ -27,6 +27,7 @@ export function Footer() {
               <li><Link to="/product" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">How it works</Link></li>
               <li><Link to="/why" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">Why Statewave</Link></li>
               <li><Link to="/use-cases" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">Use Cases</Link></li>
+              <li><Link to="/vs/mem0" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">vs Mem0</Link></li>
               <li><Link to="/connectors" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">Connectors</Link></li>
               <li>
                 <button
@@ -49,6 +50,7 @@ export function Footer() {
               <li><a href="https://github.com/smaramwbc/statewave-py" target="_blank" rel="noopener noreferrer" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">Python SDK</a></li>
               <li><a href="https://github.com/smaramwbc/statewave-ts" target="_blank" rel="noopener noreferrer" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">TypeScript SDK</a></li>
               <li><Link to="/whitepaper" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">White paper</Link></li>
+              <li><Link to="/benchmarks" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">Benchmarks</Link></li>
             </ul>
           </div>
 

@@ -190,6 +190,17 @@ export function BlogPostPage() {
             <p className="mt-6 text-xs text-theme-muted">
               By {post.meta.author}
             </p>
+
+            {post.meta.headerImage && (
+              <img
+                src={post.meta.headerImage}
+                alt=""
+                aria-hidden="true"
+                className="mt-8 w-full h-auto rounded-2xl border border-brand-500/20"
+                width={1600}
+                height={640}
+              />
+            )}
           </div>
         </div>
       </section>
