@@ -15,7 +15,14 @@ import App from './App'
 // uses — single source of truth, no duplicate front-matter parsing.
 export { BLOG_POSTS, blogPostUrl } from './lib/blog'
 export type { BlogPostFrontmatter, BlogPost } from './lib/blog'
-export { PUBLIC_ROUTES, PAGE_META, BASE_URL, canonicalUrl } from './lib/seo-meta'
+export {
+  PUBLIC_ROUTES,
+  PAGE_META,
+  BASE_URL,
+  canonicalUrl,
+  DEFAULT_OG_IMAGE,
+  DEFAULT_OG_IMAGE_ALT,
+} from './lib/seo-meta'
 
 /* Render the SPA tree for a single URL into an HTML string. Used by the
  * post-build pipeline to bake each route's static markup into dist/ so

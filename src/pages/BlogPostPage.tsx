@@ -3,7 +3,7 @@ import { MDXProvider } from '@mdx-js/react'
 import { ClientOnly } from '../components/ClientOnly'
 import { usePageSEO } from '../lib/seo'
 import { getPostBySlug, BLOG_POSTS, blogPostUrl } from '../lib/blog'
-import { BASE_URL, breadcrumbJsonLd } from '../lib/seo-meta'
+import { BASE_URL, DEFAULT_OG_IMAGE, breadcrumbJsonLd } from '../lib/seo-meta'
 import { GiscusComments } from '../components/GiscusComments'
 
 /* /blog/:slug post page.
@@ -89,6 +89,7 @@ export function BlogPostPage() {
   const { slug } = useParams<{ slug: string }>()
   const post = slug ? getPostBySlug(slug) : undefined
   const url = post ? `${BASE_URL}${blogPostUrl(post.meta.slug)}` : ''
+  const postImage = post?.meta.image ? `${BASE_URL}${post.meta.image}` : DEFAULT_OG_IMAGE
 
   // usePageSEO is called unconditionally to satisfy rules-of-hooks even
   // on the unknown-slug path. When `post` is undefined the JSON-LD list
@@ -101,6 +102,8 @@ export function BlogPostPage() {
         title: `${post.meta.title} — Statewave Blog`,
         description: post.meta.description,
         ogType: 'article',
+        ogImage: postImage,
+        ogImageAlt: post.meta.image ? post.meta.title : undefined,
         jsonLd: [
           {
             '@context': 'https://schema.org',
@@ -126,7 +129,7 @@ export function BlogPostPage() {
             },
             mainEntityOfPage: { '@type': 'WebPage', '@id': url },
             keywords: post.meta.tags?.join(', '),
-            image: `${BASE_URL}/og-image.png`,
+            image: postImage,
           },
           breadcrumbJsonLd([
             { name: 'Home', path: '/' },
