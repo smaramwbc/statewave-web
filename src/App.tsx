@@ -13,6 +13,7 @@ const ConnectorsPage = lazy(() => import('./pages/ConnectorsPage').then(m => ({ 
 const DevelopersPage = lazy(() => import('./pages/DevelopersPage').then(m => ({ default: m.DevelopersPage })))
 const CookiesPage = lazy(() => import('./pages/CookiesPage').then(m => ({ default: m.CookiesPage })))
 const LaunchPage = lazy(() => import('./pages/LaunchPage').then(m => ({ default: m.LaunchPage })))
+const BenchmarksPage = lazy(() => import('./pages/BenchmarksPage').then(m => ({ default: m.BenchmarksPage })))
 const PressPage = lazy(() => import('./pages/PressPage').then(m => ({ default: m.PressPage })))
 const WhitepaperPage = lazy(() => import('./pages/WhitepaperPage').then(m => ({ default: m.WhitepaperPage })))
 const DemoPage = lazy(() => import('./pages/DemoPage').then(m => ({ default: m.DemoPage })))
@@ -39,6 +40,7 @@ export default function App() {
           <Route path="/connectors" element={<ConnectorsPage />} />
           <Route path="/developers" element={<DevelopersPage />} />
           <Route path="/launch" element={<LaunchPage />} />
+          <Route path="/benchmarks" element={<BenchmarksPage />} />
           <Route path="/press" element={<PressPage />} />
           <Route path="/whitepaper" element={<WhitepaperPage />} />
           <Route path="/demo" element={<DemoPage />} />
