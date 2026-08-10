@@ -21,10 +21,20 @@ pgvector is a Postgres extension that adds a `vector(N)` column type, ANN indexe
 
 The honest tradeoff with pgvector versus a purpose-built vector DB (Pinecone, Weaviate, Milvus, Qdrant):
 
-- **You give up**: marginal recall-vs-latency on extreme corpora (>50M vectors / sub-millisecond p99 SLAs), some advanced filtering optimizations, the vendor's prebuilt management UI.
-- **You get**: one durable substrate, transactional consistency between embeddings and the rows they describe, the entire Postgres operational toolkit (PITR, replicas, pgbouncer, observability), no second source of truth to keep in sync.
+<div className="section-eyebrow mt-8 mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">The honest tradeoff</div>
 
-For a memory runtime, the transactional consistency is the win. When a compiled memory references its source episodes, you want that reference to be enforceable as a foreign key, not a "best-effort soft pointer maintained by application code." With pgvector, it just is.
+<div className="rounded-2xl border border-brand-500/25 bg-brand-500/[0.05] p-6 sm:p-7">
+<ul className="!my-0 !pl-0 space-y-3 list-none">
+<li className="flex items-start gap-3"><span className="mt-3.5 h-px w-3 shrink-0 bg-brand-500" /><span><strong className="text-theme-primary">You give up</strong> — marginal recall-vs-latency on extreme corpora (&gt;50M vectors / sub-millisecond p99 SLAs), some advanced filtering optimizations, the vendor's prebuilt management UI.</span></li>
+<li className="flex items-start gap-3"><span className="mt-3.5 h-px w-3 shrink-0 bg-brand-500" /><span><strong className="text-theme-primary">You get</strong> — one durable substrate, transactional consistency between embeddings and the rows they describe, the entire Postgres operational toolkit (PITR, replicas, pgbouncer, observability), no second source of truth to keep in sync.</span></li>
+</ul>
+</div>
+
+For a memory runtime, the transactional consistency is the win.
+
+> When a compiled memory references its source episodes, you want that reference to be enforceable as a foreign key, not a "best-effort soft pointer maintained by application code."
+
+With pgvector, it just is.
 
 ## Why one database
 
@@ -68,4 +78,6 @@ Apache-2.0 server, Apache-2.0 SDKs, Apache-2.0 connectors. No "community edition
 
 What we offer commercially, separate from the code: SLA, indemnity, architecture review, managed hosting if you want us to operate Postgres-plus-Statewave for you. None of that gates features in the open source. If you can run Postgres, you can run Statewave forever, for free, with the same code we'd run for an enterprise customer.
 
-That's the deal — Postgres-only, transactional consistency, no managed-cloud lock-in. The trade is real (we're not the world's fastest vector recall) and we think it's the right one for a memory layer where the audit trail matters more than the marginal millisecond.
+> That's the deal — Postgres-only, transactional consistency, no managed-cloud lock-in.
+
+The trade is real (we're not the world's fastest vector recall) and we think it's the right one for a memory layer where the audit trail matters more than the marginal millisecond.
