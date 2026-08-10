@@ -4,13 +4,17 @@ slug: persistent-memory-for-ai-support-agents
 date: "2026-05-25T09:00:00+02:00"
 description: A practical walkthrough of giving a support agent durable memory of customers across sessions — what to record, how to compile it, how to retrieve it, and what to expect from the support workflow benchmark.
 author: Statewave team
+image: /images/blog/persistent-memory-for-ai-support-agents/og.png
+headerImage: /images/blog/persistent-memory-for-ai-support-agents/header.png
 tags:
   - support
   - tutorial
   - memory
 ---
 
-Support is the workload where missing memory hurts most. A customer who told you yesterday that their pipeline runs on Snowflake shouldn't have to say it again today. A subscription user shouldn't have to re-explain their plan tier to every new agent. And the agent shouldn't be guessing — it should be able to *cite* where it learned each fact.
+Support is the workload where missing memory hurts most. A customer who told you yesterday that their pipeline runs on Snowflake shouldn't have to say it again today. A subscription user shouldn't have to re-explain their plan tier to every new agent.
+
+> The agent shouldn't be guessing — it should be able to *cite* where it learned each fact.
 
 This post walks through giving a support agent persistent customer memory with Statewave. It's about 30 minutes of work end-to-end, and the result is an agent that remembers across sessions with the same audit trail a human support engineer would leave.
 
@@ -94,7 +98,7 @@ about this customer when relevant:
 Cite the source episode IDs above when you reference a remembered fact.
 ```
 
-That `Cite the source episode IDs` instruction is what turns the agent from "AI that confidently makes things up" into one that points at receipts.
+> That `Cite the source episode IDs` instruction is what turns the agent from "AI that confidently makes things up" into one that points at receipts.
 
 ## What the benchmark measures
 
@@ -115,8 +119,14 @@ A naive prompt-stuffing baseline (concatenate the last N turns) scores 2/8. A St
 
 A few things the memory layer deliberately doesn't do:
 
-- **It doesn't replace your knowledge base.** Product docs, runbooks, troubleshooting articles still belong in your RAG stack. Statewave handles the *who you're talking to* layer, not the *what does the documentation say* layer.
-- **It doesn't make personally identifying information safe by itself.** Storage encryption, access control, retention policies, GDPR / CCPA flows are your platform's job. Statewave gives you the substrate; the policy is yours.
-- **It doesn't ship a routing engine.** Statewave returns ranked context. Deciding whether to escalate, hand off to a human, or close the ticket is your application logic.
+<div className="section-eyebrow mt-8 mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">What this doesn't solve</div>
+
+<div className="rounded-2xl border border-brand-500/25 bg-brand-500/[0.05] p-6 sm:p-7">
+<ul className="!my-0 !pl-0 space-y-3 list-none">
+<li className="flex items-start gap-3"><span className="mt-3.5 h-px w-3 shrink-0 bg-brand-500" /><span><strong className="text-theme-primary">It doesn't replace your knowledge base.</strong> Product docs, runbooks, troubleshooting articles still belong in your RAG stack. Statewave handles the *who you're talking to* layer, not the *what does the documentation say* layer.</span></li>
+<li className="flex items-start gap-3"><span className="mt-3.5 h-px w-3 shrink-0 bg-brand-500" /><span><strong className="text-theme-primary">It doesn't make personally identifying information safe by itself.</strong> Storage encryption, access control, retention policies, GDPR / CCPA flows are your platform's job. Statewave gives you the substrate; the policy is yours.</span></li>
+<li className="flex items-start gap-3"><span className="mt-3.5 h-px w-3 shrink-0 bg-brand-500" /><span><strong className="text-theme-primary">It doesn't ship a routing engine.</strong> Statewave returns ranked context. Deciding whether to escalate, hand off to a human, or close the ticket is your application logic.</span></li>
+</ul>
+</div>
 
 What it does ship is a memory layer that doesn't forget, with an audit trail you can show to a human reviewer or a compliance auditor. For a support agent, that's the difference between a demo and a deployment.

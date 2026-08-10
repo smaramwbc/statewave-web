@@ -28,6 +28,12 @@ export interface BlogPostFrontmatter {
    *  "/blog/my-post/cover.png"). Optional — falls back to the site-wide
    *  default OG image (DEFAULT_OG_IMAGE in lib/seo-meta.ts) when unset. */
   image?: string
+  /** Site-relative path to this post's banner image, shown inline at the
+   *  top of the post itself (below the title card, above the article
+   *  body). Separate from `image` (the OG/social-share card) because the
+   *  two can reasonably differ — this one renders on the page, `image`
+   *  never does. Optional — posts without one just skip the banner. */
+  headerImage?: string
 }
 
 export interface BlogPost {

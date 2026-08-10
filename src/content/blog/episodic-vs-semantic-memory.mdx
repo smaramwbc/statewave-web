@@ -1,0 +1,247 @@
+---
+title: "Episodic vs Semantic Memory in AI Agents: What to Store and When"
+slug: episodic-vs-semantic-memory
+date: "2026-08-07T09:00:00+02:00"
+description: Episodic memory stores what happened; semantic memory stores what's true. Here's how AI agents use each, when to convert one to the other, and how to store it.
+author: Statewave team
+image: /images/blog/episodic-vs-semantic-memory/og.png
+headerImage: /images/blog/episodic-vs-semantic-memory/header.png
+tags:
+  - memory
+  - episodic-memory
+  - semantic-memory
+  - agent-memory
+---
+
+Episodic memory stores what happened. Semantic memory stores what is true. An AI agent uses episodic memory to recall a specific past interaction, and semantic memory to hold general facts it can reuse across many of them.
+
+The split comes from psychologist Endel Tulving in 1972, and it now decides whether your agent remembers a user or forgets them the moment a session closes. In one 2025 enterprise benchmark, leading agents scored about 58% on single-turn tasks but only 35% on multi-turn ones, and lost context was a leading cause.
+
+This post is for engineers and technical founders building agents that need a past. You'll get a clear definition of each memory type, a rule for deciding what to store where, and the parts most guides skip: consolidation, invalidation, and retrieval that doesn't rely on similarity alone.
+
+## What is the difference between episodic and semantic memory?
+
+The cleanest definition still comes from Tulving's 1972 chapter "Episodic and Semantic Memory," in the book *Organization of Memory*. He proposed splitting long-term memory into two systems with different jobs.
+
+Semantic memory holds facts and meanings, which he described as functioning like a "mental thesaurus."
+
+Episodic memory holds personal experience tied to a specific time and place, or as he put it, "temporally dated episodes or events, and the temporal-spatial relations" among them.
+
+A short version you can carry into a design review: knowing what a cat is sits in semantic memory. Remembering the cat that walked across your keyboard last Tuesday sits in episodic memory. One is general and reusable. The other is specific, timestamped, and personal.
+
+Tulving himself called the distinction "an orienting attitude," not a hard wall, and argued the two systems depend on each other. That caveat matters for agents, because the line blurs the moment code has to decide what to write down. More on that below.
+
+## How do episodic and semantic memory work in AI agents?
+
+The mapping was formalized for language agents by the [CoALA paper](https://arxiv.org/abs/2309.02427) (Cognitive Architectures for Language Agents, 2023), which most memory frameworks now use as their taxonomy. It defines three long-term stores: semantic memory as facts about the world, episodic memory as sequences of the agent's past actions and experiences, and procedural memory as skills and rules.
+
+In practice, teams use each store differently. [LangChain's memory docs](https://docs.langchain.com/oss/python/concepts/memory) note that semantic memory is most often used to personalize an app: an LLM extracts facts from a conversation, and those facts are retrieved later and inserted into the system prompt. Episodic memory is often implemented as few-shot examples, showing the agent how a similar task was handled before rather than telling it.
+
+Here's the part most people don't know. The base model already holds an enormous semantic memory of the world from its training data. It knows what a fintech is and what Python is. What it doesn't know is anything about this user, this team, or this codebase, because none of that was in training. The real gap you're filling is *personal* semantic memory, not world knowledge.
+
+| | Episodic memory | Semantic memory |
+|---|---|---|
+| Stores | Specific events, turns, tool calls, decisions | General facts and preferences |
+| Time | Timestamped and contextual | Timeless once accepted |
+| Example | "User canceled on March 4 after a price increase" | "User prefers terse answers" |
+| Typical use | Few-shot examples, incident recall | System-prompt personalization |
+| Source in an agent | Written at interaction time | Derived from episodes |
+
+## Why does the episodic vs semantic difference matter in production?
+
+Because getting it wrong is why agents forget people. LLMs are stateless. Every session starts from zero unless you build a store outside the context window.
+
+The failure is not subtle. A support agent asks a returning customer for the order number they already gave twice that week. An assistant forgets that a user said "I'm allergic to shellfish," which is the kind of fact that has to survive across every future session.
+
+The numbers back up how common this is. Salesforce AI Research's [CRMArena-Pro benchmark](https://www.salesforce.com/blog/crmarena-pro/) found generic LLM agents dropped from about 58% success on single-turn tasks to about 35% on multi-turn ones.
+
+> "A 35% success rate in multi-step workflows is a non-starter for enterprises."
+>
+> — Umang Thakur, QKS Group, [speaking to CIO](https://www.cio.com/article/4008228/salesforce-study-warns-against-rushing-llms-into-crm-workflows-without-guardrails.html)
+
+Multi-turn is exactly where memory has to do its job.
+
+Our practitioners describe three distinct ways this shows up:
+
+<div className="my-8 rounded-2xl border border-brand-500/25 bg-brand-500/[0.05] p-6 sm:p-7">
+<div className="section-eyebrow mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">Where it shows up</div>
+<ul className="!my-0 !pl-0 space-y-3 list-none">
+<li className="flex items-center gap-3"><span className="h-px w-3 shrink-0 bg-brand-500" /><span><strong className="text-theme-primary">Session death</strong> — the agent starts fresh every time.</span></li>
+<li className="flex items-center gap-3"><span className="h-px w-3 shrink-0 bg-brand-500" /><span><strong className="text-theme-primary">Compaction loss</strong> — it forgets what you told it at the start of a long session once the context window fills.</span></li>
+<li className="flex items-center gap-3"><span className="h-px w-3 shrink-0 bg-brand-500" /><span><strong className="text-theme-primary">Cross-agent amnesia</strong> — a researcher agent and a coder agent share nothing at all.</span></li>
+</ul>
+</div>
+
+If your agent needs to remember users across sessions, this is the layer to get right. A durable store of episodes plus compiled facts is what Statewave was built to provide, so an agent stops re-asking what it already learned.
+
+## When should an agent store something as episodic vs semantic?
+
+> Store the raw event as episodic. Derive the reusable fact as semantic. Keep both.
+
+That order matters. If a user says "I prefer Python," you could write the semantic fact "user prefers Python." But if you only keep that, you lose the ability to check when it was said, what prompted it, and whether it still holds.
+
+The episodic record — "user said they prefer Python on March 4 while setting up a data pipeline" — is what lets you audit and revise the fact later. The semantic version is what you actually inject at prompt time because it's compact.
+
+So the working rule is: write episodes at interaction time with full context, and treat semantic facts as a compiled output of those episodes, each carrying a confidence score and a validity window. This keeps you out of the common trap of storing loose facts with no way to trace or expire them.
+
+## How does an agent turn episodes into semantic memory?
+
+Through consolidation, a background pass that reads raw episodes and produces typed, durable facts. In [Atlan's analysis](https://atlan.com/know/episodic-memory-ai-agents/), consolidation is called the most impactful and the least implemented stage of agent memory. It's what shrinks 200 conversation turns into a single line like "user is a senior engineer at a fintech who prefers terse responses."
+
+```
+EPISODE (raw, timestamped)              SEMANTIC MEMORY (compiled)
+───────────────────────────             ──────────────────────────
+{                                       {
+  "at": "2026-03-04T14:02:00Z",           "kind": "profile_fact",
+  "subject": "user_492",                  "subject": "user_492",
+  "text": "I prefer Python                "fact": "prefers_language: python",
+           for data pipelines"            "confidence": 0.92,
+}                                         "valid_since": "2026-03-04",
+                                          "source_episode": "ep_8831"
+                                        }
+        └──────────────── consolidation ────────────┘
+```
+
+Two things separate a real consolidation step from a naive one.
+
+First, compaction with meaning, not truncation: you summarize into typed facts rather than dropping the oldest tokens.
+
+Second, supersession: when a user's job changes, the old "works at a fintech" fact is marked superseded, not left to be retrieved next to the new one. An append-only store with no validity model will happily serve both and let the agent contradict itself.
+
+This is the exact shape of Statewave's compile step: episodes go in, and a compilation pass produces typed memories — profile facts, preferences, and episode summaries — each with provenance back to the episodes it came from. It's the episodic-to-semantic conversion, done as infrastructure instead of ad hoc application code.
+
+## Why isn't similarity search enough to retrieve the right memory?
+
+Because the most relevant memory is often not the most similar one. Consider a user who said "I'm allergic to peanuts," then later asks "what should I order for lunch?" Those two messages don't have close embeddings, so pure cosine similarity will surface every restaurant note before the allergy. Similarity is one signal, and on its own it ranks the wrong things first.
+
+The retrieval problem is measurable. On the [Episodic Memory Benchmark](https://openreview.net/forum?id=6ycX677p2l) (ICLR 2025), which tests whether models can track how entities change over time, the best model reached only 0.290 on Chronological Awareness — under 30% on temporal sequencing. Models are weak exactly where episodic memory is supposed to be strong: knowing what happened and in what order.
+
+Good memory retrieval mixes several signals: semantic similarity, kind priority so a standing preference or procedure outranks a casual mention, recency, temporal validity so superseded facts are excluded, and a token budget so the result fits the prompt.
+
+Statewave applies these as deterministic ranking, which also means the same query returns the same context bundle every time, with no silent re-ordering between runs. If retrieval quality is where your agent breaks, that ranking model is the specific fix.
+
+## How do you keep memory trustworthy?
+
+Track where each fact came from. When an agent answers "you told me you prefer Python," you should be able to trace that claim to the exact episode that produced it.
+
+Statewave carries this as provenance: every compiled memory stores the IDs of the episodes it was derived from, so any answer is auditable back to the raw event. For anything touching support, compliance, or user data, this is the difference between a memory you can defend and one you have to trust blindly.
+
+## How should you actually build episodic and semantic memory?
+
+Match the effort to the need, and add layers only when you hit their limits.
+
+For simple cases, a disciplined file or a small facts table covers a large share of what people reach for vector databases to do. Bigger context windows aren't the answer either. Stuffing an entire history into every call raises cost and latency without solving recall, which is why the useful move is compaction, not accumulation.
+
+You need a real memory runtime once your agent has to remember users across sessions, resolve conflicting facts over time, prove where an answer came from, or share memory across several agents. At that point, the parts to build are consistent: durable episodes, a consolidation pass, ranked retrieval, invalidation, and provenance.
+
+That's the shape of Statewave. It's an open-source, Apache 2.0 memory runtime that takes in episodes and returns ranked, token-bounded context bundles with provenance, self-hosted on Postgres with pgvector so there's no separate vector database to run.
+
+One command, `npx @statewavedev/statewave`, boots the API, an admin console, and Postgres locally.
+
+<div className="section-eyebrow mt-8 mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">Statewave, by the numbers</div>
+
+<div className="rounded-2xl border border-brand-500/25 bg-brand-500/[0.05] p-6 sm:p-7">
+<div className="grid grid-cols-3 gap-4 text-center">
+<div><p className="font-heading text-3xl sm:text-4xl font-bold text-theme-primary !m-0">708</p><p className="mt-1 text-xs text-theme-secondary/80 !m-0">unit tests</p></div>
+<div><p className="font-heading text-3xl sm:text-4xl font-bold text-theme-primary !m-0">56</p><p className="mt-1 text-xs text-theme-secondary/80 !m-0">eval assertions</p></div>
+<div><p className="font-heading text-3xl sm:text-4xl font-bold text-theme-primary !m-0">8/8</p><p className="mt-1 text-xs text-theme-secondary/80 !m-0">vs 2/8 naive baseline</p></div>
+</div>
+</div>
+
+If you want to see how the storage decisions map to Postgres, the [self-hosted Postgres and pgvector write-up](/blog/self-hosted-memory-postgres-pgvector) goes deeper.
+
+## Conclusion
+
+Episodic memory is what happened. Semantic memory is what is true. Agents need both, and the hard work is not naming them — it's the wiring between them: storing raw episodes, compiling them into typed facts, expiring facts that no longer hold, ranking retrieval by more than similarity, and keeping a trace of where each fact came from.
+
+Get that wiring right, and your agent stops re-asking for the order number, stops contradicting last week's answer, and starts behaving like it remembers people.
+
+That's the difference between a demo and a product. If you'd rather run that layer than rebuild it, read [how it compares to RAG](/blog/ai-agent-memory-vs-rag) before you commit, or:
+
+<div className="my-8">
+<a href="/" className="group relative overflow-hidden inline-flex items-center justify-center font-semibold rounded-full transition-[background-color,color,border-color,box-shadow,filter] duration-300 ease-out btn-gradient !text-white !no-underline shadow-[0_12px_34px_rgba(108,92,255,.22)] hover:shadow-[0_18px_48px_rgba(108,92,255,.34)] hover:!text-white h-11 px-6 text-sm gap-2">Try Statewave →</a>
+</div>
+
+## FAQ
+
+<div className="my-8 space-y-3">
+
+<details open className="blog-faq group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35">
+<summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none">
+<h3 className="text-[18px] font-semibold leading-snug text-theme-primary !m-0">1. What is the difference between episodic and semantic memory in AI agents?</h3>
+<div className="blog-faq-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40">
+<svg className="h-5 w-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" /></svg>
+</div>
+</summary>
+<div className="px-7 pb-7">
+<div className="h-px bg-theme-primary/10 mb-6" />
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">Episodic memory stores specific events with time and context, like "user canceled on March 4 after a price increase." Semantic memory stores general, reusable facts, like "user prefers terse answers." Agents write episodes at interaction time and derive semantic facts from them.</p>
+</div>
+</details>
+
+<details className="blog-faq group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35">
+<summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none">
+<h3 className="text-[18px] font-semibold leading-snug text-theme-primary !m-0">2. Is episodic or semantic memory better for AI agents?</h3>
+<div className="blog-faq-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40">
+<svg className="h-5 w-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" /></svg>
+</div>
+</summary>
+<div className="px-7 pb-7">
+<div className="h-px bg-theme-primary/10 mb-6" />
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">Neither. They do different jobs, and most production agents need both. Episodic memory handles recall of past interactions and few-shot examples. Semantic memory handles personalization by injecting compact facts into the prompt. The skill is deciding what to store as which, then converting between them.</p>
+</div>
+</details>
+
+<details className="blog-faq group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35">
+<summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none">
+<h3 className="text-[18px] font-semibold leading-snug text-theme-primary !m-0">3. What is memory consolidation in AI agents?</h3>
+<div className="blog-faq-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40">
+<svg className="h-5 w-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" /></svg>
+</div>
+</summary>
+<div className="px-7 pb-7">
+<div className="h-px bg-theme-primary/10 mb-6" />
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">Consolidation is a background pass that reads raw episodes and produces durable semantic facts, shrinking 200 conversation turns into one line like "senior engineer at a fintech, prefers terse responses." <a href="https://atlan.com/know/episodic-memory-ai-agents/" className="text-accent underline underline-offset-4 hover:text-accent-light">Atlan calls it</a> the most impactful and least implemented stage of agent memory.</p>
+</div>
+</details>
+
+<details className="blog-faq group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35">
+<summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none">
+<h3 className="text-[18px] font-semibold leading-snug text-theme-primary !m-0">4. Where does procedural memory fit alongside episodic and semantic?</h3>
+<div className="blog-faq-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40">
+<svg className="h-5 w-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" /></svg>
+</div>
+</summary>
+<div className="px-7 pb-7">
+<div className="h-px bg-theme-primary/10 mb-6" />
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">Procedural memory holds skills and rules for how to do a task, separate from facts (semantic) and events (episodic). The <a href="https://arxiv.org/abs/2309.02427" className="text-accent underline underline-offset-4 hover:text-accent-light">CoALA framework</a> defines all three as long-term stores. In agents, procedural memory often lives in reusable instructions or guidelines the agent follows.</p>
+</div>
+</details>
+
+<details className="blog-faq group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35">
+<summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none">
+<h3 className="text-[18px] font-semibold leading-snug text-theme-primary !m-0">5. Why do AI agents forget things between sessions?</h3>
+<div className="blog-faq-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40">
+<svg className="h-5 w-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" /></svg>
+</div>
+</summary>
+<div className="px-7 pb-7">
+<div className="h-px bg-theme-primary/10 mb-6" />
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">LLMs are stateless, so every session starts from zero unless you store memory outside the context window. On <a href="https://www.salesforce.com/blog/crmarena-pro/" className="text-accent underline underline-offset-4 hover:text-accent-light">Salesforce's CRMArena-Pro benchmark</a>, agent success dropped from about 58% on single-turn tasks to about 35% on multi-turn ones, with lost context a leading cause.</p>
+</div>
+</details>
+
+<details className="blog-faq group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35">
+<summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none">
+<h3 className="text-[18px] font-semibold leading-snug text-theme-primary !m-0">6. Isn't a bigger context window enough to replace agent memory?</h3>
+<div className="blog-faq-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40">
+<svg className="h-5 w-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" /></svg>
+</div>
+</summary>
+<div className="px-7 pb-7">
+<div className="h-px bg-theme-primary/10 mb-6" />
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">No. Putting an entire history into every call raises cost and latency without fixing recall, and models still struggle with order and time. The better approach is compaction: store episodes, compile them into typed facts, and retrieve only what fits the prompt.</p>
+</div>
+</details>
+
+</div>
