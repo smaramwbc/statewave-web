@@ -82,6 +82,16 @@ describe('Route rendering', () => {
     })
   })
 
+  it('renders vs-letta comparison page at /vs/letta', async () => {
+    renderApp('/vs/letta')
+    await waitFor(() => {
+      expect(screen.getByRole('main')).toBeInTheDocument()
+    })
+    await waitFor(() => {
+      expect(screen.getByText(/statewave manages memory for the model/i)).toBeInTheDocument()
+    })
+  })
+
   it('renders 404 for unknown routes', async () => {
     renderApp('/unknown-page')
     await waitFor(() => {

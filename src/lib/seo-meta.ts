@@ -48,6 +48,7 @@ export type RouteKey =
   | '/use-cases/multi-agent-shared-context'
   | '/use-cases/grounded-shop-assistant'
   | '/vs/mem0'
+  | '/vs/letta'
   | '/connectors'
   | '/developers'
   | '/about'
@@ -68,6 +69,7 @@ export const PUBLIC_ROUTES: readonly RouteKey[] = [
   '/use-cases/multi-agent-shared-context',
   '/use-cases/grounded-shop-assistant',
   '/vs/mem0',
+  '/vs/letta',
   '/connectors',
   '/developers',
   '/about',
@@ -185,6 +187,15 @@ export const PAGE_META: Record<RouteKey, PageMeta> = {
     description:
       'How Statewave compares to Mem0: deterministic, token-bounded context assembly with policy enforcement and integrity-hashed receipts vs. ranked similarity retrieval — plus LoCoMo and LongMemEval benchmark results measured on Mem0’s own harness.',
     breadcrumbLabel: 'vs Mem0',
+    ogType: 'article',
+    priority: 0.7,
+    changefreq: 'monthly',
+  },
+  '/vs/letta': {
+    title: 'Statewave vs. Letta — Runtime-Managed vs. Agent-Managed Memory',
+    description:
+      'How Statewave compares to Letta: in Letta the agent edits and searches its own memory with tool calls, while Statewave assembles a deterministic, token-bounded context bundle mechanically — with policy on the read path and an integrity-hashed receipt of what the agent saw.',
+    breadcrumbLabel: 'vs Letta',
     ogType: 'article',
     priority: 0.7,
     changefreq: 'monthly',
