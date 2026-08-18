@@ -114,10 +114,4 @@ describe('StatewaveVsLettaPage: claims', () => {
     const { container } = renderPage()
     expect(container.textContent).toMatch(/not comparable to the LoCoMo/i)
   })
-
-  it('keeps the nominative-use trademark notice', () => {
-    const { container } = renderPage()
-    expect(container.textContent).toMatch(/nominative, for comparison purposes only/i)
-    expect(container.textContent).toMatch(/MemGPT/)
-  })
 })

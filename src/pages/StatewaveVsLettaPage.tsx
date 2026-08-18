@@ -1252,13 +1252,6 @@ function CTASection() {
               Read the docs
             </Button>
           </div>
-
-          <p className="mx-auto mt-10 max-w-xl text-[12px] leading-[1.6] text-theme-muted">
-            &quot;Letta&quot; and &quot;MemGPT&quot; are trademarks of their
-            respective owner. References to Letta on this page are nominative,
-            for comparison purposes only, and do not imply any affiliation with
-            or endorsement by Letta.
-          </p>
         </div>
       </div>
     </Section>
