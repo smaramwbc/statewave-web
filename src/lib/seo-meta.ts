@@ -48,6 +48,7 @@ export type RouteKey =
   | '/use-cases/multi-agent-shared-context'
   | '/use-cases/grounded-shop-assistant'
   | '/vs/mem0'
+  | '/vs/zep'
   | '/connectors'
   | '/developers'
   | '/about'
@@ -68,6 +69,7 @@ export const PUBLIC_ROUTES: readonly RouteKey[] = [
   '/use-cases/multi-agent-shared-context',
   '/use-cases/grounded-shop-assistant',
   '/vs/mem0',
+  '/vs/zep',
   '/connectors',
   '/developers',
   '/about',
@@ -185,6 +187,15 @@ export const PAGE_META: Record<RouteKey, PageMeta> = {
     description:
       'How Statewave compares to Mem0: deterministic, token-bounded context assembly with policy enforcement and integrity-hashed receipts vs. ranked similarity retrieval — plus LoCoMo and LongMemEval benchmark results measured on Mem0’s own harness.',
     breadcrumbLabel: 'vs Mem0',
+    ogType: 'article',
+    priority: 0.7,
+    changefreq: 'monthly',
+  },
+  '/vs/zep': {
+    title: 'Statewave vs. Zep — Inspectable Bundle vs. Opaque Context Block',
+    description:
+      'How Statewave compares to Zep: Zep models memory as a knowledge graph and returns retrieval as an opaque Context Block string, while Statewave compiles typed, provenance-traced memories into a deterministic, token-bounded bundle with per-row confidence, validity, and an integrity-hashed receipt.',
+    breadcrumbLabel: 'vs Zep',
     ogType: 'article',
     priority: 0.7,
     changefreq: 'monthly',
