@@ -19,6 +19,29 @@ export function Footer() {
               Open-source memory runtime for AI agents.<br />
               Self-hosted on Postgres. Apache-2.0.
             </p>
+
+            <a
+              href="https://www.producthunt.com/products/statewave?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-statewave"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-5 -ml-[3px] inline-block"
+            >
+              <img
+                className="theme-dark h-[54px] w-[250px]"
+                src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1214060&theme=dark"
+                alt="Statewave - Open-source memory runtime for production AI agents. | Product Hunt"
+                width={250}
+                height={54}
+              />
+              <img
+                className="theme-light h-[54px] w-[250px]"
+                src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1214060&theme=light"
+                alt=""
+                aria-hidden="true"
+                width={250}
+                height={54}
+              />
+            </a>
           </div>
 
           <div>
@@ -68,7 +91,7 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-12 pt-8 border-t border-theme-border flex flex-col md:flex-row md:justify-between md:items-center gap-3 md:gap-4">
+        <div className="mt-12 pt-8 border-t border-theme-border flex flex-col md:flex-row md:justify-between md:items-center gap-4">
           <p className="text-xs text-theme-muted">
             © {new Date().getFullYear()} Statewave. Open source under Apache-2.0.
             <span className="mx-2 text-theme-border">·</span>
@@ -80,6 +103,7 @@ export function Footer() {
             <span className="mx-2 text-theme-border">·</span>
             <Link to="/impressum" className="hover:text-theme-primary transition-colors">Impressum</Link>
           </p>
+
           <p className="text-xs text-theme-muted md:text-right">
             Built for teams who believe AI memory is infrastructure, not an afterthought.
           </p>
