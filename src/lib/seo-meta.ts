@@ -48,6 +48,7 @@ export type RouteKey =
   | '/use-cases/multi-agent-shared-context'
   | '/use-cases/grounded-shop-assistant'
   | '/vs/mem0'
+  | '/vs/supermemory'
   | '/connectors'
   | '/developers'
   | '/about'
@@ -68,6 +69,7 @@ export const PUBLIC_ROUTES: readonly RouteKey[] = [
   '/use-cases/multi-agent-shared-context',
   '/use-cases/grounded-shop-assistant',
   '/vs/mem0',
+  '/vs/supermemory',
   '/connectors',
   '/developers',
   '/about',
@@ -185,6 +187,15 @@ export const PAGE_META: Record<RouteKey, PageMeta> = {
     description:
       'How Statewave compares to Mem0: deterministic, token-bounded context assembly with policy enforcement and integrity-hashed receipts vs. ranked similarity retrieval — plus LoCoMo and LongMemEval benchmark results measured on Mem0’s own harness.',
     breadcrumbLabel: 'vs Mem0',
+    ogType: 'article',
+    priority: 0.7,
+    changefreq: 'monthly',
+  },
+  '/vs/supermemory': {
+    title: 'Statewave vs. Supermemory — Deterministic Bundle vs. Reranked Search',
+    description:
+      'How Statewave compares to Supermemory: deterministic, token-bounded context assembly with per-row provenance and integrity-hashed receipts vs. hybrid vector-plus-keyword search with context-aware reranking — plus each product’s own LoCoMo and LongMemEval figures, shown apart since they measure different things.',
+    breadcrumbLabel: 'vs Supermemory',
     ogType: 'article',
     priority: 0.7,
     changefreq: 'monthly',
