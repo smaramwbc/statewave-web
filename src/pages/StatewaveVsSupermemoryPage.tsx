@@ -210,8 +210,7 @@ function HeroCompareVisual() {
               <span className="flex-1 text-[11.5px]" style={{ color: 'var(--viz-text-2)' }}>&quot;prefers email over calls&hellip;&quot;</span>
               <span className="font-mono text-[9.5px]" style={{ color: 'var(--viz-amber)' }}>0.71</span>
             </div>
-            <div className="mt-0.5 flex items-center gap-2">
-              <span className="h-1.5 w-1.5 rounded-full" style={{ background: 'var(--viz-amber)' }} />
+            <div className="mt-0.5">
               <span className="font-mono text-[10.5px]" style={{ color: 'var(--viz-text-muted)' }}>
                 score is a similarity rank, not a fact type
               </span>
@@ -252,10 +251,9 @@ function HeroCompareVisual() {
               <span className="font-mono text-[9.5px]" style={{ color: 'var(--viz-text-muted)' }}>[ep_9]</span>
             </div>
             <div
-              className="mt-0.5 flex items-center gap-2 rounded-xl border px-3 py-2.5"
+              className="mt-0.5 rounded-xl border px-3 py-2.5"
               style={{ borderColor: 'var(--viz-border)', background: 'var(--viz-code-bg)' }}
             >
-              <span className="h-1.5 w-1.5 rounded-full bg-brand-500" />
               <span className="font-mono text-[10px]" style={{ color: 'var(--viz-text-2)' }}>provenance &middot; fact_ids &rarr; episodes</span>
             </div>
           </div>
@@ -329,12 +327,10 @@ function GapSection() {
           Reranked for recall, or assembled for proof
         </Heading>
 
-        <p className="mt-6 max-w-2xl text-[17px] leading-[1.6] text-theme-secondary/90">
-          Supermemory ingests documents and chats, extracts memories into a graph with user
-          profiles, and answers search with hybrid vector-plus-keyword retrieval and a
-          context-aware reranker, optimized to surface the most relevant hits fast. Statewave
-          records each event as an immutable episode, compiles those into typed memories with
-          confidence and validity, and assembles a ranked bundle the same way on every call.
+        <p className="mt-6 max-w-xl text-[17px] leading-[1.6] text-theme-secondary/90">
+          Supermemory extracts memories into a graph and answers search with hybrid retrieval
+          plus a reranker. Statewave compiles typed memories and assembles a ranked bundle the
+          same way on every call.
         </p>
 
         <div className="mt-12 grid gap-6 lg:grid-cols-2">
@@ -577,9 +573,8 @@ function ComparisonSection() {
           Where each capability lives
         </Heading>
         <p className="mt-4 text-[17px] leading-[1.6] text-theme-secondary/90">
-          Both give agents durable memory, both self-host on Postgres, and both are open-source.
-          They diverge on the shape of what comes back, scored search hits from a reranker or a
-          deterministic bundle of typed rows, and on what you can inspect and govern once it has.
+          Both self-host on Postgres and are open-source. They diverge on what comes back, scored
+          hits from a reranker, or a deterministic bundle you can inspect and govern.
         </p>
       </div>
 
@@ -688,10 +683,9 @@ function WorkedExampleSection() {
         &quot;Why did the agent say that?&quot;
       </Heading>
 
-      <p className="mt-6 max-w-2xl text-[17px] leading-[1.6] text-theme-secondary/90">
-        An agent resumes a returning customer and states a fact about them. Later, someone asks
-        where that fact came from. The same history runs through each system: one returns scored
-        passages, the other a finite provenance chain plus a receipt.
+      <p className="mt-6 max-w-xl text-[17px] leading-[1.6] text-theme-secondary/90">
+        An agent states a fact about a returning customer. The same history runs through each
+        system: one returns scored passages, the other a provenance chain plus a receipt.
       </p>
 
       <div className="mt-12 grid gap-6 lg:grid-cols-2">
@@ -794,8 +788,7 @@ function ReceiptCard() {
           </div>
         ))}
 
-        <div className="mt-1 flex items-center gap-2">
-          <span className="h-1.5 w-1.5 rounded-full bg-accent" />
+        <div className="mt-1">
           <span className="text-[11.5px] text-accent">1 memory redacted &middot; label:pii</span>
         </div>
       </div>
@@ -816,10 +809,9 @@ function GovernanceSection() {
           Every call can leave a receipt
         </Heading>
         <p className="mt-4 text-[17px] leading-[1.6] text-theme-secondary/90">
-          Supermemory extracts memories into a graph with user profiles and returns scored search
-          results. In Statewave assembly is governed on the read path and can emit an immutable
-          receipt, with per-memory provenance back to the source episode, in the core, under
-          Apache 2.0.
+          Supermemory returns scored search results from an extracted profile graph. Statewave
+          governs assembly on the read path and can emit an immutable, provenance-traced receipt,
+          in the Apache 2.0 core.
         </p>
       </div>
 
@@ -953,11 +945,9 @@ function BenchmarksSection() {
           Two teams, two scoreboards
         </Heading>
         <p className="mt-4 text-[17px] leading-[1.6] text-theme-secondary/90">
-          Both projects publish benchmarks, but they measure different things. Statewave reports
-          end-to-end answer accuracy on long-horizon QA. Supermemory reports retrieval precision
-          and recall plus latency. Those aren&apos;t the same number, so we show each side&apos;s
-          published figures with the exact metric labeled, and don&apos;t stack them into a single
-          winner bar.
+          Both publish benchmarks, but different things. Statewave reports end-to-end QA
+          accuracy; Supermemory reports retrieval precision, recall, and latency, shown apart,
+          not stacked into one winner bar.
         </p>
       </div>
 
@@ -1142,9 +1132,8 @@ function MigrationSection() {
           Moving from Supermemory to Statewave
         </Heading>
         <p className="mt-4 text-[17px] leading-[1.6] text-theme-secondary/90">
-          The conceptual translation is straightforward: documents become episodes, search becomes
-          context. Plan a parallel-run period; the cutover is typically read-then-write rather
-          than a flag flip.
+          Documents become episodes, search becomes context. Plan a parallel-run period; the
+          cutover is typically read-then-write, not a flag flip.
         </p>
       </div>
 
@@ -1210,48 +1199,73 @@ function MigrationSection() {
 /* ─── FAQ ────────────────────────────────────────────────────────────────── */
 
 interface Faq {
-  tag: string
   q: string
   a: string
 }
 
 const FAQS: Faq[] = [
-  { tag: 'OVERVIEW', q: 'How is Statewave different from Supermemory?', a: 'Supermemory is a fast memory and context engine: it ingests documents and chats, extracts memories into a graph with user profiles, and answers search with hybrid vector-plus-keyword retrieval and a context-aware reranker, optimized for recall and sub-300ms latency. Statewave compiles raw episodes into typed memories with confidence and validity, ranks them with a fixed scoring model to a token budget, and returns a deterministic bundle, per-row kind, confidence, validity, and source episode ids, with read-path governance and optional receipts.' },
-  { tag: 'BENCHMARKS', q: 'Can I compare Statewave’s 0.905 against Supermemory’s 59.7%?', a: 'No, they measure different things. Statewave’s 0.905 is end-to-end QA answer accuracy (LLM-judged) on LoCoMo; Supermemory’s 59.7% is Precision@1, a retrieval metric measuring whether the top passage was the right one. Different metrics, different answerer models, different sample sizes. Read each product’s numbers on its own terms and, ideally, benchmark both on your own workload.' },
-  { tag: 'DEPLOYMENT', q: 'Isn’t Supermemory also open-source and self-hostable?', a: 'Yes. Supermemory ships a self-hostable binary and a managed hosted platform, and it uses Postgres with pgvector like Statewave. So self-hosted and single store aren’t the dividing lines here. The real differences are on the read path: deterministic, inspectable, provenance-traced assembly with governance and receipts (Statewave) versus fast, recall-tuned reranked search with an extracted profile and memory graph (Supermemory).' },
-  { tag: 'PERFORMANCE', q: 'Which one is faster?', a: 'Supermemory is explicitly engineered for speed and publishes sub-300ms retrieval at scale. Statewave doesn’t headline a latency number; its read path is a single Postgres query and is designed around determinism and inspectability rather than raw throughput. If latency over very large corpora is your binding constraint, benchmark both on your data.' },
-  { tag: 'DETERMINISM', q: 'What makes Statewave retrieval deterministic?', a: 'The bundle is compiled and assembled the same way every run: five ranking signals, kind priority, recency, task relevance, temporal validity, and semantic similarity, combined to a fixed token budget. The same subject, task, and point in time produce the same bytes. A context-aware reranker over a live index can’t promise that, because index state and reranker variation introduce drift.' },
-  { tag: 'INTEGRATIONS', q: 'Does it work with Claude, Cursor, or Codex?', a: 'Yes. One command (npx @statewavedev/statewave) boots the runtime, and its shipped MCP server connects any MCP-compatible client: Claude, Cursor, Copilot, and agent runtimes. Supermemory’s hosted platform also ships MCP and connectors; Statewave is self-hosted, so you operate Postgres and a container.' },
-  { tag: 'STORAGE', q: 'Can I run it fully offline?', a: 'Yes. Statewave’s storage is Postgres plus pgvector and nothing else, self-hosted with no cloud dependency; the heuristic compiler keeps everything on your network unless you configure an LLM compiler or hosted embeddings. Supermemory’s local binary also runs standalone, but its managed platform and hosted reranker are Cloudflare-edge services, so matching sub-300ms latency at scale means using the hosted tier.' },
+  { q: 'How is Statewave different from Supermemory?', a: 'Supermemory ingests documents and chats, extracts memories into a graph with user profiles, and answers search with hybrid retrieval and a reranker, tuned for recall and speed. Statewave compiles typed memories with confidence and validity, ranks them to a token budget, and returns a deterministic bundle with read-path governance and optional receipts.' },
+  { q: 'Can I compare Statewave’s 0.905 against Supermemory’s 59.7%?', a: 'No, they measure different things. Statewave’s 0.905 is end-to-end QA answer accuracy on LoCoMo; Supermemory’s 59.7% is Precision@1, a retrieval metric. Different metrics, different sample sizes. Read each on its own terms, and benchmark both on your own workload.' },
+  { q: 'Isn’t Supermemory also open-source and self-hostable?', a: 'Yes. Supermemory ships a self-hostable binary and uses Postgres with pgvector, like Statewave. The real difference is the read path: deterministic, provenance-traced assembly with receipts, versus fast, recall-tuned reranked search with an extracted profile.' },
+  { q: 'Which one is faster?', a: 'Supermemory is engineered for speed and publishes sub-300ms retrieval at scale. Statewave doesn’t headline a latency number; its read path is a single Postgres query, designed around determinism rather than raw throughput.' },
+  { q: 'What makes Statewave retrieval deterministic?', a: 'Five ranking signals, kind priority, recency, task relevance, temporal validity, and semantic similarity, combine to a fixed token budget. The same subject, task, and point in time always produce the same bytes.' },
+  { q: 'Does it work with Claude, Cursor, or Codex?', a: 'Yes. One command boots the runtime, and its shipped MCP server connects any MCP-compatible client. Supermemory’s hosted platform also ships MCP and connectors; Statewave is self-hosted, so you operate Postgres and a container.' },
+  { q: 'Can I run it fully offline?', a: 'Yes. Statewave’s storage is Postgres plus pgvector, self-hosted with no cloud dependency. Supermemory’s local binary also runs standalone, but its managed platform and hosted reranker are Cloudflare-edge services.' },
 ]
 
+/* Native <details> disclosure, the same pattern as /benchmarks and the
+ * homepage FAQ, so the section is keyboard- and AT-navigable for free and
+ * the collapsed answers stay in the DOM for crawlers. First item open so
+ * the section reads as content on first paint. */
 function FaqSection() {
   return (
-    <Section id="faq" className="bg-surface-1">
-      <div className="text-center">
-        <Heading
-          id="faq-heading"
-          className="font-heading text-4xl font-bold leading-[1.05] tracking-[-0.03em] text-theme-primary"
-        >
-          Frequently asked
-        </Heading>
-      </div>
-
-      <div className="mx-auto mt-10 grid max-w-4xl gap-4 sm:grid-cols-2">
-        {FAQS.map((f, i) => (
-          <div
-            key={f.q}
-            className={`rounded-2xl border border-theme-border bg-surface-1 p-6 sm:p-7 ${
-              i === FAQS.length - 1 ? 'sm:col-span-2' : ''
-            }`}
+    <Section id="faq" className="scroll-mt-32 bg-surface-1">
+      <div className="mx-auto max-w-4xl">
+        <div className="max-w-2xl">
+          <p className="section-eyebrow mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
+            FAQ
+          </p>
+          <Heading
+            id="faq-heading"
+            className="font-heading text-3xl font-bold tracking-[-0.02em] text-theme-primary md:text-4xl"
           >
-            <span className="mb-3 inline-block rounded-full bg-accent/10 px-2.5 py-1 font-mono text-[10px] font-semibold tracking-[0.06em] text-accent">
-              {f.tag}
-            </span>
-            <p className="mb-2 font-heading text-[16px] font-bold text-theme-primary">{f.q}</p>
-            <p className="text-[14px] leading-[1.6] text-theme-muted">{f.a}</p>
-          </div>
-        ))}
+            Frequently asked
+          </Heading>
+          <p className="mt-4 text-base text-theme-secondary text-pretty">
+            Straight answers, not marketing lines.
+          </p>
+        </div>
+
+        <div className="mt-8 space-y-3">
+          {FAQS.map((f, i) => (
+            <details
+              key={f.q}
+              {...(i === 0 ? { open: true } : {})}
+              className="group rounded-2xl border border-theme-border bg-surface-0 transition-colors hover:border-brand-500/35"
+            >
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-6 px-6 py-4 [&::-webkit-details-marker]:hidden">
+                <h3 className="text-[16.5px] font-semibold leading-snug text-theme-primary text-pretty">
+                  {f.q}
+                </h3>
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-theme-border bg-surface-1 transition-transform duration-200 group-open:rotate-180 group-hover:border-brand-500/40">
+                  <svg
+                    className="h-4 w-4 text-theme-secondary"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </span>
+              </summary>
+              <div className="px-6 pb-6">
+                <div className="mb-4 h-px bg-theme-border" />
+                <p className="text-[15px] leading-relaxed text-theme-secondary">{f.a}</p>
+              </div>
+            </details>
+          ))}
+        </div>
       </div>
     </Section>
   )
