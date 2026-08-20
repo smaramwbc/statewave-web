@@ -107,10 +107,9 @@ function HeroSection() {
             <span className="block">Statewave returns a traceable bundle.</span>
           </h1>
 
-          <p className="mx-auto mt-6 max-w-[620px] text-[18px] leading-[1.6] text-theme-secondary">
-            Supermemory runs hybrid vector-plus-keyword search with a context-aware reranker,
-            tuned for recall and sub-300ms latency. Statewave compiles typed, provenance-traced
-            memories and assembles a ranked, token-bounded bundle the same way on every call.
+          <p className="mx-auto mt-6 max-w-[540px] text-[18px] leading-[1.6] text-theme-secondary">
+            Supermemory reranks scored search hits for recall. Statewave assembles a
+            deterministic, traceable bundle every call.
           </p>
 
           <div className="mt-8 flex flex-wrap justify-center gap-3">
