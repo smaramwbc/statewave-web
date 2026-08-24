@@ -101,8 +101,8 @@ describe('StatewaveVsLettaPage: claims', () => {
     // The hero stat reads its number from the SIGNALS array that renders the
     // strip, so the two can't disagree.
     expect(container.textContent).toContain('ranking signals, deterministic')
-    expect(screen.getByText('SEMANTIC SIMILARITY')).toBeTruthy()
-    expect(container.textContent).toMatch(/5\s*ranking signals/)
+    expect(screen.queryByText('SEMANTIC SIMILARITY')).toBeNull()
+    expect(container.textContent).toMatch(/4\s*ranking signals/)
   })
 
   it('claims no BEAM score, which /benchmarks explicitly disclaims', () => {

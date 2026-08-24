@@ -12,6 +12,20 @@ import { faqPageJsonLd } from '../lib/seo-meta'
  * order, same components, same tokens. Only the competitor and the argument
  * change: Mem0 ranks by similarity, Letta hands memory to the model itself.
  *
+ * Rewritten 2026-08-24: letta-ai/letta is now a landing page (the V1 server
+ * this page originally described was archived 2026-08-16, source preserved
+ * on the `archive` branch). Current Letta is letta-ai/letta-code
+ * (`npm install -g @letta-ai/letta-code`); memory is MemFS, a git-backed
+ * filesystem tracking all context including memory blocks, not the old
+ * core/recall/archival tier model. The five memory tools that detach once
+ * MemFS is enabled are `memory`, `memory_apply_patch`, `memory_insert`,
+ * `memory_replace`, and `memory_rethink` (letta-ai/letta-code
+ * src/tools/toolset.ts:57-62); `archival_memory_insert`,
+ * `archival_memory_search`, and `core_memory_replace` no longer exist in the
+ * repo. The central argument survives the rewrite unchanged: Letta still
+ * hands memory to the model, and MemFS makes that more literal than the tier
+ * model did.
+ *
  * Mockups use the `--viz-*` tokens from src/index.css so their neutrals flip
  * with the light/dark theme, same convention as StatewaveVsMem0Page.
  */
@@ -243,10 +257,10 @@ function HeroStatStrip() {
 
 /* ─── The gap ────────────────────────────────────────────────────────────── */
 
-const LETTA_TIERS = [
-  { tier: 'core', note: 'in-context blocks, model-edited' },
-  { tier: 'recall', note: 'message history, searchable' },
-  { tier: 'archival', note: 'passages, embedding search' },
+const LETTA_MEMFS = [
+  { tier: 'context', note: 'everything the agent sees, one git-tracked tree' },
+  { tier: 'blocks', note: 'memory files inside that tree, model-edited' },
+  { tier: 'history', note: 'every edit is a commit, diffable and revertable' },
 ]
 
 function GapSection() {
@@ -266,12 +280,12 @@ function GapSection() {
         </Heading>
 
         <p className="mt-6 max-w-2xl text-[17px] leading-[1.6] text-theme-secondary/90">
-          Letta gives the agent tools to edit its memory blocks and search
-          recall and archival storage: memory is the model&apos;s job,
-          decided turn by turn and paid for in tokens. Statewave ingests each
-          event as an immutable episode, compiles it into typed memories, and
-          assembles a ranked bundle the same way every call, with no model in
-          the loop.
+          Letta gives the agent tools to edit its own memory blocks, tracked
+          as commits in a git-backed context tree (MemFS): memory is the
+          model&apos;s job, decided turn by turn and paid for in tokens.
+          Statewave ingests each event as an immutable episode, compiles it
+          into typed memories, and assembles a ranked bundle the same way
+          every call, with no model in the loop.
         </p>
 
         <div className="mt-12 grid gap-6 lg:grid-cols-2">
@@ -280,11 +294,11 @@ function GapSection() {
             <div className="flex flex-1 flex-col gap-5 rounded-[1.75rem] border border-theme-border bg-surface-2/40 p-7 shadow-sm sm:p-8">
               <div className="flex items-center gap-2.5">
                 <LettaBadge />
-                <span className="font-heading text-base font-bold text-theme-primary">Letta &middot; agent-managed tiers</span>
+                <span className="font-heading text-base font-bold text-theme-primary">Letta &middot; MemFS, agent-managed</span>
               </div>
 
               <div className="flex flex-col gap-2.5">
-                {LETTA_TIERS.map((row) => (
+                {LETTA_MEMFS.map((row) => (
                   <div
                     key={row.tier}
                     className="flex items-center gap-3 rounded-lg border border-theme-border bg-surface-1 px-3.5 py-3"
@@ -306,10 +320,10 @@ function GapSection() {
             <div className="mt-5">
               <p className="font-heading text-lg font-bold text-theme-primary">Retrieval rides on the model</p>
               <p className="mt-2 text-[14.5px] leading-[1.6] text-theme-muted">
-                The agent chooses which tier to search and what to save.
-                Retrieval quality tracks the model&apos;s judgment, every
-                operation spends inference tokens, and an unwritten fact is
-                gone.
+                There&apos;s no ranking or expiry step: the agent reads and
+                edits its own context tree directly, and whatever it last
+                wrote is what it sees next time. Every operation spends
+                inference tokens, and an unwritten fact is gone.
               </p>
             </div>
           </div>
@@ -370,9 +384,9 @@ function GapSection() {
               <p className="font-heading text-lg font-bold text-theme-primary">Assembly is deterministic and inspectable</p>
               <p className="mt-2 text-[14.5px] leading-[1.6] text-theme-secondary">
                 Given the same subject, task, token budget, and point in time,
-                the assembler returns the identical bundle every run. Five
+                the assembler returns the identical bundle every run. Four
                 signals set the order: kind priority, recency, task relevance,
-                temporal validity, and semantic similarity.
+                and temporal validity.
               </p>
             </div>
           </div>
@@ -385,16 +399,16 @@ function GapSection() {
 /* ─── How order is decided ───────────────────────────────────────────────── */
 
 /* The four scored signals carry their real additive ranges (the same model
- * /vs/mem0 documents); semantic similarity is the hybrid retrieval stage that
- * builds the candidate set those scores are applied to, so it has a method
- * rather than a range. `SIGNALS.length` also feeds the hero stat strip, so the
- * count on this page can only ever be the number of signals actually shown. */
+ * /vs/mem0 documents). The scorer picks one relevance term, word overlap or
+ * cosine similarity, never both, so similarity isn't a separate signal, it's
+ * the alternate path task relevance can take. `SIGNALS.length` also feeds
+ * the hero stat strip, so the count on this page can only ever be the number
+ * of signals actually shown. */
 const SIGNALS = [
   { label: 'KIND PRIORITY', value: '3–10', note: 'typed profile facts outrank raw episodes' },
   { label: 'RECENCY', value: '0–5', note: 'linear by age, newest scores highest' },
-  { label: 'TASK RELEVANCE', value: '0–8', note: 'lexical overlap with the task at hand' },
+  { label: 'TASK RELEVANCE', value: '0–8', note: 'word overlap (0-5) or cosine similarity (0-8)' },
   { label: 'TEMPORAL VALIDITY', value: '−4…+3', note: 'valid facts gain +3, expired ones lose 4' },
-  { label: 'SEMANTIC SIMILARITY', value: 'cosine', note: 'pgvector, with a text-search fallback' },
 ]
 
 function SignalsStrip() {
@@ -406,12 +420,12 @@ function SignalsStrip() {
           <span className="font-mono text-[12px] text-theme-muted">score = priority + recency + relevance + validity</span>
         </div>
         {/* Cell dividers are the 1px grid gap showing the border color through,
-            not per-cell border classes. With five cells reflowing 1 → 2 → 5
+            not per-cell border classes. With four cells reflowing 1 → 2 → 4
             across breakpoints, the conditional-class version has to know which
             cell is last in a row at each width, and silently drops the row
             divider at `sm`. The gap draws every interior edge and no exterior
             one, at every column count, for free. */}
-        <div className="grid gap-px bg-theme-border sm:grid-cols-2 lg:grid-cols-5">
+        <div className="grid gap-px bg-theme-border sm:grid-cols-2 lg:grid-cols-4">
           {SIGNALS.map((s) => (
             <div key={s.label} className="bg-surface-1 p-7">
               <div className="mb-3 font-mono text-[11px] text-accent">{s.label}</div>
@@ -434,8 +448,8 @@ interface CompareRow {
 }
 
 const RETRIEVAL_ROWS: CompareRow[] = [
-  { cap: 'How context is selected', letta: 'The agent searches its tiers with tool calls', sw: 'Deterministic assembly, ranked to a token budget' },
-  { cap: 'What ranks results', letta: 'The model’s judgment, turn by turn', sw: 'Kind priority, recency, relevance, validity, similarity' },
+  { cap: 'How context is selected', letta: 'The agent reads and edits its own context tree with tool calls', sw: 'Deterministic assembly, ranked to a token budget' },
+  { cap: 'What ranks results', letta: 'The model’s judgment, turn by turn', sw: 'Kind priority, recency, relevance, validity' },
   { cap: 'Cost of retrieval', letta: 'Inference tokens on every memory operation', sw: 'Mechanical; no LLM on the read path' },
   { cap: 'Same query, same result', letta: 'Varies with the model and its tool choices', sw: 'Byte-identical bundle every run' },
 ]
@@ -444,13 +458,13 @@ const GOVERNANCE_ROWS: CompareRow[] = [
   { cap: 'Proof of what the agent saw', letta: 'None; reconstruct it from message logs', sw: 'Immutable, ULID-addressable receipt with an integrity hash' },
   { cap: 'Policy on the read path', letta: 'Implement it in your app or tools', sw: 'Declarative bundles: deny or redact by label and caller' },
   { cap: 'Reliability of capture', letta: 'If the model does not save it, it is gone', sw: 'Every event recorded as an immutable episode' },
-  { cap: 'Subject deletion (GDPR)', letta: 'Delete passages and blocks directly', sw: 'One call clears episodes, memories, and receipts' },
+  { cap: 'Subject deletion (GDPR)', letta: 'Remove or rewrite files in the context tree directly', sw: 'One call clears episodes, memories, and receipts' },
 ]
 
 const OPS_ROWS: CompareRow[] = [
   { cap: 'Scope', letta: 'A full stateful-agent platform: you adopt the runtime', sw: 'A memory layer that drops into your existing stack' },
-  { cap: 'Storage', letta: 'Postgres and pgvector for archival memory', sw: 'Postgres and pgvector, nothing else to run' },
-  { cap: 'Interface', letta: 'Agent SDK (Python, TypeScript), CLI, desktop app, REST server, MCP', sw: 'REST, Python and TypeScript SDKs, MCP server, connectors' },
+  { cap: 'Storage', letta: 'Self-hosted App Server (Docker Compose, Railway, or Fly.io); memory lives in git-tracked MemFS, no separate archival store', sw: 'Postgres and pgvector, nothing else to run' },
+  { cap: 'Interface', letta: 'CLI (letta-code), desktop app, chat.letta.com, Slack/Telegram/Discord', sw: 'REST, Python and TypeScript SDKs, MCP server, connectors' },
   { cap: 'License', letta: 'Apache 2.0, with managed Letta Cloud', sw: 'Apache 2.0 throughout, runs fully offline' },
 ]
 
@@ -532,7 +546,7 @@ function ComparisonSection() {
 
       <p className="mx-auto mt-5 max-w-3xl text-[12.5px] leading-[1.6] text-theme-muted">
         Letta (formerly MemGPT) manages memory through the agent&apos;s own
-        tool calls across core, recall, and archival tiers, so retrieval
+        tool calls against a git-tracked context tree (MemFS), so retrieval
         depends on the model driving it. Rows reflect each product&apos;s
         public docs and source as of August 2026.
       </p>
@@ -623,13 +637,13 @@ function WorkedExampleSection() {
       <div className="mt-12 grid gap-6 lg:grid-cols-2">
         <CodePanel
           badge={<LettaBadge size={20} />}
-          title="Letta · agent searches memory"
+          title="Letta · agent reads its own context tree"
           calloutTone="muted"
           lines={[
-            <span key="1" style={{ color: 'var(--viz-code-muted)' }}># the agent runs its own retrieval</span>,
+            <span key="1" style={{ color: 'var(--viz-code-muted)' }}># the agent's memory is its working tree</span>,
             <span key="2"><span style={{ color: 'var(--color-accent)' }}>&rsaquo;</span> agent.send_message(<span style={{ color: 'var(--viz-code-text)' }}>&quot;where do I ship it&quot;</span>)</span>,
-            <span key="3">&nbsp;&nbsp;&#8627; archival_memory_search(<span style={{ color: 'var(--viz-code-text)' }}>&quot;address&quot;</span>)</span>,
-            <span key="4" className="mt-3 block" style={{ color: 'var(--viz-code-muted)' }}># returns whatever the model thought to search</span>,
+            <span key="3">&nbsp;&nbsp;&#8627; cat context/cust_5521.md</span>,
+            <span key="4" className="mt-3 block" style={{ color: 'var(--viz-code-muted)' }}># returns whatever's currently in the file</span>,
             <div key="5" className="mt-2 flex flex-col gap-2">
               <div className="flex items-center gap-2 rounded-lg border border-theme-border bg-surface-2 px-3 py-2 text-[11.5px]" style={{ color: 'var(--viz-code-muted)' }}>
                 old address &middot; Elm St
@@ -641,7 +655,7 @@ function WorkedExampleSection() {
               </div>
             </div>,
           ]}
-          callout="Whether the right memory surfaces depends on the model choosing to search and on what it saved earlier. Recency, redaction, and policy stay the agent's job."
+          callout="There's no ranking or expiry step: whatever the model last wrote to the file is what it reads next time, stale entries and all. Redaction and retention stay the agent's job."
         />
 
         <CodePanel
@@ -650,8 +664,8 @@ function WorkedExampleSection() {
           calloutTone="accent"
           lines={[
             <span key="1" style={{ color: 'var(--viz-code-muted)' }}># assemble a ranked, bounded bundle</span>,
-            <span key="2"><span style={{ color: 'var(--color-accent)' }}>&rsaquo;</span> assemble(subject=<span style={{ color: 'var(--color-accent)' }}>&quot;cust_5521&quot;</span>,</span>,
-            <span key="3">&nbsp;&nbsp;task=<span style={{ color: 'var(--color-accent)' }}>&quot;where do I ship it&quot;</span>, budget=<span style={{ color: 'var(--color-brand-500)' }}>1500</span>)</span>,
+            <span key="2"><span style={{ color: 'var(--color-accent)' }}>&rsaquo;</span> get_context(subject=<span style={{ color: 'var(--color-accent)' }}>&quot;cust_5521&quot;</span>,</span>,
+            <span key="3">&nbsp;&nbsp;task=<span style={{ color: 'var(--color-accent)' }}>&quot;where do I ship it&quot;</span>, max_tokens=<span style={{ color: 'var(--color-brand-500)' }}>1500</span>)</span>,
             <div key="4" className="mt-3 flex flex-col gap-2">
               <div className="flex items-center gap-2 rounded-lg border border-accent/30 bg-accent/10 px-3 py-2 text-[11.5px]" style={{ color: 'var(--viz-code-text)' }}>
                 new address &middot; Oak Ave
@@ -986,9 +1000,12 @@ function BenchmarksSection() {
         <p className="mt-4 text-[17px] leading-[1.6] text-theme-secondary/90">
           Statewave&apos;s scores are fixed: no model sits on the read path,
           so the same subject and budget return the same answer every run.
-          Letta publishes no comparable number: its leaderboard scores the
-          driving <em>LLM</em>, and the same runtime swings {scoreSpread}{' '}
-          points and {costRatio}&times; in cost by model.
+          Letta has published a LoCoMo figure of its own (74.0%, GPT-4o mini,
+          above Mem0&apos;s 68.5%), but not one produced under the same
+          conditions as this harness. What it does publish continuously is a
+          leaderboard that scores the driving <em>LLM</em>, and the same
+          runtime swings {scoreSpread} points and {costRatio}&times; in cost
+          by model.
         </p>
       </div>
 
@@ -1078,9 +1095,9 @@ function BenchmarksSection() {
           Context-Bench measures an agent&apos;s context engineering, not a
           memory layer in isolation, so it is not comparable to the LoCoMo and
           LongMemEval figures above. It is shown instead to make the opposite
-          point: the number moves with the model. Read from{' '}
-          {LETTA_LEADERBOARD_URL.replace('https://', '').replace(/\/$/, '')} on
-          12 August 2026.
+          point: the number moves with the model.{' '}
+          {LETTA_LEADERBOARD_URL.replace('https://', '').replace(/\/$/, '')},
+          last updated 13 March 2026.
         </p>
       </div>
 
@@ -1119,11 +1136,16 @@ interface MigrationRow {
   note: string
 }
 
+/* Tool names verified against letta-ai/letta-code src/tools/toolset.ts:57-62
+ * (2026-08-24): memory, memory_apply_patch, memory_insert, memory_replace,
+ * memory_rethink. All five detach once MemFS is enabled; there is no
+ * dedicated search tool, the agent reads its context tree like any other
+ * file. */
 const MIGRATION_ROWS: MigrationRow[] = [
-  { letta: 'archival_memory_insert("…")', sw: 'record(subject="cust_5521", event="…")', note: 'Ingested as an immutable episode; compilers extract typed memories.' },
-  { letta: 'archival_memory_search("…")', sw: 'assemble(subject="cust_5521", task="…", budget=1500)', note: 'Ranked, token-bounded bundle plus an optional receipt; no tool call, no model turn.' },
-  { letta: 'core_memory_replace(block, "…")', sw: 'record(subject="cust_5521", event="…")', note: 'Facts are compiled from episodes, not hand-edited blocks.' },
-  { letta: 'passage / block delete', sw: 'delete_subject("cust_5521")', note: 'Removes every episode, memory, and receipt for the subject in one call.' },
+  { letta: 'memory_insert("context/cust_5521.md", "…")', sw: 'create_episode(subject="cust_5521", event="…")', note: 'Ingested as an immutable episode; compilers extract typed memories.' },
+  { letta: 'cat context/cust_5521.md', sw: 'get_context(subject="cust_5521", task="…", max_tokens=600)', note: 'MemFS has no search or ranking step, only whatever the file currently holds; Statewave returns a ranked, token-bounded bundle plus an optional receipt.' },
+  { letta: 'memory_replace("context/cust_5521.md", "…")', sw: 'create_episode(subject="cust_5521", event="…")', note: 'Facts are compiled from episodes, not hand-edited files.' },
+  { letta: 'git rm context/cust_5521.md', sw: 'delete_subject("cust_5521")', note: 'Removes every episode, memory, and receipt for the subject in one call.' },
 ]
 
 const INSTALL_CMD = 'npx @statewavedev/statewave'
@@ -1186,7 +1208,7 @@ function MigrationSection() {
 /* ─── FAQ ────────────────────────────────────────────────────────────────── */
 
 const FAQS = [
-  { q: 'How is Statewave different from Letta?', a: 'In Letta the agent manages its own memory: it edits core blocks and searches recall and archival storage with tool calls, so retrieval is the model’s job and costs tokens every turn. Statewave compiles episodes into typed memories, ranks them to a token budget, applies policy on the read path, and returns an integrity-hashed receipt, with no model in the loop.' },
+  { q: 'How is Statewave different from Letta?', a: 'In Letta the agent manages its own memory: it edits memory blocks in a git-tracked context tree (MemFS) with tool calls, so retrieval is the model’s job and costs tokens every turn. Statewave compiles episodes into typed memories, ranks them to a token budget, applies policy on the read path, and returns an integrity-hashed receipt, with no model in the loop.' },
   { q: 'Do I have to replace my agent framework?', a: 'No. Letta is a whole agent runtime; Statewave is only the memory layer. Keep your existing agent or framework and point its memory reads and writes at Statewave over REST, the SDKs, or MCP.' },
   { q: 'What makes retrieval deterministic?', a: 'A fixed scoring model applied to a hybrid lexical and vector candidate set: kind priority (3–10), recency (0–5), task relevance (0–8), and temporal validity (−4 to +3). The same subject, task, budget, and point in time produce the same bundle every time.' },
   { q: 'What is a state-assembly receipt?', a: 'An immutable, ULID-addressable record of one context call. It carries a byte-level integrity hash of what was delivered and references the policy bundle hash, so ‘what did the agent see, under which policy’ is answerable forever.' },
