@@ -429,15 +429,15 @@ function GapSection() {
 /* ─── How order is decided ───────────────────────────────────────────────── */
 
 /* Same signal ranges /vs/letta documents, from ProductPage's scoring model.
- * Semantic similarity is the hybrid retrieval stage that builds the
- * candidate set those scores are applied to, so it has a method rather than
- * a range. `SIGNALS.length` also feeds the hero stat strip. */
+ * The scorer picks one relevance term, word overlap or cosine similarity,
+ * never both, so similarity isn't a separate signal, it's the alternate
+ * path task relevance can take. `SIGNALS.length` also feeds the hero stat
+ * strip. */
 const SIGNALS = [
   { label: 'KIND PRIORITY', value: '3–10', note: 'typed profile facts outrank raw episodes' },
   { label: 'RECENCY', value: '0–5', note: 'linear by age, newest scores highest' },
-  { label: 'TASK RELEVANCE', value: '0–8', note: 'lexical overlap with the task at hand' },
+  { label: 'TASK RELEVANCE', value: '0–8', note: 'word overlap (0-5) or cosine similarity (0-8)' },
   { label: 'TEMPORAL VALIDITY', value: '−4…+3', note: 'valid facts gain +3, expired ones lose 4' },
-  { label: 'SEMANTIC SIMILARITY', value: 'cosine', note: 'pgvector, with a text-search fallback' },
 ]
 
 function SignalsStrip() {
@@ -448,7 +448,7 @@ function SignalsStrip() {
           <span className="font-heading text-base font-bold text-theme-primary">How order is decided</span>
           <span className="font-mono text-[12px] text-theme-muted">score = priority + recency + relevance + validity</span>
         </div>
-        <div className="grid gap-px bg-theme-border sm:grid-cols-2 lg:grid-cols-5">
+        <div className="grid gap-px bg-theme-border sm:grid-cols-2 lg:grid-cols-4">
           {SIGNALS.map((s) => (
             <div key={s.label} className="bg-surface-1 p-7">
               <div className="mb-3 font-mono text-[11px] text-accent">{s.label}</div>
@@ -490,7 +490,7 @@ const GOVERNANCE_ROWS: CompareRow[] = [
 const OPS_ROWS: CompareRow[] = [
   { cap: 'Memory model', zp: 'Knowledge graph: nodes plus edges (Graphiti-based)', sw: 'Typed memories (4 kinds) plus immutable episodes' },
   { cap: 'Storage', zp: 'Managed graph database under the hood; nothing to run', sw: 'Postgres and pgvector; no proprietary store' },
-  { cap: 'Deployment', zp: 'Cloud, BYOK, or BYOC only; Community Edition discontinued 2025', sw: 'Self-hosted only' },
+  { cap: 'Deployment', zp: 'Cloud, BYOK, or BYOC; Community Edition discontinued 2025, repo stays Apache 2.0 unsupported', sw: 'Self-hosted only' },
   { cap: 'Best for', zp: 'Graph-shaped reasoning and explicit entity modelling', sw: 'Eval-driven, inspectable retrieval on a single Postgres' },
 ]
 
@@ -585,7 +585,8 @@ function ComparisonSection() {
             Your domain has entities and explicit relationships the agent should reason about:
             &quot;what connects Alice to BluePeak?&quot; is a graph question. You want temporal
             validity on relationships for free, prefer defining custom entity types, and are fine
-            running entirely as a managed cloud or BYOC service. Zep has no self-hosted edition.
+            running entirely as a managed cloud or BYOC service. Zep has no supported self-hosted
+            edition.
           </p>
         </div>
 
@@ -917,9 +918,9 @@ function BenchmarksSection() {
         <p className="mt-4 text-[17px] leading-[1.6] text-theme-secondary/90">
           Statewave is evaluated on two long-horizon memory benchmarks, and the scores are fixed:
           no model and no reranker sit on the read path, so the same subject, task, and budget
-          return the same bytes every run. Zep publishes no comparable number: graph
-          traversal with a managed reranker composes the Context Block, and Zep&apos;s own docs
-          describe the graph updating dynamically as new data arrives.
+          return the same bytes every run. Zep publishes no number produced under the same
+          conditions: graph traversal with a managed reranker composes the Context Block, and
+          Zep&apos;s own docs describe the graph updating dynamically as new data arrives.
         </p>
       </div>
 
@@ -1056,7 +1057,7 @@ interface MigrationRow {
  * thread.add_messages / thread.get_user_context / graph.search, and edge
  * valid_at / invalid_at for temporal validity. */
 const MIGRATION_ROWS: MigrationRow[] = [
-  { zp: 'thread.add_messages("alice-1", …)', sw: 'sw.add_episode("user-alice", …)', note: 'Messages land as immutable episodes; compilers extract typed memories.', effort: 'direct' },
+  { zp: 'thread.add_messages("alice-1", …)', sw: 'sw.create_episode("user-alice", …)', note: 'Messages land as immutable episodes; compilers extract typed memories.', effort: 'direct' },
   { zp: 'thread.get_user_context("alice-1")', sw: 'sw.get_context("user-alice", task="…", max_tokens=600)', note: 'Ranked, token-bounded bundle with per-memory metadata and an optional receipt.', effort: 'direct' },
   { zp: 'graph.search("…")', sw: 'query by subject_id + kind + metadata', note: 'No graph-traversal surface. Query typed memories, or keep a graph layer in your app.', effort: 'rework' },
   { zp: 'edge valid_at / invalid_at', sw: 'valid_from / valid_to on the memory', note: 'Temporal validity moves from the edge onto the memory itself.', effort: 'direct' },
@@ -1156,7 +1157,7 @@ const FAQS: Faq[] = [
   { tag: 'OVERVIEW', q: 'How is Statewave different from Zep?', a: 'Zep is a Graph RAG product: it models memory as a knowledge graph of entities and edges and returns retrieval as an optimized Context Block string. Statewave compiles raw episodes into typed memories with confidence and validity, ranks them with a fixed scoring model to a token budget, and returns a structured bundle: per-row kind, confidence, validity, and source episode ids, with no graph to traverse.' },
   { tag: 'CAPABILITY', q: 'Can I still do graph reasoning?', a: 'Not natively. Statewave has no graph-traversal surface, so "find everything Alice is connected to within two hops" isn’t its shape. If your domain needs entity-relationship reasoning, keep that in Zep or your own data layer, and use Statewave for episode and typed-memory storage.' },
   { tag: 'MIGRATION', q: 'What happens to relational facts like "Alice works at Acme"?', a: 'Facts about a single subject migrate cleanly. Relational facts that link two entities don’t survive directly. You encode the relationship in the subject’s memory content, write the memory to both subjects with cross-references, or keep the relationship in your application’s graph.' },
-  { tag: 'DETERMINISM', q: 'What makes retrieval deterministic?', a: 'The bundle is compiled and assembled the same way every run: five ranking signals (kind priority, recency, task relevance, temporal validity, and semantic similarity) combined to a fixed token budget. The same subject, task, and point in time produce the same bytes. Graph traversal with a reranker can’t promise that, because index state and reranker variation introduce drift.' },
+  { tag: 'DETERMINISM', q: 'What makes retrieval deterministic?', a: 'The bundle is compiled and assembled the same way every run: four ranking signals (kind priority, recency, task relevance, and temporal validity) combined to a fixed token budget. The same subject, task, and point in time produce the same bytes. Graph traversal with a reranker can’t promise that, because index state and reranker variation introduce drift.' },
   { tag: 'STORAGE', q: 'Do I have to run a graph database?', a: 'No. Storage is Postgres plus pgvector and nothing else, usually already in your stack. There is no separate graph store to operate, back up, or scale.' },
   { tag: 'DEPLOYMENT', q: 'Does Zep offer a self-hosted option?', a: 'No. Zep discontinued its self-hosted Community Edition in 2025 and now concentrates its open-source work on Graphiti, the temporal-graph engine underneath; the memory API this page compares (thread.get_user_context, graph.search) is only available through Zep Cloud, BYOK, or Bring-Your-Own-Cloud. Statewave runs the whole stack, Postgres included, on your own infrastructure, with no cloud dependency and no usage credits to meter.' },
   { tag: 'INTEGRATIONS', q: 'Does it work with Claude, Cursor, or Codex?', a: 'Yes. One command (npx @statewavedev/statewave) boots the runtime, and its shipped MCP server connects any MCP-compatible client: Claude, Cursor, Copilot, and agent runtimes. Zep is cloud-only; Statewave runs entirely on your own infrastructure.' },
