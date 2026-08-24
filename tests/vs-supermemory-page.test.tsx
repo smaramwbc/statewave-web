@@ -65,8 +65,8 @@ describe('StatewaveVsSupermemoryPage: claims', () => {
   it('counts the ranking signals it actually shows', () => {
     const { container } = renderPage()
     expect(container.textContent).toContain('ranking signals, deterministic')
-    expect(screen.getByText('SEMANTIC SIMILARITY')).toBeTruthy()
-    expect(container.textContent).toMatch(/5\s*ranking signals/)
+    expect(screen.queryByText('SEMANTIC SIMILARITY')).toBeNull()
+    expect(container.textContent).toMatch(/4\s*ranking signals/)
   })
 
   it('uses raw_episode, not artifact_ref, as the fourth kind-priority bar', () => {
