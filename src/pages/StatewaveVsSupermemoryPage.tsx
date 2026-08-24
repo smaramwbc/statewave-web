@@ -32,9 +32,11 @@ import { faqPageJsonLd } from '../lib/seo-meta'
  * Recall@15 95% with ~720 tokens added, sub-300ms retrieval at 100B+
  * tokens/mo, and the MemScore quality/latency/cost triple) were checked
  * against supermemory.ai and github.com/supermemoryai on 2026-08-19 and hold
- * up; unlike /vs/zep there was no stale deployment claim to correct here,
- * Supermemory does still ship a self-hostable binary alongside its managed
- * platform.
+ * up. Supermemory does still ship a self-hostable binary alongside its
+ * managed platform, but the binary is a zero-config, embedded graph engine
+ * with local embeddings, no Postgres, no pgvector, and no database to
+ * provision at all. An earlier draft of this page attributed Statewave's own
+ * Postgres/pgvector storage stack to Supermemory; that's corrected below.
  *
  * Mockups use the `--viz-*` tokens from src/index.css so their neutrals flip
  * with the light/dark theme, same convention as the other three vs pages.
@@ -296,8 +298,8 @@ function HeroStatStrip() {
 /* ─── The gap ────────────────────────────────────────────────────────────── */
 
 const SUPERMEMORY_PIPELINE = [
-  { stage: 'vector', note: 'pgvector' },
-  { stage: 'keyword', note: 'BM25' },
+  { stage: 'graph', note: 'embedded, local embeddings' },
+  { stage: 'keyword', note: 'hybrid search' },
   { stage: 'rerank', note: 'context-aware' },
 ]
 
@@ -448,8 +450,8 @@ function GapSection() {
               <p className="font-heading text-lg font-bold text-theme-primary">Assembly is deterministic and inspectable</p>
               <p className="mt-2 text-[14.5px] leading-[1.6] text-theme-secondary">
                 Given the same subject, task, token budget, and point in time, the assembler
-                returns the identical bundle every run. Five signals set the order: kind priority,
-                recency, task relevance, temporal validity, and semantic similarity.
+                returns the identical bundle every run. Four signals set the order: kind priority,
+                recency, task relevance, and temporal validity.
               </p>
             </div>
           </div>
@@ -468,9 +470,8 @@ function GapSection() {
 const SIGNALS = [
   { label: 'KIND PRIORITY', value: '3–10', note: 'typed profile facts outrank raw episodes' },
   { label: 'RECENCY', value: '0–5', note: 'linear by age, newest scores highest' },
-  { label: 'TASK RELEVANCE', value: '0–8', note: 'lexical overlap with the task at hand' },
+  { label: 'TASK RELEVANCE', value: '0–8', note: 'word overlap (0-5) or cosine similarity (0-8)' },
   { label: 'TEMPORAL VALIDITY', value: '−4…+3', note: 'valid facts gain +3, expired ones lose 4' },
-  { label: 'SEMANTIC SIMILARITY', value: 'cosine', note: 'pgvector, with a text-search fallback' },
 ]
 
 function SignalsStrip() {
@@ -481,7 +482,7 @@ function SignalsStrip() {
           <span className="font-heading text-base font-bold text-theme-primary">How order is decided</span>
           <span className="font-mono text-[12px] text-theme-muted">score = priority + recency + relevance + validity</span>
         </div>
-        <div className="grid gap-px bg-theme-border sm:grid-cols-2 lg:grid-cols-5">
+        <div className="grid gap-px bg-theme-border sm:grid-cols-2 lg:grid-cols-4">
           {SIGNALS.map((s) => (
             <div key={s.label} className="bg-surface-1 p-7">
               <div className="mb-3 font-mono text-[11px] text-accent">{s.label}</div>
@@ -519,7 +520,7 @@ const GOVERNANCE_ROWS: CompareRow[] = [
 
 const OPS_ROWS: CompareRow[] = [
   { cap: 'Memory model', sm: 'Graph engine plus extracted user profiles', sw: 'Typed memories (4 kinds) plus immutable episodes' },
-  { cap: 'Storage', sm: 'Self-host binary (embedded engine), or Postgres + pgvector; hosted platform on Cloudflare edge', sw: 'Postgres and pgvector, no proprietary store' },
+  { cap: 'Storage', sm: 'Self-host binary (embedded engine); hosted platform on Cloudflare edge', sw: 'Postgres and pgvector, no proprietary store' },
   { cap: 'Deployment', sm: 'Self-hostable binary and a managed hosted platform with connectors and MCP', sw: 'Self-hosted only' },
   { cap: 'Best for', sm: 'Fast, high-recall retrieval over large mixed corpora', sw: 'Eval-driven, inspectable, deterministic retrieval with governance' },
 ]
@@ -1108,7 +1109,7 @@ interface MigrationRow {
 }
 
 const MIGRATION_ROWS: MigrationRow[] = [
-  { sm: 'POST /v3/documents { content }', sw: 'sw.add_episode("user-alice", …)', note: 'Documents and chats land as immutable episodes; compilers extract typed memories.', effort: 'direct' },
+  { sm: 'POST /v3/documents { content }', sw: 'sw.create_episode("user-alice", …)', note: 'Documents and chats land as immutable episodes; compilers extract typed memories.', effort: 'direct' },
   { sm: 'POST /v4/search { q }', sw: 'sw.get_context("user-alice", task="…", max_tokens=600)', note: 'Ranked, token-bounded bundle with per-memory metadata and an optional receipt, not raw scored hits.', effort: 'direct' },
   { sm: 'GET /v4/profile', sw: 'profile_fact memories in the bundle', note: 'The extracted profile becomes typed profile_fact rows with confidence and validity.', effort: 'direct' },
   { sm: 'spaces', sw: 'subject_id scoping', note: 'Per-space isolation maps onto Statewave subjects.', effort: 'direct' },
@@ -1206,11 +1207,11 @@ interface Faq {
 const FAQS: Faq[] = [
   { q: 'How is Statewave different from Supermemory?', a: 'Supermemory ingests documents and chats, extracts memories into a graph with user profiles, and answers search with hybrid retrieval and a reranker, tuned for recall and speed. Statewave compiles typed memories with confidence and validity, ranks them to a token budget, and returns a deterministic bundle with read-path governance and optional receipts.' },
   { q: 'Can I compare Statewave’s 0.905 against Supermemory’s 59.7%?', a: 'No, they measure different things. Statewave’s 0.905 is end-to-end QA answer accuracy on LoCoMo; Supermemory’s 59.7% is Precision@1, a retrieval metric. Different metrics, different sample sizes. Read each on its own terms, and benchmark both on your own workload.' },
-  { q: 'Isn’t Supermemory also open-source and self-hostable?', a: 'Yes. Supermemory ships a self-hostable binary and uses Postgres with pgvector, like Statewave. The real difference is the read path: deterministic, provenance-traced assembly with receipts, versus fast, recall-tuned reranked search with an extracted profile.' },
+  { q: 'Isn’t Supermemory also open-source and self-hostable?', a: 'Yes, but the two binaries ask different things of you. Supermemory’s self-hosted binary is zero-config, an embedded graph engine with local embeddings and no database to provision. Statewave’s self-hosted core asks you to run Postgres and pgvector. The read path also differs: deterministic, provenance-traced assembly with receipts, versus fast, recall-tuned reranked search with an extracted profile.' },
   { q: 'Which one is faster?', a: 'Supermemory is engineered for speed and publishes sub-300ms retrieval at scale. Statewave doesn’t headline a latency number; its read path is a single Postgres query, designed around determinism rather than raw throughput.' },
-  { q: 'What makes Statewave retrieval deterministic?', a: 'Five ranking signals, kind priority, recency, task relevance, temporal validity, and semantic similarity, combine to a fixed token budget. The same subject, task, and point in time always produce the same bytes.' },
+  { q: 'What makes Statewave retrieval deterministic?', a: 'Four ranking signals, kind priority, recency, task relevance, and temporal validity, combine to a fixed token budget. The same subject, task, and point in time always produce the same bytes.' },
   { q: 'Does it work with Claude, Cursor, or Codex?', a: 'Yes. One command boots the runtime, and its shipped MCP server connects any MCP-compatible client. Supermemory’s hosted platform also ships MCP and connectors; Statewave is self-hosted, so you operate Postgres and a container.' },
-  { q: 'Can I run it fully offline?', a: 'Yes. Statewave’s storage is Postgres plus pgvector, self-hosted with no cloud dependency. Supermemory’s local binary also runs standalone, but its managed platform and hosted reranker are Cloudflare-edge services.' },
+  { q: 'Can I run it fully offline?', a: 'Yes. Statewave’s storage is Postgres plus pgvector, self-hosted with no cloud dependency. Supermemory’s local binary also runs standalone, but its managed platform is a Cloudflare-edge service.' },
 ]
 
 /* Native <details> disclosure, the same pattern as /benchmarks and the
