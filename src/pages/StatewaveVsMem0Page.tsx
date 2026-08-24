@@ -369,7 +369,7 @@ function GapSection() {
 const SIGNALS = [
   { label: 'KIND PRIORITY', range: '3–10', note: 'typed profile facts outrank raw episodes' },
   { label: 'RECENCY', range: '0–5', note: 'linear by age, newest scores highest' },
-  { label: 'TASK RELEVANCE', range: '0–8', note: 'lexical overlap plus cosine similarity' },
+  { label: 'TASK RELEVANCE', range: '0–8', note: 'word overlap (0-5) or cosine similarity (0-8)' },
   { label: 'TEMPORAL VALIDITY', range: '−4…+3', note: 'valid facts gain +3, expired ones lose 4' },
 ]
 
@@ -629,8 +629,8 @@ function WorkedExampleSection() {
           calloutTone="accent"
           lines={[
             <span key="1" style={{ color: 'var(--viz-code-muted)' }}># assemble a ranked, bounded bundle</span>,
-            <span key="2"><span style={{ color: 'var(--color-accent)' }}>&rsaquo;</span> assemble(subject=<span style={{ color: 'var(--color-accent)' }}>&quot;cust_5521&quot;</span>,</span>,
-            <span key="3">&nbsp;&nbsp;task=<span style={{ color: 'var(--color-accent)' }}>&quot;where do I ship it&quot;</span>, budget=<span style={{ color: 'var(--color-brand-500)' }}>1500</span>)</span>,
+            <span key="2"><span style={{ color: 'var(--color-accent)' }}>&rsaquo;</span> get_context(subject=<span style={{ color: 'var(--color-accent)' }}>&quot;cust_5521&quot;</span>,</span>,
+            <span key="3">&nbsp;&nbsp;task=<span style={{ color: 'var(--color-accent)' }}>&quot;where do I ship it&quot;</span>, max_tokens=<span style={{ color: 'var(--color-brand-500)' }}>1500</span>)</span>,
             <div key="4" className="mt-3 flex flex-col gap-2">
               <div className="flex items-center gap-2 rounded-lg border border-accent/30 bg-accent/10 px-3 py-2 text-[11.5px]" style={{ color: 'var(--viz-code-text)' }}>
                 new address &middot; Oak Ave
@@ -880,8 +880,8 @@ interface MigrationRow {
 }
 
 const MIGRATION_ROWS: MigrationRow[] = [
-  { m0: 'client.add("…", user_id="cust_5521")', sw: 'record(subject="cust_5521", event="…")', note: 'Ingested as an immutable episode; compilers extract typed memories.' },
-  { m0: 'client.search("…", user_id="cust_5521")', sw: 'assemble(subject="cust_5521", task="…", budget=1500)', note: 'Ranked, token-bounded bundle plus a receipt of what was delivered.' },
+  { m0: 'client.add("…", user_id="cust_5521")', sw: 'create_episode(subject="cust_5521", event="…")', note: 'Ingested as an immutable episode; compilers extract typed memories.' },
+  { m0: 'client.search("…", user_id="cust_5521")', sw: 'get_context(subject="cust_5521", task="…", max_tokens=1500)', note: 'Ranked, token-bounded bundle plus a receipt of what was delivered.' },
   { m0: 'client.get_all(user_id="cust_5521")', sw: 'memories(subject="cust_5521", kind="profile_fact")', note: 'Browse by kind, subject, or validity; provenance attached.' },
   { m0: 'client.delete_all(user_id="cust_5521")', sw: 'delete_subject("cust_5521")', note: 'Removes every episode, memory, and receipt in one call — receipts included.' },
 ]
