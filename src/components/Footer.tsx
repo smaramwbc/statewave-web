@@ -30,6 +30,7 @@ export function Footer() {
               <li><Link to="/vs/mem0" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">vs Mem0</Link></li>
               <li><Link to="/vs/letta" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">vs Letta</Link></li>
               <li><Link to="/vs/zep" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">vs Zep</Link></li>
+              <li><Link to="/vs/supermemory" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">vs Supermemory</Link></li>
               <li><Link to="/connectors" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">Connectors</Link></li>
               <li>
                 <button

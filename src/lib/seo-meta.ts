@@ -50,6 +50,7 @@ export type RouteKey =
   | '/vs/mem0'
   | '/vs/letta'
   | '/vs/zep'
+  | '/vs/supermemory'
   | '/connectors'
   | '/developers'
   | '/about'
@@ -72,6 +73,7 @@ export const PUBLIC_ROUTES: readonly RouteKey[] = [
   '/vs/mem0',
   '/vs/letta',
   '/vs/zep',
+  '/vs/supermemory',
   '/connectors',
   '/developers',
   '/about',
@@ -203,6 +205,11 @@ export const PAGE_META: Record<RouteKey, PageMeta> = {
     description:
       'How Statewave compares to Zep: Zep models memory as a knowledge graph and returns retrieval as an opaque Context Block string, while Statewave compiles typed, provenance-traced memories into a deterministic, token-bounded bundle with per-row confidence, validity, and an integrity-hashed receipt.',
     breadcrumbLabel: 'vs Zep',
+  '/vs/supermemory': {
+    title: 'Statewave vs. Supermemory — Deterministic Bundle vs. Reranked Search',
+    description:
+      'How Statewave compares to Supermemory: deterministic, token-bounded context assembly with per-row provenance and integrity-hashed receipts vs. hybrid vector-plus-keyword search with context-aware reranking — plus each product’s own LoCoMo and LongMemEval figures, shown apart since they measure different things.',
+    breadcrumbLabel: 'vs Supermemory',
     ogType: 'article',
     priority: 0.7,
     changefreq: 'monthly',
