@@ -198,6 +198,10 @@ export const PAGE_META: Record<RouteKey, PageMeta> = {
     description:
       'How Statewave compares to Letta: in Letta the agent edits and searches its own memory with tool calls, while Statewave assembles a deterministic, token-bounded context bundle mechanically — with policy on the read path and an integrity-hashed receipt of what the agent saw.',
     breadcrumbLabel: 'vs Letta',
+    ogType: 'article',
+    priority: 0.7,
+    changefreq: 'monthly',
+  },
   '/vs/zep': {
     title: 'Statewave vs. Zep — Inspectable Bundle vs. Opaque Context Block',
     description:
