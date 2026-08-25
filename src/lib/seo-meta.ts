@@ -209,6 +209,10 @@ export const PAGE_META: Record<RouteKey, PageMeta> = {
     description:
       'How Statewave compares to Zep: Zep models memory as a knowledge graph and returns retrieval as an opaque Context Block string, while Statewave compiles typed, provenance-traced memories into a deterministic, token-bounded bundle with per-row confidence, validity, and an integrity-hashed receipt.',
     breadcrumbLabel: 'vs Zep',
+    ogType: 'article',
+    priority: 0.7,
+    changefreq: 'monthly',
+  },
   '/vs/supermemory': {
     title: 'Statewave vs. Supermemory — Deterministic Bundle vs. Reranked Search',
     description:
