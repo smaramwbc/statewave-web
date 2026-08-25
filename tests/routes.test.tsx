@@ -92,6 +92,16 @@ describe('Route rendering', () => {
     })
   })
 
+  it('renders vs-zep comparison page at /vs/zep', async () => {
+    renderApp('/vs/zep')
+    await waitFor(() => {
+      expect(screen.getByRole('main')).toBeInTheDocument()
+    })
+    await waitFor(() => {
+      expect(screen.getByText(/statewave returns a receipt/i)).toBeInTheDocument()
+    })
+  })
+
   it('renders 404 for unknown routes', async () => {
     renderApp('/unknown-page')
     await waitFor(() => {
