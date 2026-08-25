@@ -1,0 +1,324 @@
+---
+title: "Multi-Tenant Isolation in AI Memory: Which Surfaces Actually Need a Tenant Boundary"
+slug: multi-tenant-isolation-in-ai-memory
+date: "2026-08-25T09:00:00+02:00"
+description: A user can be fully authenticated, correctly authorized, and still receive another customer's facts in a context bundle. Where the tenant boundary belongs, the seven surfaces that are not tenant-scoped, and the backfill step that silently erases memory if you skip it.
+author: Statewave team
+image: /images/blog/multi-tenant-isolation-in-ai-memory/og.png
+headerImage: /images/blog/multi-tenant-isolation-in-ai-memory/header.png
+tags:
+  - multi-tenancy
+  - isolation
+  - security
+  - architecture
+---
+
+Multi-tenant isolation in AI memory means every episode, compiled memory, ranked context bundle, and audit record carries a tenant boundary that is applied before retrieval runs. Your application doesn't get to remember or forget it. Authentication alone does not give you this: a user can be fully authenticated, correctly authorized for their role, and still receive another customer's facts in a context bundle, because the memory layer never asked whose data it was ranking.
+
+In this post you'll learn where the tenant boundary should live, which surfaces in an agent memory system leak in ways a database row policy never touches, how to switch isolation on without making your existing data disappear, and what is still missing today.
+
+## What is multi-tenant isolation in AI memory?
+
+It is the set of controls that stop tenant A's agent from reading, ranking, searching, or deleting tenant B's memory, in a system where both tenants run on the same code and the same Postgres instance. The distinction that matters most is the one AWS draws in its [SaaS Architecture Fundamentals whitepaper](https://docs.aws.amazon.com/whitepapers/latest/saas-architecture-fundamentals/tenant-isolation.html): tenant isolation is separate from authentication and authorization, and a user "could be authenticated and authorized, and still access the resources of another tenant."
+
+That gap is wider in an agent memory system than in a normal CRUD app, because memory produces derived artifacts. A row is one thing. A compiled fact extracted from that row, an embedding built from it, a ranked bundle that packed it, a receipt that recorded it, and a webhook that announced it are five more.
+
+### The three identifiers people confuse
+
+Statewave separates three ideas that often get collapsed into one string, and getting them apart is most of the work:
+
+- `tenant_id` is the access boundary. It is the customer, the organization, the thing on the contract. It is stored on every episode, memory, and compile job, and every query is scoped to it.
+- `subject_id` is what the memory is *about*: a user, an account, a repo, a service, a run. Subjects are created implicitly on the first episode write, and deleting a subject deletes its episodes, compiled memories, resolutions, and entities. Receipts are append-only and are not removed by that call.
+- `caller_id` and `caller_type` are who is asking right now. They feed the policy evaluator and land on the audit receipt.
+
+A tenant contains many subjects. A subject is read by many callers. Collapsing any two of those into one field is the most common design error in this space, and the next-but-one section covers why.
+
+### Why this is a security-review problem, not an architecture preference
+
+OWASP lists Sensitive Information Disclosure as [LLM02 in its 2025 Top 10 for LLM Applications](https://genai.owasp.org/llmrisk/llm022025-sensitive-information-disclosure/). If you sell B2B software, this arrives as a question in a customer security questionnaire long before it arrives as an incident: *when your assistant recalls something about my account, what stops it recalling something about my competitor's?* "Our code filters by organization" is an answer that fails follow-up questions. "Here is the boundary, here is where it is enforced, and here is the signed record of what the agent was given" is an answer that survives them.
+
+## Why does agent memory leak differently from a normal SaaS database?
+
+Because the thing that reaches the model is not a row. It is a bundle assembled from rows, and there are five stages between the write and the prompt where tenant context can be dropped. Each one is a place a normal SaaS isolation review does not look.
+
+### Retrieval ranks before it filters
+
+Vector search returns the embedding-nearest items. Apply the tenant predicate after ranking rather than before, and the ranking has already read across the boundary: the top-k you discarded was still computed over data the caller should never have influenced.
+
+Statewave scopes queries to the tenant and subject before the composite score runs, and the score itself is deterministic: kind priority (3 to 10), recency (0 to 5), task relevance (0 to 5 on word overlap, 0 to 8 with embeddings), and temporal validity (-4 to +3). Same subject, same task, same budget, same bytes. That determinism is what separates a bundle you can reason about from one you can only sample, which is also the line between [a memory runtime and a RAG pipeline](/blog/ai-agent-memory-vs-rag).
+
+### Compilation batches raw content to a provider
+
+If you run the LLM compiler, episodes leave your network and go to whichever provider you configured through LiteLLM. Compile per subject and that batch is naturally bounded to one tenant. Batch across subjects to save on calls and you have just put two customers' raw conversation text into a single third-party request. No database policy prevents that, because it happens above the database. The heuristic compiler avoids the question entirely by running locally.
+
+### Derived artifacts outlive their source
+
+A compiled `profile_fact` is not the episode it came from. Delete the episode and the fact survives unless something links them. Statewave carries source episode IDs on every compiled memory, which is what makes subject deletion actually complete and what makes an [audit trail traceable back to the exact source turn](/blog/agent-memory-provenance-audit-trails). The Oracle engineering team makes the same argument in [its multi-tenant agent memory schema walkthrough](https://blogs.oracle.com/developers/from-prompt-to-persistence-part-1-designing-multi-tenant-agent-memory-schemas-for-saas): without provenance on every durable row, the right-to-forget query "can't be written."
+
+### Shared subjects are shared on purpose
+
+Multi-agent pipelines are built on one subject that several agents read and write, which is the entire point of the [multi-agent shared context pattern](/use-cases/multi-agent-shared-context). A Planner writes a deprecation, a Coder reads it before writing code, a Reviewer reads both. Inside a tenant that is the feature. Across tenants it is the incident. The shared-subject design and the tenant boundary have to be reasoned about separately, because one is deliberately permissive and the other is deliberately not.
+
+### Policy and audit are data too
+
+Nobody plans for this one. Policy bundles, receipts, and label sets are themselves rows with tenant ownership, and they can collide.
+
+Statewave hit exactly that: before [issue #79](https://github.com/smaramwbc/statewave/issues/79), two tenants uploading an identical policy YAML would silently re-bind to the first tenant's row, because bundles were keyed on the content hash alone. The fix was composite uniqueness on `(tenant_id, bundle_hash)` using PostgreSQL 15's `NULLS NOT DISTINCT`, so identical YAML from two customers now produces two independently resolvable rows. Small bug, large lesson: the governance layer needs the same tenant discipline as the data layer, and a content-addressed store is exactly where you forget that.
+
+## Where should the tenant boundary live: the database, the application, or the subject id?
+
+The database is the right long-term answer, the application is where most systems enforce it today, and the subject id is the wrong answer that looks convenient. Here is the reasoning for each, including where Statewave sits and what it costs.
+
+### Database: row-level security
+
+PostgreSQL's [row-level security](https://www.postgresql.org/docs/current/ddl-rowsecurity.html) attaches a predicate to the table so a query cannot forget the filter. Oracle's argument for the equivalent mechanism is direct: a developer who forgets to filter by tenant "can't write a leaking query," and the same policy should cover `INSERT`, because writing a row under the wrong tenant is as damaging as reading one.
+
+That argument is correct, and Statewave's own README agrees with it by listing the absence as a gap: "Multi-tenant is app-layer — query-scoped data isolation (v0.5) + per-tenant config / policy bundles / receipts (v0.8) + HMAC-signed audit + tenant region pin (v0.9), but no Postgres RLS yet." That is on the [limitations list](https://github.com/smaramwbc/statewave-docs/blob/main/product.md), not buried.
+
+Where the RLS-only position runs short is everything above the row. RLS will not stop you batching two tenants into one embedding call, will not tenant-scope a webhook URL, will not keep a receipt from being readable by the wrong operator, and will not tell an auditor which policy was in force when a bundle was assembled. RLS is the floor. It is not the ceiling, and treating it as the ceiling is how systems pass a schema review and fail a data-flow review.
+
+### Application: query scoping on every read and write
+
+This is Statewave today. `tenant_id` is persisted on episodes, memories, and compile jobs; composite indexes make the scoped queries cheap; and the [v1 API contract](https://github.com/smaramwbc/statewave-docs/blob/main/api/v1-contract.md) states the guarantee plainly: episodes, memories, subjects, compile jobs, search, context, and timeline are all tenant-scoped, and tenant A cannot read, search, or delete tenant B's data.
+
+The honest cost of app-layer enforcement is that its correctness lives in code review and tests rather than in a database policy. The honest benefit is that it covers the derived surfaces RLS cannot reach, and it is auditable after the fact through receipts. If your threat model is a hostile tenant probing the API, app-layer scoping plus receipts is defensible. If your threat model includes a mistake in a future query written by someone who has not read this article, you want both, and today you get one.
+
+### Subject id: the trap
+
+Encoding tenancy into the subject string, `acme__user-42`, looks identical from the outside and loses two properties. Statewave's [subject design guide](https://github.com/smaramwbc/statewave-docs/blob/main/subject-design.md) names both: every subject id becomes structurally tenant-coupled, so moving or sharing a subject later fights the scheme; and `tenant_id` is indexed, while a tenant-prefixed subject id "forces a string-prefix scan and doesn't get the same isolation guarantees."
+
+Use `tenant_id` for tenancy. Use `subject_id` for what the memory is about. If you need tenant-wide knowledge rather than per-user knowledge, keep a stable subject id such as `tenant-catalogue` and write it under each tenant's `tenant_id`. The subject id stays the same across every tenant; the scoping keeps each catalogue separate.
+
+## Which surfaces have to be tenant-scoped, and which are not?
+
+Most documented controls are tenant-scoped. The seven that are not are below, in full, because these are the ones that turn into surprises during a security review rather than during development.
+
+**Method:** we read the v1 API contract, the core README configuration table, `residency.md`, `sensitivity-labels.md`, the roadmap, and the limitations table in statewave-docs on 20 August 2026, and classified every documented control as tenant-scoped or global. The classification is reproducible from those six files.
+
+| Control | Scope today | What that means for you |
+|---|---|---|
+| Rate limiting | Per-IP, not per-tenant | One tenant's traffic burst consumes the window for everyone behind the same address. Rate limit per tenant at your gateway. |
+| Webhook delivery URL | One global `STATEWAVE_WEBHOOK_URL` | Every tenant's events fire to the same endpoint. Your receiver must read the payload's tenant and fan out. Per-tenant delivery *stats* are tenant-filterable; the URL is not. |
+| Memory TTL | Global per-kind via `STATEWAVE_KIND_TTL_DAYS` | You cannot give a regulated tenant a 30-day expiry and a standard tenant 365 days. Per-tenant expiry is deferred to the policy layer. |
+| Admin endpoints (`/admin/*`) | Operator access, optionally filterable by tenant, not restricted to one | Anyone holding admin credentials can read across tenants. Treat admin as a separate trust tier with its own network path. |
+| API key | Single shared `STATEWAVE_API_KEY` | Statewave validates keys you configure; it does not issue per-tenant keys. Your gateway maps caller identity to the tenant header. |
+| Compiler and embedding provider | Global env config | Every tenant compiles through the same provider. A tenant that requires local-only processing forces the heuristic compiler for everyone on that instance, or a separate instance. |
+| Database-layer enforcement | No Postgres RLS | Isolation correctness lives in the application query layer. |
+
+The pattern is worth naming: **everything on the memory data path is tenant-scoped, and everything on the operations path is not.** Episodes, memories, subjects, search, context, timeline, receipts, policy bundles, label writes, tenant config, region pin, and receipt signing key are all scoped. Rate limits, webhooks, TTL, admin, keys, and provider config are instance-wide. If your architecture assumes the operations path is also per-tenant, that assumption breaks the first time two customers with different retention requirements land on the same instance.
+
+Two practical consequences follow. If a tenant contractually requires its own retention window or its own compiler mode, that tenant needs its own instance, not its own tenant id. And if you are running one instance for many tenants, your API gateway is doing real isolation work: mapping the authenticated caller to a tenant header, enforcing per-tenant rate limits, and keeping admin traffic off the tenant path.
+
+Statewave runs as a self-hosted HTTP service on your own Postgres, so the operations path above is yours to shape. The [memory lifecycle and governance surfaces](/product) document exactly which levers are per-tenant config and which are process-wide, which is the list you want in front of you before you decide how many instances to run.
+
+## How do you turn tenant isolation on in Statewave?
+
+Five steps, and the third one is where deployments break. Isolation is off by default: `STATEWAVE_REQUIRE_TENANT` ships as `false`, which means a fresh install runs in single-tenant mode with no isolation at all. That default is correct for local development and wrong for anything with two customers in it.
+
+### 1. Require the tenant header
+
+```bash
+STATEWAVE_REQUIRE_TENANT=true
+STATEWAVE_TENANT_HEADER=X-Tenant-ID   # default; change only if your gateway insists
+```
+
+With `REQUIRE_TENANT=true`, a request arriving without the header is rejected with `missing_tenant`. There is no implicit default tenant, which is the behavior you want: a missing header should be an error, never a fallback to "everything."
+
+### 2. Pass the tenant on the client, not on each call
+
+Both SDKs take the tenant at construction, so no individual call can omit it:
+
+```python
+from statewave import StatewaveClient
+
+sw = StatewaveClient("http://localhost:8100", tenant_id="acme", api_key="...")
+sw.create_episode(subject_id="user-42", source="chat", type="message",
+                  payload={"text": "Alice asked about the enterprise tier"})
+sw.compile_memories("user-42")
+bundle = sw.get_context("user-42", task="answer pricing question", max_tokens=1000)
+```
+
+```ts
+const sw = new StatewaveClient({ tenantId: "acme", apiKey: "..." })
+```
+
+Construct one client per tenant request, derive `tenant_id` from the validated auth token, and never from a request body or a query parameter the caller controls.
+
+### 3. Backfill before you flip the switch
+
+This is the step that generates the support ticket. Rows written before the migration carry `tenant_id = NULL`, and the API contract is explicit about what happens next: **queries with a tenant filter will not return NULL-tenant rows.** Turn isolation on with existing data in place and that data becomes invisible to every scoped request. Your agents do not error. They quietly forget everything.
+
+Check the size of the problem first:
+
+```bash
+GET /admin/tenant-audit
+```
+
+That returns how many rows lack a `tenant_id`. Then either backfill:
+
+```sql
+UPDATE episodes     SET tenant_id = 'your-tenant' WHERE tenant_id IS NULL;
+UPDATE memories     SET tenant_id = 'your-tenant' WHERE tenant_id IS NULL;
+UPDATE compile_jobs SET tenant_id = 'your-tenant' WHERE tenant_id IS NULL;
+```
+
+or accept the NULL rows as legacy and start clean. Both are valid. Doing neither is not.
+
+### 4. Add caller identity and make policy non-bypassable
+
+Tenant scoping answers "whose data is this." Caller identity answers "who is asking for it," and the two together are what the [policy engine](https://github.com/smaramwbc/statewave-docs/blob/main/sensitivity-labels.md) evaluates. Pass `caller_id` and `caller_type` on every `/v1/context` and `/v1/handoff` call, then close the anonymous path:
+
+```bash
+curl -X PATCH http://localhost:8100/admin/tenants/acme/config \
+  -H 'Content-Type: application/json' \
+  -d '{"require_caller_identity": true}'
+```
+
+After that, calls without both fields return 401. Without this flag, a caller can simply omit its identity and every identity-based rule in your policy bundle evaluates to nothing.
+
+### 5. Roll policy out in log-only mode first
+
+Policy bundles ship with `policy_mode: log_only` as the default, and that default is doing real work. In log-only, every rule is evaluated and every decision is written into the receipt, but nothing is filtered. Your agents receive exactly what they received yesterday, while you read the receipts to see what *would* have been denied or redacted. After a few days of that, flip to `enforce`:
+
+```yaml
+version: 1
+rules:
+  - id: deny-pii-for-marketing-tools
+    when:
+      memory_has_any_label: [pii, sensitive_personal]
+      caller_type: marketing_tool
+    action: deny
+
+  - id: redact-secrets-for-non-admin
+    when:
+      memory_has_any_label: [secret, api_key]
+      caller_type_not_in: [admin, security]
+    action: redact
+```
+
+Rules evaluate first-match-wins in declaration order, and a memory matching no rule falls through to default-allow. Six predicates and two actions is a deliberately small surface, which is why it is easy to reason about during an audit. Skipping log-only is how a team discovers on a Tuesday morning that half its memories were under-labelled and its agents just went blind. The [governance walkthrough](/blog/ai-data-governance-for-ai-agents) covers the policy model in full.
+
+## How do you keep one tenant's memory inside one region?
+
+By pinning the tenant to a region in its config and running a separate deployment per region, so a request that reaches the wrong region is refused at the application boundary before it touches the database. Statewave shipped this in v0.9 and documents it in [residency.md](https://github.com/smaramwbc/statewave/blob/main/docs/residency.md).
+
+Two pieces of metadata do the work. `STATEWAVE_REGION` says which region this server process is running in. `tenant_configs.config.region` says which region a tenant is pinned to. A request passes if `STATEWAVE_REGION` is unset (single-region mode), or the tenant has no pin, or the two match exactly, case-sensitive. Anything else returns 403 `residency.mismatch`.
+
+### The detail worth stealing
+
+The 403 body names the tenant's pinned region and never the server's own region. A message that said "this server is in `us`" would hand topology to anyone probing the residency boundary one request at a time. That is a small decision with a real threat model behind it, and it is the kind of thing that separates a residency feature from a residency checkbox.
+
+Pinning is a `PATCH` on the admin config endpoint:
+
+```bash
+curl -X PATCH https://eu.api.example.com/admin/tenants/acme-eu/config \
+  -H 'Content-Type: application/json' \
+  -d '{"region": "eu"}'
+```
+
+The endpoint refuses to pin a tenant to a region this server does not serve, because that pin would lock the tenant out of the deployment you just ran the command from. Every subsequent request would 403. To pin from a central orchestrator instead, set `force_region_pin: true` and run the orchestrator in single-region mode.
+
+### What it does not do
+
+Three limits, all documented, all worth knowing before you promise a customer anything:
+
+- **It does not move data.** Pinning assumes the data is already in the target region. Export from the origin, import into the target, then pin in both places so stray requests to the origin fail loudly instead of hitting stale rows.
+- **It fails open on a database blip.** A transient error during the residency check logs `residency_check_failed_failing_open` and allows the request. The reasoning is that the deployment topology is the first line of defence and this middleware is the second, and failing closed would drop every tenant-scoped request on any blip. A non-string region value in the JSONB is treated as malformed and refused, so the default on bad data is deny.
+- **There is no federated cross-region audit.** v0.9 ships total isolation, including on `/admin/*`. Running two regions means two consoles. That is a deliberate choice: cross-region audit search is planned as an explicit surface later rather than allowed to arrive as implicit cross-region access now.
+
+## How do you prove isolation held?
+
+With a state-assembly receipt: an immutable, ULID-addressable record of exactly which memories and episodes went into a context bundle, carrying a SHA-256 hash of the bytes delivered to the agent. Since v0.9 it is signed with HMAC-SHA256 using operator-held keys that are never written to the database, and `GET /v1/receipts/{id}/verify` returns whether the body has been tampered with.
+
+This is the part that turns "we isolate tenants" from an assertion into evidence. A receipt answers four questions at once, and in multi-region mode it answers them per region:
+
+| Question | Where the answer lives |
+|---|---|
+| What did the agent actually see? | `selected_entries`, plus the byte hash of the delivered bundle |
+| Under what rules? | `policy.policy_bundle_hash` and the embedded policy snapshot |
+| Who asked for it? | `caller_id` and `caller_type` on the receipt body |
+| Where was it served? | `receipt.region`, stamped from `STATEWAVE_REGION` |
+
+Receipts are tenant-scoped in a way that closes a subtle probe: a receipt belonging to another tenant returns 404 with no distinction from an ID that does not exist. A tenant cannot walk another tenant's ID space by watching for 403 instead of 404.
+
+Two limits to state honestly. Receipt replay re-runs the original retrieval against *current* memories using the *original* policy bundle, which answers "would today's code make the same decision," not "reproduce the exact bytes from March." Byte-for-byte historical reproduction needs memory snapshots, which are deferred. And promotion of detector-suggested labels stamps `promoted_at` but leaves `promoted_by` as null until an admin-identity layer ships, so label promotions are timestamped but not yet attributed.
+
+If your next security questionnaire asks what an agent was shown and under which policy, receipts are the artifact you hand over rather than a log you have to vouch for. The [provenance and audit-trail model](/blog/agent-memory-provenance-audit-trails) explains what gets stored, what it costs, and how far the trace goes.
+
+## What breaks in production, and what does it actually cost?
+
+Five failure modes, drawn from the documented limitations and the reference implementations rather than from theory. Four of them are configuration problems you can fix this afternoon. The fifth is a genuine gap.
+
+### The reference repos will not teach you tenancy
+
+We read the README and configuration surface of Statewave's three reference repositories on 20 August 2026: [statewave-multi-agent-memory](https://github.com/smaramwbc/statewave-multi-agent-memory), [statewave-personal-assistant](https://github.com/smaramwbc/statewave-personal-assistant), and [statewave-multi-agent-shared-context](https://github.com/smaramwbc/statewave-multi-agent-shared-context). Across all three, `tenant_id` and `X-Tenant-ID` appear zero times. Every example isolates on `subject_id`; the shared-context demo adds `caller_id` for attribution.
+
+That is correct for what those repos are. The multi-agent memory demo runs three analyst agents against one shared subject (`market-intel` by default) to show conflict detection and supersession. Its sibling, the personal assistant, gives each user their own subject and shows compiled memory changing an LLM's answer. In the shared-context demo, the run ID becomes the subject so a Planner, Coder, and Reviewer read one another's decisions before acting. None of the three is a multi-tenant SaaS reference.
+
+The risk is that they read like starting points, because they are. If you lift the personal assistant's per-user subject pattern into a product with two customers in it, you have a system where isolation is a naming convention. Add the tenant at construction time, in step two above, before the pattern hardens.
+
+### Isolation is off by default
+
+`STATEWAVE_REQUIRE_TENANT=false` is the shipped default. A team that stands up an instance, integrates it, ships it, and never revisits configuration has a multi-customer system with single-tenant semantics. Put this in your deployment checklist, not in someone's memory.
+
+### The noisy neighbour is per-IP
+
+Rate limiting is distributed and Postgres-backed, and it is keyed by IP only. Behind a gateway or a NAT, several tenants can share the address. One tenant's backfill job can consume the window that another tenant's live support agent needed. Rate limit per tenant upstream; the runtime does not do it for you yet.
+
+### Admin is a cross-tenant surface
+
+The `/admin/*` endpoints can filter by tenant but are not restricted to one, by design, because they are operator tools. Export and import take a `tenant_id` scope and import accepts a `target_tenant_id` override, which means a mistyped parameter during a migration can write one tenant's memories under another's ID. Treat admin credentials as a separate trust tier, keep the path off the internet, and do migrations from a script that is reviewed rather than from a shell.
+
+### The gap: no row-level security
+
+Everything above is enforced in the application query layer. No database policy will stop a future query someone writes without a tenant predicate. Row-level security sits on the [roadmap](https://github.com/smaramwbc/statewave-docs/blob/main/roadmap.md) and has not shipped.
+
+Two things reduce the exposure in the meantime. The API surface is narrow enough that the scoped paths are enumerable and testable, and receipts make a leak detectable after the fact rather than invisible. Neither is prevention. Where compliance requires database-enforced isolation today, run one instance per tenant and accept the operational cost, which is real: separate Postgres, separate config, separate upgrade path.
+
+### What it costs to run
+
+The scaling picture is documented and modest. Multi-replica API deployments are verified on Fly multi-machine and Helm HPA; the policy bundle cache that assumed a single process was removed in v0.8 specifically so enforce mode behaves correctly across replicas. Load has not been tested beyond 10,000 subjects on a single Postgres, and there is no cross-region clustering. The API process is CPU-only. GPUs enter the picture only if you self-host a compiler or embedding model.
+
+No published benchmark compares tenant-scoped retrieval latency against single-tenant retrieval on the same data. The composite indexes on `tenant_id` are documented and the sensitivity-label column carries a GIN index so policy filters run on the hot path, but if latency under your tenant count matters to a decision, measure it on your own data rather than trusting anyone's number, including this one.
+
+## Start with the audit, not the architecture
+
+You now have the boundary model, the seven controls that are not tenant-scoped, the backfill step that silently erases memory if you skip it, and the receipt that turns an isolation claim into an artifact you can hand to a reviewer.
+
+The first step takes about ten minutes. Boot a local instance, call `GET /admin/tenant-audit` against your existing data, and see how many rows have no tenant on them. That number tells you whether the rest of this applies to you today or next quarter. The command needs Docker and Node 20+, and it runs in demo mode by default; add an LLM key if you want semantic search.
+
+```bash
+npx @statewavedev/statewave
+```
+
+Statewave is Apache-2.0, self-hosted, and runs on your own Postgres, so the tenant boundary, the policy bundle, and the audit trail all stay inside your infrastructure. The [core runtime is on GitHub](https://github.com/smaramwbc/statewave), including the limitations list this article quoted from.
+
+## Frequently asked questions
+
+### Is application-layer tenant isolation enough to pass SOC 2?
+
+No audit framework names a specific enforcement mechanism, so the question an auditor actually asks is whether you can demonstrate the control and produce evidence it operated. Application-layer scoping plus signed state-assembly receipts gives you both a described control and a per-request artifact showing what was retrieved, under which policy, and by which caller. If your own control language promises database-enforced isolation, application-layer scoping will not satisfy it, and you should either change the language or run one instance per tenant.
+
+### Can I just use subject_id as the tenant boundary?
+
+No. Statewave's subject design guide advises against tenant-prefixed subject IDs on two grounds: every subject ID becomes structurally coupled to a tenant, so moving or sharing a subject later fights your scheme, and `tenant_id` is indexed while a prefixed string forces a prefix scan without the same isolation guarantees. Use `tenant_id` for the boundary and `subject_id` for what the memory is about.
+
+### What happens to my existing memories when I enable tenant isolation?
+
+They stop appearing in scoped queries. Rows written before the migration carry `tenant_id = NULL`, and a query with a tenant filter will not return NULL-tenant rows. Call `GET /admin/tenant-audit` to count them, then either backfill them with the correct tenant ID or deliberately accept them as legacy and start fresh.
+
+### Do sensitivity labels replace tenant isolation?
+
+They solve a different problem. Tenant isolation decides whose data a query can reach. Sensitivity labels and the policy engine decide which of *that tenant's own* memories a particular caller is allowed to see, by tagging memories `pii`, `financial`, or `secret` and matching them against `caller_type` and `caller_id`. Run both: labels without tenant scoping leak across customers, and tenant scoping without labels hands a marketing tool the same context as a support engineer.
+
+### Should each tenant get its own Statewave instance?
+
+Only if something forces it. A tenant needing its own retention window, its own compiler mode, database-enforced isolation, or its own jurisdiction all force a separate instance, because retention, compiler config, and RLS are not per-tenant today. Absent one of those, a single instance with `STATEWAVE_REQUIRE_TENANT=true` and per-tenant rate limiting at your gateway is the cheaper and more maintainable shape.
+
+### Does tenant scoping slow down retrieval?
+
+`tenant_id` is stored on every row with composite indexes documented as making scoped queries efficient, and sensitivity labels use a GIN-indexed array column so policy filters evaluate on the hot path. There is no published benchmark comparing scoped and unscoped retrieval latency, and load has not been tested beyond 10,000 subjects on a single Postgres. Measure on your own data if the answer changes a decision.
+
+### How do multi-agent pipelines work with tenant isolation?
+
+Agents in one pipeline share a subject deliberately, which is how a Planner's decision reaches a Coder before it writes code. That sharing is bounded by the tenant: the shared subject lives under one `tenant_id`, and every agent's read and write carries it. Give each agent its own `caller_id` so the timeline attributes decisions per agent while the tenant boundary stays a single line around the whole run.

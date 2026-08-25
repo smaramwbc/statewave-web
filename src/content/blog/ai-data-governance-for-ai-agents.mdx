@@ -1,0 +1,323 @@
+---
+title: "AI Data Governance for AI Agents: Governing What the Model Actually Sees"
+slug: ai-data-governance-for-ai-agents
+date: "2026-08-25T10:00:00+02:00"
+description: Governance for agents lives on the retrieval path, not in the catalog. What your agent remembers, what gets selected into a prompt, who may see it, where it may be stored — and what artifact you hand an auditor afterward.
+author: Statewave team
+image: /images/blog/ai-data-governance-for-ai-agents/og.png
+headerImage: /images/blog/ai-data-governance-for-ai-agents/header.png
+tags:
+  - governance
+  - compliance
+  - audit
+  - eu-ai-act
+---
+
+AI data governance for agents reduces to one enforceable question: can you prove which facts your agent read at the moment it made a decision, and show the rule that let each one through? If the answer is no, the rest of your governance program is documentation, not control. IBM and Ponemon found that **97% of organizations that suffered an AI-related breach lacked proper AI access controls** ([Cost of a Data Breach 2025](https://www.ibm.com/reports/data-breach)). Not weak controls. Absent ones.
+
+This post covers the part of AI data governance that sits closest to the model: the retrieval path. What your agent remembers, what gets selected into a prompt, who is allowed to see it, where it is allowed to be stored, and what artifact you hand an auditor afterward. You will get the mechanism, the specific API surface that produces the evidence, the regulatory dates that now apply, and an honest account of what this layer does not solve.
+
+## What is AI data governance, and how is it different for agents?
+
+AI data governance is the set of controls that decide which data an AI system may use, under which rules, with what record of the decision. For traditional analytics, those controls live at rest: a catalog, a classification scheme, access grants on a warehouse.
+
+Agents break that model, because an agent's most sensitive data movement happens at read time, in a prompt you did not write by hand.
+
+### The governed object is the context bundle, not the table
+
+When a support agent answers a customer, something assembles a block of text and hands it to a model. That block is the governed object. It may contain a card number a customer pasted eight months ago, an address the customer has since changed, or an internal note nobody meant the model to read.
+
+A warehouse ACL cannot see that block. It was assembled after the query, from facts that were derived from raw events, in a process that usually lives in application code rather than in the database. Governance that stops at the database stops one layer too early.
+
+### Three failures that are specific to agent memory
+
+1. **Stale facts presented as current.** A memory with an expired validity window still ranks and still gets delivered. The model has no way to know the fact was superseded, so it answers with confidence about an address the customer left months ago.
+2. **Sensitive facts reaching the wrong caller.** The same memory store serves a support agent, an analytics job, and a marketing tool. Without a rule on the read path, all three see the same rows.
+3. **No record of the decision.** When a customer disputes an answer, the prompt is gone. Model provider logs show the request, not why those particular facts were selected over the others available.
+
+None of these are model problems. They are all decided in the layer between your data and your prompt.
+
+## What does the EU AI Act now require, and when?
+
+The AI Act became applicable on **2 August 2026**, with some exceptions. Enforcement by the AI Office and Member State authorities started the same day, per the [Commission's regulatory framework page](https://digital-strategy.ec.europa.eu/en/policies/regulatory-framework-ai).
+
+### The dates that decide your roadmap
+
+| Obligation | Applies from | Status as of 20 August 2026 |
+|---|---|---|
+| Prohibited practices, AI literacy | 2 February 2025 | In force |
+| GPAI model obligations, governance rules | 2 August 2025 | In force |
+| General applicability, transparency rules | 2 August 2026 | In force |
+| High-risk, Annex III areas (biometrics, critical infrastructure, education, employment, migration) | 2 December 2027 | Not yet applicable |
+| High-risk embedded in regulated products (Annex I) | 2 August 2028 | Not yet applicable |
+
+The Annex III and Annex I dates were pushed back by the AI Omnibus, proposed by the Commission on 19 November 2025, provisionally agreed 7 May 2026, in force since 27 July 2026. That extension is the reason a governance retrofit is still affordable. It is not a reason to skip it.
+
+### The requirement that lands on your memory layer
+
+Of the obligations the Commission lists for high-risk systems, one names your retrieval path directly: **logging of activity to ensure traceability of results**. Alongside it sit adequate risk assessment, high-quality datasets, detailed documentation, clear information to the deployer, human oversight, and accuracy.
+
+Traceability of results means an auditor can walk backward from an output to the inputs that produced it. For an agent, the inputs are the context bundle. If your stack cannot reproduce which memories were selected, with what validity, under which policy, you cannot evidence that obligation with anything except a written assertion.
+
+Penalties for prohibited practices run to **€35 million or 7% of worldwide annual turnover**, whichever is higher ([Article 99](https://artificialintelligenceact.eu/article/99/)). Most agent teams will never touch a prohibited practice. Plenty will land in Annex III without planning to, the moment an agent screens a CV or scores a loan application.
+
+## How do you make an agent's context auditable?
+
+By emitting an artifact at the moment of assembly, rather than reconstructing one later from joins and hoping the assembly code has not changed since.
+
+That artifact is what Statewave calls a **state-assembly receipt**: an immutable, ULID-addressable record of which memories and episodes influenced one context call. One receipt per assembly.
+
+### What a receipt actually carries
+
+We counted the fields in the [receipt schema published in statewave-docs](https://github.com/smaramwbc/statewave-docs/blob/main/receipts.md) on 20 August 2026. A single receipt carries **23 fields at the receipt level, plus 12 for every memory it selected**.
+
+The ones that do audit work:
+
+- `output.context_hash` — a SHA-256 over the exact bytes delivered to the agent
+- `selected_entries[].supersession_status` — one of `active`, `superseded`, `tombstoned`
+- `selected_entries[].valid_from` and `valid_to` — the validity window in force at selection time
+- `selected_entries[].source_episode_ids` and `provenance_hash` — the chain back to the raw events
+- `selected_entries[].rank` and `score` — the position and score that put it in the bundle
+- `policy.policy_bundle_hash` and `filters_applied` — the rules that ran
+- `region` — the deployment that served the retrieval
+- `receipt_signature` — an HMAC-SHA256 over the canonical body, added in v0.9
+
+### Six failure modes you can detect from the receipt alone
+
+The same document names six categories of failure that are visible in the receipt without any access to assembly internals. Each one is written as a deterministic assertion in the server's test suite (`tests/test_receipts.py`):
+
+1. **Stale fact selected.** An entry's `valid_to` is in the past but it appears in `selected_entries`.
+2. **Superseded memory included.** An entry carries `supersession_status: superseded`.
+3. **Tombstoned memory resurrected.** An entry carries `supersession_status: tombstoned`.
+4. **Conflicting entries merged without a flag.** Two entries share a `fact_key` and neither is marked `conflict_status: merged`.
+5. **As-of fallback.** The caller asked for one `as_of` timestamp and the receipt records a different one.
+6. **Byte tampering.** Recomputing SHA-256 over the response's `assembled_context` does not match `output.context_hash`.
+
+That list is the practical difference between an audit log and an audit artifact. A log tells you a call happened. A receipt lets a reviewer who does not trust your application code check six specific things and get a yes or no.
+
+### Verify and replay
+
+Two endpoints turn the receipt from a record into a check.
+
+`GET /v1/receipts/{id}/verify` recomputes the HMAC with a constant-time compare and returns `{valid, key_id, algorithm, reason}`. Receipts written before v0.9 come back cleanly as `no_signature` rather than failing.
+
+`POST /v1/receipts/{id}/replay` re-runs the original retrieval against current memories using the **original policy bundle**, which v0.9 embeds on every receipt as `policy_snapshot`, and returns a structural diff. That answers a question auditors ask constantly and stacks rarely support: would today's system make the same decision under the rules that were in force then?
+
+Be precise about what replay is. It is current code plus original policy, not byte-for-byte historical reproduction. True historical replay needs memory snapshots, which Statewave has deferred. The [data model reserves room](https://github.com/smaramwbc/statewave/blob/main/docs/replay.md) for them without a schema break.
+
+Receipts are also deliberately non-blocking. If a receipt write fails, the assembly call still succeeds and the response carries `receipt_id: null, receipt_emitted: false`. Audit artifacts must not take down agent serving.
+
+Our earlier write-up on the [provenance model and what it costs](/blog/agent-memory-provenance-audit-trails) covers the primitives receipts are built on, including the storage arithmetic for source episode IDs.
+
+## How do you stop the wrong memory from reaching the prompt?
+
+With a rule that runs on the read path, before ranking, rather than a filter your application remembers to apply.
+
+Statewave splits this into two pieces: labels on the memory, and a policy bundle that reads them.
+
+### Labels: one column the policy trusts, one it ignores
+
+There are two label columns on every memory, and the split is the interesting part.
+
+`sensitivity_labels` is authoritative. Operators set it explicitly, through `PATCH /v1/memories/{id}/labels` or the admin app. The policy evaluator reads it. Detectors never write to it. It is stored as a `TEXT[]` with a GIN index so the overlap check stays cheap on the hot path.
+
+`suggested_labels` is advisory. With `STATEWAVE_AUTO_LABELING_ENABLED=true`, heuristic detectors stamp suggestions at compile time: `pii.email`, `pii.phone`, `financial.card` (13 to 19 digit runs that pass a Luhn checksum), and `secret.token` (known-provider API keys and bearer JWTs). The pass is in-process, sub-millisecond per memory, no network call. The policy engine does not read this column at all.
+
+That separation is a design decision worth copying even if you build your own. A noisy detector cannot tighten policy on live traffic. The worst it can do is produce a noisy suggestion in a review queue. Promotion into the authoritative column runs through `POST /admin/memories/{id}/promote-labels`, which refuses any label not already present as a suggestion, and stamps the promotion onto `memory.metadata.label_promotions`. Full detail is in [auto-labeling.md](https://github.com/smaramwbc/statewave/blob/main/docs/auto-labeling.md).
+
+### Policy bundles: content-hashed YAML, deny or redact
+
+A policy bundle is a YAML document with an ordered rule list. Each rule has an `id`, a `when:` predicate block, and an action.
+
+```yaml
+version: 1
+metadata:
+  description: "Production policy v3"
+  authored_by: "security-team@example.com"
+rules:
+  - id: deny-pii-for-marketing-tools
+    description: "PII memories cannot be read by marketing tools"
+    when:
+      memory_has_any_label: [pii, sensitive_personal]
+      caller_type: marketing_tool
+    action: deny
+
+  - id: redact-secrets-for-non-admin
+    when:
+      memory_has_any_label: [secret, api_key]
+      caller_type_not_in: [admin, security]
+    action: redact
+```
+
+Six predicates ship in v1: `memory_has_any_label`, `memory_has_all_labels`, `caller_type`, `caller_type_in`, `caller_type_not_in`, and `caller_id`. Predicates inside one `when:` are ANDed. Rules evaluate in declaration order, first match wins, and a memory matching nothing falls through to default-allow.
+
+Two actions: `deny` excludes the memory from `selected_entries`, and `redact` replaces its content with `[REDACTED by policy]` while leaving it in the bundle so the receipt records the redaction.
+
+Bundles are content-hashed at upload. Submit the same logical rules twice and you get the same hash. That is what makes "what did policy `abc123` say on 14 April?" answerable years later, because the receipt pins the hash rather than a mutable version number.
+
+### The rollout property that makes this safe
+
+`policy_mode` defaults to `log_only`. Every decision is recorded into the receipt's `filters_applied` and `filters_skipped` blocks, and nothing is filtered. Assembly returns exactly the data it returned yesterday.
+
+Operators read those receipts for as long as they want, see what enforce *would* have done, then flip `policy_mode: enforce`.
+
+Without log-only, the day a team switches on policy is the day every under-tagged memory silently disappears from agent context, and they find out through a support escalation. With it, the risk is observable before it is real. If you build this yourself, build log-only first.
+
+One more detail that decides whether any of it holds: denied memories are removed **before scoring**, not after, so a filtered memory cannot leak through ranking signals. And tenants that need enforcement to be non-bypassable set `require_caller_identity: true`, after which assembly calls without both `caller_id` and `caller_type` return 401. Anonymous callers stop being a hole in the policy.
+
+Full reference: [sensitivity-labels.md](https://github.com/smaramwbc/statewave-docs/blob/main/sensitivity-labels.md).
+
+> If your agents currently read from a shared memory store with no rule on the read path, this is the specific gap. Statewave ships the policy engine, the labels, and the receipts in the Apache-2.0 core, on the read path, rather than behind an enterprise tier.
+
+## How do you keep agent memory inside a jurisdiction?
+
+By enforcing residency in the application, at the request boundary, rather than trusting DNS or a load balancer to route correctly.
+
+This is the part of AI data governance that GDPR and sector rules turn into a hard requirement, and it is where most agent stacks have nothing.
+
+### Two pieces of metadata, one rule
+
+`STATEWAVE_REGION` says which region a server process runs in. `tenant_configs.config.region` says which region a tenant is pinned to. A request is allowed if the env var is unset (single-region mode, residency disabled), or the tenant has no pin, or the pin matches the server's region exactly, case-sensitive.
+
+Anything else returns HTTP 403 with `residency.mismatch`. A misrouted request that bypassed the load balancer hostname is still caught, before any database access happens.
+
+One detail worth stealing: **the 403 never names the server's own region.** It echoes only the tenant's pinned region. A message that named both would leak topology to anyone probing the boundary. Details in [residency.md](https://github.com/smaramwbc/statewave/blob/main/docs/residency.md).
+
+The admin endpoint also refuses to pin a tenant to a region the current server does not serve, because that pin would lock the tenant out of the deployment doing the pinning. Overriding it requires an explicit `force_region_pin: true` from a single-region orchestrator.
+
+### Why residency plus receipts is more than either alone
+
+Every receipt emitted in multi-region mode stamps the serving region. Combined with the signature, the policy snapshot, and replay, an auditor can answer four questions end to end from artifacts rather than from your assurances:
+
+| Question | Where the answer lives |
+|---|---|
+| Where was this retrieval served from? | `receipt.region` |
+| Under what rules? | `receipt.policy_snapshot.bundle_yaml` |
+| Was the body tampered with? | HMAC verify |
+| Would current code decide the same? | Replay diff |
+
+The infra shape underneath is separate Postgres and pgvector per region, which is only cheap because Statewave is [Postgres-only by design](/blog/self-hosted-memory-postgres-pgvector). Standing up a second region is a second Postgres, not a second vector database plus a second relational store plus the sync code between them.
+
+## How do you delete something an agent has already learned?
+
+Two different operations, and teams conflate them constantly.
+
+### Supersession is not deletion
+
+When a fact changes, the old memory is marked superseded and stays in the record with a provenance link. It stops reaching prompts. It remains auditable. That is what you want for a customer who moved house, and it is how the agent avoids serving both addresses with equal confidence. Our post on [episodic and semantic memory](/blog/episodic-vs-semantic-memory) covers why an append-only store with no validity model will happily serve both.
+
+### Deletion is one call, and the receipts are governed separately
+
+`DELETE /v1/subjects/{id}` removes every episode, compiled memory, resolution, and entity for that subject in one call. No orphaned rows. Receipts are the exception: they are append-only by design and survive subject deletion, governed separately by `receipt_retention_days`.
+
+That distinction matters more than it sounds. A [GDPR Article 17](https://gdpr-info.eu/art-17-gdpr/) erasure request against a stack with a bolted-on audit log leaves you deleting from the operational store and then chasing the same personal data through a second system with its own retention policy and often its own owner. Statewave keeps its audit artifacts in the same Postgres under the same operator control, so the receipt body is one retention setting away rather than one vendor away. Treat it as a second, deliberate step: a receipt's `selected_entries` carries memory content references and the caller identity, so the subject delete alone does not discharge an Article 17 obligation.
+
+The tradeoff is real and worth stating: expiring receipts expires evidence. For tenants that need to keep audit artifacts longer than operational data, `receipt_retention_days` is tenant-controlled and defaults to 0, meaning forever, with an hourly worker that soft-deletes past the window so rows persist for forensic lookup. That worker is the only path that removes a receipt.
+
+## What does governance look like when several agents share memory?
+
+Harder, and this is where a governance model built for one agent starts to show its assumptions. The Cloud Security Alliance and Token Security found that [65% of organizations had a cybersecurity incident caused by AI agents on their network](https://cloudsecurityalliance.org/artifacts/the-state-of-ai-and-security-survey-report) in the previous year, and that 63% could not enforce purpose limitations on those agents.
+
+Parallel agents do not take turns. A Planner deprecates a module while a Coder is already building it, and the Reviewer catches the conflict after both have finished, when the compute is already spent.
+
+### Read before write, on a shared subject
+
+The [statewave-multi-agent-shared-context](https://github.com/smaramwbc/statewave-multi-agent-shared-context) demo runs the same three-agent task twice. In `--mode naive`, agents pass messages and the Coder rebuilds the deprecated module. In `--mode statewave`, all three agents read and write one subject keyed to the run ID, and the Coder's context read happens **before** it decides what to build. It sees the deprecation memory at confidence 0.92 and skips the dead module.
+
+The collision is prevented rather than detected. Then `python timeline_inspector.py --run <id>` prints the chronological chain: what each agent knew when it acted, what it wrote, and the final memory state.
+
+### Conflict resolution as a governed, inspectable event
+
+The [statewave-multi-agent-memory](https://github.com/smaramwbc/statewave-multi-agent-memory) demo makes the same point about contradictory facts. Three analyst agents read sources of different freshness and write to one subject. Bloomberg commits Stripe's old rate of 3.5% plus 35¢; TechCrunch commits the post-change rate of 2.9% plus 30¢.
+
+The compiler's word-overlap path measures Jaccard word overlap between the two memories, and at or above 0.6 it supersedes the older one and records the decision. The repo's audit inspector prints the supersession with the similarity score that triggered it (0.72 in the shipped example), plus the source episodes on both sides.
+
+Bloomberg's unrelated Square facts survive, because they are separate atomic memories with no word overlap against the Stripe memories. Only the stale pricing fact was replaced.
+
+For governance purposes, that is the property that counts: the conflict decision is data, with a number attached, that a reviewer can disagree with. It is not merge logic buried in an application that nobody can audit.
+
+Both demos are Apache-2.0 and runnable. The single-agent equivalent is [statewave-personal-assistant](https://github.com/smaramwbc/statewave-personal-assistant), a FastAPI reference app where the entire integration surface is two calls: `get_context` before the model call, `record_episode` after.
+
+## What does this cost, and what does it not solve?
+
+The honest accounting, because a governance post that only lists capabilities is a brochure.
+
+### What it costs
+
+**Storage.** Source episode IDs are a small UUID array per memory. Our own [estimate](/blog/agent-memory-provenance-audit-trails) is roughly 50 MB for a million memories averaging three sources each, trivial next to the embeddings.
+
+**Retrieval compute.** Zero for provenance. The IDs are already on the memory row. The auto-labeling pass adds a sub-millisecond in-process hop per memory at compile time, with no network call.
+
+**Tokens.** Compiled context bundles are denser than plain fact-store retrieval. That density is what buys higher multi-hop accuracy, and if your queries are mostly single-hop and cost-sensitive, a lighter fact store may be the right call. Governance is not free at the prompt.
+
+**Operational.** One more service and one more Postgres per region.
+
+### What it does not solve
+
+The core repo publishes a limitations list at v1.4.0. Seven items, unhedged. The ones that bear on governance:
+
+- **Multi-tenant isolation is app-layer.** Query-scoped, with per-tenant config, policies, and receipts, but no Postgres row-level security yet. Which surfaces carry a tenant boundary and which do not is [its own post](/blog/multi-tenant-isolation-in-ai-memory).
+- **No federated cross-region audit.** v0.9 ships strict per-region isolation on purpose. Operators running two regions cannot search receipts across them from one console. The project's stated position is that federated audit should be an explicit surface later rather than implicit cross-region access now.
+- **No visual policy editor.** Bundles are YAML in git, uploaded through the admin workflow. A form-based editor is deferred.
+- **No admin-action identity.** Label promotions stamp `promoted_at` and labels, but `promoted_by` stays null until an admin identity layer ships.
+- **Rate limiting is per-IP**, not per-tenant or per-API-key.
+- **Replay is current code plus original policy**, not byte-for-byte.
+
+Statewave is also not a complete governance program. It governs the retrieval path. Classification of your source systems, DLP on employee prompts, model risk documentation, and vendor review are separate work, and frameworks like [NIST's AI RMF](https://www.nist.gov/itl/ai-risk-management-framework) and [ISO/IEC 42001](https://www.iso.org/standard/81230.html) are the right shape for that layer.
+
+Finally, self-hosting Postgres is not privacy by itself. Whether content leaves your network depends on your compiler and embedding choice. The heuristic compiler and a self-hosted embedding model keep everything local. An LLM compiler through LiteLLM or a hosted embedding provider sends content to whoever you configured.
+
+## Where should you start?
+
+Four steps, in this order, because doing them out of order wastes the first month.
+
+1. **Emit receipts on your highest-risk workflow first.** Not everywhere. Pick the agent that touches regulated data, turn on `emit_receipt: true` or set the tenant to `receipts: always`, and let it run for a week. You now have the artifact before you have the policy.
+2. **Read the receipts before writing a single rule.** Look for the six failure modes. Stale entries and unlabeled sensitive memories in circulation are the two findings that show up first. That list is your first policy bundle, derived from real traffic rather than a whiteboard.
+3. **Ship the policy in `log_only` and leave it there.** Days, not hours. Read what enforce would have done. Under-tagged memories show up here, harmlessly, instead of during an incident.
+4. **Flip to enforce, then turn on `require_caller_identity`.** Enforcement that anonymous callers can bypass is not enforcement.
+
+Residency comes after all four, and only if you actually have a jurisdictional requirement. Standing up a second region to satisfy a hypothetical is the most common way this work stalls.
+
+## Start with the artifact
+
+You now have the four questions an auditor will ask (where, under what rules, was it tampered with, would it decide the same), the six failure modes a receipt makes visible, and the order to roll this out in so that the traffic writes your policy instead of a whiteboard.
+
+Start with step one this week. Turn on receipts for your single highest-risk agent workflow and read a week of them. It costs an afternoon and it will tell you whether you have a governance problem or a documentation problem.
+
+If you would rather run that layer than build it, Statewave is Apache-2.0, self-hosted on Postgres, and ships receipts, sensitivity labels, the policy engine, and region pinning in the open core. One command boots it locally, with Docker and Node 20+ as the only prerequisites:
+
+```bash
+npx @statewavedev/statewave
+```
+
+It runs in demo mode by default; add an LLM key for semantic search. [View the source on GitHub](https://github.com/smaramwbc/statewave) or read the [audit and governance reference](/product).
+
+## Frequently asked questions
+
+### What is AI data governance?
+
+AI data governance is the set of controls determining which data an AI system may use, under which rules, with what record of the decision. For agents, the governed object is the context bundle assembled at read time, not just the tables at rest, because the sensitive data movement happens when facts are selected into a prompt.
+
+### Does the EU AI Act apply to my AI agent?
+
+It depends on your use case, not your architecture. The Act became applicable on 2 August 2026. Most agents fall under transparency obligations, which are already in force. Agents used in Annex III areas such as employment screening, credit decisions, education, or biometrics are high-risk and face strict obligations from 2 December 2027, including logging of activity to ensure traceability of results. The [Commission's framework page](https://digital-strategy.ec.europa.eu/en/policies/regulatory-framework-ai) has the current classification.
+
+### What is a state-assembly receipt?
+
+An immutable, ULID-addressable record of a single context assembly call. It carries a SHA-256 hash of the exact bytes delivered to the agent, every selected memory with its validity window, supersession status, source episodes, rank and score, the hash of the policy bundle in force, the serving region, and an HMAC-SHA256 signature. It is queryable by ID or by subject and time range.
+
+### Can I audit an AI agent without changing my model provider?
+
+Yes. Auditability lives in the retrieval layer, not the model. The provider's logs show the request that was sent; they cannot show why those particular facts were selected over others available at the time. A memory runtime that emits an artifact at assembly time answers that question regardless of which model you call.
+
+### Is self-hosting enough for AI data governance?
+
+No. Self-hosting decides where episodes and compiled memories live. It does not decide who may read them, whether stale facts are excluded, or whether you can produce evidence afterward. Those need labels, a policy on the read path, and an audit artifact. Self-hosting also does not stop content leaving your network if you configure an LLM compiler or a hosted embedding provider.
+
+### How do I handle a GDPR erasure request for data my agent learned?
+
+Delete the subject, not the individual facts. `DELETE /v1/subjects/{id}` removes every episode, compiled memory, resolution, and entity for that subject in one call. Receipts are append-only and are not removed by that call; they expire separately under `receipt_retention_days`, so plan them as a second, deliberate step in your erasure runbook. The trap to avoid is an architecture where audit logs live in a separate system with a separate retention policy and a separate owner, because that leaves personal data outside your control after erasure from the operational store. See [GDPR Article 17](https://gdpr-info.eu/art-17-gdpr/).
+
+### What is the difference between suggested and authoritative sensitivity labels?
+
+`sensitivity_labels` is operator-set and is the only column the policy engine reads. `suggested_labels` is written by heuristic detectors at compile time and is advisory only. The split means a noisy detector can never tighten policy on live traffic; the worst it produces is a noisy suggestion in a review queue. Promotion between the two is an explicit, audited operator action.
