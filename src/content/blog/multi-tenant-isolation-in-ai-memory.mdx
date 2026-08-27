@@ -293,32 +293,99 @@ npx @statewavedev/statewave
 
 Statewave is Apache-2.0, self-hosted, and runs on your own Postgres, so the tenant boundary, the policy bundle, and the audit trail all stay inside your infrastructure. The [core runtime is on GitHub](https://github.com/smaramwbc/statewave), including the limitations list this article quoted from.
 
-## Frequently asked questions
+## FAQ
 
-### Is application-layer tenant isolation enough to pass SOC 2?
+<div className="my-8 space-y-3">
 
-No audit framework names a specific enforcement mechanism, so the question an auditor actually asks is whether you can demonstrate the control and produce evidence it operated. Application-layer scoping plus signed state-assembly receipts gives you both a described control and a per-request artifact showing what was retrieved, under which policy, and by which caller. If your own control language promises database-enforced isolation, application-layer scoping will not satisfy it, and you should either change the language or run one instance per tenant.
+<details open className="blog-faq group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35">
+<summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none">
+<h3 className="text-[18px] font-semibold leading-snug text-theme-primary !m-0">1. Is application-layer tenant isolation enough to pass SOC 2?</h3>
+<div className="blog-faq-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40">
+<svg className="h-5 w-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" /></svg>
+</div>
+</summary>
+<div className="px-7 pb-7">
+<div className="h-px bg-theme-primary/10 mb-6" />
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">No audit framework names a specific enforcement mechanism, so the question an auditor actually asks is whether you can demonstrate the control and produce evidence it operated. Application-layer scoping plus signed state-assembly receipts gives you both a described control and a per-request artifact showing what was retrieved, under which policy, and by which caller. If your own control language promises database-enforced isolation, application-layer scoping will not satisfy it, and you should either change the language or run one instance per tenant.</p>
+</div>
+</details>
 
-### Can I just use subject_id as the tenant boundary?
+<details className="blog-faq group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35">
+<summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none">
+<h3 className="text-[18px] font-semibold leading-snug text-theme-primary !m-0">2. Can I just use subject_id as the tenant boundary?</h3>
+<div className="blog-faq-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40">
+<svg className="h-5 w-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" /></svg>
+</div>
+</summary>
+<div className="px-7 pb-7">
+<div className="h-px bg-theme-primary/10 mb-6" />
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">No. Statewave's subject design guide advises against tenant-prefixed subject IDs on two grounds: every subject ID becomes structurally coupled to a tenant, so moving or sharing a subject later fights your scheme, and `tenant_id` is indexed while a prefixed string forces a prefix scan without the same isolation guarantees. Use `tenant_id` for the boundary and `subject_id` for what the memory is about.</p>
+</div>
+</details>
 
-No. Statewave's subject design guide advises against tenant-prefixed subject IDs on two grounds: every subject ID becomes structurally coupled to a tenant, so moving or sharing a subject later fights your scheme, and `tenant_id` is indexed while a prefixed string forces a prefix scan without the same isolation guarantees. Use `tenant_id` for the boundary and `subject_id` for what the memory is about.
+<details className="blog-faq group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35">
+<summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none">
+<h3 className="text-[18px] font-semibold leading-snug text-theme-primary !m-0">3. What happens to my existing memories when I enable tenant isolation?</h3>
+<div className="blog-faq-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40">
+<svg className="h-5 w-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" /></svg>
+</div>
+</summary>
+<div className="px-7 pb-7">
+<div className="h-px bg-theme-primary/10 mb-6" />
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">They stop appearing in scoped queries. Rows written before the migration carry `tenant_id = NULL`, and a query with a tenant filter will not return NULL-tenant rows. Call `GET /admin/tenant-audit` to count them, then either backfill them with the correct tenant ID or deliberately accept them as legacy and start fresh.</p>
+</div>
+</details>
 
-### What happens to my existing memories when I enable tenant isolation?
+<details className="blog-faq group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35">
+<summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none">
+<h3 className="text-[18px] font-semibold leading-snug text-theme-primary !m-0">4. Do sensitivity labels replace tenant isolation?</h3>
+<div className="blog-faq-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40">
+<svg className="h-5 w-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" /></svg>
+</div>
+</summary>
+<div className="px-7 pb-7">
+<div className="h-px bg-theme-primary/10 mb-6" />
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">They solve a different problem. Tenant isolation decides whose data a query can reach. Sensitivity labels and the policy engine decide which of *that tenant's own* memories a particular caller is allowed to see, by tagging memories `pii`, `financial`, or `secret` and matching them against `caller_type` and `caller_id`. Run both: labels without tenant scoping leak across customers, and tenant scoping without labels hands a marketing tool the same context as a support engineer.</p>
+</div>
+</details>
 
-They stop appearing in scoped queries. Rows written before the migration carry `tenant_id = NULL`, and a query with a tenant filter will not return NULL-tenant rows. Call `GET /admin/tenant-audit` to count them, then either backfill them with the correct tenant ID or deliberately accept them as legacy and start fresh.
+<details className="blog-faq group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35">
+<summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none">
+<h3 className="text-[18px] font-semibold leading-snug text-theme-primary !m-0">5. Should each tenant get its own Statewave instance?</h3>
+<div className="blog-faq-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40">
+<svg className="h-5 w-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" /></svg>
+</div>
+</summary>
+<div className="px-7 pb-7">
+<div className="h-px bg-theme-primary/10 mb-6" />
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">Only if something forces it. A tenant needing its own retention window, its own compiler mode, database-enforced isolation, or its own jurisdiction all force a separate instance, because retention, compiler config, and RLS are not per-tenant today. Absent one of those, a single instance with `STATEWAVE_REQUIRE_TENANT=true` and per-tenant rate limiting at your gateway is the cheaper and more maintainable shape.</p>
+</div>
+</details>
 
-### Do sensitivity labels replace tenant isolation?
+<details className="blog-faq group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35">
+<summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none">
+<h3 className="text-[18px] font-semibold leading-snug text-theme-primary !m-0">6. Does tenant scoping slow down retrieval?</h3>
+<div className="blog-faq-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40">
+<svg className="h-5 w-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" /></svg>
+</div>
+</summary>
+<div className="px-7 pb-7">
+<div className="h-px bg-theme-primary/10 mb-6" />
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">`tenant_id` is stored on every row with composite indexes documented as making scoped queries efficient, and sensitivity labels use a GIN-indexed array column so policy filters evaluate on the hot path. There is no published benchmark comparing scoped and unscoped retrieval latency, and load has not been tested beyond 10,000 subjects on a single Postgres. Measure on your own data if the answer changes a decision.</p>
+</div>
+</details>
 
-They solve a different problem. Tenant isolation decides whose data a query can reach. Sensitivity labels and the policy engine decide which of *that tenant's own* memories a particular caller is allowed to see, by tagging memories `pii`, `financial`, or `secret` and matching them against `caller_type` and `caller_id`. Run both: labels without tenant scoping leak across customers, and tenant scoping without labels hands a marketing tool the same context as a support engineer.
+<details className="blog-faq group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35">
+<summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none">
+<h3 className="text-[18px] font-semibold leading-snug text-theme-primary !m-0">7. How do multi-agent pipelines work with tenant isolation?</h3>
+<div className="blog-faq-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40">
+<svg className="h-5 w-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" /></svg>
+</div>
+</summary>
+<div className="px-7 pb-7">
+<div className="h-px bg-theme-primary/10 mb-6" />
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">Agents in one pipeline share a subject deliberately, which is how a Planner's decision reaches a Coder before it writes code. That sharing is bounded by the tenant: the shared subject lives under one `tenant_id`, and every agent's read and write carries it. Give each agent its own `caller_id` so the timeline attributes decisions per agent while the tenant boundary stays a single line around the whole run.</p>
+</div>
+</details>
 
-### Should each tenant get its own Statewave instance?
-
-Only if something forces it. A tenant needing its own retention window, its own compiler mode, database-enforced isolation, or its own jurisdiction all force a separate instance, because retention, compiler config, and RLS are not per-tenant today. Absent one of those, a single instance with `STATEWAVE_REQUIRE_TENANT=true` and per-tenant rate limiting at your gateway is the cheaper and more maintainable shape.
-
-### Does tenant scoping slow down retrieval?
-
-`tenant_id` is stored on every row with composite indexes documented as making scoped queries efficient, and sensitivity labels use a GIN-indexed array column so policy filters evaluate on the hot path. There is no published benchmark comparing scoped and unscoped retrieval latency, and load has not been tested beyond 10,000 subjects on a single Postgres. Measure on your own data if the answer changes a decision.
-
-### How do multi-agent pipelines work with tenant isolation?
-
-Agents in one pipeline share a subject deliberately, which is how a Planner's decision reaches a Coder before it writes code. That sharing is bounded by the tenant: the shared subject lives under one `tenant_id`, and every agent's read and write carries it. Give each agent its own `caller_id` so the timeline attributes decisions per agent while the tenant boundary stays a single line around the whole run.
+</div>

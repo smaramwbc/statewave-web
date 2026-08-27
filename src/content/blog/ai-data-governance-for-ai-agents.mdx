@@ -292,32 +292,99 @@ npx @statewavedev/statewave
 
 It runs in demo mode by default; add an LLM key for semantic search. [View the source on GitHub](https://github.com/smaramwbc/statewave) or read the [audit and governance reference](/product).
 
-## Frequently asked questions
+## FAQ
 
-### What is AI data governance?
+<div className="my-8 space-y-3">
 
-AI data governance is the set of controls determining which data an AI system may use, under which rules, with what record of the decision. For agents, the governed object is the context bundle assembled at read time, not just the tables at rest, because the sensitive data movement happens when facts are selected into a prompt.
+<details open className="blog-faq group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35">
+<summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none">
+<h3 className="text-[18px] font-semibold leading-snug text-theme-primary !m-0">1. What is AI data governance?</h3>
+<div className="blog-faq-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40">
+<svg className="h-5 w-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" /></svg>
+</div>
+</summary>
+<div className="px-7 pb-7">
+<div className="h-px bg-theme-primary/10 mb-6" />
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">AI data governance is the set of controls determining which data an AI system may use, under which rules, with what record of the decision. For agents, the governed object is the context bundle assembled at read time, not just the tables at rest, because the sensitive data movement happens when facts are selected into a prompt.</p>
+</div>
+</details>
 
-### Does the EU AI Act apply to my AI agent?
+<details className="blog-faq group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35">
+<summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none">
+<h3 className="text-[18px] font-semibold leading-snug text-theme-primary !m-0">2. Does the EU AI Act apply to my AI agent?</h3>
+<div className="blog-faq-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40">
+<svg className="h-5 w-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" /></svg>
+</div>
+</summary>
+<div className="px-7 pb-7">
+<div className="h-px bg-theme-primary/10 mb-6" />
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">It depends on your use case, not your architecture. The Act became applicable on 2 August 2026. Most agents fall under transparency obligations, which are already in force. Agents used in Annex III areas such as employment screening, credit decisions, education, or biometrics are high-risk and face strict obligations from 2 December 2027, including logging of activity to ensure traceability of results. The [Commission's framework page](https://digital-strategy.ec.europa.eu/en/policies/regulatory-framework-ai) has the current classification.</p>
+</div>
+</details>
 
-It depends on your use case, not your architecture. The Act became applicable on 2 August 2026. Most agents fall under transparency obligations, which are already in force. Agents used in Annex III areas such as employment screening, credit decisions, education, or biometrics are high-risk and face strict obligations from 2 December 2027, including logging of activity to ensure traceability of results. The [Commission's framework page](https://digital-strategy.ec.europa.eu/en/policies/regulatory-framework-ai) has the current classification.
+<details className="blog-faq group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35">
+<summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none">
+<h3 className="text-[18px] font-semibold leading-snug text-theme-primary !m-0">3. What is a state-assembly receipt?</h3>
+<div className="blog-faq-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40">
+<svg className="h-5 w-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" /></svg>
+</div>
+</summary>
+<div className="px-7 pb-7">
+<div className="h-px bg-theme-primary/10 mb-6" />
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">An immutable, ULID-addressable record of a single context assembly call. It carries a SHA-256 hash of the exact bytes delivered to the agent, every selected memory with its validity window, supersession status, source episodes, rank and score, the hash of the policy bundle in force, the serving region, and an HMAC-SHA256 signature. It is queryable by ID or by subject and time range.</p>
+</div>
+</details>
 
-### What is a state-assembly receipt?
+<details className="blog-faq group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35">
+<summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none">
+<h3 className="text-[18px] font-semibold leading-snug text-theme-primary !m-0">4. Can I audit an AI agent without changing my model provider?</h3>
+<div className="blog-faq-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40">
+<svg className="h-5 w-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" /></svg>
+</div>
+</summary>
+<div className="px-7 pb-7">
+<div className="h-px bg-theme-primary/10 mb-6" />
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">Yes. Auditability lives in the retrieval layer, not the model. The provider's logs show the request that was sent; they cannot show why those particular facts were selected over others available at the time. A memory runtime that emits an artifact at assembly time answers that question regardless of which model you call.</p>
+</div>
+</details>
 
-An immutable, ULID-addressable record of a single context assembly call. It carries a SHA-256 hash of the exact bytes delivered to the agent, every selected memory with its validity window, supersession status, source episodes, rank and score, the hash of the policy bundle in force, the serving region, and an HMAC-SHA256 signature. It is queryable by ID or by subject and time range.
+<details className="blog-faq group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35">
+<summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none">
+<h3 className="text-[18px] font-semibold leading-snug text-theme-primary !m-0">5. Is self-hosting enough for AI data governance?</h3>
+<div className="blog-faq-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40">
+<svg className="h-5 w-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" /></svg>
+</div>
+</summary>
+<div className="px-7 pb-7">
+<div className="h-px bg-theme-primary/10 mb-6" />
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">No. Self-hosting decides where episodes and compiled memories live. It does not decide who may read them, whether stale facts are excluded, or whether you can produce evidence afterward. Those need labels, a policy on the read path, and an audit artifact. Self-hosting also does not stop content leaving your network if you configure an LLM compiler or a hosted embedding provider.</p>
+</div>
+</details>
 
-### Can I audit an AI agent without changing my model provider?
+<details className="blog-faq group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35">
+<summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none">
+<h3 className="text-[18px] font-semibold leading-snug text-theme-primary !m-0">6. How do I handle a GDPR erasure request for data my agent learned?</h3>
+<div className="blog-faq-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40">
+<svg className="h-5 w-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" /></svg>
+</div>
+</summary>
+<div className="px-7 pb-7">
+<div className="h-px bg-theme-primary/10 mb-6" />
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">Delete the subject, not the individual facts. `DELETE /v1/subjects/{id}` removes every episode, compiled memory, resolution, and entity for that subject in one call. Receipts are append-only and are not removed by that call; they expire separately under `receipt_retention_days`, so plan them as a second, deliberate step in your erasure runbook. The trap to avoid is an architecture where audit logs live in a separate system with a separate retention policy and a separate owner, because that leaves personal data outside your control after erasure from the operational store. See [GDPR Article 17](https://gdpr-info.eu/art-17-gdpr/).</p>
+</div>
+</details>
 
-Yes. Auditability lives in the retrieval layer, not the model. The provider's logs show the request that was sent; they cannot show why those particular facts were selected over others available at the time. A memory runtime that emits an artifact at assembly time answers that question regardless of which model you call.
+<details className="blog-faq group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35">
+<summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none">
+<h3 className="text-[18px] font-semibold leading-snug text-theme-primary !m-0">7. What is the difference between suggested and authoritative sensitivity labels?</h3>
+<div className="blog-faq-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40">
+<svg className="h-5 w-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" /></svg>
+</div>
+</summary>
+<div className="px-7 pb-7">
+<div className="h-px bg-theme-primary/10 mb-6" />
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">`sensitivity_labels` is operator-set and is the only column the policy engine reads. `suggested_labels` is written by heuristic detectors at compile time and is advisory only. The split means a noisy detector can never tighten policy on live traffic; the worst it produces is a noisy suggestion in a review queue. Promotion between the two is an explicit, audited operator action.</p>
+</div>
+</details>
 
-### Is self-hosting enough for AI data governance?
-
-No. Self-hosting decides where episodes and compiled memories live. It does not decide who may read them, whether stale facts are excluded, or whether you can produce evidence afterward. Those need labels, a policy on the read path, and an audit artifact. Self-hosting also does not stop content leaving your network if you configure an LLM compiler or a hosted embedding provider.
-
-### How do I handle a GDPR erasure request for data my agent learned?
-
-Delete the subject, not the individual facts. `DELETE /v1/subjects/{id}` removes every episode, compiled memory, resolution, and entity for that subject in one call. Receipts are append-only and are not removed by that call; they expire separately under `receipt_retention_days`, so plan them as a second, deliberate step in your erasure runbook. The trap to avoid is an architecture where audit logs live in a separate system with a separate retention policy and a separate owner, because that leaves personal data outside your control after erasure from the operational store. See [GDPR Article 17](https://gdpr-info.eu/art-17-gdpr/).
-
-### What is the difference between suggested and authoritative sensitivity labels?
-
-`sensitivity_labels` is operator-set and is the only column the policy engine reads. `suggested_labels` is written by heuristic detectors at compile time and is advisory only. The split means a noisy detector can never tighten policy on live traffic; the worst it produces is a noisy suggestion in a review queue. Promotion between the two is an explicit, audited operator action.
+</div>
