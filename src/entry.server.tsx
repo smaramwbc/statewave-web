@@ -22,7 +22,14 @@ export {
   canonicalUrl,
   DEFAULT_OG_IMAGE,
   DEFAULT_OG_IMAGE_ALT,
+  softwareApplicationJsonLd,
+  faqPageJsonLd,
+  breadcrumbJsonLd,
+  articleJsonLd,
+  supportAgentHowToJsonLd,
 } from './lib/seo-meta'
+export { FAQ_ENTRIES } from './lib/faq'
+export { POST_FAQ, HOWTO_SLUGS } from './lib/blog-schema'
 
 /* Render the SPA tree for a single URL into an HTML string. Used by the
  * post-build pipeline to bake each route's static markup into dist/ so

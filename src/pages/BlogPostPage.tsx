@@ -3,7 +3,15 @@ import { MDXProvider } from '@mdx-js/react'
 import { ClientOnly } from '../components/ClientOnly'
 import { usePageSEO } from '../lib/seo'
 import { getPostBySlug, BLOG_POSTS, blogPostUrl } from '../lib/blog'
-import { BASE_URL, DEFAULT_OG_IMAGE, breadcrumbJsonLd } from '../lib/seo-meta'
+import {
+  BASE_URL,
+  DEFAULT_OG_IMAGE,
+  breadcrumbJsonLd,
+  articleJsonLd,
+  faqPageJsonLd,
+  supportAgentHowToJsonLd,
+} from '../lib/seo-meta'
+import { POST_FAQ, HOWTO_SLUGS } from '../lib/blog-schema'
 import { GiscusComments } from '../components/GiscusComments'
 
 /* /blog/:slug post page.
@@ -88,7 +96,6 @@ const PROSE_CLASSES = [
 export function BlogPostPage() {
   const { slug } = useParams<{ slug: string }>()
   const post = slug ? getPostBySlug(slug) : undefined
-  const url = post ? `${BASE_URL}${blogPostUrl(post.meta.slug)}` : ''
   const postImage = post?.meta.image ? `${BASE_URL}${post.meta.image}` : DEFAULT_OG_IMAGE
 
   // usePageSEO is called unconditionally to satisfy rules-of-hooks even
@@ -105,37 +112,14 @@ export function BlogPostPage() {
         ogImage: postImage,
         ogImageAlt: post.meta.image ? post.meta.title : undefined,
         jsonLd: [
-          {
-            '@context': 'https://schema.org',
-            '@type': 'BlogPosting',
-            headline: post.meta.title,
-            description: post.meta.description,
-            datePublished: post.meta.date,
-            dateModified: post.meta.date,
-            url,
-            author: {
-              '@type': 'Organization',
-              name: post.meta.author,
-              url: `${BASE_URL}/about`,
-            },
-            publisher: {
-              '@type': 'Organization',
-              name: 'Statewave',
-              url: BASE_URL,
-              logo: {
-                '@type': 'ImageObject',
-                url: `${BASE_URL}/brand/icon.svg`,
-              },
-            },
-            mainEntityOfPage: { '@type': 'WebPage', '@id': url },
-            keywords: post.meta.tags?.join(', '),
-            image: postImage,
-          },
+          articleJsonLd(post),
           breadcrumbJsonLd([
             { name: 'Home', path: '/' },
             { name: 'Blog', path: '/blog' },
             { name: post.meta.title, path: blogPostUrl(post.meta.slug) },
           ]),
+          ...(POST_FAQ[post.meta.slug] ? [faqPageJsonLd(POST_FAQ[post.meta.slug])] : []),
+          ...(HOWTO_SLUGS.includes(post.meta.slug) ? [supportAgentHowToJsonLd()] : []),
         ],
       }
       : {},

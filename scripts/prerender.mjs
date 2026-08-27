@@ -52,7 +52,7 @@ import path from 'node:path'
 const DIST = path.resolve('dist')
 const SSR_DIST = path.resolve('dist-ssr')
 
-const STATIC_ROUTES = ['/', '/blog']
+const STATIC_ROUTES = ['/', '/blog', '/faq']
 
 const FALLBACK_MARKER = 'Switched to client rendering because the server rendering errored'
 const MIN_BYTES = 5_000
@@ -128,6 +128,23 @@ function applyHeadMeta(html, meta) {
   return html
 }
 
+/** Inject route-specific JSON-LD into <head>, right before it closes. This
+ *  is the server-side equivalent of what usePageSEO's `jsonLd` option does
+ *  client-side — that hook runs in a useEffect, which never fires during
+ *  SSR, so without this, BlogPosting / FAQPage / HowTo schema (and the
+ *  breadcrumb) would exist in the React tree but never reach a crawler
+ *  that doesn't execute JS. The static Organization / WebSite blocks
+ *  already in the template are untouched; this only adds route-specific
+ *  nodes alongside them. */
+function injectJsonLd(html, nodes) {
+  if (nodes.length === 0) return html
+  const scripts = nodes
+    .map((node) => `<script type="application/ld+json">${JSON.stringify(node)}</script>`)
+    .join('')
+  if (!html.includes('</head>')) throw new Error('Could not find </head> in template')
+  return html.replace('</head>', `${scripts}</head>`)
+}
+
 async function writeRoutePage(routePath, html) {
   // Map `/` → dist/index.html (overwrite the Vite template), every other
   // route → dist/<route>/index.html so Vercel resolves it as a directory
@@ -150,7 +167,41 @@ export async function runPrerender() {
     canonicalUrl,
     DEFAULT_OG_IMAGE,
     DEFAULT_OG_IMAGE_ALT,
+    softwareApplicationJsonLd,
+    faqPageJsonLd,
+    breadcrumbJsonLd,
+    articleJsonLd,
+    supportAgentHowToJsonLd,
+    FAQ_ENTRIES,
+    POST_FAQ,
+    HOWTO_SLUGS,
   } = await import(entryUrl)
+
+  function jsonLdForStaticRoute(routePath) {
+    if (routePath === '/') return [softwareApplicationJsonLd(), faqPageJsonLd(FAQ_ENTRIES)]
+    if (routePath === '/faq') {
+      return [
+        faqPageJsonLd(FAQ_ENTRIES),
+        breadcrumbJsonLd([{ name: 'Home', path: '/' }, { name: 'FAQ', path: '/faq' }]),
+      ]
+    }
+    return []
+  }
+
+  function jsonLdForPost(post) {
+    const nodes = [
+      articleJsonLd(post),
+      breadcrumbJsonLd([
+        { name: 'Home', path: '/' },
+        { name: 'Blog', path: '/blog' },
+        { name: post.meta.title, path: blogPostUrl(post.meta.slug) },
+      ]),
+    ]
+    const faqs = POST_FAQ[post.meta.slug]
+    if (faqs) nodes.push(faqPageJsonLd(faqs))
+    if (HOWTO_SLUGS.includes(post.meta.slug)) nodes.push(supportAgentHowToJsonLd())
+    return nodes
+  }
 
   const template = await readFile(path.join(DIST, 'index.html'), 'utf-8')
   if (!template.includes('<div id="root"></div>')) {
@@ -186,14 +237,18 @@ export async function runPrerender() {
   }
 
   for (const route of STATIC_ROUTES) {
-    const html = await ssr(render, route, template)
-    await writeRoutePage(route, applyHeadMeta(html, metaForStaticRoute(route)))
+    let html = await ssr(render, route, template)
+    html = applyHeadMeta(html, metaForStaticRoute(route))
+    html = injectJsonLd(html, jsonLdForStaticRoute(route))
+    await writeRoutePage(route, html)
   }
 
   for (const post of BLOG_POSTS) {
     const route = blogPostUrl(post.meta.slug)
-    const html = await ssr(render, route, template)
-    await writeRoutePage(route, applyHeadMeta(html, metaForPost(post)))
+    let html = await ssr(render, route, template)
+    html = applyHeadMeta(html, metaForPost(post))
+    html = injectJsonLd(html, jsonLdForPost(post))
+    await writeRoutePage(route, html)
   }
 
   return {

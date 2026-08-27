@@ -18,6 +18,17 @@ Statewave stores immutable episodes, compiles them into typed memories with prov
 - [Developers](https://www.statewave.ai/developers) — SDKs, docs, API reference, and examples.
 - [About](https://www.statewave.ai/about) — what Statewave is, who it's for, the repos that ship it, and how to get in touch.
 - [Blog](https://www.statewave.ai/blog) — design notes, deployment patterns, and how the runtime works under the hood. Also at [/blog/rss.xml](https://www.statewave.ai/blog/rss.xml), [/blog/atom.xml](https://www.statewave.ai/blog/atom.xml), [/blog/feed.json](https://www.statewave.ai/blog/feed.json).
+- [FAQ](https://www.statewave.ai/faq) — common questions about Statewave, answered directly.
+
+## Blog posts
+
+- [Episodic vs Semantic Memory in AI Agents](https://www.statewave.ai/blog/episodic-vs-semantic-memory): What to store as an episode vs a semantic fact, when to convert one to the other, and why agents forget between sessions.
+- [Agent memory provenance: why your LLM app needs an audit trail](https://www.statewave.ai/blog/agent-memory-provenance-audit-trails): The provenance model in Statewave — what's stored, what it costs, and what it enables for compliance and debugging.
+- [AI agent memory vs RAG](https://www.statewave.ai/blog/ai-agent-memory-vs-rag): Where a memory runtime and retrieval-augmented generation overlap, where they diverge, and which to reach for.
+- [How to add persistent memory to your AI support agent](https://www.statewave.ai/blog/persistent-memory-for-ai-support-agents): A practical walkthrough — record, compile, retrieve, splice — plus what the support workflow benchmark measures.
+- [Self-hosted AI memory with Postgres and pgvector](https://www.statewave.ai/blog/self-hosted-memory-postgres-pgvector): Why Statewave is Postgres-only by design, and what pgvector buys you over a dedicated vector database.
+- [AI Data Governance for AI Agents](https://www.statewave.ai/blog/ai-data-governance-for-ai-agents): Governance on the retrieval path — receipts, sensitivity labels, policy bundles, residency, and the EU AI Act dates.
+- [Multi-Tenant Isolation in AI Memory](https://www.statewave.ai/blog/multi-tenant-isolation-in-ai-memory): Where the tenant boundary belongs, the surfaces that aren't tenant-scoped, and the NULL-tenant backfill step.
 
 ## Documentation
 
