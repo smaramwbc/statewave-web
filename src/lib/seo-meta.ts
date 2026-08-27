@@ -455,8 +455,15 @@ export function supportAgentHowToJsonLd(): JsonLd {
 
 /** Single byline photo, site-wide — every post is currently authored by
  *  the same person. If a second author shows up, turn this into a
- *  name-keyed lookup instead of a constant. */
-export const AUTHOR_AVATAR = `${BASE_URL}/images/authors/saber-maram.jpg`
+ *  name-keyed lookup instead of a constant.
+ *
+ *  Two forms on purpose: the visible <img src> must be relative so it
+ *  resolves against whatever host is actually serving the page (local
+ *  dev, a preview deploy, or production) — an absolute production URL
+ *  there would 404 on every environment except the live site. Person.image
+ *  in the schema, on the other hand, must be absolute per schema.org. */
+export const AUTHOR_AVATAR_PATH = `/images/authors/saber-maram.jpg`
+export const AUTHOR_AVATAR = `${BASE_URL}${AUTHOR_AVATAR_PATH}`
 
 /** BlogPosting schema for one post. `wordCount` is optional because it's
  *  only cheap to compute where the rendered article text is already in

@@ -10,7 +10,7 @@ import {
   articleJsonLd,
   faqPageJsonLd,
   supportAgentHowToJsonLd,
-  AUTHOR_AVATAR,
+  AUTHOR_AVATAR_PATH,
 } from '../lib/seo-meta'
 import { POST_FAQ, HOWTO_SLUGS } from '../lib/blog-schema'
 import { GiscusComments } from '../components/GiscusComments'
@@ -174,7 +174,7 @@ export function BlogPostPage() {
 
             <div className="mt-6 flex items-center gap-2.5">
               <img
-                src={AUTHOR_AVATAR}
+                src={AUTHOR_AVATAR_PATH}
                 alt=""
                 aria-hidden="true"
                 width={28}
