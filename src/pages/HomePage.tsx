@@ -327,7 +327,7 @@ return (
 
         <div className="mt-8 space-y-6">
           <div>
-            <Heading id="what-is-a-memory-runtime" level={3} className="text-[17px] font-semibold text-theme-primary">
+            <Heading id="what-is-a-memory-runtime" level={2} className="text-[17px] font-semibold text-theme-primary">
               What is a memory runtime for AI agents?
             </Heading>
             <p className="mt-2 text-[15px] leading-7 text-theme-secondary">
@@ -340,7 +340,7 @@ return (
           </div>
 
           <div>
-            <Heading id="how-does-memory-compilation-work" level={3} className="text-[17px] font-semibold text-theme-primary">
+            <Heading id="how-does-memory-compilation-work" level={2} className="text-[17px] font-semibold text-theme-primary">
               How does memory compilation work?
             </Heading>
             <p className="mt-2 text-[15px] leading-7 text-theme-secondary">
@@ -354,14 +354,14 @@ return (
                 rel="noopener noreferrer"
                 className="text-accent hover:underline"
               >
-                CoALA framework for language agents
+                2023 CoALA framework for language agents
               </a>
               . Recompilation is idempotent — running it twice never creates duplicates.
             </p>
           </div>
 
           <div>
-            <Heading id="why-isnt-a-bigger-context-window-enough" level={3} className="text-[17px] font-semibold text-theme-primary">
+            <Heading id="why-isnt-a-bigger-context-window-enough" level={2} className="text-[17px] font-semibold text-theme-primary">
               Why isn't a bigger context window enough?
             </Heading>
             <p className="mt-2 text-[15px] leading-7 text-theme-secondary">
@@ -852,6 +852,22 @@ function GovernanceSection() {
           Retrieval is a solved problem. Production AI needs policies, an audit trail,
           and data boundaries — not just fast lookup. Statewave is built for that from
           the ground up.
+        </p>
+
+        <p className="mt-4 text-[15px] leading-relaxed text-theme-secondary/80 max-w-3xl mx-auto">
+          The stakes are real: the{' '}
+          <a
+            href="https://digital-strategy.ec.europa.eu/en/policies/regulatory-framework-ai"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-accent hover:underline"
+          >
+            EU AI Act
+          </a>{' '}
+          became applicable on 2 August 2026, and high-risk AI systems face logging and
+          traceability obligations from 2 December 2027 — governance built in from day
+          one is the difference between meeting that bar and retrofitting it under
+          deadline.
         </p>
       </div>
 

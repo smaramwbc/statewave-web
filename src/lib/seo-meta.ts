@@ -319,6 +319,13 @@ export function websiteJsonLd(): JsonLd {
   }
 }
 
+/** Last date the homepage's server-rendered content materially changed.
+ *  No CMS/CI to derive this automatically from, so it's a manually-bumped
+ *  constant — update it in the same PR whenever HomePage.tsx's copy
+ *  changes. Backs SoftwareApplication.dateModified, the freshness signal
+ *  answer engines look for. */
+export const HOMEPAGE_LAST_UPDATED = '2026-08-27'
+
 export function softwareApplicationJsonLd(): JsonLd {
   return {
     '@context': 'https://schema.org',
@@ -330,6 +337,7 @@ export function softwareApplicationJsonLd(): JsonLd {
       'Open-source memory runtime for AI agents — durable episodic and semantic memory, ranked retrieval, and token-bounded context bundles for LLM applications.',
     url: BASE_URL,
     license: 'https://www.apache.org/licenses/LICENSE-2.0',
+    dateModified: HOMEPAGE_LAST_UPDATED,
     // No codeRepository here — it's a SoftwareSourceCode property, not a
     // SoftwareApplication one, and Google's validator flags it as unrecognised.
     // The repo is already linked from the Organization node's sameAs.
