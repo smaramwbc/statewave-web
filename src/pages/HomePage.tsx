@@ -4,8 +4,8 @@ import { Link } from 'react-router'
 import { Section } from '../components/Section'
 import { Button } from '../components/Button'
 import { Heading } from '../components/Heading'
-import { ClientOnly } from '../components/ClientOnly'
 import { CodeCopyButton } from '../components/CodeCopyButton'
+import { FaqAccordion } from '../components/FaqAccordion'
 import { HeroInstallCommand } from '../components/HeroInstallCommand'
 
 import {
@@ -58,28 +58,30 @@ export function HomePage() {
     jsonLd: [softwareApplicationJsonLd(), faqPageJsonLd(FAQ_ENTRIES)],
     breadcrumb: false,
   })
-  // Only the HeroSection is prerendered into dist/index.html — everything
-  // else lives behind ClientOnly so the SSR payload stays small (the
-  // browser parses less DOM before first paint). Hydration is clean
-  // because server and the first client render both emit null for the
-  // wrapped subtree; an effect on mount expands it.
+  // Every section below is server-rendered into dist/index.html — same
+  // pattern HeroSection already used. Previously everything past the hero
+  // was wrapped in <ClientOnly> to keep the SSR payload small; that traded
+  // away GEO/AEO visibility (GPTBot, ClaudeBot, and similar don't execute
+  // JS, so a ClientOnly-wrapped homepage was an empty shell to them — see
+  // the GEO/AEO audit). Framer Motion's `initial`/`whileInView` props are
+  // SSR-safe the same way they already were in HeroSection: the server and
+  // first client render both paint the `initial` state, so hydration has
+  // nothing to reconcile.
   return (
     <>
       <HeroSection />
-      <ClientOnly>
-        <WhatSection />
-        <WhyNotSection />
-        <UseCasesSection />
-        <AIClientsSection />
-        <GovernanceSection />
-        <ConnectorsTeaserSection />
-        <SupportProofSection />
-        <CapabilitiesSection />
-        <ProofSection />
-        <DeveloperSection />
-        <FAQSection />
-        <CTASection />
-      </ClientOnly>
+      <WhatSection />
+      <WhyNotSection />
+      <UseCasesSection />
+      <AIClientsSection />
+      <GovernanceSection />
+      <ConnectorsTeaserSection />
+      <SupportProofSection />
+      <CapabilitiesSection />
+      <ProofSection />
+      <DeveloperSection />
+      <FAQSection />
+      <CTASection />
     </>
   )
 }
@@ -323,6 +325,65 @@ return (
           a durable layer any AI system can build on.
         </p>
 
+        <div className="mt-8 space-y-6">
+          <div>
+            <Heading id="what-is-a-memory-runtime" level={3} className="text-[17px] font-semibold text-theme-primary">
+              What is a memory runtime for AI agents?
+            </Heading>
+            <p className="mt-2 text-[15px] leading-7 text-theme-secondary">
+              A memory runtime is the persistence layer between an LLM application and
+              everything it has seen — events, decisions, and prior sessions. It records
+              raw events as immutable episodes, compiles them into typed memories with
+              confidence scores, and retrieves ranked, token-bounded context bundles
+              instead of a nearest-neighbor chunk pulled from a vector store.
+            </p>
+          </div>
+
+          <div>
+            <Heading id="how-does-memory-compilation-work" level={3} className="text-[17px] font-semibold text-theme-primary">
+              How does memory compilation work?
+            </Heading>
+            <p className="mt-2 text-[15px] leading-7 text-theme-secondary">
+              Compilation is a background pass that reads new episodes and produces
+              durable, typed memories — profile facts, preferences, prior-issue summaries
+              — each linked back to its source episode. This split of raw events and
+              durable facts mirrors the episodic/semantic memory taxonomy in the{' '}
+              <a
+                href="https://arxiv.org/abs/2309.02427"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-accent hover:underline"
+              >
+                CoALA framework for language agents
+              </a>
+              . Recompilation is idempotent — running it twice never creates duplicates.
+            </p>
+          </div>
+
+          <div>
+            <Heading id="why-isnt-a-bigger-context-window-enough" level={3} className="text-[17px] font-semibold text-theme-primary">
+              Why isn't a bigger context window enough?
+            </Heading>
+            <p className="mt-2 text-[15px] leading-7 text-theme-secondary">
+              Stuffing full history into every prompt call raises cost and latency
+              without fixing recall, and models still struggle with ordering and
+              recency. According to{' '}
+              <a
+                href="https://www.salesforce.com/blog/crmarena-pro/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-accent hover:underline"
+              >
+                Salesforce's CRMArena-Pro benchmark
+              </a>
+              , agent task success drops from about 58% on single-turn tasks to about
+              35% on multi-turn ones, with lost context a leading cause. A memory
+              runtime compacts history into ranked, retrievable facts instead of
+              replaying it whole.
+            </p>
+          </div>
+        </div>
+
         <div className="mt-8 space-y-3">
           {[
             'Ingest raw events as immutable episodes',
@@ -363,7 +424,7 @@ return (
           <img
             key={`memflow-dark-${memoryRuntimeReplayKey}`}
             src={`/images/home/memory-runtime-flow-animated-dark.svg?r=${memoryRuntimeReplayKey}`}
-            alt="Diagrama del memory runtime: eventos crudos compilados en un context bundle"
+            alt="Memory runtime diagram: raw events compiled into a ranked context bundle"
             className="theme-dark relative z-10 block h-auto w-full max-w-full"
           />
 
@@ -463,6 +524,33 @@ function WhyNotSection() {
             </motion.div>
           )
         })}
+      </div>
+
+      <div className="sw-card mt-10 overflow-x-auto rounded-[2rem] border border-brand-500/25 bg-surface-1/45 p-8 shadow-[0_24px_80px_rgba(0,0,0,.16)]">
+        <table className="w-full min-w-[520px] border-collapse text-left text-[15px]">
+          <caption className="mb-5 text-left text-theme-secondary">
+            At a glance: each approach's key limitation, and what Statewave does instead.
+          </caption>
+          <thead>
+            <tr className="border-b border-theme-border">
+              <th scope="col" className="py-3 pr-4 font-semibold text-theme-primary">Approach</th>
+              <th scope="col" className="py-3 font-semibold text-theme-primary">Key limitation</th>
+            </tr>
+          </thead>
+          <tbody>
+            {[
+              { approach: 'Prompt stuffing', limitation: 'Blows token budgets, no ranking or provenance' },
+              { approach: 'Naive RAG', limitation: 'Non-deterministic retrieval, no temporal reasoning' },
+              { approach: 'Raw history replay', limitation: 'Arbitrary truncation, no memory compilation' },
+              { approach: 'Statewave', limitation: 'Ranked, token-bounded, provenance-traced memory' },
+            ].map((row) => (
+              <tr key={row.approach} className="border-b border-theme-border/60 last:border-0">
+                <td className="py-3 pr-4 font-medium text-theme-primary">{row.approach}</td>
+                <td className="py-3 text-theme-secondary">{row.limitation}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
 
       <div className="sw-card mt-10 rounded-[2rem] border border-brand-500/25 bg-surface-1/45 p-8 shadow-[0_24px_80px_rgba(0,0,0,.16)]">
@@ -1645,59 +1733,7 @@ function FAQSection() {
         </p>
       </div>
 
-      {/* Semantic structure: each Q&A is a <details> so it's collapsible by
-          keyboard and assistive tech, with the question as a real <h3> inside
-          <summary> (valid per HTML spec — summary accepts one heading) and
-          the answer as a paragraph in the disclosure body. The visible HTML
-          is the same content the FAQPage JSON-LD emits, so search and
-          answer engines see one source of truth. */}
-      <div className="mx-auto max-w-4xl space-y-3">
-        {FAQ_ENTRIES.map((entry, i) => (
-          <details
-            key={entry.question}
-            // First item open by default so the section reads as content,
-            // not a wall of collapsed accordions, on first paint.
-            {...(i === 0 ? { open: true } : {})}
-            className="group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35"
-          >
-            <summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none [&::-webkit-details-marker]:hidden">
-              <h3 className="text-[18px] font-semibold leading-snug text-theme-primary">
-                {entry.question}
-              </h3>
-
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40 transition-all group-open:rotate-180 group-hover:border-brand-500/40">
-                <svg
-                  className="h-5 w-5 text-theme-secondary"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={1.8}
-                    d="M19 9l-7 7-7-7"
-                  />
-                </svg>
-              </div>
-            </summary>
-
-            <div className="px-7 pb-7">
-              <div className="h-px bg-theme-primary/10 mb-6" />
-
-              <p className="text-[16px] leading-8 text-theme-secondary/80">
-                {entry.answer}
-              </p>
-
-              {entry.links && entry.links.length > 0 && (
-                <div className="mt-5">
-                  <FaqLinks links={entry.links} />
-                </div>
-              )}
-            </div>
-          </details>
-        ))}
-      </div>
+      <FaqAccordion entries={FAQ_ENTRIES} />
 
       <div className="mt-14 text-center text-[15px] text-theme-secondary/75">
         More questions? Read the{" "}
@@ -1716,6 +1752,13 @@ function FAQSection() {
         >
           use cases
         </Link>
+        , see the{" "}
+        <Link
+          to="/faq"
+          className="text-accent hover:text-accent/80 transition-colors"
+        >
+          full FAQ
+        </Link>
         , or open an{" "}
         <a
           href="https://github.com/smaramwbc/statewave/issues"
@@ -1728,98 +1771,6 @@ function FAQSection() {
         .
       </div>
     </Section>
-  )
-}
-
-/* FAQ follow-up links.
- *
- * Internal targets — anything starting with "/" or "#" — render as same-tab
- * navigation (React Router for routes, plain anchor for in-page hashes) so the
- * visitor stays on the site. Everything else (GitHub docs, mailto, etc.) opens
- * in a new tab with rel="noopener noreferrer". */
-type FaqLink = { label: string; href: string }
-
-function FaqLinks({ links }: { links: ReadonlyArray<FaqLink> }) {
-  return (
-    <ul className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs">
-      {links.map((link) => (
-        <li key={link.href}>
-          <FaqLinkAnchor link={link} />
-        </li>
-      ))}
-    </ul>
-  )
-}
-
-function FaqLinkAnchor({ link }: { link: FaqLink }) {
-  const { label, href } = link
-  const className =
-    'inline-flex items-center gap-1 font-medium text-accent hover:text-accent-light hover:underline underline-offset-4 transition-colors'
-
-  if (href.startsWith('/')) {
-    return (
-      <Link to={href} className={className}>
-        {label}
-        <ArrowRightIcon />
-      </Link>
-    )
-  }
-  if (href.startsWith('#')) {
-    return (
-      <a href={href} className={className}>
-        {label}
-        <ArrowRightIcon />
-      </a>
-    )
-  }
-  return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      className={className}
-    >
-      {label}
-      <ExternalIcon />
-    </a>
-  )
-}
-
-function ArrowRightIcon() {
-  return (
-    <svg
-      className="w-3 h-3"
-      fill="none"
-      stroke="currentColor"
-      viewBox="0 0 24 24"
-      aria-hidden
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M13 7l5 5m0 0l-5 5m5-5H6"
-      />
-    </svg>
-  )
-}
-
-function ExternalIcon() {
-  return (
-    <svg
-      className="w-3 h-3"
-      fill="none"
-      stroke="currentColor"
-      viewBox="0 0 24 24"
-      aria-hidden
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M14 5h5v5M19 5l-9 9M5 7v12h12"
-      />
-    </svg>
   )
 }
 

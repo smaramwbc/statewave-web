@@ -55,6 +55,7 @@ export type RouteKey =
   | '/developers'
   | '/about'
   | '/blog'
+  | '/faq'
 
 /** Canonical, indexable public routes. Order matters — used to render the
  *  sitemap and the llms.txt index. /blog/<slug> entries are appended to
@@ -78,6 +79,7 @@ export const PUBLIC_ROUTES: readonly RouteKey[] = [
   '/developers',
   '/about',
   '/blog',
+  '/faq',
 ] as const
 
 export interface PageMeta {
@@ -258,6 +260,15 @@ export const PAGE_META: Record<RouteKey, PageMeta> = {
     priority: 0.7,
     changefreq: 'weekly',
   },
+  '/faq': {
+    title: 'FAQ — Statewave',
+    description:
+      'Answers to common questions about Statewave: what it is, how memory compilation and retrieval work, self-hosting, governance, pricing, and how it compares to RAG.',
+    breadcrumbLabel: 'FAQ',
+    ogType: 'website',
+    priority: 0.6,
+    changefreq: 'monthly',
+  },
 }
 
 /** Look up metadata for an arbitrary path. Falls back to home metadata if the
@@ -275,10 +286,18 @@ export function canonicalUrl(pathname: string): string {
 
 export type JsonLd = Record<string, unknown>
 
+// Fragment @ids for the two site-wide entities, so every other JSON-LD node
+// (Article publisher, WebPage isPartOf, ...) can reference them instead of
+// repeating the full object — that's what lets a crawler build one connected
+// graph instead of treating each schema block as standalone.
+export const ORGANIZATION_ID = `${BASE_URL}/#organization`
+export const WEBSITE_ID = `${BASE_URL}/#website`
+
 export function organizationJsonLd(): JsonLd {
   return {
     '@context': 'https://schema.org',
     '@type': 'Organization',
+    '@id': ORGANIZATION_ID,
     name: SITE_NAME,
     url: BASE_URL,
     logo: `${BASE_URL}/brand/icon.svg`,
@@ -291,10 +310,12 @@ export function websiteJsonLd(): JsonLd {
   return {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
+    '@id': WEBSITE_ID,
     name: SITE_NAME,
     url: BASE_URL,
     inLanguage: DEFAULT_LANG,
     description: DEFAULT_DESCRIPTION,
+    publisher: { '@id': ORGANIZATION_ID },
   }
 }
 
@@ -313,6 +334,7 @@ export function softwareApplicationJsonLd(): JsonLd {
     // SoftwareApplication one, and Google's validator flags it as unrecognised.
     // The repo is already linked from the Organization node's sameAs.
     softwareHelp: REPOS.docs,
+    publisher: { '@id': ORGANIZATION_ID },
     featureList: [
       'Episodic and semantic memory',
       'Ranked, deterministic retrieval',
@@ -380,6 +402,88 @@ export function howToJsonLd(): JsonLd {
         url: `${REPOS.docs}/blob/main/getting-started.md#step-4--retrieve-it`,
       },
     ],
+  }
+}
+
+/** HowTo for /blog/persistent-memory-for-ai-support-agents — the post's
+ *  "Record → Compile → Retrieve → Splice" steps are a real numbered
+ *  procedure, not just a HowTo for the sake of one. Keep in sync with the
+ *  step headings in that post if they change. */
+export function supportAgentHowToJsonLd(): JsonLd {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'HowTo',
+    name: 'Give a support agent persistent customer memory',
+    description:
+      'Record customer turns as episodes, compile them into typed memories, retrieve a token-bounded context bundle, and splice it into the system prompt.',
+    step: [
+      {
+        '@type': 'HowToStep',
+        position: 1,
+        name: 'Record',
+        text: "Every customer turn becomes an immutable episode tied to a stable customer subject ID (CRM ID, account UUID, or email hash) — not the per-conversation chat session ID, so memory outlives the conversation.",
+      },
+      {
+        '@type': 'HowToStep',
+        position: 2,
+        name: 'Compile',
+        text: 'A compile pass walks new episodes and produces typed memories with confidence and validity, linked back to their source episodes. Compilation is idempotent — running it twice produces no duplicates.',
+      },
+      {
+        '@type': 'HowToStep',
+        position: 3,
+        name: 'Retrieve',
+        text: 'Before calling the LLM, fetch a token-bounded context bundle for the subject. Ranking is deterministic: priority by kind, recency-weighted, validity-filtered, similarity for tie-breaks.',
+      },
+      {
+        '@type': 'HowToStep',
+        position: 4,
+        name: 'Splice',
+        text: 'Drop the bundle into the system prompt under a clear section header, and instruct the model to cite the source episode IDs when it references a remembered fact.',
+      },
+    ],
+  }
+}
+
+/** BlogPosting schema for one post. `wordCount` is optional because it's
+ *  only cheap to compute where the rendered article text is already in
+ *  hand (the prerender pipeline); the client-side call site skips it
+ *  rather than re-deriving it from the DOM. */
+export function articleJsonLd(
+  post: {
+    meta: {
+      title: string
+      description: string
+      date: string
+      author: string
+      slug: string
+      tags?: string[]
+      image?: string
+    }
+  },
+  opts: { wordCount?: number } = {},
+): JsonLd {
+  const url = canonicalUrl(`/blog/${post.meta.slug}`)
+  const image = post.meta.image ? `${BASE_URL}${post.meta.image}` : DEFAULT_OG_IMAGE
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    '@id': `${url}#article`,
+    headline: post.meta.title,
+    description: post.meta.description,
+    datePublished: post.meta.date,
+    dateModified: post.meta.date,
+    url,
+    mainEntityOfPage: { '@type': 'WebPage', '@id': url, isPartOf: { '@id': WEBSITE_ID } },
+    author: {
+      '@type': 'Organization',
+      name: post.meta.author,
+      url: `${BASE_URL}/about`,
+    },
+    publisher: { '@id': ORGANIZATION_ID },
+    keywords: post.meta.tags?.join(', '),
+    image,
+    ...(opts.wordCount ? { wordCount: opts.wordCount } : {}),
   }
 }
 
