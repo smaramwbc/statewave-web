@@ -445,6 +445,11 @@ export function supportAgentHowToJsonLd(): JsonLd {
   }
 }
 
+/** Single byline photo, site-wide — every post is currently authored by
+ *  the same person. If a second author shows up, turn this into a
+ *  name-keyed lookup instead of a constant. */
+export const AUTHOR_AVATAR = `${BASE_URL}/images/authors/saber-maram.jpg`
+
 /** BlogPosting schema for one post. `wordCount` is optional because it's
  *  only cheap to compute where the rendered article text is already in
  *  hand (the prerender pipeline); the client-side call site skips it
@@ -476,9 +481,9 @@ export function articleJsonLd(
     url,
     mainEntityOfPage: { '@type': 'WebPage', '@id': url, isPartOf: { '@id': WEBSITE_ID } },
     author: {
-      '@type': 'Organization',
+      '@type': 'Person',
       name: post.meta.author,
-      url: `${BASE_URL}/about`,
+      image: AUTHOR_AVATAR,
     },
     publisher: { '@id': ORGANIZATION_ID },
     keywords: post.meta.tags?.join(', '),

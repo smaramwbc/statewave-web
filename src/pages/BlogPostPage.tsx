@@ -10,6 +10,7 @@ import {
   articleJsonLd,
   faqPageJsonLd,
   supportAgentHowToJsonLd,
+  AUTHOR_AVATAR,
 } from '../lib/seo-meta'
 import { POST_FAQ, HOWTO_SLUGS } from '../lib/blog-schema'
 import { GiscusComments } from '../components/GiscusComments'
@@ -171,9 +172,17 @@ export function BlogPostPage() {
               {post.meta.description}
             </p>
 
-            <p className="mt-6 text-xs text-theme-muted">
-              By {post.meta.author}
-            </p>
+            <div className="mt-6 flex items-center gap-2.5">
+              <img
+                src={AUTHOR_AVATAR}
+                alt=""
+                aria-hidden="true"
+                width={28}
+                height={28}
+                className="h-7 w-7 rounded-full border border-brand-500/20 object-cover"
+              />
+              <p className="text-xs text-theme-muted">By {post.meta.author}</p>
+            </div>
 
             {post.meta.headerImage && (
               <img
