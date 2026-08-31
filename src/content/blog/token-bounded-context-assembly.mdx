@@ -31,18 +31,10 @@ The **ranking** decides order. Every candidate memory gets a score before anythi
 
 The **stop rule** is the part most implementations get wrong. Walk the sorted list, add each item's token count to a running total, and break the moment the next item would cross the line. RCR-Router, a multi-agent routing paper, [publishes this as Algorithm 1](https://arxiv.org/pdf/2508.04903): sort by importance, accumulate, break on overflow. It is a greedy knapsack fill, and its simplicity is the point. There is nothing stochastic in it.
 
-```
-candidates (sorted by score)      budget: 800 tokens
-─────────────────────────────     ──────────────────
-profile_fact      score 21   142  ▓▓▓▓▓▓          142
-procedure         score 18   118  ▓▓▓▓▓           260
-profile_fact      score 16   167  ▓▓▓▓▓▓▓         427
-episode_summary   score 12   131  ▓▓▓▓▓           558
-episode_summary   score 11    96  ▓▓▓▓            654
-procedure         score  9   107  ▓▓▓▓            761  ◄ last admitted
-raw_episode       score  6   184  ── would cross 800 ── dropped whole
-raw_episode       score  4   152  ── never considered ──
-```
+<figure className="my-8">
+<img src="/images/blog/token-bounded-context-assembly/figure-1.png" alt="A fixed 800-token ceiling filled by six whole memories, with 39 tokens of headroom and the next memory dropped rather than truncated." width="624" height="221" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+<figcaption className="mt-3 text-[14px] leading-6 text-theme-secondary/70">Six memories, 761 tokens returned at an 800-token budget (95.1% utilization). Segment widths are illustrative; per-memory token counts are not published.</figcaption>
+</figure>
 
 Items are admitted whole. A memory that would cross the ceiling is dropped, not truncated, which is why utilization lands near 95% rather than exactly 100%.
 
@@ -79,13 +71,12 @@ A 128K window is a per-call bill. A worked example on [DEV](https://dev.to/swapn
 
 Bounded assembly changes the shape of that curve from linear to flat. The [context-recycling paper](https://arxiv.org/abs/2606.26105) measured exactly this over a 30-turn benchmark:
 
-| Over 30 turns | Full-history baseline | Bounded assembly |
-|---|---|---|
-| Tokens at turn 30 | ~22,000 per request | ~850 per request |
-| Total across the run | 345,112 | 25,666 |
-| Shape of the curve | Linear in turn count | Flat |
+<figure className="my-8">
+<img src="/images/blog/token-bounded-context-assembly/figure-2.png" alt="Per-request token cost over a 30-turn benchmark: full history replay climbs linearly to 22,000 tokens per request while bounded assembly stays flat at about 850." width="624" height="380" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+<figcaption className="mt-3 text-[14px] leading-6 text-theme-secondary/70">Full history replay reaches ~22,000 tokens per request by turn 30 against ~850 for bounded assembly — 345,112 tokens versus 25,666 across the run. Source: arXiv 2606.26105.</figcaption>
+</figure>
 
-The two rows are the whole argument, and the gap compounds with every turn.
+The baseline agent re-transmitted its full history and reached roughly 22,000 tokens per request by turn 30, while the bounded system held around 850 tokens per turn. Across the run that was 25,666 tokens versus 345,112. The two lines are the whole argument, and the gap compounds with every turn.
 
 ## How does the assembler decide what gets in?
 
@@ -123,6 +114,11 @@ Less than proportional returns, and the drop-off is steep. This is the number wo
 | 200 | 178 | 89.0% | 2 | 89 tokens |
 | 500 | 443 | 88.6% | 4 | 133 tokens |
 | 800 | 761 | 95.1% | 6 | 159 tokens |
+
+<figure className="my-8">
+<img src="/images/blog/token-bounded-context-assembly/figure-3.png" alt="Memories returned and marginal token cost per additional memory at budgets of 200, 500 and 800 tokens." width="624" height="305" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+<figcaption className="mt-3 text-[14px] leading-6 text-theme-secondary/70">Derived from the published budget-command output in statewave-personal-assistant, read 3 August 2026. The assembler spends its cheapest, densest facts first.</figcaption>
+</figure>
 
 Three things fall out of that table.
 
@@ -193,7 +189,10 @@ Start low, measure utilization, and raise it only when a specific eval fails. He
 5. **Set per-role budgets if you run multiple agents.** RCR-Router's approach is a base budget plus a role offset, on the reasoning that a Planner needs structured plans while an Executor needs less. Do not give every agent the same number by default.
 6. **Do not compact on the hot path if you can avoid it.** Compile on a schedule rather than after every turn. The personal-assistant README suggests every 5 episodes or a nightly job, and supports async compilation returning a `job_id` you can poll.
 
-> Raise the budget only when a named eval fails at the current one.
+<figure className="my-8">
+<img src="/images/blog/token-bounded-context-assembly/figure-4.png" alt="Decision tree: if utilization is below 85% the budget is not the constraint; if answers still change at the next 200 tokens, raise it, otherwise you have found your number." width="624" height="341" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+<figcaption className="mt-3 text-[14px] leading-6 text-theme-secondary/70">Raise the budget only when a named eval fails at the current one.</figcaption>
+</figure>
 
 ## What token-bounded assembly does not fix
 
