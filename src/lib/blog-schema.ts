@@ -246,6 +246,70 @@ export const POST_FAQ: Readonly<Record<string, readonly FaqEntry[]>> = {
         'An early prototype did exactly that. Keeping the two stores in sync — writes, deletes, schema migrations, restores — became about 30% of the code, none of it about memory, and a compile pass touching both stores could never be made atomic.',
     },
   ],
+  'token-bounded-context-assembly': [
+    {
+      question: 'What is a good token budget for agent memory?',
+      answer:
+        "Between 600 and 1,200 tokens covers most agent workloads, which is enough for five to eight compiled facts. Statewave's server default is 4,000, and its own reference application runs at 800. Instrument your utilization ratio first, because if you are consistently below 85% of your budget, the budget is not what is limiting your agent.",
+    },
+    {
+      question: 'Is token-bounded assembly the same as context compaction?',
+      answer:
+        'No. Compaction summarizes history when the window fills, usually with an LLM call, which means the output varies run to run. Bounded assembly selects whole pre-compiled facts by score against a fixed ceiling and returns nothing that does not fit. One compresses what exists; the other decides what is admitted.',
+    },
+    {
+      question: 'Does a 1M-token context window make this unnecessary?',
+      answer:
+        "No, for two reasons. Model accuracy still depends on where information sits in the context, per Liu et al.'s Lost in the Middle, so a mostly-full window degrades rather than helps. And you are billed for every token on every call, so an unbounded prompt is an unbounded per-turn cost.",
+    },
+    {
+      question: 'How do I know which memories were left out and why?',
+      answer:
+        "You need an assembly-time record, because reconstructing it later gives you today's memory state rather than the one that was used. With receipt emission enabled, Statewave writes a receipt per context call containing the included memory IDs, an integrity hash, and the policy bundle in force. Emission and HMAC signing are both opt-in, so turn them on before you need the record. Its log_only policy mode records what a rule would have excluded without actually excluding it.",
+    },
+    {
+      question: 'Can several agents share one memory store without contradicting each other?',
+      answer:
+        "Yes, if conflicts are resolved at compile time rather than at prompt time. Statewave's compiler compares registered single-valued claims directly and otherwise supersedes an older memory when word overlap with a newer one reaches a Jaccard score of 0.6, recording the supersession with links to both source episodes. Agents then read only active memories, so the stale fact never enters any bundle.",
+    },
+    {
+      question: 'Does this work with my model provider?',
+      answer:
+        'Any of them, if the assembler is a separate service. The assembled context is a plain string that goes into a system prompt, so the layer is provider-agnostic. Statewave routes its own optional LLM compiler through LiteLLM, which covers OpenAI, Anthropic, Azure, Bedrock, Ollama, and around a hundred others.',
+    },
+  ],
+  'idempotent-compilation-and-conflict-resolution': [
+    {
+      question: 'What is the difference between idempotency and deduplication?',
+      answer:
+        'Deduplication is one way to achieve idempotency, not a synonym for it. Deduplication suppresses a repeat by checking a marker or a key. Idempotency is the broader property that repeating an operation does not change the result, which you can also get by making the operation derive state rather than append to it. A compile step that recomputes current state from the full event log is idempotent without deduplicating anything.',
+    },
+    {
+      question: 'Should my idempotency key expire?',
+      answer:
+        "Not if it is derived from the event itself. TTLs exist to stop a marker table from growing without bound, which is a real concern for randomly generated keys. A key derived from the event's logical identity or content hash is a property of the record rather than a side table, so it costs nothing to keep and it still works when a backfill re-reads a two-year-old ticket.",
+    },
+    {
+      question: 'How do I know if two memories are actually in conflict?',
+      answer:
+        "Statewave's compiler checks registered single-valued claim keys first, which catches a contradiction however it is worded, and falls back to Jaccard word overlap with a default threshold of 0.6 for everything else. Check the results against real data. The failure mode to watch for is false positives on the lexical path, where a temporary state such as travel looks like it contradicts a durable fact such as home location.",
+    },
+    {
+      question: 'Should I delete the older fact once it is superseded?',
+      answer:
+        'No. Mark it superseded and filter it out at read time. Deleting removes the evidence that a disagreement ever existed, which is the exact record you need when debugging an unexpected output or answering an audit question. Statewave tracks three states per entry: active, superseded, tombstoned.',
+    },
+    {
+      question: 'Can I compile after every message?',
+      answer:
+        'You can, but do not in production. Compilation is idempotent, which means you can batch it safely: run it after every N episodes or on a schedule. Statewave supports async compilation that returns a job ID you can poll, which keeps the derivation off the request path.',
+    },
+    {
+      question: 'Does this work if two agents write at the same time?',
+      answer:
+        'Yes, and it is the case the design targets. Both writes land as append-only episodes, so neither is lost. Conflict resolution happens at compile time rather than write time, which means concurrency does not need a lock on the write path. If you want the conflict prevented instead of resolved, have each agent read compiled context before it acts.',
+    },
+  ],
 } as const
 
 export const HOWTO_SLUGS: readonly string[] = ['persistent-memory-for-ai-support-agents']

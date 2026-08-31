@@ -29,6 +29,8 @@ Statewave stores immutable episodes, compiles them into typed memories with prov
 - [Self-hosted AI memory with Postgres and pgvector](https://www.statewave.ai/blog/self-hosted-memory-postgres-pgvector): Why Statewave is Postgres-only by design, and what pgvector buys you over a dedicated vector database.
 - [AI Data Governance for AI Agents](https://www.statewave.ai/blog/ai-data-governance-for-ai-agents): Governance on the retrieval path — receipts, sensitivity labels, policy bundles, residency, and the EU AI Act dates.
 - [Multi-Tenant Isolation in AI Memory](https://www.statewave.ai/blog/multi-tenant-isolation-in-ai-memory): Where the tenant boundary belongs, the surfaces that aren't tenant-scoped, and the NULL-tenant backfill step.
+- [Token-Bounded Context Assembly](https://www.statewave.ai/blog/token-bounded-context-assembly): Scoring, the greedy fill, what a bigger budget actually buys, and why determinism matters more than compression.
+- [Idempotent Compilation and Conflict Resolution](https://www.statewave.ai/blog/idempotent-compilation-and-conflict-resolution): The four meanings of idempotent, why a TTL'd dedup marker won't protect derived facts, and why supersession beats overwrite.
 
 ## Documentation
 
