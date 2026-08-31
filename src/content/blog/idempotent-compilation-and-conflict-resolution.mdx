@@ -35,6 +35,11 @@ Four different things, depending on who is speaking. Getting the wrong one is th
 </ul>
 </div>
 
+<figure className="my-8">
+<img src="/images/blog/idempotent-compilation-and-conflict-resolution/image5.gif" alt="Table comparing request-level, delivery-level, merge-level and derivation-level idempotency across what each guarantees, how it is enforced, and what it does not protect." width="935" height="457" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+<figcaption className="mt-3 text-[14px] leading-6 text-theme-secondary/70">Four guarantees that share one word. The last column is the one to read twice — it is where the duplicate-memory bugs come from.</figcaption>
+</figure>
+
 The request-level distinction is sharper than it looks: a PATCH that *sets* a name to "DJ" is idempotent, and a PATCH that increments a counter is not. Same verb, opposite guarantee. Martin Kleppmann covers the merge-level property in [his Code Mesh talk on conflict resolution](https://martin.kleppmann.com/2016/11/03/code-mesh.html), and the [StateFuse paper](https://arxiv.org/pdf/2607.05844) builds its agent-memory contract on exactly that CRDT substrate.
 
 Satisfying any one of the four tells you nothing about the other three.
@@ -75,15 +80,10 @@ Statewave's connector schema makes `idempotency_key` a required field on every e
 
 The published example for a GitHub issue builds the key from six parts:
 
-```
-github : acme-corp : billing-service : issue : 4127 : opened
-  │         │             │             │       │      │
-source     org          repo          type   number  event
-
-No UUID. No timestamp. No TTL.
-Re-sync this issue a thousand times and you get one episode.
-```
-
+<figure className="my-8">
+<img src="/images/blog/idempotent-compilation-and-conflict-resolution/image2.gif" alt="The connectors episode-schema docs showing an episode built with idempotency_parts of github, acme, widgets, issue, 42 and github.issue.opened." width="936" height="597" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+<figcaption className="mt-3 text-[14px] leading-6 text-theme-secondary/70">The published example composes the key from six parts. No UUID, no timestamp, no TTL — re-sync this issue a thousand times and you get one episode.</figcaption>
+</figure>
 ### The same connector suite uses the opposite rule elsewhere
 
 The detail worth stealing sits one file over. For the IDE companion, the [connector docs](https://github.com/smaramwbc/statewave-connectors/blob/main/docs/ide-memory.md) state that idempotency is content-addressable: re-running an unchanged workspace scan maps to the same key, and a changed workspace yields a new memory.
@@ -112,15 +112,10 @@ That only works because the operation is idempotent. If compile appended rather 
 
 The three guarantees stack, and they are separate:
 
-```
-INGEST                 COMPILE                RETRIEVE
-──────                 ───────                ────────
-same idempotency_key   already-processed      superseded memories
-  ─► one episode         episodes skipped       filtered out
-                         ─► memories_created: 0
-duplicate suppression  no-op recompilation    never serves a stale fact
-```
-
+<figure className="my-8">
+<img src="/images/blog/idempotent-compilation-and-conflict-resolution/image1.jpg" alt="Three lanes: ingest collapsing duplicate idempotency keys into one episode, compile advancing a watermark so a second run creates zero memories, and read serving only active memories." width="935" height="580" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+<figcaption className="mt-3 text-[14px] leading-6 text-theme-secondary/70">Three separate guarantees. Duplicate suppression at ingest, no-op recompilation in the middle, and a read path that never sees a superseded or tombstoned fact.</figcaption>
+</figure>
 ## What happens when two facts disagree rather than duplicate?
 
 Idempotency does nothing for you. A duplicate is two records that say the same thing, and the fix is to keep one. A conflict is two records that say different things, both legitimately written, and there is no version of "keep one" that is obviously right. A plain append-only chunk store has no concept of validity windows or supersession at all, which is [one of the places retrieval and memory diverge](/blog/ai-agent-memory-vs-rag).
@@ -146,6 +141,12 @@ That matches the failure worth naming here: the problem is applying the rule bli
 | "I am in Berlin this week" vs "this user lives in Lisbon" | Not a conflict — a temporary state next to a durable one | Keep both |
 
 The Berlin-versus-Lisbon row is where most systems go wrong. These three actions are a recommended policy per memory kind, not built-in behaviour you get for free.
+
+<figure className="my-8">
+<img src="/images/blog/idempotent-compilation-and-conflict-resolution/image3.jpg" alt="Decision tree splitting two memories about one subject into duplicate, coexisting, or contradicting, with per-kind actions of supersede, qualify or flag for review." width="935" height="624" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+<figcaption className="mt-3 text-[14px] leading-6 text-theme-secondary/70">The false-positive trap on the left is the case worth designing for: two facts that differ without contradicting.</figcaption>
+</figure>
+
 
 ## Why supersede instead of overwrite?
 
@@ -173,6 +174,11 @@ If you are currently resolving contradictions inside application code, that logi
 ### The threshold is a real dial, not a constant
 
 Jaccard 0.6 is a default, and you should treat it as one. Set it lower and unrelated facts collide, which produces false-positive supersession that deletes true information from the read path. Set it higher and genuine contradictions both survive into the bundle, so you pay tokens to give the model two incompatible answers. There is no universally correct value, and the way to find yours is to run the inspector against real subjects and read the supersession records it produces. The same dial shows up on the retrieval side, where it decides what survives [a fixed token budget](/blog/token-bounded-context-assembly).
+
+<figure className="my-8">
+<img src="/images/blog/idempotent-compilation-and-conflict-resolution/image4.jpg" alt="The multi-agent memory demo resolving six conflicts across three sources, with superseded memories still listed alongside the winners." width="936" height="483" loading="lazy" className="w-full rounded-2xl border border-brand-500/20" />
+<figcaption className="mt-3 text-[14px] leading-6 text-theme-secondary/70">The full demo run resolves six conflicts across its three sources; the Stripe pre-reversal pair described above is one of them. The loser is still there, and that is the difference between supersession and overwrite.</figcaption>
+</figure>
 
 ## What changes in a multi-agent pipeline?
 
