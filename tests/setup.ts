@@ -1,6 +1,12 @@
 import "@testing-library/jest-dom/vitest";
-import { cleanup } from "@testing-library/react";
+import { cleanup, configure } from "@testing-library/react";
 import { afterEach, beforeEach, vi } from "vitest";
+
+// Route components are lazy-loaded and the blog loader eagerly globs every
+// .mdx post, so the first render of a heavy route has to compile and import
+// a lot before the title lands. Testing Library's 1s default for waitFor is
+// tight enough that adding a post can tip it over on a cold cache.
+configure({ asyncUtilTimeout: 10_000 });
 
 afterEach(() => cleanup());
 

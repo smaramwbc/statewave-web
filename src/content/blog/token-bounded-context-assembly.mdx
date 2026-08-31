@@ -1,0 +1,299 @@
+---
+title: "Token-bounded context assembly: how to fit agent memory into a fixed prompt budget"
+slug: token-bounded-context-assembly
+date: "2026-08-28T09:00:00+02:00"
+description: Score every candidate memory, fill a fixed token budget from the top of the ranking, stop at the limit. Here's the mechanism, what a bigger budget actually buys, and how to set the number for your own system.
+author: Saber Maram
+image: /images/blog/token-bounded-context-assembly/og.png
+headerImage: /images/blog/token-bounded-context-assembly/header.png
+tags:
+  - context-assembly
+  - token-budget
+  - ranking
+  - architecture
+---
+
+Token-bounded context assembly means scoring every candidate memory, filling a fixed token budget from the top of that ranking, and stopping at the limit. The prompt stays the same size at turn 500 as it was at turn 5. In the reference implementation published in Statewave's [personal-assistant repo](https://github.com/smaramwbc/statewave-personal-assistant), a demo user with six sessions and roughly 2,800 tokens of raw history gets 761 tokens of ranked context at an 800-token budget. That is 73% fewer tokens, and it is the same 761 tokens every time you ask.
+
+This post covers the mechanism, what a bigger budget actually buys (less than you would guess), why determinism matters more than compression, and how to set the number for your own system.
+
+## What is token-bounded context assembly?
+
+It is a retrieval step with a hard ceiling. Instead of asking "what is relevant," the assembler asks "what are the highest-scoring facts that fit in N tokens," returns those, and returns nothing else. The output is a single string ready to drop into a system prompt.
+
+### The three moving parts
+
+A token-bounded assembler needs a budget, a ranking, and a stop rule.
+
+The **budget** is a number you set per call, not a model limit. Statewave's server ships with `STATEWAVE_DEFAULT_MAX_CONTEXT_TOKENS=4000` ([config reference](https://github.com/smaramwbc/statewave#configuration)), while the personal-assistant reference app sets `STATEWAVE_MAX_TOKENS=800`. The reference app runs at a fifth of the server default, which tells you the default is a ceiling and not a recommendation.
+
+The **ranking** decides order. Every candidate memory gets a score before anything is selected.
+
+The **stop rule** is the part most implementations get wrong. Walk the sorted list, add each item's token count to a running total, and break the moment the next item would cross the line. RCR-Router, a multi-agent routing paper, [publishes this as Algorithm 1](https://arxiv.org/pdf/2508.04903): sort by importance, accumulate, break on overflow. It is a greedy knapsack fill, and its simplicity is the point. There is nothing stochastic in it.
+
+<figure className="my-8">
+<img src="/images/blog/token-bounded-context-assembly/image4.gif" alt="A fixed 800-token ceiling filled by six whole memories, with 39 tokens of headroom and the next memory dropped rather than truncated." width="936" height="332" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+<figcaption className="mt-3 text-[14px] leading-6 text-theme-secondary/70">The ceiling is a stop rule, not a target: the next-ranked memory is dropped whole rather than trimmed to fill the last 39 tokens.</figcaption>
+</figure>
+
+Items are admitted whole. A memory that would cross the ceiling is dropped, not truncated, which is why utilization lands near 95% rather than exactly 100%.
+
+### What it replaces
+
+Three patterns, all of which fail differently:
+
+<div className="my-8 rounded-2xl border border-brand-500/25 bg-brand-500/[0.05] p-6 sm:p-7">
+<div className="section-eyebrow mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">What it replaces</div>
+<ul className="!my-0 !pl-0 space-y-3 list-none">
+<li className="flex items-start gap-3"><span className="mt-3.5 h-px w-3 shrink-0 bg-brand-500" /><span><strong className="text-theme-primary">Full history replay</strong> — every turn re-sends the whole conversation. Cost grows linearly with session lifetime, and there is no ranking, so a throwaway comment gets the same weight as a critical bug report.</span></li>
+<li className="flex items-start gap-3"><span className="mt-3.5 h-px w-3 shrink-0 bg-brand-500" /><span><strong className="text-theme-primary">Summarize-on-overflow</strong> — compaction fires when the window fills. It works, but see the next section on why it is unpredictable.</span></li>
+<li className="flex items-start gap-3"><span className="mt-3.5 h-px w-3 shrink-0 bg-brand-500" /><span><strong className="text-theme-primary">Top-K vector retrieval</strong> — returns the K nearest chunks by cosine similarity. K is a count, not a token budget, so the actual prompt size varies with chunk length.</span></li>
+</ul>
+</div>
+
+Top-K also returns embedding-nearest rather than decision-relevant results, which is [a different problem worth reading about separately](/blog/ai-agent-memory-vs-rag).
+
+## Why doesn't a bigger context window solve this?
+
+Because the constraint is not the window size. It is how much of the window the model actually uses, and what each token costs you on every single call.
+
+### Position still decides what the model reads
+
+Liu et al. tested this directly in [Lost in the Middle](https://aclanthology.org/2024.tacl-1.9/) (TACL, 2024). Accuracy follows a U-shaped curve against the position of the relevant passage: highest at the start and end of the context, worst in the middle, and this held even for models explicitly built for long context. Padding a 128K window with 100K tokens of history does not give the model 100K tokens of usable evidence. It gives it a large middle.
+
+The 2026 GenericAgent paper points in the same direction, and the consequence is worth stating plainly: [the effective context window is smaller than its nominal size](https://arxiv.org/pdf/2604.17091). The paper's own finding is that irrelevant content dilutes attention away from decision-critical evidence.
+
+> Adding context past a certain point is not neutral. It costs you accuracy.
+
+### The cost curve is the real ceiling
+
+A 128K window is a per-call bill. A worked example on [DEV](https://dev.to/swapnanilsaha/llm-context-window-token-budget-why-your-window-fills-up-fast-4c05) walks the arithmetic: with 1,800 tokens of fixed overhead, 800 tokens of RAG per turn, and 410 tokens of history growth per turn, you hit 80% of a 128K window around turn 84. Lengthen the model's replies to 800 tokens, and you get there by turn 60. Neither number is the interesting part. The interesting part is that both are finite, and both arrive during a normal working session.
+
+Bounded assembly changes the shape of that curve from linear to flat. The [context-recycling paper](https://arxiv.org/abs/2606.26105) measured exactly this over a 30-turn benchmark:
+
+<figure className="my-8">
+<img src="/images/blog/token-bounded-context-assembly/image1.gif" alt="Per-request token cost over a 30-turn benchmark: full history replay climbs linearly to 22,000 tokens per request while bounded assembly stays flat at about 850." width="936" height="570" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+<figcaption className="mt-3 text-[14px] leading-6 text-theme-secondary/70">Measured over a 30-turn benchmark. The gap is not a constant — it compounds with every turn.</figcaption>
+</figure>
+
+The baseline agent re-transmitted its full history and reached roughly 22,000 tokens per request by turn 30, while the bounded system held around 850 tokens per turn. Across the run that was 25,666 tokens versus 345,112. The two lines are the whole argument, and the gap compounds with every turn.
+
+## How does the assembler decide what gets in?
+
+It scores each candidate on several axes, sums them, sorts, then fills. The axes are where the design decisions live, and they are worth being explicit about because they are what you will tune.
+
+### Scoring beyond similarity
+
+Statewave's ranking model, [documented in the architecture overview](https://github.com/smaramwbc/statewave-docs/blob/main/architecture/overview.md), lists four core signals, with a further seven alongside them and two more present in the code but not in the docs. These four carry most of the ordering:
+
+| Signal | Range | What it encodes |
+|---|---|---|
+| Kind priority | 3 to 10 | `profile_fact` 10, `procedure` 8, `episode_summary` 5, `raw_episode` 3 |
+| Recency | 0 to 5 | Linear, most recent memory takes the maximum |
+| Task relevance | 0 to 8 | Word overlap contributes up to 5, cosine similarity up to 8 |
+| Temporal validity | −4 to +3 | Currently valid adds 3, expired subtracts 4 |
+
+Read the table as a set of opinions. A stable profile fact outranks a raw conversation turn by 7 points on kind priority alone, before any of the other signals are applied, which is why identity tends to survive budget pressure while chatter does not. An expired fact carries a 7-point swing against it, which pushes stale records toward the bottom rather than letting them compete on similarity, though the remaining signals can still move an item either way. Cosine similarity is present, but it is one input among several rather than the whole ranking.
+
+### Compile before you rank
+
+The step that makes small budgets viable is compilation: a pass over raw episodes that produces typed facts with confidence scores and provenance back to the source episodes. Two hundred conversation turns become one `profile_fact`. The [personal-assistant repo](https://github.com/smaramwbc/statewave-personal-assistant) shows real output from this pass, including a `procedure` at confidence 0.94 carrying a 429-rate-limit workaround, traced back to episode `ep_002`.
+
+Without compilation, you are ranking raw turns, and raw turns are a bad unit: low information density, high token count, no confidence signal.
+
+> Compilation is what converts a token budget from a truncation mechanism into a selection mechanism.
+
+## What does a bigger budget actually buy?
+
+Less than proportional returns, and the drop-off is steep. This is the number worth taking away from this post.
+
+**Method:** we read the published output of the `budget` command in the [statewave-personal-assistant README](https://github.com/smaramwbc/statewave-personal-assistant) on 3 August 2026, which calls the context API three times at different budgets for the same subject, and derived the ratios below.
+
+| Budget requested | Tokens returned | Utilization | Memories returned | Marginal cost per new memory |
+|---|---|---|---|---|
+| 200 | 178 | 89.0% | 2 | 89 tokens |
+| 500 | 443 | 88.6% | 4 | 133 tokens |
+| 800 | 761 | 95.1% | 6 | 159 tokens |
+
+<figure className="my-8">
+<img src="/images/blog/token-bounded-context-assembly/image3.gif" alt="Memories returned and marginal token cost per additional memory at budgets of 200, 500 and 800 tokens." width="937" height="458" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+<figcaption className="mt-3 text-[14px] leading-6 text-theme-secondary/70">Derived from the published budget-command output in statewave-personal-assistant, read 3 August 2026. The assembler spends its cheapest, densest facts first.</figcaption>
+</figure>
+
+Three things fall out of that table.
+
+**Quadrupling the budget returns three times the facts, not four.** Going from 200 to 800 tokens is a 4x spend for a 2-to-6 memory gain. The first two memories cost 89 tokens each. The fifth and sixth cost 159 each. Marginal cost per fact rose 79% across the range, because the assembler spends the cheap, dense, high-priority facts first and works down into longer, lower-scoring material.
+
+**The budget is a ceiling, not a target.** Utilization landed at 89.0%, 88.6%, and 95.1%. It never crossed 100%, and it never got close to filling exactly, because items are admitted whole. A memory that would overshoot by one token is dropped entirely rather than truncated mid-sentence. Headroom across the three measured runs was 4.9%, 11.0% and 11.4%, so plan for roughly 5 to 11% and size accordingly.
+
+**Compression is the least interesting benefit.** The same repo reports the raw history for that subject at roughly 2,800 tokens across six sessions. At an 800-token budget, the assembler returned 761 tokens. A 73% reduction is useful, but the reason to care is on the next line: it is 761 tokens of the *highest-scoring* material, chosen the same way every time.
+
+## Why should the same request return the same bytes?
+
+Because you cannot debug, evaluate, or defend a system whose inputs change underneath you. This is the part that separates a context assembler from a compression trick, and it is the property almost nobody writes about.
+
+### Summarization is not reproducible
+
+Researchers at Penn State measured what happens when you compact by summarization. Their [paper on parallel context compaction](https://arxiv.org/pdf/2605.23296) reports that as context grows, both the volume of output the model produces and the information it retains vary from run to run, which makes the agent's retained knowledge unpredictable across runs. They also note that prompt instructions asking for a specific summary length are largely ignored.
+
+That is a real problem. If your compaction step is an LLM call, your context assembly is non-deterministic, and every eval you run is measuring two things at once.
+
+### Determinism is what makes an eval mean anything
+
+Deterministic assembly means: same subject, same task string, same budget, same point in time, same bytes. Change the answer and you know the change came from the model or the prompt, because the context did not move.
+
+Statewave publishes an eval suite of [56 assertions across 23 tests](https://github.com/smaramwbc/statewave#use-cases). Those results are only meaningful because the context bundle is reproducible.
+
+> A benchmark on top of a stochastic retrieval layer measures variance as much as it measures capability.
+
+There is a caveat worth stating. Compile-then-use bundles are denser than plain fact-store lookups, and the project's own README is direct that this [costs more tokens per answer](https://github.com/smaramwbc/statewave#faq) than a lighter fact store, and that if your queries are mostly single-hop you may not want it. Determinism is a trade, not a free win.
+
+If your agent is already ranking and truncating context by hand, this is the layer you are re-implementing. Statewave's context API returns the ranked, token-bounded bundle as a single string, and [the how-it-works page](/product) walks the ingest, compile, retrieve loop end to end.
+
+## How do you prove what the agent actually saw?
+
+You emit a record at assembly time. Nothing you can reconstruct after the fact is as good, because by then the memories have moved on.
+
+Receipt emission is opt-in, and HMAC signing is a second opt-in on top of it. With both switched on, a state-assembly receipt in Statewave is immutable, ULID-addressable, and carries an HMAC-SHA256 signature plus an embedded snapshot of the policy bundle in force at the time ([receipt schema](https://github.com/smaramwbc/statewave/blob/main/docs/state-assembly-receipts.md)). It records which memory IDs went into the bundle and an integrity hash of what was delivered. Six months later, "what did this agent know when it made that decision" is a lookup rather than an argument.
+
+Two details make receipts more useful than ordinary logging.
+
+**Exclusions matter as much as inclusions.** Most governance questions are not about what the model used. They are about why it did not use something else. A memory can miss the bundle because it was outranked, because it expired, or because a policy denied it. Those are three different answers, and only one of them is a tuning problem. Statewave's policy engine has a `log_only` mode that records every policy decision into the receipt without filtering anything, which lets you watch what a rule would have done before you switch it to `enforce`.
+
+**Replay has a real boundary.** The v0.9 receipt replay endpoint re-runs the original retrieval against today's memories using the original policy bundle. That answers "what would today's data say under the old rules." It is not byte-for-byte historical reproduction, which would need memory snapshots, and the project [lists that as deferred](https://github.com/smaramwbc/statewave#current-limitations). Know which question you are asking.
+
+The [provenance model behind those receipts](/blog/agent-memory-provenance-audit-trails) goes deeper on what gets stored and what it costs to store it.
+
+## What changes when several agents share one budget?
+
+Each agent gets its own bundle from the same store, and the hard problem moves from selection to conflict.
+
+Run three agents concurrently against a shared subject, and two of them will eventually write contradicting facts. Statewave's [multi-agent memory demo](https://github.com/smaramwbc/statewave-multi-agent-memory) makes this concrete with a deliberately staged conflict: one agent commits Stripe's pre-reversal processing rate, another commits the corrected rate. Where the two memories carry a registered single-valued claim key the compiler compares the claims directly; otherwise it falls back to Jaccard word overlap, and at a threshold of 0.6 or above it marks the older one superseded and records the decision with links to both source episodes. The synthesis agent's context bundle contains only the winner. No merge logic was written by hand.
+
+That threshold is a design choice you should know about rather than a law. Set it too low and unrelated facts collide. Set it too high and genuine contradictions both survive into the bundle, at which point you are paying tokens to confuse the model. The [longer treatment of idempotent compilation and supersession](/blog/idempotent-compilation-and-conflict-resolution) covers how to tune it.
+
+The related [shared-context demo](https://github.com/smaramwbc/statewave-multi-agent-shared-context) runs the same idea earlier in the pipeline. A Planner deprecates a module, compiles, and a Coder reads context *before* deciding what to build, so it never builds the deprecated thing. The repo ships this as a two-call primitive, `before_acting()` and `decide()`, with adapters for CrewAI and the Claude Agent SDK. Its README makes the argument that message-passing frameworks route context sequentially, which works when agents take turns and does not when they run in parallel.
+
+This is an old idea with a new surface. Mathias Verraes, in his [talk on bounded contexts](https://www.youtube.com/watch?v=-YYleNm4C7s) at KanDDDinsky, frames the whole of Domain-Driven Design boundary-drawing around one heuristic: whether you can understand one thing without having to understand the other. Swap "I" for "this agent" and you have the design rule for a shared subject.
+
+Nikita Golovko, an AI portfolio architect at Siemens, put a number on the cost of not doing this in [his AI Coding Summit 2026 talk](https://gitnation.com/contents/from-prompt-spaghetti-to-bounded-contexts-ddd-for-agentic-codebases). Describing agent systems six months into their life, he estimated that "around 85% of your prompt is about parsing logic" and integration rather than domain work, with single agents past 3,000 tokens. His fix was the same one: split the responsibility, and the prompt drops to hundreds of tokens.
+
+## How do you set the budget in practice?
+
+Start low, measure utilization, and raise it only when a specific eval fails. Here is the sequence. If you want it applied end-to-end against a concrete workload first, [the support-agent walkthrough](/blog/persistent-memory-for-ai-support-agents) covers what to record and how to retrieve it.
+
+1. **Instrument before you tune.** Log the returned token estimate and memory count on every context call. You need the utilization ratio, not the ceiling. If you are running below 85% of your budget, your budget is not the constraint, and raising it will change nothing.
+2. **Start at 800 and work up.** The reference app uses 800 against a 4,000 default for a reason. Pick a number that gets you 5 to 8 compiled facts, which for typical `profile_fact` and `procedure` sizes lands between 600 and 1,200 tokens.
+3. **Add the fixed costs before you decide it is too small.** Your system prompt and tool schemas can run 2,000 to 4,000 tokens on their own and get charged on every call. Memory context is usually the smallest line item in a well-built agent, which is why the argument for a large memory budget is weaker than it feels.
+4. **Watch the marginal curve, not the total.** From the table above: each doubling of budget bought progressively less. Run your own version of that test, at three budgets on a real subject, and find the point where the next 200 tokens stop changing answers.
+5. **Set per-role budgets if you run multiple agents.** RCR-Router's approach is a base budget plus a role offset, on the reasoning that a Planner needs structured plans while an Executor needs less. Do not give every agent the same number by default.
+6. **Do not compact on the hot path if you can avoid it.** Compile on a schedule rather than after every turn. The personal-assistant README suggests every 5 episodes or a nightly job, and supports async compilation returning a `job_id` you can poll.
+
+<figure className="my-8">
+<img src="/images/blog/token-bounded-context-assembly/image2.gif" alt="Decision tree: if utilization is below 85% the budget is not the constraint; if answers still change at the next 200 tokens, raise it, otherwise you have found your number." width="936" height="512" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+<figcaption className="mt-3 text-[14px] leading-6 text-theme-secondary/70">Raise the budget only when a named eval fails at the current one.</figcaption>
+</figure>
+
+## What token-bounded assembly does not fix
+
+Four things.
+
+**It does not fix bad extraction.** If your compiler produces low-quality facts, ranking them precisely and fitting them exactly into 800 tokens gives you 800 tokens of well-organized noise. The compiler is upstream of everything in this post.
+
+**It does not survive naive truncation.** TokenPilot's authors found that mutating the prompt sequence to save tokens [invalidates the KV prefix cache](https://arxiv.org/pdf/2606.17016), and prefix-cache misses can cost more than the tokens you saved. Assemble a stable prefix and vary the tail; do not rewrite the whole prompt every turn.
+
+**It is not the same as token-level compression.** The AGORA authors tested extractive token-level compressors in agent settings across 17 configurations and [reported that all 17 collapsed](https://arxiv.org/pdf/2605.26596), despite achieving genuine compression, because the compression destroyed action grammar. Dropping tokens inside a well-formed fact is not the same as dropping a whole low-ranking fact.
+
+**It does not remove the need for a corpus.** Memory answers "what does this subject need right now." It does not answer "what does our documentation say about X." Most production agents need both layers, and the [use-cases page](/use-cases) is a reasonable map of which jobs land on which side.
+
+## Where to start
+
+You now have the mechanism, the diminishing-returns curve that tells you when to stop raising the budget, and the two failure modes (bad extraction upstream, prefix-cache invalidation downstream) that make otherwise-correct implementations underperform.
+
+The first step is an afternoon. Log the token estimate and memory count on every context call you already make, then run the same subject at three budgets and look at where the answers stop changing. If the curve flattens where the table above says it should, you have your number.
+
+If you would rather not build the compilation and receipt layer yourself, that is what Statewave is: an Apache-2.0 memory runtime that boots with one command against your own Postgres and returns the bundle with provenance already attached. The [developer docs](/developers) have the five-minute path, and [the reasoning behind the Postgres-only design](/blog/self-hosted-memory-postgres-pgvector) is worth reading before you deploy it.
+
+## FAQ
+
+<div className="my-8 space-y-3">
+
+<details open className="blog-faq group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35">
+<summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none">
+<h3 className="text-[18px] font-semibold leading-snug text-theme-primary !m-0">1. What is a good token budget for agent memory?</h3>
+<div className="blog-faq-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40">
+<svg className="h-5 w-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" /></svg>
+</div>
+</summary>
+<div className="px-7 pb-7">
+<div className="h-px bg-theme-primary/10 mb-6" />
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">Between 600 and 1,200 tokens covers most agent workloads, which is enough for five to eight compiled facts. Statewave's server default is 4,000, and its own reference application runs at 800. Instrument your utilization ratio first, because if you are consistently below 85% of your budget, the budget is not what is limiting your agent.</p>
+</div>
+</details>
+
+<details className="blog-faq group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35">
+<summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none">
+<h3 className="text-[18px] font-semibold leading-snug text-theme-primary !m-0">2. Is token-bounded assembly the same as context compaction?</h3>
+<div className="blog-faq-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40">
+<svg className="h-5 w-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" /></svg>
+</div>
+</summary>
+<div className="px-7 pb-7">
+<div className="h-px bg-theme-primary/10 mb-6" />
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">No. Compaction summarizes history when the window fills, usually with an LLM call, which means the output varies run to run. Bounded assembly selects whole pre-compiled facts by score against a fixed ceiling and returns nothing that does not fit. One compresses what exists; the other decides what is admitted.</p>
+</div>
+</details>
+
+<details className="blog-faq group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35">
+<summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none">
+<h3 className="text-[18px] font-semibold leading-snug text-theme-primary !m-0">3. Does a 1M-token context window make this unnecessary?</h3>
+<div className="blog-faq-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40">
+<svg className="h-5 w-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" /></svg>
+</div>
+</summary>
+<div className="px-7 pb-7">
+<div className="h-px bg-theme-primary/10 mb-6" />
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">No, for two reasons. Model accuracy still depends on where information sits in the context, per Liu et al.'s Lost in the Middle, so a mostly-full window degrades rather than helps. And you are billed for every token on every call, so an unbounded prompt is an unbounded per-turn cost.</p>
+</div>
+</details>
+
+<details className="blog-faq group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35">
+<summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none">
+<h3 className="text-[18px] font-semibold leading-snug text-theme-primary !m-0">4. How do I know which memories were left out and why?</h3>
+<div className="blog-faq-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40">
+<svg className="h-5 w-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" /></svg>
+</div>
+</summary>
+<div className="px-7 pb-7">
+<div className="h-px bg-theme-primary/10 mb-6" />
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">You need an assembly-time record, because reconstructing it later gives you today's memory state rather than the one that was used. With receipt emission enabled, Statewave writes a receipt per context call containing the included memory IDs, an integrity hash, and the policy bundle in force. Emission and HMAC signing are both opt-in, so turn them on before you need the record. Its `log_only` policy mode records what a rule would have excluded without actually excluding it.</p>
+</div>
+</details>
+
+<details className="blog-faq group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35">
+<summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none">
+<h3 className="text-[18px] font-semibold leading-snug text-theme-primary !m-0">5. Can several agents share one memory store without contradicting each other?</h3>
+<div className="blog-faq-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40">
+<svg className="h-5 w-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" /></svg>
+</div>
+</summary>
+<div className="px-7 pb-7">
+<div className="h-px bg-theme-primary/10 mb-6" />
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">Yes, if conflicts are resolved at compile time rather than at prompt time. Statewave's compiler compares registered single-valued claims directly and otherwise supersedes an older memory when word overlap with a newer one reaches a Jaccard score of 0.6, recording the supersession with links to both source episodes. Agents then read only active memories, so the stale fact never enters any bundle.</p>
+</div>
+</details>
+
+<details className="blog-faq group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35">
+<summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none">
+<h3 className="text-[18px] font-semibold leading-snug text-theme-primary !m-0">6. Does this work with my model provider?</h3>
+<div className="blog-faq-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40">
+<svg className="h-5 w-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" /></svg>
+</div>
+</summary>
+<div className="px-7 pb-7">
+<div className="h-px bg-theme-primary/10 mb-6" />
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">Any of them, if the assembler is a separate service. The assembled context is a plain string that goes into a system prompt, so the layer is provider-agnostic. Statewave routes its own optional LLM compiler through LiteLLM, which covers OpenAI, Anthropic, Azure, Bedrock, Ollama, and around a hundred others.</p>
+</div>
+</details>
+
+</div>

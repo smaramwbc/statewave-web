@@ -1,0 +1,322 @@
+---
+title: "Idempotent compilation and conflict resolution: how agent memory stays clean"
+slug: idempotent-compilation-and-conflict-resolution
+date: "2026-08-31T09:00:00+02:00"
+description: Re-running the memory build shouldn't change the store, and two events that genuinely disagree need a different answer entirely. Here's the mechanism for each, and what breaks when you treat them as one problem.
+author: Saber Maram
+image: /images/blog/idempotent-compilation-and-conflict-resolution/og.png
+headerImage: /images/blog/idempotent-compilation-and-conflict-resolution/header.png
+tags:
+  - idempotency
+  - conflict-resolution
+  - compilation
+  - architecture
+---
+
+Idempotent compilation means you can re-run the memory build over the same events as many times as you like, and the store doesn't change. Conflict resolution is the separate and harder problem of deciding what to do when two events genuinely disagree. Treating them as one problem is why agent memory fills up with both duplicates and contradictions, and it is why teams add a deduplication cache and then watch the store rot anyway.
+
+We reviewed the papers, talks and practitioner write-ups in our corpus on this. The word "idempotent" carried four incompatible meanings across them. Meanwhile the TOKI bitemporal-memory paper, citing a BeliefShift measurement rather than one of its own, puts production systems at [up to 42% of cross-session contradictions unresolved](https://arxiv.org/pdf/2606.06240) across seven model families.
+
+This post separates the two problems, shows the mechanism for each, and covers what breaks when you get the boundary wrong.
+
+## What does "idempotent" actually mean here?
+
+Four different things, depending on who is speaking. Getting the wrong one is the root of most duplicate-memory bugs, because satisfying one definition gives you no guarantee about the others.
+
+### The four definitions in active use
+
+<div className="my-8 rounded-2xl border border-brand-500/25 bg-brand-500/[0.05] p-6 sm:p-7">
+<div className="section-eyebrow mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">One word, four guarantees</div>
+<ul className="!my-0 !pl-0 space-y-3 list-none">
+<li className="flex items-start gap-3"><span className="mt-3.5 h-px w-3 shrink-0 bg-brand-500" /><span><strong className="text-theme-primary">Request-level</strong> — repeating the same request leaves state unchanged after the first. GET and DELETE are naturally idempotent, POST is not, and PATCH depends entirely on what it does.</span></li>
+<li className="flex items-start gap-3"><span className="mt-3.5 h-px w-3 shrink-0 bg-brand-500" /><span><strong className="text-theme-primary">Delivery-level</strong> — the same event arriving twice is acted on once, enforced with a marker: store the fact that you processed event X, check the marker before processing again.</span></li>
+<li className="flex items-start gap-3"><span className="mt-3.5 h-px w-3 shrink-0 bg-brand-500" /><span><strong className="text-theme-primary">Merge-level</strong> — the merge function is idempotent, associative and commutative, so replicas converge whatever the order or repetition of updates.</span></li>
+<li className="flex items-start gap-3"><span className="mt-3.5 h-px w-3 shrink-0 bg-brand-500" /><span><strong className="text-theme-primary">Derivation-level</strong> — re-running a derivation over the same inputs produces no new derived records. This is the one that matters for agent memory, and the one almost nobody names.</span></li>
+</ul>
+</div>
+
+<figure className="my-8">
+<img src="/images/blog/idempotent-compilation-and-conflict-resolution/image5.gif" alt="Table comparing request-level, delivery-level, merge-level and derivation-level idempotency across what each guarantees, how it is enforced, and what it does not protect." width="935" height="457" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+<figcaption className="mt-3 text-[14px] leading-6 text-theme-secondary/70">Four guarantees that share one word. The last column is the one to read twice — it is where the duplicate-memory bugs come from.</figcaption>
+</figure>
+
+The request-level distinction is sharper than it looks: a PATCH that *sets* a name to "DJ" is idempotent, and a PATCH that increments a counter is not. Same verb, opposite guarantee. Martin Kleppmann covers the merge-level property in [his Code Mesh talk on conflict resolution](https://martin.kleppmann.com/2016/11/03/code-mesh.html), and the [StateFuse paper](https://arxiv.org/pdf/2607.05844) builds its agent-memory contract on exactly that CRDT substrate.
+
+Satisfying any one of the four tells you nothing about the other three.
+
+### Why the distinction is not academic
+
+A system can be delivery-idempotent and still accumulate duplicate facts. Here is the mechanism: delivery markers expire, and derived facts do not.
+
+Every practitioner source in our corpus that recommends a marker also recommends expiring it, with TTLs ranging from about a minute to a day depending on the workload. The written guidance at [AgentPatterns](https://www.agentpatterns.ai/agent-design/idempotent-agent-operations/) warns that a 24-hour deduplication table stops protecting older replays. That is correct advice for delivery-level idempotency, because an unbounded marker table grows forever.
+
+None of them addresses the case that matters for memory: the same source event is re-ingested after the marker expires, the ingest layer has forgotten it, but the fact derived from it is still sitting in the store. You now have the fact twice, and no error was raised anywhere.
+
+> Across that review, every practitioner source recommending a deduplication marker also recommended a TTL on it. None discussed the interaction between an expiring marker and a non-expiring derived fact.
+
+## Why do agents accumulate duplicate memories at all?
+
+Because at-least-once delivery is the norm, and because memory pipelines re-read their sources on purpose.
+
+### Retries and republishing
+
+The framing to internalize is simple: always assume you might receive the same message twice. Even a broker that promises exactly-once delivery cannot stop the upstream service from publishing the same logical event twice with two different event IDs, which is why an ID-based check is usually paired with a business-key check on something like an order number.
+
+### Re-syncs, which are not failures
+
+Here is the part unique to memory systems. A connector that pulls GitHub issues, Slack threads, or support tickets runs on a schedule and re-reads overlapping windows every time, by design. A backfill re-reads everything. Neither is an error condition, so treating duplicate suppression as error handling puts the check in the wrong place.
+
+### Concurrent writers
+
+Two agents working the same subject in parallel both write, and both compile. The request-layer answer is a lock on a unique key, so the second caller gets a 409 rather than creating a second row. That works for requests. It doesn't help when both writes are legitimate and simply disagree, which is the next problem entirely.
+
+## How do you make ingestion idempotent without a TTL?
+
+Derive the key from the event's identity instead of generating one, and never expire it. A derived key is free to keep forever because it is not a growing side table of markers; it is a property of the record itself.
+
+### The key is the event's logical identity
+
+Statewave's connector schema makes `idempotency_key` a required field on every episode a connector emits, though it is optional on `POST /v1/episodes`, where an episode submitted without one is never deduplicated. The [schema docs](https://github.com/smaramwbc/statewave-connectors/blob/main/docs/episode-schema.md) are specific about what goes in it: a stable key derived from the event's logical identity rather than its current body, so re-running a sync against the same source produces the same key and the store deduplicates rather than double-storing.
+
+The published example for a GitHub issue builds the key from six parts:
+
+<figure className="my-8">
+<img src="/images/blog/idempotent-compilation-and-conflict-resolution/image2.gif" alt="The connectors episode-schema docs showing an episode built with idempotency_parts of github, acme, widgets, issue, 42 and github.issue.opened." width="936" height="597" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+<figcaption className="mt-3 text-[14px] leading-6 text-theme-secondary/70">The published example composes the key from six parts. No UUID, no timestamp, no TTL — re-sync this issue a thousand times and you get one episode.</figcaption>
+</figure>
+### The same connector suite uses the opposite rule elsewhere
+
+The detail worth stealing sits one file over. For the IDE companion, the [connector docs](https://github.com/smaramwbc/statewave-connectors/blob/main/docs/ide-memory.md) state that idempotency is content-addressable: re-running an unchanged workspace scan maps to the same key, and a changed workspace yields a new memory.
+
+Those are two opposite policies in one codebase, and both are right. A GitHub issue has a stable identity independent of its text, so keying on identity is correct and an edited issue title should not create a second episode. A workspace scan has no identity apart from its contents, so keying on a content hash is correct and a changed workspace *should* produce a new one.
+
+> The idempotency key encodes your definition of "the same event," and that definition is a per-source decision.
+
+Getting it wrong in one direction floods the store; getting it wrong in the other silently drops real updates.
+
+## What makes the compile step idempotent?
+
+A marker on each episode, not a hash comparison. Statewave's [getting-started guide](https://github.com/smaramwbc/statewave-docs/blob/main/getting-started.md) states the behaviour directly: compilation is idempotent because running it again only processes new episodes. The implementation tracks this per episode rather than as one moving watermark, but the guarantee is the same. The API returns `memories_created`, so a no-op recompile reports zero and you can assert on it.
+
+### Compilation sets, it does not increment
+
+A compile pass that *derives current state from the full episode log* behaves like a set. A compile pass that *appends whatever it found this run* behaves like an increment, and increments are never idempotent.
+
+That single design choice is what makes `POST /v1/memories/compile` safe to call from a retry loop, a cron job, and a webhook handler at the same time. The [Statewave README](https://github.com/smaramwbc/statewave#how-it-works) puts the guarantee in one line: recompiling a subject produces no duplicates, and reassembling a bundle for the same task at the same point in time returns the same bytes.
+
+### Compilation is explicit, and that is deliberate
+
+Compile is a separate call rather than a side effect of ingest. The [personal-assistant reference app](https://github.com/smaramwbc/statewave-personal-assistant) is direct about the production pattern: do not compile after every turn, run it after every N episodes or on a nightly job, and use the async mode that returns a `job_id` you can poll.
+
+That only works because the operation is idempotent. If compile appended rather than derived, batching it would be dangerous and you would be forced to run it inline on the hot path.
+
+The three guarantees stack, and they are separate:
+
+<figure className="my-8">
+<img src="/images/blog/idempotent-compilation-and-conflict-resolution/image1.jpg" alt="Three lanes: ingest collapsing duplicate idempotency keys into one episode, compile advancing a watermark so a second run creates zero memories, and read serving only active memories." width="935" height="580" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+<figcaption className="mt-3 text-[14px] leading-6 text-theme-secondary/70">Three separate guarantees. Duplicate suppression at ingest, no-op recompilation in the middle, and a read path that never sees a superseded or tombstoned fact.</figcaption>
+</figure>
+## What happens when two facts disagree rather than duplicate?
+
+Idempotency does nothing for you. A duplicate is two records that say the same thing, and the fix is to keep one. A conflict is two records that say different things, both legitimately written, and there is no version of "keep one" that is obviously right. A plain append-only chunk store has no concept of validity windows or supersession at all, which is [one of the places retrieval and memory diverge](/blog/ai-agent-memory-vs-rag).
+
+### The three options, and why two of them are bad
+
+Kleppmann's taxonomy of conflict handling is still the cleanest: let a human resolve it, pick a winner automatically, or merge automatically. On the middle option he is precise about the cost, noting that "some systems choose one version as the winner and throw away the other versions."
+
+Throwing away the loser is the default in most agent memory stacks, and it is where the damage happens. The TOKI paper's framing is worth sitting with: adversarial or mistaken writes corrupt later retrievals once the store [keeps no defensible record of what it overwrote](https://arxiv.org/pdf/2606.06240).
+
+> You do not just lose the old value. You lose the evidence that a disagreement existed.
+
+### Recency-wins is the industry default, and it fails when it is applied loosely
+
+Almost every memory system resolves conflicts by letting the newest fact win. A 2026 paper on deterministic conflict resolution [surveyed the field and found this convention near-universal](https://arxiv.org/pdf/2606.01435), then reported that the systems relying on it underperform — not because recency is the wrong rule, but because they fail to apply it deterministically. Its recommendation is deterministic recency, applied the same way every time.
+
+That matches the failure worth naming here: the problem is applying the rule blindly, not the rule itself. Recency-wins is right for state that genuinely changes, such as which database a team runs. It is wrong for a stable attribute that gets re-asserted incorrectly by a bad extraction, and it is wrong for facts that only look contradictory.
+
+| Two memories | What it actually is | The right action |
+|---|---|---|
+| "Stripe charges 3.5% + 35¢" vs "Stripe charges 2.9% + 30¢" | A real conflict on a single-valued claim | Supersede the older, keep it linked |
+| The same GitHub issue synced twice | A duplicate | Suppress at ingest on the idempotency key |
+| "I am in Berlin this week" vs "this user lives in Lisbon" | Not a conflict — a temporary state next to a durable one | Keep both |
+
+The Berlin-versus-Lisbon row is where most systems go wrong. These three actions are a recommended policy per memory kind, not built-in behaviour you get for free.
+
+<figure className="my-8">
+<img src="/images/blog/idempotent-compilation-and-conflict-resolution/image3.jpg" alt="Decision tree splitting two memories about one subject into duplicate, coexisting, or contradicting, with per-kind actions of supersede, qualify or flag for review." width="935" height="624" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+<figcaption className="mt-3 text-[14px] leading-6 text-theme-secondary/70">The false-positive trap on the left is the case worth designing for: two facts that differ without contradicting.</figcaption>
+</figure>
+
+
+## Why supersede instead of overwrite?
+
+Because supersession keeps the loser, and the loser is evidence. That single decision separates a memory store you can debug from one you can only trust.
+
+### What supersession looks like in practice
+
+Statewave's [multi-agent memory demo](https://github.com/smaramwbc/statewave-multi-agent-memory) is the clearest worked example, and it runs locally. Three agents read three source documents concurrently and write to one shared subject. One commits Stripe's pre-reversal processing rate, another commits the corrected rate. Where the two memories carry a registered single-valued claim key the compiler compares the claims directly; otherwise it falls back to Jaccard word overlap between the two compiled memories, and at 0.6 or above it marks the older one superseded and records the decision with provenance links to both source episodes.
+
+Two properties fall out of that:
+
+1. The synthesis agent's context bundle contains only the winner, because the read path filters to active memories.
+2. The audit trail contains both, along with the similarity score that triggered the decision.
+
+The repo ships an inspector that prints episodes, derived memories, and supersession records with their Jaccard scores for any subject. The full demo run resolves six conflicts across its three sources; the Stripe pair described above is one of them. The loser is still there, and that is the difference between supersession and overwrite.
+
+### Superseded is a status, not a delete
+
+Statewave tracks per-entry supersession status across three states: active, superseded, tombstoned. That distinction is what makes "why did the agent say that" answerable six months later, and it is the same reason the [provenance and audit-trail model](/blog/agent-memory-provenance-audit-trails) stores which memories fed a given answer rather than only the answer.
+
+The alternative failure is worth naming in three words: a silent skip hides drift. A system that quietly suppresses the second write, whether as a duplicate or as a conflict loser, looks healthy right up until you need to explain an output.
+
+If you are currently resolving contradictions inside application code, that logic is the thing worth deleting. Statewave does supersession at compile time with provenance to both sides, so the read path stays simple. The [how-it-works page](/product) covers the ingest, compile, retrieve loop.
+
+### The threshold is a real dial, not a constant
+
+Jaccard 0.6 is a default, and you should treat it as one. Set it lower and unrelated facts collide, which produces false-positive supersession that deletes true information from the read path. Set it higher and genuine contradictions both survive into the bundle, so you pay tokens to give the model two incompatible answers. There is no universally correct value, and the way to find yours is to run the inspector against real subjects and read the supersession records it produces. The same dial shows up on the retrieval side, where it decides what survives [a fixed token budget](/blog/token-bounded-context-assembly).
+
+<figure className="my-8">
+<img src="/images/blog/idempotent-compilation-and-conflict-resolution/image4.jpg" alt="The multi-agent memory demo resolving six conflicts across three sources, with superseded memories still listed alongside the winners." width="936" height="483" loading="lazy" className="w-full rounded-2xl border border-brand-500/20" />
+<figcaption className="mt-3 text-[14px] leading-6 text-theme-secondary/70">The full demo run resolves six conflicts across its three sources; the Stripe pre-reversal pair described above is one of them. The loser is still there, and that is the difference between supersession and overwrite.</figcaption>
+</figure>
+
+## What changes in a multi-agent pipeline?
+
+The window between write and read becomes the thing you are engineering, because the cheapest conflict is the one that never happens.
+
+### Detection versus prevention
+
+The supersession machinery above is detection. It works, and it happens after both agents have already spent tokens on incompatible work.
+
+Statewave's [shared-context demo](https://github.com/smaramwbc/statewave-multi-agent-shared-context) runs the prevention version on the same primitives. A Planner deprecates a module, writes an episode, and compiles. A Coder reads context *before* deciding what to build, sees the deprecation memory at confidence 0.92, and never builds the deprecated module. The repo ships this as two calls, `before_acting()` and `decide()`, with adapters for CrewAI and the Claude Agent SDK, and it explicitly contrasts the approach with message-passing frameworks that route context sequentially.
+
+The ordering guarantee is what does the work, not the framework. Every agent in a run must share the same subject, and every write must be compiled before the next agent's read. Skip the compile and the read returns stale state, which the repo names directly as the cause of stale reads.
+
+### Conflicts that should not be resolved
+
+Some disagreements are signals. Two high-confidence claims that contradict each other may mean the boundary conditions differ, not that one is wrong. The StateFuse authors build their whole contract around this, storing the contradiction as a first-class object so downstream policy can abstain rather than collapsing the memory surface and acting on a value that was never verified. Research on [conflicting multi-source personal memory](https://arxiv.org/pdf/2605.30087) examines the same problem from the evaluation side. The conclusion we draw from it is that how well a system abstains when the evidence conflicts matters more than how many conflicts it resolves.
+
+If your domain has facts where being wrong is expensive, do not auto-resolve them. Flag them.
+
+## How do you set this up in practice?
+
+Six steps, in this order, because each one assumes the previous.
+
+1. **Pick an idempotency key per source, and write down why.** For records with stable identity, key on identity. For scans and snapshots with no identity, key on a content hash. Document the choice next to the connector, because the person debugging duplicates in four months will need it.
+2. **Make the derivation a set, not an append.** Compile should read the episode log and produce current state. If your compile step appends whatever it extracted this run, no amount of ingest deduplication will save you.
+3. **Assert on the no-op.** Run compile twice in CI and assert that the second run creates zero memories. One line of test code, and it catches the whole class of bug.
+4. **Choose a conflict policy per memory kind, not globally.** Recency-wins is reasonable for preferences and current state. It is a poor default for stable profile attributes, where a bad extraction can overwrite a correct fact. Kind-level policy costs almost nothing to implement and removes the worst failure.
+5. **Keep the loser.** Mark superseded, never delete. The storage cost is trivial next to the cost of not being able to explain an output, and it is what makes threshold tuning possible at all.
+6. **Tune the threshold against real data, then leave it alone.** Run the inspector, read the supersession records, and check for false positives before adjusting. Do not tune it on synthetic examples, because the whole failure mode is domain-specific phrasing.
+
+Step 3 is the one to write today. Two consecutive `POST /v1/memories/compile` calls against the same subject: the first returns a non-zero `memories_created`, the second returns zero, and the assertion lives in CI so the zero is an expectation rather than an observation.
+
+> The whole test is the second number. If it is not zero, you have an append where you need a derivation.
+
+For the applied version of this on a real workload, the [support-agent walkthrough](/blog/persistent-memory-for-ai-support-agents) covers what to record and when to compile.
+
+## Where this still fails
+
+Four honest limits, because the technique gets oversold and then abandoned.
+
+**Word overlap is the fallback, not the whole mechanism.** Jaccard similarity catches "Stripe charges 3.5% + 35¢" against "Stripe charges 2.9% + 30¢." On its own it will occasionally fire on two unrelated facts that share common words, and it misses contradictions expressed in entirely different vocabulary. That second gap is now largely closed: registered single-valued claim keys are compared directly and removed from the lexical pass, which leaves Jaccard as the legacy fallback for everything else. The heuristic compiler is fast, local, and blunt. The LLM compiler catches more and costs more, and Statewave lets you pick per deployment.
+
+**Idempotent does not mean deterministic.** If you run the LLM compiler, the extraction step itself can produce different facts from the same episodes on different runs. Compilation being idempotent means a *second* run over already-processed episodes adds nothing. It does not mean the first run is reproducible. The heuristic compiler, being regex-based, is.
+
+**Replay has a boundary.** Statewave's receipt replay re-runs a historical retrieval against today's memories using the original policy bundle, which answers "what would current data say under the old rules." Byte-for-byte historical reproduction needs memory snapshots, and the project [lists that as deferred](https://github.com/smaramwbc/statewave#current-limitations). If your compliance question is about the past state of the store rather than the past state of the rules, know the gap.
+
+**Nothing here fixes bad extraction.** Deduplicating, superseding, and auditing low-quality facts gives you a clean, well-audited store of low-quality facts. The compiler is upstream of everything in this post, and it is where to look first when the outputs are wrong but the plumbing is right.
+
+## What should you do next?
+
+You now have the four definitions of idempotency and which one applies to memory, the reason a TTL on a deduplication marker will not protect your derived facts, and the case for keeping the loser of every conflict rather than overwriting it.
+
+The first step takes ten minutes: run your compile step twice in a row and check whether the second run creates anything. If it does, you have an append where you need a derivation, and that is the bug to fix before anything else.
+
+If you would rather not build the key derivation, compile-marker, and supersession logic yourself, that is what Statewave is: an Apache-2.0 memory runtime that boots with one command against your own Postgres. The audit inspector used above ships with the multi-agent demo repo rather than with the runtime itself.
+
+The [developer docs](/developers) have the five-minute path, and [the reasoning behind the Postgres-only design](/blog/self-hosted-memory-postgres-pgvector) explains why supersession history is cheap to keep.
+
+## FAQ
+
+<div className="my-8 space-y-3">
+
+<details open className="blog-faq group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35">
+<summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none">
+<h3 className="text-[18px] font-semibold leading-snug text-theme-primary !m-0">1. What is the difference between idempotency and deduplication?</h3>
+<div className="blog-faq-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40">
+<svg className="h-5 w-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" /></svg>
+</div>
+</summary>
+<div className="px-7 pb-7">
+<div className="h-px bg-theme-primary/10 mb-6" />
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">Deduplication is one way to achieve idempotency, not a synonym for it. Deduplication suppresses a repeat by checking a marker or a key. Idempotency is the broader property that repeating an operation does not change the result, which you can also get by making the operation derive state rather than append to it. A compile step that recomputes current state from the full event log is idempotent without deduplicating anything.</p>
+</div>
+</details>
+
+<details className="blog-faq group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35">
+<summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none">
+<h3 className="text-[18px] font-semibold leading-snug text-theme-primary !m-0">2. Should my idempotency key expire?</h3>
+<div className="blog-faq-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40">
+<svg className="h-5 w-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" /></svg>
+</div>
+</summary>
+<div className="px-7 pb-7">
+<div className="h-px bg-theme-primary/10 mb-6" />
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">Not if it is derived from the event itself. TTLs exist to stop a marker table from growing without bound, which is a real concern for randomly generated keys. A key derived from the event's logical identity or content hash is a property of the record rather than a side table, so it costs nothing to keep and it still works when a backfill re-reads a two-year-old ticket.</p>
+</div>
+</details>
+
+<details className="blog-faq group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35">
+<summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none">
+<h3 className="text-[18px] font-semibold leading-snug text-theme-primary !m-0">3. How do I know if two memories are actually in conflict?</h3>
+<div className="blog-faq-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40">
+<svg className="h-5 w-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" /></svg>
+</div>
+</summary>
+<div className="px-7 pb-7">
+<div className="h-px bg-theme-primary/10 mb-6" />
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">Statewave's compiler checks registered single-valued claim keys first, which catches a contradiction however it is worded, and falls back to Jaccard word overlap with a default threshold of 0.6 for everything else. Check the results against real data. The failure mode to watch for is false positives on the lexical path, where a temporary state such as travel looks like it contradicts a durable fact such as home location.</p>
+</div>
+</details>
+
+<details className="blog-faq group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35">
+<summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none">
+<h3 className="text-[18px] font-semibold leading-snug text-theme-primary !m-0">4. Should I delete the older fact once it is superseded?</h3>
+<div className="blog-faq-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40">
+<svg className="h-5 w-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" /></svg>
+</div>
+</summary>
+<div className="px-7 pb-7">
+<div className="h-px bg-theme-primary/10 mb-6" />
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">No. Mark it superseded and filter it out at read time. Deleting removes the evidence that a disagreement ever existed, which is the exact record you need when debugging an unexpected output or answering an audit question. Statewave tracks three states per entry: active, superseded, tombstoned.</p>
+</div>
+</details>
+
+<details className="blog-faq group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35">
+<summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none">
+<h3 className="text-[18px] font-semibold leading-snug text-theme-primary !m-0">5. Can I compile after every message?</h3>
+<div className="blog-faq-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40">
+<svg className="h-5 w-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" /></svg>
+</div>
+</summary>
+<div className="px-7 pb-7">
+<div className="h-px bg-theme-primary/10 mb-6" />
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">You can, but do not in production. Compilation is idempotent, which means you can batch it safely: run it after every N episodes or on a schedule. Statewave supports async compilation that returns a job ID you can poll, which keeps the derivation off the request path.</p>
+</div>
+</details>
+
+<details className="blog-faq group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35">
+<summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none">
+<h3 className="text-[18px] font-semibold leading-snug text-theme-primary !m-0">6. Does this work if two agents write at the same time?</h3>
+<div className="blog-faq-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40">
+<svg className="h-5 w-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" /></svg>
+</div>
+</summary>
+<div className="px-7 pb-7">
+<div className="h-px bg-theme-primary/10 mb-6" />
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">Yes, and it is the case the design targets. Both writes land as append-only episodes, so neither is lost. Conflict resolution happens at compile time rather than write time, which means concurrency does not need a lock on the write path. If you want the conflict prevented instead of resolved, have each agent read compiled context before it acts.</p>
+</div>
+</details>
+
+</div>
