@@ -96,8 +96,13 @@ export function GuideJourneyPage() {
 
   return (
     <>
+      {/* Same container shape as <Section> below — max-w-7xl gutter, then a
+          max-w-5xl column inside it. Padding the max-w-5xl directly instead
+          lines the two blocks up on desktop but insets this one by another
+          gutter on narrow screens. */}
       <section className="relative pt-28 sm:pt-32 md:pt-36">
-        <div className="mx-auto max-w-5xl px-5 sm:px-6">
+        <div className="mx-auto max-w-7xl px-5 sm:px-6">
+        <div className="mx-auto max-w-5xl">
           <p className="text-xs text-theme-muted">
             <Link
               to="/blog"
@@ -132,6 +137,7 @@ export function GuideJourneyPage() {
             width={1600}
             height={640}
           />
+        </div>
         </div>
       </section>
 
