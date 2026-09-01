@@ -1,0 +1,219 @@
+---
+title: "Statewave Guide — Day 1: The DOM is not the product"
+slug: statewave-guide-day-1
+date: "2026-09-03T21:00:00Z"
+description: Day 0 ended with 257 tests passing and a working closed loop. Adversarial review found six bugs anyway — and forced the decision that shapes the whole project.
+author: Saber Maram
+series: statewave-guide
+episode: 1
+image: /images/blog/statewave-guide-day-1/og.png
+headerImage: /images/blog/statewave-guide-day-1/header.png
+tags:
+  - source-of-truth
+  - trust
+---
+
+Yesterday I ended with:
+
+> Can source code become reliable product knowledge without developers maintaining another knowledge base beside it?
+
+The answer looks like **yes**.
+
+But definitely not by just reading the DOM.
+
+Day 0 ended with:
+
+<div className="section-eyebrow mt-8 mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">Day 0, closed</div>
+
+<div className="rounded-2xl border border-brand-500/25 bg-brand-500/[0.05] p-6 sm:p-7">
+<div className="grid grid-cols-3 gap-4 text-center">
+<div><p className="font-heading text-3xl sm:text-4xl font-bold text-theme-primary !m-0">141</p><p className="mt-1 text-xs text-theme-secondary/80 !m-0">files</p></div>
+<div><p className="font-heading text-3xl sm:text-4xl font-bold text-theme-primary !m-0">~17k</p><p className="mt-1 text-xs text-theme-secondary/80 !m-0">lines added</p></div>
+<div><p className="font-heading text-3xl sm:text-4xl font-bold text-theme-primary !m-0">257</p><p className="mt-1 text-xs text-theme-secondary/80 !m-0">tests passing</p></div>
+</div>
+</div>
+
+and our first closed loop:
+
+```text
+source code
+    ↓
+application graph
+    ↓
+running UI
+    ↓
+navigate
+    ↓
+highlight
+```
+
+So naturally I thought:
+
+> "Nice. This is going surprisingly well."
+
+That feeling lasted about five minutes. 😅
+
+Then we ran the implementation through adversarial review.
+
+Everything was green.
+
+And we still found:
+
+- a project path containing `(` silently producing an empty graph
+- a React render loop happily heading past 300 renders
+- a selector injection edge case that could escape toward something like `input[type="password"]`
+- React 19 ref-cleanup behavior we weren't handling correctly
+- graph output changing depending on path capitalization
+- and a beautiful JavaScript classic where `constructor` inherited from `Object.prototype` and quietly disappeared from our graph
+
+257 tests.
+
+Still broken.
+
+I love software. 😂
+
+But the interesting part wasn't really the bugs.
+
+It was what they forced us to clarify architecturally.
+
+Eventually we want someone to ask:
+
+> **"Where do I create a client?"**
+
+…and the application doesn't respond with six paragraphs of documentation.
+
+It takes you there.
+
+Highlights the control.
+
+Explains it.
+
+Eventually, it should even understand whether you've already done this twenty times and stop giving you the kindergarten tour.
+
+But first we need to answer a harder question:
+
+> **What does the application actually know about itself?**
+
+A browser DOM can tell us:
+
+> There's a button here.
+
+That's nowhere near enough.
+
+We need:
+
+```text
+clients.create
+      ↓
+ClientsPage
+      ↓
+openCreateClient()
+      ↓
+NewClientDialog
+      ↓
+ClientForm
+      ↓
+submitClient()
+      ↓
+clientService.create()
+      ↓
+POST /api/clients
+```
+
+That is the difference between knowing the **interface** and understanding the **product**.
+
+So we made an important decision:
+
+> **The DOM is runtime evidence.
+> It is not the product model.**
+
+The product model starts with the source.
+
+<div className="section-eyebrow mt-8 mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">Where the product model comes from</div>
+
+<div className="rounded-2xl border border-brand-500/25 bg-brand-500/[0.05] p-6 sm:p-7">
+<div className="grid grid-cols-2 gap-x-6 gap-y-3 sm:grid-cols-3 font-mono text-sm text-theme-secondary">
+<div>Routes.</div>
+<div>Components.</div>
+<div>Functions.</div>
+<div>Forms.</div>
+<div>Services.</div>
+<div>APIs.</div>
+<div>Permissions.</div>
+<div>Schemas.</div>
+<div>Tests.</div>
+</div>
+</div>
+
+Connected into an evidence-backed application graph.
+
+And the running UI connects back to that graph through stable semantic IDs like:
+
+```html
+data-guide="clients.create"
+```
+
+No arbitrary CSS selectors.
+
+No hoping the third button inside the fourth `<div>` is still the third button after Friday's redesign.
+
+We also adopted a rule that I suspect is going to survive this whole project:
+
+> **Unknown is better than wrong.**
+
+If we can prove:
+
+```text
+clients.create
+    → invokes
+    → openCreateClient
+```
+
+we store it.
+
+With the file, symbol and line that prove it.
+
+If we *think* something probably opens a dialog because the names look suspiciously similar?
+
+We store nothing.
+
+Missing knowledge can be improved later.
+
+Confidently wrong product knowledge is how you build an assistant that confidently takes users to the wrong screen.
+
+And once that happens twice, nobody trusts it again.
+
+So Day 1 isn't about chat.
+
+It's about reconstructing the real application:
+
+```text
+React UI
+   ↓
+handlers
+   ↓
+services
+   ↓
+HTTP
+   ↓
+Node API
+   ↓
+controllers
+   ↓
+business logic
+```
+
+If this works, developers may not need to maintain a separate product knowledge base at all.
+
+Because the product already contains one.
+
+We just normally call it **source code**.
+
+<div className="mt-10 rounded-2xl border border-brand-500/25 bg-surface-1/45 p-6 sm:p-8">
+<p className="!my-0 font-heading text-2xl font-bold tracking-tight text-theme-primary sm:text-3xl">Statewave Guide — Day 1.</p>
+<p className="!mb-0 mt-4 text-base text-theme-secondary"><strong className="text-theme-primary">Next question:</strong> Can we follow one real user action all the way from a button to the backend — without guessing?</p>
+</div>
+
+---
+
+*This is Day 1 of a build journey we're publishing as it happens. Previous: [Day 0 — The Beginning](/blog/statewave-guide-day-0). Every episode: [the Journey Index](/blog/statewave-guide).*
