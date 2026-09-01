@@ -45,36 +45,29 @@ const CHIP =
 export function Flow({ steps }: Props) {
   const row = fitsOnOneLine(steps)
 
+  // Stacked: a rail down the left rather than an arrow between each pair.
+  // An arrow has to sit at some fixed indent, and with chips of different
+  // widths there is no indent that looks aligned to all of them. The rail
+  // has no such problem, and top-to-bottom already reads as direction.
+  if (!row) {
+    return (
+      <div className="my-8 flex flex-col items-start gap-2 border-l-2 border-brand-500/30 pl-5">
+        {steps.map((step) => (
+          <span key={step} className={CHIP}>
+            {step}
+          </span>
+        ))}
+      </div>
+    )
+  }
+
   return (
-    <div
-      className={
-        row
-          ? 'my-8 flex flex-col items-start gap-1 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-3 sm:gap-y-2'
-          : 'my-8 flex flex-col items-start gap-1'
-      }
-    >
+    <div className="my-8 flex flex-col items-start gap-2 border-l-2 border-brand-500/30 pl-5 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-3 sm:gap-y-2 sm:border-l-0 sm:pl-0">
       {steps.map((step, i) => (
-        <span
-          key={step}
-          className={
-            row
-              ? 'flex flex-col items-start gap-1 sm:flex-row sm:items-center sm:gap-x-3'
-              : 'flex flex-col items-start gap-1'
-          }
-        >
+        <span key={step} className="flex items-center gap-x-3">
           {i > 0 && (
-            <span
-              aria-hidden
-              className="pl-4 text-xs leading-none text-brand-500/70 sm:pl-0 sm:text-base"
-            >
-              {row ? (
-                <>
-                  <span className="sm:hidden">↓</span>
-                  <span className="hidden sm:inline">→</span>
-                </>
-              ) : (
-                '↓'
-              )}
+            <span aria-hidden className="hidden text-brand-500/70 sm:inline">
+              →
             </span>
           )}
           <span className={CHIP}>{step}</span>
