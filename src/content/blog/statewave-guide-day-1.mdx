@@ -13,6 +13,8 @@ tags:
   - trust
 ---
 
+import { Flow } from '../../components/Flow'
+
 Yesterday I ended with:
 
 > Can source code become reliable product knowledge without developers maintaining another knowledge base beside it?
@@ -35,17 +37,7 @@ Day 0 ended with:
 
 and our first closed loop:
 
-```text
-source code
-    ↓
-application graph
-    ↓
-running UI
-    ↓
-navigate
-    ↓
-highlight
-```
+<Flow steps={['source code', 'application graph', 'running UI', 'navigate', 'highlight']} />
 
 So naturally I thought:
 
@@ -102,23 +94,7 @@ That's nowhere near enough.
 
 We need:
 
-```text
-clients.create
-      ↓
-ClientsPage
-      ↓
-openCreateClient()
-      ↓
-NewClientDialog
-      ↓
-ClientForm
-      ↓
-submitClient()
-      ↓
-clientService.create()
-      ↓
-POST /api/clients
-```
+<Flow steps={['clients.create', 'ClientsPage', 'openCreateClient()', 'NewClientDialog', 'ClientForm', 'submitClient()', 'clientService.create()', 'POST /api/clients']} />
 
 That is the difference between knowing the **interface** and understanding the **product**.
 
@@ -163,11 +139,7 @@ We also adopted a rule that I suspect is going to survive this whole project:
 
 If we can prove:
 
-```text
-clients.create
-    → invokes
-    → openCreateClient
-```
+<Flow steps={['clients.create', 'invokes', 'openCreateClient']} />
 
 we store it.
 
@@ -187,21 +159,7 @@ So Day 1 isn't about chat.
 
 It's about reconstructing the real application:
 
-```text
-React UI
-   ↓
-handlers
-   ↓
-services
-   ↓
-HTTP
-   ↓
-Node API
-   ↓
-controllers
-   ↓
-business logic
-```
+<Flow steps={['React UI', 'handlers', 'services', 'HTTP', 'Node API', 'controllers', 'business logic']} />
 
 If this works, developers may not need to maintain a separate product knowledge base at all.
 
