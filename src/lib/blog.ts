@@ -17,6 +17,18 @@ import type { ComponentType } from 'react'
  * the build instead of shipping a half-broken card on the index.
  */
 
+/** The editorial categories a post can carry — the eyebrow on its card and
+ *  the axis the blog index filters on. Adding one here is the only place it
+ *  needs to be declared; validate() rejects anything else. */
+export const BLOG_CATEGORIES = [
+  'Concepts',
+  'Engineering',
+  'Guides',
+  'Build log',
+] as const
+
+export type BlogCategory = (typeof BLOG_CATEGORIES)[number]
+
 export interface BlogPostFrontmatter {
   title: string
   slug: string
@@ -28,6 +40,10 @@ export interface BlogPostFrontmatter {
    *  "/blog/my-post/cover.png"). Optional — falls back to the site-wide
    *  default OG image (DEFAULT_OG_IMAGE in lib/seo-meta.ts) when unset. */
   image?: string
+  /** Editorial category, validated against BLOG_CATEGORIES at load time so a
+   *  typo fails the build instead of silently creating a one-post category
+   *  nothing links to. Optional while older posts are backfilled. */
+  category?: BlogCategory
   /** Site-relative path to this post's banner image, shown inline at the
    *  top of the post itself (below the title card, above the article
    *  body). Separate from `image` (the OG/social-share card) because the
@@ -64,6 +80,14 @@ function validate(filePath: string, fm: Partial<BlogPostFrontmatter> | undefined
       `Blog post ${filePath} is missing required frontmatter fields: ${missing.join(', ')}.`,
     )
   }
+
+  if (fm.category && !BLOG_CATEGORIES.includes(fm.category)) {
+    throw new Error(
+      `Blog post ${filePath} has unknown category "${fm.category}". ` +
+        `Known categories: ${BLOG_CATEGORIES.join(', ')}.`,
+    )
+  }
+
   return fm as BlogPostFrontmatter
 }
 
