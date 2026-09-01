@@ -52,7 +52,7 @@ import path from 'node:path'
 const DIST = path.resolve('dist')
 const SSR_DIST = path.resolve('dist-ssr')
 
-const STATIC_ROUTES = ['/', '/blog', '/faq']
+const STATIC_ROUTES = ['/', '/blog', '/blog/statewave-guide', '/faq']
 
 const FALLBACK_MARKER = 'Switched to client rendering because the server rendering errored'
 const MIN_BYTES = 5_000
