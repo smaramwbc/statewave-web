@@ -49,8 +49,8 @@ export function Flow({ steps }: Props) {
     <div
       className={
         row
-          ? 'my-8 flex flex-col items-start gap-1.5 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-3 sm:gap-y-2'
-          : 'my-8 flex flex-col items-start gap-1.5'
+          ? 'my-8 flex flex-col items-start gap-1 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-3 sm:gap-y-2'
+          : 'my-8 flex flex-col items-start gap-1'
       }
     >
       {steps.map((step, i) => (
@@ -58,12 +58,15 @@ export function Flow({ steps }: Props) {
           key={step}
           className={
             row
-              ? 'flex flex-col items-start gap-1.5 sm:flex-row sm:items-center sm:gap-x-3'
-              : 'flex flex-col items-start gap-1.5'
+              ? 'flex flex-col items-start gap-1 sm:flex-row sm:items-center sm:gap-x-3'
+              : 'flex flex-col items-start gap-1'
           }
         >
           {i > 0 && (
-            <span aria-hidden className="pl-4 text-brand-500/70 sm:pl-0">
+            <span
+              aria-hidden
+              className="pl-4 text-xs leading-none text-brand-500/70 sm:pl-0 sm:text-base"
+            >
               {row ? (
                 <>
                   <span className="sm:hidden">↓</span>
