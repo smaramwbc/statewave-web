@@ -94,6 +94,13 @@ const PROSE_CLASSES = [
   '[&_hr]:my-10 [&_hr]:border-theme-border',
 ].join(' ')
 
+/* Series episodes are written in feed cadence — one sentence per
+ * paragraph, white space as punctuation, which the project brief calls for
+ * explicitly. At the site's normal paragraph spacing that reads as a column
+ * of isolated lines on a wide screen, so episodes get a tighter rhythm.
+ * Scoped to posts with a `series` so no existing post shifts. */
+const SERIES_PROSE = '[&_p]:!my-4'
+
 export function BlogPostPage() {
   const { slug } = useParams<{ slug: string }>()
   const post = slug ? getPostBySlug(slug) : undefined
@@ -199,7 +206,11 @@ export function BlogPostPage() {
       </section>
 
       <section className="px-5 pt-8 sm:px-6 sm:pt-12">
-        <article className={`mx-auto max-w-4xl ${PROSE_CLASSES}`}>
+        <article
+          className={`mx-auto max-w-4xl ${PROSE_CLASSES} ${
+            post.meta.series ? SERIES_PROSE : ''
+          }`}
+        >
           <MDXProvider>
             <PostBody />
           </MDXProvider>
