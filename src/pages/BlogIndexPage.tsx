@@ -21,8 +21,9 @@ import { BASE_URL } from '../lib/seo-meta'
  * full catalogue stays in the DOM behind `hidden`, so a JS-less crawler
  * still sees every post.
  *
- * Each card carries the same metadata the BlogPosting JSON-LD on the post
- * page does (title, date, description, category).
+ * The card shows title, date, description and category. Category is an
+ * editorial, visible-only taxonomy: it is not part of the BlogPosting
+ * JSON-LD on the post page (that carries the post's tags as `keywords`).
  */
 
 function formatDate(iso: string): string {
@@ -135,16 +136,19 @@ export function BlogIndexPage() {
                     <li
                       key={p.meta.slug}
                       hidden={!shown}
-                      /* Both the attribute (semantics, and a JS-less
-                         crawler reads the full catalogue) and the class:
-                         the UA's [hidden] rule loses to the `display:
-                         list-item` these <li>s compute to, so the
-                         attribute alone does not hide them. */
+                      /* The attribute carries the semantics and keeps the
+                         full catalogue readable to a JS-less crawler; the
+                         class is belt-and-braces — Tailwind's preflight
+                         already hides `[hidden]` with `!important`. */
                       className={`sw-card overflow-hidden rounded-2xl border border-brand-500/20 bg-surface-1/45 transition-[border-color,transform,background-color] duration-300 hover:-translate-y-0.5 hover:border-brand-500/45 ${shown ? '' : 'hidden'}`}
                     >
                       <Link
                         to={blogPostUrl(p.meta.slug)}
-                        className="group flex h-full flex-col"
+                        /* The card clips to its rounded corners, and the anchor
+                           fills it exactly — so the global focus ring, drawn at
+                           `outline-offset: 2px` OUTSIDE the border box, would be
+                           clipped away on all four sides. Draw it inside instead. */
+                        className="group flex h-full flex-col focus-visible:[outline-offset:-3px]"
                       >
                         {p.meta.headerImage && (
                           <img
