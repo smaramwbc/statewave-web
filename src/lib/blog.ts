@@ -108,6 +108,8 @@ function validate(filePath: string, fm: Partial<BlogPostFrontmatter> | undefined
     throw new Error(
       `Blog post ${filePath} has unknown category "${fm.category}". ` +
         `Known categories: ${BLOG_CATEGORIES.join(', ')}.`,
+    )
+  }
 
   // A series member without a position can't be ordered, and a position
   // without a series has nothing to be ordered within. Both are typos.
