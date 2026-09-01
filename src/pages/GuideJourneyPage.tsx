@@ -121,6 +121,17 @@ export function GuideJourneyPage() {
             including the parts that didn't work. Every episode lands here, in
             order.
           </p>
+
+          {/* The hero repeats the run as a timeline — the same story the
+              stacked episode artwork below tells one card at a time. */}
+          <img
+            src="/images/blog/statewave-guide/hero.png"
+            alt=""
+            aria-hidden="true"
+            className="mt-10 w-full h-auto rounded-2xl border border-brand-500/20"
+            width={1600}
+            height={640}
+          />
         </div>
       </section>
 
@@ -139,9 +150,14 @@ export function GuideJourneyPage() {
               {episodes.map((p) => (
                 <li
                   key={p.meta.slug}
-                  className="sw-card rounded-2xl border border-brand-500/20 bg-surface-1/45 p-6 transition-[border-color,transform,background-color] duration-300 hover:-translate-y-0.5 hover:border-brand-500/45"
+                  className="sw-card overflow-hidden rounded-2xl border border-brand-500/20 bg-surface-1/45 transition-[border-color,transform,background-color] duration-300 hover:-translate-y-0.5 hover:border-brand-500/45"
                 >
                   <Link to={blogPostUrl(p.meta.slug)} className="group block">
+                    {/* No artwork per episode: the hero already states the
+                        run as a timeline, and repeating nine near-identical
+                        banners below it competes with that rather than
+                        adding to it. The episode list stays typographic. */}
+                    <div className="p-6">
                     <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
                       <span className="font-heading text-lg font-bold tracking-tight text-theme-primary">
                         {series.episodeLabel(p.meta.episode ?? 0)}
@@ -171,6 +187,7 @@ export function GuideJourneyPage() {
                         →
                       </span>
                     </p>
+                    </div>
                   </Link>
                 </li>
               ))}
