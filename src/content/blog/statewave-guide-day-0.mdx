@@ -1,0 +1,129 @@
+---
+title: "Statewave Guide — Day 0: The Beginning"
+slug: statewave-guide-day-0
+date: "2026-09-02T21:00:00Z"
+description: A help chat that actually knows how the product works. We're building it in public, starting now.
+author: Saber Maram
+series: statewave-guide
+episode: 0
+image: /images/blog/statewave-guide-day-0/og.png
+headerImage: /images/blog/statewave-guide-day-0/header.png
+tags:
+  - source-of-truth
+  - memory
+  - guidance
+  - trust
+---
+
+I wanted to add something fairly simple to an application:
+
+A help chat that actually knows how the product works.
+
+Not another little bubble in the bottom-right corner that politely links you to a 200-page documentation site nobody has opened since 2023.
+
+Something that can answer:
+
+> "Where do I change this?"
+
+…and instead of writing five paragraphs, it just takes you there.
+
+<div className="section-eyebrow mt-8 mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">What I actually wanted</div>
+
+<div className="rounded-2xl border border-brand-500/25 bg-brand-500/[0.05] p-6 sm:p-7">
+<ul className="!my-0 !pl-0 space-y-3 list-none">
+<li className="flex items-center gap-3"><span className="h-px w-3 shrink-0 bg-brand-500" /><span><strong className="text-theme-primary">It takes you there</strong> — not a paragraph describing where "there" is.</span></li>
+<li className="flex items-center gap-3"><span className="h-px w-3 shrink-0 bg-brand-500" /><span><strong className="text-theme-primary">It highlights the right element</strong> — the actual control, in the actual UI.</span></li>
+<li className="flex items-center gap-3"><span className="h-px w-3 shrink-0 bg-brand-500" /><span><strong className="text-theme-primary">It explains what it does</strong> — and walks with you through the workflow.</span></li>
+<li className="flex items-center gap-3"><span className="h-px w-3 shrink-0 bg-brand-500" /><span><strong className="text-theme-primary">Eventually it remembers you already learned it</strong> — so it doesn't treat you like a new employee every Monday morning.</span></li>
+</ul>
+</div>
+
+Sounds simple.
+
+Obviously it isn't.
+
+## So I started looking around
+
+There are great chat frameworks.
+Great product-tour libraries.
+Code documentation generators.
+RAG systems.
+Agent/UI protocols.
+
+Lots of very good pieces. Each one solves a real part of it, and stops exactly where the next part starts.
+
+<div className="section-eyebrow mt-8 mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">How do I do this in the app?</div>
+
+<div className="rounded-2xl border border-brand-500/25 bg-brand-500/[0.05] p-6 sm:p-7">
+<ul className="!my-0 !pl-0 space-y-4 list-none">
+<li className="flex flex-wrap items-baseline gap-x-3"><span className="font-mono text-sm text-theme-primary">A chatbot can answer</span><span className="text-sm text-theme-secondary/80">— but cannot show.</span></li>
+<li className="flex flex-wrap items-baseline gap-x-3"><span className="font-mono text-sm text-theme-primary">A tour can show</span><span className="text-sm text-theme-secondary/80">— but does not understand.</span></li>
+<li className="flex flex-wrap items-baseline gap-x-3"><span className="font-mono text-sm text-theme-primary">RAG can know</span><span className="text-sm text-theme-secondary/80">— but needs maintained knowledge.</span></li>
+<li className="flex flex-wrap items-baseline gap-x-3"><span className="font-mono text-sm text-theme-primary">Code AI can read</span><span className="text-sm text-theme-secondary/80">— but doesn't know the user.</span></li>
+</ul>
+</div>
+
+But I couldn't find the thing I actually wanted:
+
+```text
+Source code
+    ↓
+Product understanding
+    ↓
+Memory
+    ↓
+Interactive guidance
+inside the real application
+```
+
+## The code should be the source of truth
+
+And one requirement became clear pretty quickly:
+
+> **I don't want developers maintaining a second version of their application in Confluence just so the assistant understands the first one.**
+
+The code should be the source of truth.
+
+<div className="section-eyebrow mt-8 mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">Already in every modern codebase</div>
+
+<div className="rounded-2xl border border-brand-500/25 bg-brand-500/[0.05] p-6 sm:p-7">
+<div className="grid grid-cols-2 gap-x-6 gap-y-3 sm:grid-cols-3 font-mono text-sm text-theme-secondary">
+<div>routes</div>
+<div>components</div>
+<div>forms</div>
+<div>API endpoints</div>
+<div>schemas</div>
+<div>permissions</div>
+<div>tests</div>
+<div>translations</div>
+<div>git history</div>
+</div>
+</div>
+
+There is already a ridiculous amount of product knowledge sitting inside a modern codebase.
+
+We just don't normally call it documentation.
+
+## Where the experiment starts
+
+So this is where the experiment starts.
+
+<div className="section-eyebrow mt-8 mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">What that means in practice</div>
+
+<div className="rounded-2xl border border-brand-500/25 bg-brand-500/[0.05] p-6 sm:p-7">
+<ul className="!my-0 !pl-0 space-y-3 list-none">
+<li className="flex items-start gap-3"><span className="mt-3.5 h-px w-3 shrink-0 bg-brand-500" /><span>We're building our <strong className="text-theme-primary">own guidance engine</strong> around Statewave. No dependency on an existing tour engine.</span></li>
+<li className="flex items-start gap-3"><span className="mt-3.5 h-px w-3 shrink-0 bg-brand-500" /><span>We'll probably make some <strong className="text-theme-primary">questionable architectural decisions</strong>. We'll definitely delete a few of them later.</span></li>
+<li className="flex items-start gap-3"><span className="mt-3.5 h-px w-3 shrink-0 bg-brand-500" /><span>And I'll <strong className="text-theme-primary">share the reasoning as we go</strong> — architecture, dead ends, trade-offs, weird bugs, and the occasional "this was a much better idea yesterday."</span></li>
+</ul>
+</div>
+
+<div className="mt-10 rounded-2xl border border-brand-500/25 bg-surface-1/45 p-6 sm:p-8">
+<p className="section-eyebrow !mt-0 !mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">The repository starts now</p>
+<p className="!my-0 font-heading text-2xl font-bold tracking-tight text-theme-primary sm:text-3xl">Statewave Guide — Day 0.</p>
+<p className="!mb-0 mt-4 text-base text-theme-secondary"><strong className="text-theme-primary">First question:</strong> Can source code become reliable product knowledge without developers maintaining another knowledge base beside it?</p>
+</div>
+
+---
+
+*This is Day 0 of a build journey we're publishing as it happens. Every episode is here: [Statewave Guide — the Journey Index](/blog/statewave-guide).*
