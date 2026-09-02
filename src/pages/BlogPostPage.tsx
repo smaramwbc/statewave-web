@@ -94,6 +94,29 @@ const PROSE_CLASSES = [
   '[&_hr]:my-10 [&_hr]:border-theme-border',
 ].join(' ')
 
+/* Series episodes are written in feed cadence — one sentence per paragraph,
+ * white space as punctuation, which the project brief calls for explicitly.
+ * At the site's uniform paragraph spacing a three-word line and a
+ * forty-word one get identical air, so sixty paragraphs read as one
+ * undifferentiated column with nothing for the eye to hold.
+ *
+ * The fix is contrast rather than a smaller number: consecutive lines sit
+ * close enough to read as one passage, and the gap opens up wherever a
+ * card, quote, list or diagram breaks the run — which is where the
+ * sections actually are in these posts, since they carry no headings.
+ *
+ * Scoped to posts with a `series` so no existing post shifts. */
+const SERIES_PROSE = [
+  // Bottom margins off: every gap is owned by the element that follows, so
+  // two rules can decide it rather than one uniform value.
+  '[&_p]:mb-0!',
+  // A line after another line is the same beat — close it up.
+  '[&_p+p]:mt-3!',
+  // A line after a block, or a card after a line, is a real break.
+  '[&_:not(p)+p]:mt-7!',
+  '[&_p+div]:mt-7!',
+].join(' ')
+
 export function BlogPostPage() {
   const { slug } = useParams<{ slug: string }>()
   const post = slug ? getPostBySlug(slug) : undefined
@@ -199,7 +222,11 @@ export function BlogPostPage() {
       </section>
 
       <section className="px-5 pt-8 sm:px-6 sm:pt-12">
-        <article className={`mx-auto max-w-4xl ${PROSE_CLASSES}`}>
+        <article
+          className={`mx-auto max-w-4xl ${PROSE_CLASSES} ${
+            post.meta.series ? SERIES_PROSE : ''
+          }`}
+        >
           <MDXProvider>
             <PostBody />
           </MDXProvider>
