@@ -325,65 +325,6 @@ return (
           a durable layer any AI system can build on.
         </p>
 
-        <div className="mt-8 space-y-6">
-          <div>
-            <Heading id="what-is-a-memory-runtime" level={2} className="text-[17px] font-semibold text-theme-primary">
-              What is a memory runtime for AI agents?
-            </Heading>
-            <p className="mt-2 text-[15px] leading-7 text-theme-secondary">
-              A memory runtime is the persistence layer between an LLM application and
-              everything it has seen — events, decisions, and prior sessions. It records
-              raw events as immutable episodes, compiles them into typed memories with
-              confidence scores, and retrieves ranked, token-bounded context bundles
-              instead of a nearest-neighbor chunk pulled from a vector store.
-            </p>
-          </div>
-
-          <div>
-            <Heading id="how-does-memory-compilation-work" level={2} className="text-[17px] font-semibold text-theme-primary">
-              How does memory compilation work?
-            </Heading>
-            <p className="mt-2 text-[15px] leading-7 text-theme-secondary">
-              Compilation is a background pass that reads new episodes and produces
-              durable, typed memories — profile facts, preferences, prior-issue summaries
-              — each linked back to its source episode. This split of raw events and
-              durable facts mirrors the episodic/semantic memory taxonomy in the{' '}
-              <a
-                href="https://arxiv.org/abs/2309.02427"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-accent hover:underline"
-              >
-                2023 CoALA framework for language agents
-              </a>
-              . Recompilation is idempotent — running it twice never creates duplicates.
-            </p>
-          </div>
-
-          <div>
-            <Heading id="why-isnt-a-bigger-context-window-enough" level={2} className="text-[17px] font-semibold text-theme-primary">
-              Why isn't a bigger context window enough?
-            </Heading>
-            <p className="mt-2 text-[15px] leading-7 text-theme-secondary">
-              Stuffing full history into every prompt call raises cost and latency
-              without fixing recall, and models still struggle with ordering and
-              recency. According to{' '}
-              <a
-                href="https://www.salesforce.com/blog/crmarena-pro/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-accent hover:underline"
-              >
-                Salesforce's CRMArena-Pro benchmark
-              </a>
-              , agent task success drops from about 58% on single-turn tasks to about
-              35% on multi-turn ones, with lost context a leading cause. A memory
-              runtime compacts history into ranked, retrievable facts instead of
-              replaying it whole.
-            </p>
-          </div>
-        </div>
-
         <div className="mt-8 space-y-3">
           {[
             'Ingest raw events as immutable episodes',
@@ -436,6 +377,74 @@ return (
             className="theme-light relative z-10 block h-auto w-full max-w-full"
           />
         </motion.div>
+      </div>
+    </div>
+
+    {/* The three answers used to sit inside the 430px column beside the
+        diagram. Three 70-word answers made that column 1321px tall against
+        the diagram's 565px — 757px of empty page next to a vertically
+        centred image — and 430px is a poor measure for prose that long.
+        Across the full width they get room, and the row above goes back to
+        being balanced. They stay on the homepage on purpose: the ids and
+        headings are here for answer engines to cite. */}
+    <div className="mt-14 border-t border-theme-border pt-10 md:mt-16 md:pt-12">
+      <div className="grid gap-8 md:grid-cols-3 md:gap-10">
+        <div>
+          <Heading id="what-is-a-memory-runtime" level={2} className="text-[17px] font-semibold text-theme-primary">
+            What is a memory runtime for AI agents?
+          </Heading>
+          <p className="mt-2 text-[15px] leading-7 text-theme-secondary">
+            A memory runtime is the persistence layer between an LLM application and
+            everything it has seen — events, decisions, and prior sessions. It records
+            raw events as immutable episodes, compiles them into typed memories with
+            confidence scores, and retrieves ranked, token-bounded context bundles
+            instead of a nearest-neighbor chunk pulled from a vector store.
+          </p>
+        </div>
+
+        <div>
+          <Heading id="how-does-memory-compilation-work" level={2} className="text-[17px] font-semibold text-theme-primary">
+            How does memory compilation work?
+          </Heading>
+          <p className="mt-2 text-[15px] leading-7 text-theme-secondary">
+            Compilation is a background pass that reads new episodes and produces
+            durable, typed memories — profile facts, preferences, prior-issue summaries
+            — each linked back to its source episode. This split of raw events and
+            durable facts mirrors the episodic/semantic memory taxonomy in the{' '}
+            <a
+              href="https://arxiv.org/abs/2309.02427"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-accent hover:underline"
+            >
+              2023 CoALA framework for language agents
+            </a>
+            . Recompilation is idempotent — running it twice never creates duplicates.
+          </p>
+        </div>
+
+        <div>
+          <Heading id="why-isnt-a-bigger-context-window-enough" level={2} className="text-[17px] font-semibold text-theme-primary">
+            Why isn't a bigger context window enough?
+          </Heading>
+          <p className="mt-2 text-[15px] leading-7 text-theme-secondary">
+            Stuffing full history into every prompt call raises cost and latency
+            without fixing recall, and models still struggle with ordering and
+            recency. According to{' '}
+            <a
+              href="https://www.salesforce.com/blog/crmarena-pro/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-accent hover:underline"
+            >
+              Salesforce's CRMArena-Pro benchmark
+            </a>
+            , agent task success drops from about 58% on single-turn tasks to about
+            35% on multi-turn ones, with lost context a leading cause. A memory
+            runtime compacts history into ranked, retrievable facts instead of
+            replaying it whole.
+          </p>
+        </div>
       </div>
     </div>
   </Section>
