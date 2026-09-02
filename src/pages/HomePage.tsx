@@ -390,6 +390,7 @@ return (
     <div className="mt-14 border-t border-theme-border pt-10 md:mt-16 md:pt-12">
       <div className="grid gap-8 md:grid-cols-3 md:gap-10">
         <div>
+          <span aria-hidden className="mb-4 block h-px w-6 bg-accent" />
           <Heading id="what-is-a-memory-runtime" level={2} className="text-[17px] font-semibold text-theme-primary">
             What is a memory runtime for AI agents?
           </Heading>
@@ -403,6 +404,7 @@ return (
         </div>
 
         <div>
+          <span aria-hidden className="mb-4 block h-px w-6 bg-accent" />
           <Heading id="how-does-memory-compilation-work" level={2} className="text-[17px] font-semibold text-theme-primary">
             How does memory compilation work?
           </Heading>
@@ -424,6 +426,7 @@ return (
         </div>
 
         <div>
+          <span aria-hidden className="mb-4 block h-px w-6 bg-accent" />
           <Heading id="why-isnt-a-bigger-context-window-enough" level={2} className="text-[17px] font-semibold text-theme-primary">
             Why isn't a bigger context window enough?
           </Heading>
