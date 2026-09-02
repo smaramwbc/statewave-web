@@ -1,0 +1,207 @@
+---
+title: "Statewave Guide — Day 6: Turns out the system knew what to do. It was just dropping the action"
+slug: statewave-guide-day-6
+date: "2026-09-14T21:00:00Z"
+description: The system already knew there was a Rotate API key control. It was dropping the action silently — and fixing that finally crossed the usefulness gate.
+author: Saber Maram
+series: statewave-guide
+episode: 6
+image: /images/blog/statewave-guide-day-6/og.png
+headerImage: /images/blog/statewave-guide-day-6/header.png
+tags:
+  - guidance
+  - trust
+---
+
+import { Flow } from '../../components/Flow'
+
+Yesterday I ended with:
+
+> Can verified product knowledge become a complete user task — without giving the model any new authority?
+
+Turns out:
+
+**yes.**
+
+And the bug was almost embarrassingly simple.
+
+Statewave Guide already knew:
+
+- there is a **Rotate API key** control
+- there is an **Export CSV** control
+- there is a **Delete** control
+- these controls belong to specific verified workflows
+
+Yet the guidance still looked like:
+
+> Open Settings.
+
+or:
+
+> Open Clients.
+
+Why?
+
+Because some workflow steps pointed to:
+
+```text
+feature:<id>
+```
+
+A feature is not necessarily a button.
+
+The Guidance Compiler expected an actionable graph node.
+
+Couldn't resolve one?
+
+Drop the action.
+
+Silently.
+
+Which is how perfectly verified knowledge somehow became a very polite dead end.
+
+So we added another layer:
+
+<Flow steps={['Verified feature', 'Resolve actual action target', 'Prove it belongs to the feature', 'Prove the user can act on it', 'Emit the step']} />
+
+And importantly:
+
+> **A feature reference is not a control.**
+
+Obvious now.
+
+Apparently less obvious to the compiler. 😄
+
+We also started measuring task completeness properly:
+
+<Flow steps={['Entry', 'Task action', 'Terminal action', 'Complete path']} />
+
+So:
+
+> Open Settings.
+
+is no longer allowed to congratulate itself for being an actionable workflow.
+
+Then we reran the same benchmark.
+
+<div className="rounded-2xl border border-brand-500/25 bg-brand-500/[0.05] p-6 sm:p-7">
+<ul className="my-0! pl-0! list-none! space-y-2.5 font-mono text-sm">
+<li className="flex items-baseline justify-between gap-4"><span className="text-theme-secondary">Useful outputs</span><span className="text-theme-primary">33%<span className="px-2 text-brand-500/60">→</span><span className="text-success">67%</span></span></li>
+<li className="flex items-baseline justify-between gap-4"><span className="text-theme-secondary">Actionability</span><span className="text-theme-primary">1.14<span className="px-2 text-brand-500/60">→</span><span className="text-success">1.52 / 2</span></span></li>
+</ul>
+</div>
+
+Real task actions started surviving compilation.
+
+But we were still just below the gate.
+
+Then one tiny case exposed the next problem.
+
+The Settings form.
+
+We knew:
+
+- the form exists
+- **Save changes** exists
+- both reach the same verified submit surface
+
+But because the actionable control wasn't structurally owned exactly the way the compiler expected, we still produced:
+
+> Open Settings.
+
+So we introduced one deliberately narrow recovery rule:
+
+<Flow steps={['Passive feature', 'Verified shared action surface', 'Exactly one valid actionable control', 'Recover it']} />
+
+No proximity guessing.
+
+No:
+
+> “That button looks about right.”
+
+No model interpretation.
+
+Just evidence.
+
+The result:
+
+> Open Settings.  
+> Choose “Save changes”.
+
+Two outputs changed.
+
+**19 stayed exactly the same.**
+
+The benchmark moved from **14 / 21 useful** to:
+
+<div className="rounded-2xl border border-brand-500/40 bg-brand-500/[0.07] p-6 sm:p-8">
+<p className="section-eyebrow mt-0! mb-5! text-center font-mono text-xs uppercase tracking-[0.18em] text-brand-500">Development usefulness gate</p>
+
+<p className="m-0! text-center font-heading text-4xl sm:text-5xl font-bold tracking-tight text-success">PASS</p>
+
+<div className="mt-6 grid grid-cols-3 gap-4 border-t border-brand-500/20 pt-5 text-center font-mono text-sm">
+<div><p className="m-0! text-lg font-semibold text-theme-primary">15 / 21</p><p className="mt-1 text-xs text-theme-secondary/80 m-0!">useful · 71.4%</p></div>
+<div><p className="m-0! text-lg font-semibold text-theme-primary">2 / 3</p><p className="mt-1 text-xs text-theme-secondary/80 m-0!">median usefulness</p></div>
+<div><p className="m-0! text-lg font-semibold text-success">0</p><p className="mt-1 text-xs text-theme-secondary/80 m-0!">incorrect claims</p></div>
+</div>
+</div>
+
+That last number still matters more to me than the pass.
+
+Because we could have made the system look smarter much earlier by letting the model fill gaps.
+
+We keep refusing to do that.
+
+Two plausible actions?
+
+Refuse.
+
+A feature with no provable control?
+
+Refuse.
+
+A control exists but we can't prove it belongs to the task?
+
+Refuse.
+
+So the lesson became:
+
+> **Resolvable is not the same as sayable.**
+
+And:
+
+> **The system shouldn't become more useful by becoming less trustworthy.**
+
+We crossed the usefulness gate without giving the model a single extra bit of factual authority.
+
+Which felt great.
+
+For approximately five minutes.
+
+Then we looked at some explanatory sentences:
+
+> “for an account manager”
+
+> “without leaving the page”
+
+> “onto the enterprise plan”
+
+Reasonable.
+
+Plausible.
+
+Not necessarily provable.
+
+<div className="mt-10 rounded-2xl border border-brand-500/25 bg-surface-1/45 p-6 sm:p-8">
+<p className="!my-0 font-heading text-2xl font-bold tracking-tight text-theme-primary sm:text-3xl">Statewave Guide — Day 6.</p>
+<p className="!mb-0 mt-4 text-base text-theme-secondary"><strong className="text-theme-primary">Next question:</strong> Can every factual sentence become provable without turning the Guide back into a robot?</p>
+</div>
+
+---
+
+*This is Day 6 of a build journey we're publishing as it happens. Previous: [Day 5 — We taught it to speak](/blog/statewave-guide-day-5).*
+
+*Statewave Guide is built on **Statewave** — an open-source, self-hosted memory runtime for AI agents. Governance and provenance, not just retrieval. Apache 2.0.*
+*→ [statewave.ai](https://statewave.ai) · [github.com/smaramwbc/statewave](https://github.com/smaramwbc/statewave)*
+
+*Every post in this series: [The Statewave Guide Journey Index](/blog/statewave-guide)*
