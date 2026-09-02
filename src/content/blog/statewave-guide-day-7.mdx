@@ -1,0 +1,165 @@
+---
+title: "Statewave Guide — Day 7: We made every factual sentence provable. Usefulness went down."
+slug: statewave-guide-day-7
+date: "2026-09-15T21:00:00Z"
+description: Every factual sentence now has to survive its own verification step. Correctness went up, usefulness went down, and 126 of 194 propositions were contested.
+author: Saber Maram
+series: statewave-guide
+episode: 7
+image: /images/blog/statewave-guide-day-7/og.png
+headerImage: /images/blog/statewave-guide-day-7/header.png
+tags:
+  - trust
+  - guidance
+---
+
+import { Flow } from '../../components/Flow'
+
+At the end of Day 6, Statewave Guide had finally crossed its development usefulness gate.
+
+That felt like progress.
+
+Then we asked a more uncomfortable question:
+
+Are the *sentences* themselves actually supported?
+
+Not just the workflow.
+Not just the button.
+Not just the route.
+
+The sentence.
+
+Things like:
+
+> "This upgrades the client onto the enterprise plan."
+> "This works without leaving the page."
+> "This is for account managers."
+
+All perfectly plausible. Some even sounded obvious.
+
+The problem: plausible is not evidence.
+
+---
+
+So we introduced another authority boundary.
+
+Instead of allowing semantic descriptions to flow directly into user-facing guidance, every factual proposition now has to survive its own verification step:
+
+<Flow steps={['Model proposes meaning', 'Break it into factual propositions', 'Verify each proposition', 'Only supported facts may reach guidance']} />
+
+That meant purpose sentences, summaries and user questions stopped getting a free pass just because they sounded reasonable.
+
+Then we audited the existing language.
+
+The result was… not flattering.
+
+Out of **194 propositions**, **126 were contested**.
+
+Of the 104 that initially looked supported, **71 were overturned** on closer inspection.
+
+Support rates were especially interesting:
+
+```
+Titles:              70%
+Questions:           61%
+Purpose statements:  38%
+```
+
+Purpose was the weak spot. Which makes sense.
+
+A button labelled **Upgrade** does not prove *"Moves the client to the Enterprise plan."*
+
+A button labelled **Rename** does not automatically prove every nice sentence we can write about editing a client.
+
+So we changed the rule:
+
+**AI proposes meaning. Evidence decides what survives.**
+
+No unsupported qualifier gets through because it sounds natural.
+
+No "probably."
+No "obviously."
+No "well, that must be what they meant."
+
+---
+
+And then something funny happened.
+
+Correctness improved. A lot.
+
+But usefulness dropped.
+
+Our next 21-feature review came back:
+
+```
+Correctness:     1.65 / 2
+Usefulness:      1.57 / 3
+Useful outputs:  57.1%
+```
+
+The previous usefulness gate had passed. Now it failed again.
+
+Why?
+
+Because we removed unsupported language faster than we replaced it with better supported language.
+
+The system became more truthful… and quieter.
+
+Some features that previously sounded helpful now said almost nothing.
+
+Which gave us the next lesson:
+
+**Truthfulness and usefulness are not the same optimization problem.**
+
+---
+
+And there was an even more specific problem hiding in the remaining weaker outputs.
+
+Some titles were still coming from internal identifiers. Things like:
+
+```
+client-detail
+settings-new-key
+```
+
+turned into user-facing names as if internal naming was product language.
+
+That is another version of the same mistake: if the application never says it to the user, why are we saying it?
+
+So the next rule became:
+
+**Identifiers are evidence of identity. Not authority for language.**
+
+If the interface says *New client*, great.
+If accessibility says *Save changes*, great.
+If the only thing we have is a component called `ClientDetail`?
+
+That doesn't mean a user has ever seen the words "Client Detail."
+
+And yes, this made the system even more willing to stay silent.
+
+For a while.
+
+Which is where the project started getting interesting.
+
+Because once you stop allowing the model to fill gaps… you have to actually learn more about the application.
+
+Not guess more elegantly.
+
+
+Which is where the half of this we've been quiet about starts to matter.
+
+Day 0 promised something the last seven days haven't touched once: that it remembers you already learned this last week. That's the Statewave side of the build — and a memory runtime that only keeps what it can prove is the same discipline we've spent a week imposing on source code, pointed at a person instead of a codebase.
+
+That's the next chapter.
+
+
+<div className="mt-10 rounded-2xl border border-brand-500/25 bg-surface-1/45 p-6 sm:p-8">
+<p className="!my-0 font-heading text-2xl font-bold tracking-tight text-theme-primary sm:text-3xl">Statewave Guide — Day 7.</p>
+<p className="!mb-0 mt-4 text-base text-theme-secondary">We started this round trying to make the language more trustworthy. We succeeded. Then discovered that perfect restraint can also produce perfectly useless silence.</p>
+<p className="!mb-0 mt-4 text-base text-theme-secondary">Next question: how much can the system learn from what the application actually shows the user — without turning UI text into another source of hallucinated meaning?</p>
+</div>
+
+---
+
+*This is Day 7 of a build journey we're publishing as it happens. Previous: [Day 6 — It was just dropping the action](/blog/statewave-guide-day-6). Every episode: [the Journey Index](/blog/statewave-guide).*
