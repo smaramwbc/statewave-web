@@ -115,19 +115,23 @@ That exposed another boundary.
 
 We had already separated:
 
-**what the application does**
-
-from:
-
-**what the model thinks it does**
+<div className="rounded-2xl border border-brand-500/25 bg-brand-500/[0.05] p-6 sm:p-7">
+<div className="grid grid-cols-[1fr_auto_1fr] items-center gap-x-4 gap-y-4 text-center sm:gap-x-6">
+<span className="font-mono text-sm text-theme-primary">what the application does</span>
+<span aria-hidden className="section-eyebrow font-mono text-xs text-brand-500">from</span>
+<span className="font-mono text-sm text-theme-primary">what the model thinks it does</span>
+</div>
+</div>
 
 Now we needed to separate:
 
-**what we know**
-
-from:
-
-**what a human actually needs to hear**
+<div className="rounded-2xl border border-brand-500/25 bg-brand-500/[0.05] p-6 sm:p-7">
+<div className="grid grid-cols-[1fr_auto_1fr] items-center gap-x-4 gap-y-4 text-center sm:gap-x-6">
+<span className="font-mono text-sm text-theme-primary">what we know</span>
+<span aria-hidden className="section-eyebrow font-mono text-xs text-brand-500">from</span>
+<span className="font-mono text-sm text-theme-primary">what a human actually needs to hear</span>
+</div>
+</div>
 
 So the architecture gained another layer:
 
