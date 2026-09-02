@@ -156,14 +156,16 @@ export function GuideJourneyPage() {
               {episodes.map((p) => (
                 <li
                   key={p.meta.slug}
-                  className="sw-card overflow-hidden rounded-2xl border border-brand-500/20 bg-surface-1/45 transition-[border-color,transform,background-color] duration-300 hover:-translate-y-0.5 hover:border-brand-500/45"
+                  className="sw-card rounded-2xl border border-brand-500/20 bg-surface-1/45 transition-[border-color,transform,background-color] duration-300 hover:-translate-y-0.5 hover:border-brand-500/45"
                 >
-                  <Link to={blogPostUrl(p.meta.slug)} className="group block">
-                    {/* No artwork per episode: the hero already states the
-                        run as a timeline, and repeating nine near-identical
-                        banners below it competes with that rather than
-                        adding to it. The episode list stays typographic. */}
-                    <div className="p-6">
+                  {/* No artwork per episode: the hero already states the run
+                      as a timeline, and repeating nine near-identical banners
+                      below it competes with that rather than adding to it. No
+                      artwork also means no `overflow-hidden` on the card — it
+                      would clip the focus ring, which the global indicator
+                      draws at `outline-offset: 2px`, i.e. outside the border
+                      box, leaving keyboard users no visible focus. */}
+                  <Link to={blogPostUrl(p.meta.slug)} className="group block p-6">
                     <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
                       <span className="font-heading text-lg font-bold tracking-tight text-theme-primary">
                         {series.episodeLabel(p.meta.episode ?? 0)}
@@ -193,7 +195,6 @@ export function GuideJourneyPage() {
                         →
                       </span>
                     </p>
-                    </div>
                   </Link>
                 </li>
               ))}
