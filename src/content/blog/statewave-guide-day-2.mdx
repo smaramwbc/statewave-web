@@ -1,0 +1,181 @@
+---
+title: "Statewave Guide — Day 2: Unknown is better than wrong"
+slug: statewave-guide-day-2
+date: "2026-09-07T21:00:00Z"
+description: We can follow a real user action from a button to the backend without guessing. Getting there meant discovering that our own benchmark was wrong — and fixing the benchmark, not the indexer.
+author: Saber Maram
+series: statewave-guide
+episode: 2
+image: /images/blog/statewave-guide-day-2/og.png
+headerImage: /images/blog/statewave-guide-day-2/header.png
+tags:
+  - source-of-truth
+  - trust
+---
+
+import { Flow } from '../../components/Flow'
+
+Yesterday's question was:
+
+> Can we follow one real user action all the way from a button to the backend — without guessing?
+
+**Yes.**
+
+But getting there was a useful reminder that even your benchmark can lie to you.
+
+The target looked simple:
+
+<Flow steps={['New Client', 'openCreateClient()', 'NewClientDialog', 'submitClient()', 'clientService.create()', 'POST /api/clients']} />
+
+Frontend to backend.
+
+One connected application graph.
+
+No docs.
+
+No manually maintained knowledge base.
+
+Easy, right? 😅
+
+Our first quality run had other ideas.
+
+<div className="rounded-2xl border border-brand-500/25 bg-brand-500/[0.05] p-6 sm:p-7">
+<div className="grid grid-cols-3 gap-4 text-center">
+<div><p className="font-heading text-3xl sm:text-4xl font-bold text-theme-primary !m-0">39%</p><p className="mt-1 font-mono text-xs text-theme-secondary/80 !m-0">invokes precision</p></div>
+<div><p className="font-heading text-3xl sm:text-4xl font-bold text-theme-primary !m-0">19%</p><p className="mt-1 font-mono text-xs text-theme-secondary/80 !m-0">API detection</p></div>
+<div><p className="font-heading text-3xl sm:text-4xl font-bold text-theme-primary !m-0">0%</p><p className="mt-1 font-mono text-xs text-theme-secondary/80 !m-0">calls_api</p></div>
+</div>
+</div>
+
+Beautiful.
+
+At least the tests were honest. 😂
+
+Then something more interesting happened.
+
+We found what looked like an indexer bug.
+
+The benchmark expected:
+
+```text
+GET /clients
+```
+
+The indexer produced:
+
+```text
+GET /api/clients
+```
+
+My first instinct was to normalize them.
+
+Turns out that would have been wrong.
+
+One adversarial fixture had another router with `/clients` whose mount point could not be determined.
+
+Strip `/api` from the known endpoint and suddenly two different routes become the same thing.
+
+Congratulations.
+
+We've manufactured product knowledge.
+
+So instead of fixing the indexer…
+
+**we fixed the benchmark.**
+
+That became another rule:
+
+> **A benchmark isn't truth.
+> It's an executable statement of what we currently believe truth is.**
+
+If the evidence proves the benchmark wrong, the benchmark loses.
+
+We also introduced partial identities:
+
+```text
+api:GET:?/clients
+```
+
+Meaning:
+
+> "I know this route exists. I do not know where it is mounted."
+
+No guessing.
+
+No helpful little inference quietly connecting it to the wrong backend handler.
+
+After reconciliation:
+
+<div className="rounded-2xl border border-brand-500/25 bg-brand-500/[0.05] p-6 sm:p-7">
+<ul className="!my-0 !pl-0 space-y-2.5 list-none font-mono text-sm">
+<li className="flex items-baseline justify-between gap-4"><span className="text-theme-secondary">API precision</span><span className="text-theme-primary">100%</span></li>
+<li className="flex items-baseline justify-between gap-4"><span className="text-theme-secondary">invokes</span><span className="text-theme-primary">100% / 100%</span></li>
+<li className="flex items-baseline justify-between gap-4"><span className="text-theme-secondary">uses_hook</span><span className="text-theme-primary">100% precision</span></li>
+<li className="flex items-baseline justify-between gap-4"><span className="text-theme-secondary">uses_service</span><span className="text-theme-primary">100% precision</span></li>
+<li className="flex items-baseline justify-between gap-4"><span className="text-theme-secondary">submits_to</span><span className="text-theme-primary">100%</span></li>
+<li className="flex items-baseline justify-between gap-4"><span className="text-theme-secondary">renders</span><span className="text-theme-primary">100%</span></li>
+<li className="flex items-baseline justify-between gap-4"><span className="text-theme-secondary">validates_with</span><span className="text-theme-primary">100%</span></li>
+<li className="flex items-baseline justify-between gap-4"><span className="text-theme-secondary">calls_api</span><span className="text-theme-primary">83% precision / 100% recall</span></li>
+</ul>
+</div>
+
+Across the graph:
+
+<div className="rounded-2xl border border-brand-500/25 bg-brand-500/[0.05] p-6 sm:p-7">
+<ul className="!my-0 !pl-0 space-y-3 list-none">
+<li className="flex items-center gap-3"><span className="h-px w-3 shrink-0 bg-brand-500" /><span><strong className="text-theme-primary">0</strong> relationships without evidence.</span></li>
+<li className="flex items-center gap-3"><span className="h-px w-3 shrink-0 bg-brand-500" /><span><strong className="text-theme-primary">0</strong> invalid confidence values.</span></li>
+<li className="flex items-center gap-3"><span className="h-px w-3 shrink-0 bg-brand-500" /><span><strong className="text-theme-primary">0</strong> unsupported inferences pretending to be facts.</span></li>
+<li className="flex items-center gap-3"><span className="h-px w-3 shrink-0 bg-brand-500" /><span><strong className="text-theme-primary">0 / 37</strong> adversarial trap violations.</span></li>
+</ul>
+</div>
+
+437 tests green.
+
+We also discovered our previous "deterministic output" wasn't actually deterministic.
+
+Same repository.
+
+Different working directory.
+
+Different graph.
+
+😐
+
+Eight working directories later:
+
+**one hash.**
+
+Fixed.
+
+One of the most important files we added might actually be `refusals.md`.
+
+A catalogue of things the system intentionally refuses to infer.
+
+One real-world pattern would have generated roughly **50 fake API endpoints** if we'd taken the obvious shortcut.
+
+So we didn't.
+
+That's increasingly becoming the philosophy behind Statewave Guide:
+
+> **Missing knowledge is fixable.
+> Wrong knowledge destroys trust.**
+
+So yes:
+
+We can follow a real user action all the way to the backend without guessing.
+
+Now comes the next problem.
+
+We know increasingly well **what happened**.
+
+But not necessarily what those facts **mean to the user**.
+
+<div className="mt-10 rounded-2xl border border-brand-500/25 bg-surface-1/45 p-6 sm:p-8">
+<p className="!my-0 font-heading text-2xl font-bold tracking-tight text-theme-primary sm:text-3xl">Statewave Guide — Day 2.</p>
+<p className="!mb-0 mt-4 text-base text-theme-secondary"><strong className="text-theme-primary">Next question:</strong> Can a model add product meaning to this graph without being allowed to invent product truth?</p>
+</div>
+
+---
+
+*This is Day 2 of a build journey we're publishing as it happens. Previous: [Day 1 — The DOM is not the product](/blog/statewave-guide-day-1). Every episode: [the Journey Index](/blog/statewave-guide).*
