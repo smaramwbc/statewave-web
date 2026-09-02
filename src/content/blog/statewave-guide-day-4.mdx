@@ -21,13 +21,14 @@ Yesterday I asked:
 
 Not particularly. 😅
 
-Wrong-feature claims accepted: **0**
-
-Unsupported claims accepted: **0**
-
-Model restraint: **30/30**
-
-Verified claim yield: **95%**
+<div className="rounded-2xl border border-brand-500/25 bg-brand-500/[0.05] p-6 sm:p-7">
+<ul className="!my-0 !pl-0 space-y-2.5 list-none font-mono text-sm">
+<li className="flex items-baseline justify-between gap-4"><span className="text-theme-secondary">Wrong-feature claims accepted</span><span className="text-success">0</span></li>
+<li className="flex items-baseline justify-between gap-4"><span className="text-theme-secondary">Unsupported claims accepted</span><span className="text-success">0</span></li>
+<li className="flex items-baseline justify-between gap-4"><span className="text-theme-secondary">Model restraint</span><span className="text-success">30/30</span></li>
+<li className="flex items-baseline justify-between gap-4"><span className="text-theme-secondary">Verified claim yield</span><span className="text-success">95%</span></li>
+</ul>
+</div>
 
 Nice.
 
@@ -35,11 +36,12 @@ Then we asked:
 
 > Would any of this actually help a human?
 
-Median usefulness:
-
-**1 / 3**
-
-Only **24%** of reviewed features were rated genuinely useful.
+<div className="rounded-2xl border border-brand-500/25 bg-brand-500/[0.05] p-6 sm:p-7">
+<div className="grid grid-cols-2 gap-4 text-center">
+<div><p className="font-heading text-3xl sm:text-4xl font-bold text-danger !m-0">1 / 3</p><p className="mt-1 font-mono text-xs text-theme-secondary/80 !m-0">median usefulness</p></div>
+<div><p className="font-heading text-3xl sm:text-4xl font-bold text-danger !m-0">24%</p><p className="mt-1 font-mono text-xs text-theme-secondary/80 !m-0">rated genuinely useful</p></div>
+</div>
+</div>
 
 Nothing was dangerously wrong.
 
@@ -85,10 +87,14 @@ That's a debugger having an existential crisis in front of the customer.
 
 Another feature had excellent evidence:
 
-POST endpoint ✓  
-Create permission ✓  
-Submit path ✓  
-Button ✓
+<div className="rounded-2xl border border-brand-500/25 bg-brand-500/[0.05] p-6 sm:p-7">
+<ul className="!my-0 !pl-0 grid grid-cols-2 gap-x-6 gap-y-2.5 list-none font-mono text-sm text-theme-secondary">
+<li><span className="text-success">✓</span> POST endpoint</li>
+<li><span className="text-success">✓</span> Create permission</li>
+<li><span className="text-success">✓</span> Submit path</li>
+<li><span className="text-success">✓</span> Button</li>
+</ul>
+</div>
 
 And our deterministic renderer proudly produced:
 
@@ -118,7 +124,13 @@ from:
 
 So the architecture gained another layer:
 
-<Flow steps={['Source Code', 'Application Graph', 'Product Model', 'Guidance Compiler', 'Human Help']} />
+<img
+  src="/images/blog/statewave-guide-day-4/stack.png"
+  alt="The stack: source code, application graph, product model, guidance compiler, human help — each layer with what it answers"
+  width={1200}
+  height={1360}
+  className="mx-auto max-w-lg"
+/>
 
 The Product Model answers:
 
