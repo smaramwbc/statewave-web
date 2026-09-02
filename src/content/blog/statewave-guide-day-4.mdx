@@ -1,0 +1,174 @@
+---
+title: "Statewave Guide — Day 4: We passed the safety test. Then failed the product test"
+slug: statewave-guide-day-4
+date: "2026-09-09T21:00:00Z"
+description: Nothing dangerously wrong, nothing useless, almost everything mediocre — and the reason was not the missing capabilities we expected.
+author: Saber Maram
+series: statewave-guide
+episode: 4
+image: /images/blog/statewave-guide-day-4/og.png
+headerImage: /images/blog/statewave-guide-day-4/header.png
+tags:
+  - guidance
+  - trust
+---
+
+import { GuideStack } from '../../components/GuideStack'
+
+import { Flow } from '../../components/Flow'
+
+Yesterday I asked:
+
+> Can technically safe product knowledge survive contact with an actual user?
+
+Not particularly. 😅
+
+<div className="rounded-2xl border border-brand-500/25 bg-brand-500/[0.05] p-6 sm:p-7">
+<ul className="!my-0 !pl-0 space-y-2.5 list-none font-mono text-sm">
+<li className="flex items-baseline justify-between gap-4"><span className="text-theme-secondary">Wrong-feature claims accepted</span><span className="text-success">0</span></li>
+<li className="flex items-baseline justify-between gap-4"><span className="text-theme-secondary">Unsupported claims accepted</span><span className="text-success">0</span></li>
+<li className="flex items-baseline justify-between gap-4"><span className="text-theme-secondary">Model restraint</span><span className="text-success">30/30</span></li>
+<li className="flex items-baseline justify-between gap-4"><span className="text-theme-secondary">Verified claim yield</span><span className="text-success">95%</span></li>
+</ul>
+</div>
+
+Nice.
+
+Then we asked:
+
+> Would any of this actually help a human?
+
+<div className="rounded-2xl border border-brand-500/25 bg-brand-500/[0.05] p-6 sm:p-7">
+<div className="grid grid-cols-2 gap-4 text-center">
+<div><p className="font-heading text-3xl sm:text-4xl font-bold text-danger !m-0">1 / 3</p><p className="mt-1 font-mono text-xs text-theme-secondary/80 !m-0">median usefulness</p></div>
+<div><p className="font-heading text-3xl sm:text-4xl font-bold text-danger !m-0">24%</p><p className="mt-1 font-mono text-xs text-theme-secondary/80 !m-0">rated genuinely useful</p></div>
+</div>
+</div>
+
+Nothing was dangerously wrong.
+
+Nothing was completely useless either.
+
+It was worse in a much more software-engineering kind of way:
+
+**almost everything was mediocre.**
+
+We assumed the remaining problem would be missing capabilities.
+
+The data disagreed.
+
+<div className="rounded-2xl border border-brand-500/25 bg-brand-500/[0.05] p-6 sm:p-8">
+<div className="grid gap-6 sm:grid-cols-3 sm:gap-4">
+<div className="text-center">
+<p className="font-heading text-4xl sm:text-5xl font-bold tracking-tight text-theme-primary !m-0">1.43</p>
+<p className="mt-2 font-mono text-xs leading-5 text-theme-secondary/80 !m-0">features with a<br />verified capability</p>
+</div>
+<div className="text-center">
+<p className="font-heading text-4xl sm:text-5xl font-bold tracking-tight text-theme-primary !m-0">1.14</p>
+<p className="mt-2 font-mono text-xs leading-5 text-theme-secondary/80 !m-0">features<br />without one</p>
+</div>
+<div className="text-center sm:border-l sm:border-brand-500/20">
+<p className="font-heading text-4xl sm:text-5xl font-bold tracking-tight text-danger !m-0">14/21</p>
+<p className="mt-2 font-mono text-xs leading-5 text-theme-secondary/80 !m-0">outputs<br />too technical</p>
+</div>
+</div>
+</div>
+
+Barely a difference.
+
+Then we found the smoking gun.
+
+Ten features exposed this sentence directly to the user:
+
+> “No capability, route or permission has been verified for this feature.”
+
+Every single one was rated too technical.
+
+**10/10.**
+
+Fair enough. 😂
+
+That's not product copy.
+
+That's a debugger having an existential crisis in front of the customer.
+
+Another feature had excellent evidence:
+
+<div className="rounded-2xl border border-brand-500/25 bg-brand-500/[0.05] p-6 sm:p-7">
+<ul className="!my-0 !pl-0 grid grid-cols-2 gap-x-6 gap-y-2.5 list-none font-mono text-sm text-theme-secondary">
+<li><span className="text-success">✓</span> POST endpoint</li>
+<li><span className="text-success">✓</span> Create permission</li>
+<li><span className="text-success">✓</span> Submit path</li>
+<li><span className="text-success">✓</span> Button</li>
+</ul>
+</div>
+
+And our deterministic renderer proudly produced:
+
+> “You can create a new invoices create form and submit the invoices create form form…”
+
+Technically grounded.
+
+Linguistically deceased.
+
+That exposed another boundary.
+
+We had already separated:
+
+<div className="rounded-2xl border border-brand-500/25 bg-brand-500/[0.05] p-6 sm:p-7">
+<div className="grid grid-cols-[1fr_auto_1fr] items-center gap-x-4 gap-y-4 text-center sm:gap-x-6">
+<span className="font-mono text-sm text-theme-primary">what the application does</span>
+<span aria-hidden className="section-eyebrow font-mono text-xs text-brand-500">from</span>
+<span className="font-mono text-sm text-theme-primary">what the model thinks it does</span>
+</div>
+</div>
+
+Now we needed to separate:
+
+<div className="rounded-2xl border border-brand-500/25 bg-brand-500/[0.05] p-6 sm:p-7">
+<div className="grid grid-cols-[1fr_auto_1fr] items-center gap-x-4 gap-y-4 text-center sm:gap-x-6">
+<span className="font-mono text-sm text-theme-primary">what we know</span>
+<span aria-hidden className="section-eyebrow font-mono text-xs text-brand-500">from</span>
+<span className="font-mono text-sm text-theme-primary">what a human actually needs to hear</span>
+</div>
+</div>
+
+So the architecture gained another layer:
+
+<GuideStack highlight={4} note="new layer: guidance compiler" />
+
+The Product Model answers:
+
+> **What do we know?**
+
+The Guidance Compiler answers:
+
+> **What is worth telling the user?**
+
+The renderer answers:
+
+> **How should we say it?**
+
+No verification rules loosened.
+
+No extra authority for the model.
+
+We were finally admitting something painfully obvious:
+
+> **Technically correct data structures do not automatically know how to talk to humans.**
+
+Shocking discovery for software developers, I know.
+
+<div className="mt-10 rounded-2xl border border-brand-500/25 bg-surface-1/45 p-6 sm:p-8">
+<p className="!my-0 font-heading text-2xl font-bold tracking-tight text-theme-primary sm:text-3xl">Statewave Guide — Day 4.</p>
+<p className="!mb-0 mt-4 text-base text-theme-secondary"><strong className="text-theme-primary">Next question:</strong> Can we turn verified product truth into human guidance without inventing anything new?</p>
+</div>
+
+---
+
+*This is Day 4 of a build journey we're publishing as it happens. Previous: [Day 3 — True is not the same as relevant](/blog/statewave-guide-day-3).*
+
+*Statewave Guide is built on **Statewave** — an open-source, self-hosted memory runtime for AI agents. Governance and provenance, not just retrieval. Apache 2.0.*
+*→ [statewave.ai](https://statewave.ai) · [github.com/smaramwbc/statewave](https://github.com/smaramwbc/statewave)*
+
+*Every post in this series: [The Statewave Guide Journey Index](/blog/statewave-guide)*
