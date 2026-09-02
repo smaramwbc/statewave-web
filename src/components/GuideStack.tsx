@@ -110,7 +110,12 @@ export function GuideStack({ highlight, note }: Props) {
                     <span className="font-heading text-base font-semibold text-theme-primary sm:text-lg">
                       {layer.name}
                     </span>
-                    <span className="ml-auto font-mono text-[11px] text-accent sm:text-xs">
+                    {/* section-eyebrow + brand-500 is the site's blue label pair: the
+                        utility gives #7EC8FF on dark and the class swaps
+                        it for a darker blue on light, where the pale one
+                        would wash out. The accent violet it replaced sat
+                        too close to the card. */}
+                    <span className="section-eyebrow ml-auto font-mono text-[11px] text-brand-500 sm:text-xs">
                       {layer.question}
                     </span>
                   </div>
