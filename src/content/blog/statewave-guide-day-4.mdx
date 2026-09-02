@@ -13,6 +13,8 @@ tags:
   - trust
 ---
 
+import { GuideStack } from '../../components/GuideStack'
+
 import { Flow } from '../../components/Flow'
 
 Yesterday I asked:
@@ -129,13 +131,7 @@ from:
 
 So the architecture gained another layer:
 
-<img
-  src="/images/blog/statewave-guide-day-4/stack.png"
-  alt="The stack: source code, application graph, product model, guidance compiler, human help — each layer with what it answers"
-  width={1200}
-  height={1360}
-  className="mx-auto max-w-lg"
-/>
+<GuideStack highlight={4} note="new layer: guidance compiler" />
 
 The Product Model answers:
 
