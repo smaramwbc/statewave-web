@@ -53,17 +53,24 @@ Then we audited the existing language.
 
 The result was… not flattering.
 
-Out of **194 propositions**, **126 were contested**.
+<div className="rounded-2xl border border-brand-500/25 bg-brand-500/[0.05] p-6 sm:p-8">
+<div className="grid grid-cols-2 gap-4 text-center">
+<div><p className="font-heading text-4xl sm:text-5xl font-bold tracking-tight text-theme-primary m-0!">194</p><p className="mt-2 font-mono text-xs text-theme-secondary/80 m-0!">propositions audited</p></div>
+<div><p className="font-heading text-4xl sm:text-5xl font-bold tracking-tight text-danger m-0!">126</p><p className="mt-2 font-mono text-xs text-theme-secondary/80 m-0!">contested</p></div>
+</div>
+</div>
 
 Of the 104 that initially looked supported, **71 were overturned** on closer inspection.
 
 Support rates were especially interesting:
 
-```
-Titles:              70%
-Questions:           61%
-Purpose statements:  38%
-```
+<div className="rounded-2xl border border-brand-500/25 bg-brand-500/[0.05] p-6 sm:p-8">
+<div className="grid grid-cols-3 gap-4 text-center">
+<div><p className="font-heading text-3xl sm:text-4xl font-bold tracking-tight text-theme-primary m-0!">70%</p><p className="mt-2 font-mono text-xs text-theme-secondary/80 m-0!">titles</p></div>
+<div><p className="font-heading text-3xl sm:text-4xl font-bold tracking-tight text-theme-primary m-0!">61%</p><p className="mt-2 font-mono text-xs text-theme-secondary/80 m-0!">questions</p></div>
+<div><p className="font-heading text-3xl sm:text-4xl font-bold tracking-tight text-danger m-0!">38%</p><p className="mt-2 font-mono text-xs text-theme-secondary/80 m-0!">purpose statements</p></div>
+</div>
+</div>
 
 Purpose was the weak spot. Which makes sense.
 
@@ -91,11 +98,13 @@ But usefulness dropped.
 
 Our next 21-feature review came back:
 
-```
-Correctness:     1.65 / 2
-Usefulness:      1.57 / 3
-Useful outputs:  57.1%
-```
+<div className="rounded-2xl border border-brand-500/25 bg-brand-500/[0.05] p-6 sm:p-7">
+<ul className="my-0! pl-0! list-none! space-y-2.5 font-mono text-sm">
+<li className="flex items-baseline justify-between gap-4"><span className="text-theme-secondary">Correctness</span><span className="text-success">1.65 / 2</span></li>
+<li className="flex items-baseline justify-between gap-4"><span className="text-theme-secondary">Usefulness</span><span className="text-danger">1.57 / 3</span></li>
+<li className="flex items-baseline justify-between gap-4"><span className="text-theme-secondary">Useful outputs</span><span className="text-danger">57.1%</span></li>
+</ul>
+</div>
 
 The previous usefulness gate had passed. Now it failed again.
 
