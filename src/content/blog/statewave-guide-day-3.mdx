@@ -1,0 +1,179 @@
+---
+title: "Statewave Guide — Day 3: True is not the same as relevant"
+slug: statewave-guide-day-3
+date: "2026-09-08T21:00:00Z"
+description: A real model behind the Guide, and not one invented route reached the product model. It still produced a claim that was true about the application and wrong about the feature we asked about.
+author: Saber Maram
+series: statewave-guide
+episode: 3
+image: /images/blog/statewave-guide-day-3/og.png
+headerImage: /images/blog/statewave-guide-day-3/header.png
+tags:
+  - trust
+  - guidance
+---
+
+import { Flow } from '../../components/Flow'
+
+Yesterday I asked:
+
+> Can a model add product meaning to the graph without being allowed to invent product truth?
+
+The answer is:
+
+**Yes.**
+
+But apparently factual truth still isn't enough. 😄
+
+Today we finally put a real model behind Statewave Guide.
+
+The good news first.
+
+Across hundreds of factual claims under deliberately hostile conditions:
+
+<div className="rounded-2xl border border-brand-500/25 bg-brand-500/[0.05] p-6 sm:p-7">
+<ul className="my-0! pl-0! list-none! space-y-2.5 font-mono text-sm">
+<li className="flex items-baseline justify-between gap-4"><span className="text-theme-secondary">Invented routes reaching the Product Model</span><span className="text-success">0</span></li>
+<li className="flex items-baseline justify-between gap-4"><span className="text-theme-secondary">Invented permissions</span><span className="text-success">0</span></li>
+<li className="flex items-baseline justify-between gap-4"><span className="text-theme-secondary">Unknown subjects</span><span className="text-success">0</span></li>
+<li className="flex items-baseline justify-between gap-4"><span className="text-theme-secondary">Forbidden capabilities refused</span><span className="text-success">27/27</span></li>
+<li className="flex items-baseline justify-between gap-4"><span className="text-theme-secondary">Unsupported actions refused</span><span className="text-success">23/23</span></li>
+</ul>
+</div>
+
+The verifier did its job.
+
+Then came the less exciting number.
+
+The model found the right evidence about **89%** of the time…
+
+…but only turned it into a verifiable product claim about **20%** of the time.
+
+<div className="rounded-2xl border border-brand-500/25 bg-brand-500/[0.05] p-6 sm:p-8">
+<div className="grid grid-cols-3 gap-4 text-center">
+<div><p className="font-heading text-3xl sm:text-4xl font-bold tracking-tight text-theme-primary m-0!">89%</p><p className="mt-2 font-mono text-xs leading-5 text-theme-secondary/80 m-0!">found the<br />right evidence</p></div>
+<div><p className="font-heading text-3xl sm:text-4xl font-bold tracking-tight text-danger m-0!">20%</p><p className="mt-2 font-mono text-xs leading-5 text-theme-secondary/80 m-0!">became a<br />verifiable claim</p></div>
+<div><p className="font-heading text-3xl sm:text-4xl font-bold tracking-tight text-danger m-0!">71%</p><p className="mt-2 font-mono text-xs leading-5 text-theme-secondary/80 m-0!">features with no<br />verified capability</p></div>
+</div>
+<p className="mt-5 border-t border-brand-500/20 pt-4 text-center font-mono text-xs text-theme-secondary/80 mb-0!">workflow recovery: <span className="text-danger">18%</span></p>
+</div>
+
+So technically:
+
+Very safe.
+
+Practically:
+
+A beautifully verified empty room. 😂
+
+Then we found the interesting bug.
+
+One claim passed verification that should never have been attached to the feature being analyzed.
+
+The model said, roughly:
+
+> Settings changes are saved by submitting the settings form.
+
+Structurally?
+
+Correct.
+
+The form exists.
+
+It submits.
+
+The relationship exists.
+
+Every verification rule passed.
+
+There was only one problem:
+
+**It was true about the application, but not about the feature we were asking about.**
+
+The verifier answered:
+
+> Is this statement supported by real evidence?
+
+Yes.
+
+What it didn't answer was:
+
+> **Does this evidence actually belong to THIS feature?**
+
+That's a very different class of error.
+
+And it gave us today's rule:
+
+> **Truth is not enough. Context owns truth.**
+
+An application graph is a neighborhood.
+
+Related components, sibling elements, routes and services naturally sit next to each other.
+
+If an assistant can grab any true fact from that neighborhood, it can produce answers that are technically correct and completely irrelevant.
+
+So the next layer became **Feature Scope**.
+
+A claim now has to prove:
+
+- the subject exists
+- the evidence exists
+- the evidence supports the claim
+- **the claim belongs to the feature being explained**
+
+We also learned that we were asking the model to do too much.
+
+<div className="rounded-2xl border border-brand-500/25 bg-brand-500/[0.05] p-6 sm:p-7">
+<ul className="my-0! pl-0! list-none! space-y-2 font-mono text-sm text-theme-secondary">
+<li>Find the evidence.</li>
+<li>Choose the claim.</li>
+<li>Choose the action.</li>
+<li>Choose the subject.</li>
+<li>Choose the relationships.</li>
+<li className="text-theme-primary">Then explain it.</li>
+</ul>
+</div>
+
+The source graph already knows most of that.
+
+So we changed direction:
+
+Instead of:
+
+<Flow steps={['Model', 'invent claim', 'Verifier']} />
+
+we moved toward:
+
+<Flow steps={['Graph', 'deterministic claim opportunities', 'Model adds meaning', 'Verifier']} />
+
+Same safety boundary.
+
+Less guessing.
+
+And it worked.
+
+Verified claim yield went from roughly **20% → 95%**.
+
+Wrong-feature claims went to **0**.
+
+Model restraint reached **30/30**.
+
+At that point we had something very safe.
+
+So naturally we asked the question we should probably have asked earlier:
+
+> **Does any of this actually help a human?**
+
+<div className="mt-10 rounded-2xl border border-brand-500/25 bg-surface-1/45 p-6 sm:p-8">
+<p className="!my-0 font-heading text-2xl font-bold tracking-tight text-theme-primary sm:text-3xl">Statewave Guide — Day 3.</p>
+<p className="!mb-0 mt-4 text-base text-theme-secondary"><strong className="text-theme-primary">Next question:</strong> Can technically safe product knowledge survive contact with an actual user?</p>
+</div>
+
+---
+
+*This is Day 3 of a build journey we're publishing as it happens. Previous: [Day 2 — Unknown is better than wrong](/blog/statewave-guide-day-2).*
+
+*Statewave Guide is built on **Statewave** — an open-source, self-hosted memory runtime for AI agents. Governance and provenance, not just retrieval. Apache 2.0.*
+*→ [statewave.ai](https://statewave.ai) · [github.com/smaramwbc/statewave](https://github.com/smaramwbc/statewave)*
+
+*Every post in this series: [The Statewave Guide Journey Index](/blog/statewave-guide)*
