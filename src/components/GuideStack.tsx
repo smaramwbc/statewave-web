@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion'
+import { motion, useReducedMotion } from 'framer-motion'
 
 /* The Statewave Guide stack — source code down to human help.
  *
@@ -51,37 +51,52 @@ const LAYERS = [
 ] as const
 
 export function GuideStack({ highlight, note }: Props) {
+  // The global reduced-motion rule in index.css only reaches CSS
+  // animations; framer animates through inline styles, so it has to be
+  // asked separately.
+  const reduced = useReducedMotion() ?? false
+  const rise = (i: number) =>
+    reduced
+      ? {}
+      : {
+        initial: { opacity: 0, y: 12 },
+        whileInView: { opacity: 1, y: 0 },
+        viewport: { once: true, margin: '-60px' },
+        transition: { duration: 0.4, delay: i * 0.12 },
+      }
+
   return (
-    <figure className="!my-10 !mx-0">
+    <figure className="my-10! mx-0!">
       <div className="rounded-3xl border border-brand-500/20 bg-surface-1/40 p-5 sm:p-8">
-        <p className="!m-0 text-center font-heading text-xl font-bold tracking-tight text-theme-primary sm:text-2xl">
+        <p className="m-0! text-center font-heading text-xl font-bold tracking-tight text-theme-primary sm:text-2xl">
           The stack
         </p>
-        <p className="!mt-2 !mb-0 text-center font-mono text-[11px] leading-5 text-theme-secondary/70 sm:text-xs">
+        <p className="mt-2! mb-0! text-center font-mono text-[11px] leading-5 text-theme-secondary/70 sm:text-xs">
           AI proposes meaning. Evidence decides what survives.
         </p>
 
-        <ol className="!mt-6 !mb-0 !pl-0 list-none space-y-0">
+        <ol className="mt-6! mb-0! pl-0! list-none! space-y-0">
           {LAYERS.map((layer, i) => {
             const on = highlight === i + 1
             return (
-              <li key={layer.name} className="!mb-0">
+              <li key={layer.name} className="mb-0!">
                 {i > 0 && (
                   <motion.div
                     aria-hidden
-                    initial={{ scaleY: 0 }}
-                    whileInView={{ scaleY: 1 }}
-                    viewport={{ once: true, margin: '-60px' }}
-                    transition={{ duration: 0.25, delay: i * 0.12 }}
+                    {...(reduced
+                      ? {}
+                      : {
+                        initial: { scaleY: 0 },
+                        whileInView: { scaleY: 1 },
+                        viewport: { once: true, margin: '-60px' },
+                        transition: { duration: 0.25, delay: i * 0.12 },
+                      })}
                     className="mx-auto h-5 w-px origin-top bg-brand-500/40"
                   />
                 )}
 
                 <motion.div
-                  initial={{ opacity: 0, y: 12 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: '-60px' }}
-                  transition={{ duration: 0.4, delay: i * 0.12 }}
+                  {...rise(i)}
                   className={`rounded-2xl border p-4 sm:p-5 ${
                     on
                       ? 'border-brand-500/60 bg-brand-500/[0.08]'
@@ -100,7 +115,7 @@ export function GuideStack({ highlight, note }: Props) {
                     </span>
                   </div>
 
-                  <p className="!mt-2 !mb-0 font-mono text-[11px] leading-5 text-theme-secondary/70">
+                  <p className="mt-2! mb-0! font-mono text-[11px] leading-5 text-theme-secondary/70">
                     {layer.detail}
                   </p>
                 </motion.div>
@@ -117,9 +132,17 @@ export function GuideStack({ highlight, note }: Props) {
         </div>
       </div>
 
-      <figcaption className="!mt-3 text-right text-xs text-theme-muted">
-        <a href="/images/guide/stack.png" target="_blank" rel="noopener noreferrer">
-          Open the diagram as an image ↗
+      <figcaption className="mt-4! text-right text-xs text-theme-muted">
+        <a
+          href="/images/guide/stack.png"
+          target="_blank"
+          rel="noopener noreferrer"
+          /* A caption, not a call to action: the accent underline the prose
+             styles give every link makes it read as the point of the
+             figure. */
+          className="text-theme-muted! no-underline! transition-colors hover:text-theme-secondary!"
+        >
+          Open as image ↗
         </a>
       </figcaption>
     </figure>
