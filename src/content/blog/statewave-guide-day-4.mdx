@@ -1,0 +1,152 @@
+---
+title: "Statewave Guide — Day 4: We passed the safety test. Then failed the product test"
+slug: statewave-guide-day-4
+date: "2026-09-09T21:00:00Z"
+description: Nothing dangerously wrong, nothing useless, almost everything mediocre — and the reason was not the missing capabilities we expected.
+author: Saber Maram
+series: statewave-guide
+episode: 4
+image: /images/blog/statewave-guide-day-4/og.png
+headerImage: /images/blog/statewave-guide-day-4/header.png
+tags:
+  - guidance
+  - trust
+---
+
+import { Flow } from '../../components/Flow'
+
+Yesterday I asked:
+
+> Can technically safe product knowledge survive contact with an actual user?
+
+Not particularly. 😅
+
+Wrong-feature claims accepted: **0**
+
+Unsupported claims accepted: **0**
+
+Model restraint: **30/30**
+
+Verified claim yield: **95%**
+
+Nice.
+
+Then we asked:
+
+> Would any of this actually help a human?
+
+Median usefulness:
+
+**1 / 3**
+
+Only **24%** of reviewed features were rated genuinely useful.
+
+Nothing was dangerously wrong.
+
+Nothing was completely useless either.
+
+It was worse in a much more software-engineering kind of way:
+
+**almost everything was mediocre.**
+
+We assumed the remaining problem would be missing capabilities.
+
+The data disagreed.
+
+Features with a verified capability scored:
+
+**1.43**
+
+Features without one:
+
+**1.14**
+
+Barely a difference.
+
+Meanwhile:
+
+**14 / 21 outputs were too technical.**
+
+Then we found the smoking gun.
+
+Ten features exposed this sentence directly to the user:
+
+> “No capability, route or permission has been verified for this feature.”
+
+Every single one was rated too technical.
+
+**10/10.**
+
+Fair enough. 😂
+
+That's not product copy.
+
+That's a debugger having an existential crisis in front of the customer.
+
+Another feature had excellent evidence:
+
+POST endpoint ✓  
+Create permission ✓  
+Submit path ✓  
+Button ✓
+
+And our deterministic renderer proudly produced:
+
+> “You can create a new invoices create form and submit the invoices create form form…”
+
+Technically grounded.
+
+Linguistically deceased.
+
+That exposed another boundary.
+
+We had already separated:
+
+**what the application does**
+
+from:
+
+**what the model thinks it does**
+
+Now we needed to separate:
+
+**what we know**
+
+from:
+
+**what a human actually needs to hear**
+
+So the architecture gained another layer:
+
+<Flow steps={['Source Code', 'Application Graph', 'Product Model', 'Guidance Compiler', 'Human Help']} />
+
+The Product Model answers:
+
+> **What do we know?**
+
+The Guidance Compiler answers:
+
+> **What is worth telling the user?**
+
+The renderer answers:
+
+> **How should we say it?**
+
+No verification rules loosened.
+
+No extra authority for the model.
+
+We were finally admitting something painfully obvious:
+
+> **Technically correct data structures do not automatically know how to talk to humans.**
+
+Shocking discovery for software developers, I know.
+
+<div className="mt-10 rounded-2xl border border-brand-500/25 bg-surface-1/45 p-6 sm:p-8">
+<p className="!my-0 font-heading text-2xl font-bold tracking-tight text-theme-primary sm:text-3xl">Statewave Guide — Day 4.</p>
+<p className="!mb-0 mt-4 text-base text-theme-secondary"><strong className="text-theme-primary">Next question:</strong> Can we turn verified product truth into human guidance without inventing anything new?</p>
+</div>
+
+---
+
+*This is Day 4 of a build journey we're publishing as it happens. Previous: [Day 3 — True is not the same as relevant](/blog/statewave-guide-day-3). Every episode: [the Journey Index](/blog/statewave-guide).*
