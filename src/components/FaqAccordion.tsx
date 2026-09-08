@@ -24,11 +24,15 @@ export function FaqAccordion({ entries }: { entries: readonly FaqEntry[] }) {
           className="group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35"
         >
           <summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none [&::-webkit-details-marker]:hidden">
-            <h3 className="text-[18px] font-semibold leading-snug text-theme-primary">
-              {entry.question}
-            </h3>
-
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40 transition-all group-open:rotate-180 group-hover:border-brand-500/40">
+            {/* Chevron first in the DOM, last visually (order-2). Answer
+                engines extract a Q&A pair by reading the text that
+                immediately follows a question heading — with the chevron
+                between them, the next node after each <h3> was an <svg>
+                and every question read as unanswered. */}
+            <div
+              aria-hidden="true"
+              className="order-2 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40 transition-all group-open:rotate-180 group-hover:border-brand-500/40"
+            >
               <svg
                 className="h-5 w-5 text-theme-secondary"
                 fill="none"
@@ -43,11 +47,15 @@ export function FaqAccordion({ entries }: { entries: readonly FaqEntry[] }) {
                 />
               </svg>
             </div>
+
+            <h3 className="order-1 text-[18px] font-semibold leading-snug text-theme-primary">
+              {entry.question}
+            </h3>
           </summary>
 
-          <div className="px-7 pb-7">
-            <div className="h-px bg-theme-primary/10 mb-6" />
-
+          {/* Divider as a border, not a sibling <div>, for the same
+              question-heading → answer adjacency reason as above. */}
+          <div className="border-t border-theme-primary/10 px-7 pt-6 pb-7">
             <p className="text-[16px] leading-8 text-theme-secondary/80">
               {entry.answer}
             </p>

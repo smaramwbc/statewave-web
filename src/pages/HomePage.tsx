@@ -43,7 +43,7 @@ const HeroBackground = lazy(() =>
 import { usePageSEO } from '../lib/seo'
 import { faqPageJsonLd, softwareApplicationJsonLd } from '../lib/seo-meta'
 import { FAQ_ENTRIES } from '../lib/faq'
-import { PROOF_STATS } from '../lib/proof-stats'
+import { PROOF_FIGURES, PROOF_STATS } from '../lib/proof-stats'
 import { useChatWidget, useTrackDemoCta } from '../lib/widget-context-api'
 import { useCallback, useRef, useState, useEffect } from 'react'
 
@@ -364,7 +364,7 @@ return (
           <img
             key={`memflow-light-${memoryRuntimeReplayKey}`}
             src={`/images/home/memory-runtime-flow-animated-light.svg?r=${memoryRuntimeReplayKey}`}
-            alt=""
+            alt="Memory runtime diagram: raw events compiled into a ranked context bundle"
             aria-hidden="true"
             className="theme-light relative z-10 block h-auto w-full max-w-full"
           />
@@ -404,7 +404,8 @@ return (
             Compilation is a background pass that reads new episodes and produces
             durable, typed memories — profile facts, preferences, prior-issue summaries
             — each linked back to its source episode. This split of raw events and
-            durable facts mirrors the episodic/semantic memory taxonomy in the{' '}
+            durable facts is based on the episodic/semantic memory taxonomy set out
+            in the{' '}
             <a
               href="https://arxiv.org/abs/2309.02427"
               target="_blank"
@@ -413,7 +414,10 @@ return (
             >
               2023 CoALA framework for language agents
             </a>
-            . Recompilation is idempotent — running it twice never creates duplicates.
+            . Recompilation is idempotent — running it twice never creates duplicates,
+            a property the core repo guards with {PROOF_FIGURES.unitTests} unit
+            tests and {PROOF_FIGURES.evalAssertions} eval assertions across the
+            record → compile → retrieve path.
           </p>
         </div>
 
@@ -437,7 +441,8 @@ return (
             , agent task success drops from about 58% on single-turn tasks to about
             35% on multi-turn ones, with lost context a leading cause. A memory
             runtime compacts history into ranked, retrievable facts instead of
-            replaying it whole.
+            replaying it whole, assembling each bundle to a fixed budget — 512,
+            1,024, 2,048, or 4,096 tokens.
           </p>
         </div>
       </div>
@@ -502,7 +507,7 @@ function WhyNotSection() {
               <div className="flex items-start gap-8">
                 <img
                   src={icons[i]}
-                  alt=""
+                  alt={`${a.title} icon`}
                   aria-hidden="true"
                   className="h-12 w-12 shrink-0"
                 />
@@ -561,7 +566,7 @@ function WhyNotSection() {
         <div className="flex flex-col md:flex-row items-center justify-center gap-8 text-center md:text-left">
           <img
             src="/icons/icon-statewave-layers.svg"
-            alt=""
+            alt="Statewave memory layers"
             aria-hidden="true"
             className="h-16 w-16 shrink-0"
           />
@@ -660,7 +665,7 @@ function UseCasesSection() {
           <img
             key={`map-light-${replayKey}`}
             src={`/images/home/stateful-workflows-map-animated-light.svg?r=${replayKey}`}
-            alt=""
+            alt="Statewave workflow map"
             aria-hidden="true"
             className="theme-light relative z-10 w-[108%] max-w-none h-auto"
           />
@@ -1025,7 +1030,7 @@ function ConnectorsTeaserSection() {
               >
                 <img
                   src={item.logo}
-                  alt=""
+                  alt={`${item.name} logo`}
                   aria-hidden="true"
                   className={`mb-7 object-contain ${item.name === 'n8n' ? 'h-9 w-12' : 'h-9 w-9'
                     } ${['GitHub', 'Zendesk', 'MCP', 'Markdown'].includes(item.name)
@@ -1124,7 +1129,7 @@ function SupportProofSection() {
               <div className="absolute inset-0 rounded-full" />
               <img
                 src="/brand/icon.svg"
-                alt=""
+                alt="Statewave"
                 aria-hidden="true"
                 className="relative z-10 h-30 w-30 object-contain"
               />

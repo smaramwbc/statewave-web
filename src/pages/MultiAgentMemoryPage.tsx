@@ -121,7 +121,7 @@ function HeroSection() {
           <img
             key={`multi-agent-light-${replayKey}`}
             src={`/images/use-cases/multi-agent-memory/statewave-multi-agent-memory-hero-light.svg?r=${replayKey}`}
-            alt=""
+            alt="Multi-agent memory diagram"
             aria-hidden="true"
             className="theme-light w-full h-auto"
           />

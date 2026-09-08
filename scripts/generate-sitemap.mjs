@@ -50,10 +50,17 @@ export async function generateSitemap() {
 
   const urls = []
 
+  // Marketing routes had no <lastmod> at all, so every freshness check
+  // could only ever see the blog. Each one is rebuilt and redeployed from
+  // this commit, which is exactly what lastmod means: when the content at
+  // this URL last changed as far as the crawler is concerned.
+  const buildDate = new Date().toISOString().slice(0, 10)
+
   for (const route of PUBLIC_ROUTES) {
     const meta = PAGE_META[route]
     urls.push({
       loc: `${BASE_URL}${route === '/' ? '/' : route}`,
+      lastmod: buildDate,
       changefreq: meta.changefreq,
       priority: meta.priority,
     })

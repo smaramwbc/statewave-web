@@ -352,7 +352,11 @@ function ConnectorsHero() {
 
                   <img
                     src={icon}
-                    alt=""
+                    alt={`${name} logo`}
+                    /* The <span class="sr-only"> below already names this
+                       connector; aria-hidden stops screen readers from
+                       reading it twice, while alt stays for AI crawlers. */
+                    aria-hidden="true"
                     className={`relative z-10 h-[44%] w-[44%] object-contain sm:h-[46%] sm:w-[46%] ${getConnectorLogoClass(
                       icon,
                     )}`}
@@ -522,7 +526,7 @@ function ConnectorCardItem({
             {icon && (
               <img
                 src={icon}
-                alt=""
+                alt={`${card.source} logo`}
                 className={`h-7 w-7 object-contain ${getConnectorLogoClass(icon)}`}
                 aria-hidden="true"
               />
@@ -602,7 +606,7 @@ function ConnectorCardItem({
           {icon && (
             <img
               src={icon}
-              alt=""
+              alt={`${card.source} logo`}
               className={`h-8 w-8 object-contain ${getConnectorLogoClass(icon)}`}
               aria-hidden="true"
             />

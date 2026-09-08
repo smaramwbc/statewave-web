@@ -25,6 +25,7 @@ export {
   softwareApplicationJsonLd,
   faqPageJsonLd,
   breadcrumbJsonLd,
+  defaultBreadcrumb,
   articleJsonLd,
   supportAgentHowToJsonLd,
 } from './lib/seo-meta'

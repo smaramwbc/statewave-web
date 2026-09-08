@@ -109,7 +109,7 @@ export function ProductPage() {
               <img
                 key={`lifecycle-light-${replayKey}`}
                 src={`/images/product/memory-lifecycle-light.svg?r=${replayKey}`}
-                alt=""
+                alt="Memory lifecycle: Record, Compile, Context, Govern"
                 aria-hidden="true"
                 className="theme-light relative z-10 h-auto w-full select-none"
                 draggable={false}

@@ -274,7 +274,7 @@ export function WhyPage() {
               <img
                 key={`ingest-light-${replayKey}`}
                 src={`/images/why-statewave/stateful-ingest-light.svg?r=${replayKey}`}
-                alt=""
+                alt="Event sources flowing into the stateful workflows stack"
                 aria-hidden="true"
                 className="theme-light w-full h-auto"
               />

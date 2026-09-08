@@ -153,7 +153,7 @@ export function BlogIndexPage() {
                         {p.meta.headerImage && (
                           <img
                             src={p.meta.headerImage}
-                            alt=""
+                            alt={`Cover image for "${p.meta.title}"`}
                             aria-hidden="true"
                             loading="lazy"
                             width={1600}

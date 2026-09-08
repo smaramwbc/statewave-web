@@ -175,7 +175,7 @@ export function BlogPostPage() {
             <div className="mt-6 flex items-center gap-2.5">
               <img
                 src={AUTHOR_AVATAR_PATH}
-                alt=""
+                alt={post.meta.author}
                 aria-hidden="true"
                 width={28}
                 height={28}
@@ -187,7 +187,7 @@ export function BlogPostPage() {
             {post.meta.headerImage && (
               <img
                 src={post.meta.headerImage}
-                alt=""
+                alt={`Cover image for "${post.meta.title}"`}
                 aria-hidden="true"
                 className="mt-8 w-full h-auto rounded-2xl border border-brand-500/20"
                 width={1600}

@@ -656,7 +656,7 @@ function HeroSection() {
             <img
               key={`durable-orbit-light-${durableOrbitReplayKey}`}
               src={`/images/use-cases/multi-agent-memory/durable-memory-orbit-light.svg?r=${durableOrbitReplayKey}`}
-              alt=""
+              alt="Durable memory connecting agents, tools, and applications"
               aria-hidden="true"
               className="theme-light relative z-10 block h-auto w-full max-w-full"
             />

@@ -36,7 +36,7 @@ export function Footer() {
               <img
                 className="theme-light h-[54px] w-[250px]"
                 src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1214060&theme=light"
-                alt=""
+                alt="Statewave - Open-source memory runtime for production AI agents. | Product Hunt"
                 aria-hidden="true"
                 width={250}
                 height={54}

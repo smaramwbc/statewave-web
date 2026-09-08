@@ -8,9 +8,8 @@
  * one is still a client-side navigation, no full reload.
  *
  * Routes prerendered:
- *   1. `/`               — the homepage hero shell
- *   2. `/blog`           — the blog index
- *   3. `/blog/<slug>`    — one file per published blog post
+ *   1. every entry in PUBLIC_ROUTES (src/lib/seo-meta.ts)
+ *   2. `/blog/<slug>`    — one file per published blog post
  *
  * Layout of dist/:
  *   dist/index.html           (route `/`)
@@ -18,9 +17,12 @@
  *   dist/blog/<slug>/index.html
  *
  * Vercel's default static-file resolution serves `dist/blog/foo/index.html`
- * for `/blog/foo` before the SPA catch-all rewrite kicks in. Other client-
- * only routes (e.g. /demo, /launch) fall through to the rewrite → SPA
- * shell as before.
+ * for `/blog/foo` before the SPA catch-all rewrite kicks in. Non-public
+ * routes (e.g. /demo, /launch) fall through to the rewrite → SPA shell as
+ * before. Anything in PUBLIC_ROUTES must be prerendered: without it the
+ * catch-all hands crawlers the homepage HTML under that URL, so /vs/mem0
+ * and every /use-cases/* page read as duplicate homepages to a bot that
+ * doesn't run JS.
  *
  * Pipeline (package.json):
  *   1. build:client       — vite build → dist/
@@ -51,8 +53,6 @@ import path from 'node:path'
 
 const DIST = path.resolve('dist')
 const SSR_DIST = path.resolve('dist-ssr')
-
-const STATIC_ROUTES = ['/', '/blog', '/faq']
 
 const FALLBACK_MARKER = 'Switched to client rendering because the server rendering errored'
 const MIN_BYTES = 5_000
@@ -162,6 +162,7 @@ export async function runPrerender() {
     render,
     BLOG_POSTS,
     blogPostUrl,
+    PUBLIC_ROUTES,
     PAGE_META,
     BASE_URL,
     canonicalUrl,
@@ -170,6 +171,7 @@ export async function runPrerender() {
     softwareApplicationJsonLd,
     faqPageJsonLd,
     breadcrumbJsonLd,
+    defaultBreadcrumb,
     articleJsonLd,
     supportAgentHowToJsonLd,
     FAQ_ENTRIES,
@@ -179,13 +181,11 @@ export async function runPrerender() {
 
   function jsonLdForStaticRoute(routePath) {
     if (routePath === '/') return [softwareApplicationJsonLd(), faqPageJsonLd(FAQ_ENTRIES)]
-    if (routePath === '/faq') {
-      return [
-        faqPageJsonLd(FAQ_ENTRIES),
-        breadcrumbJsonLd([{ name: 'Home', path: '/' }, { name: 'FAQ', path: '/faq' }]),
-      ]
-    }
-    return []
+    const nodes = []
+    if (routePath === '/faq') nodes.push(faqPageJsonLd(FAQ_ENTRIES))
+    const crumb = defaultBreadcrumb(routePath)
+    if (crumb) nodes.push(crumb)
+    return nodes
   }
 
   function jsonLdForPost(post) {
@@ -236,7 +236,7 @@ export async function runPrerender() {
     }
   }
 
-  for (const route of STATIC_ROUTES) {
+  for (const route of PUBLIC_ROUTES) {
     let html = await ssr(render, route, template)
     html = applyHeadMeta(html, metaForStaticRoute(route))
     html = injectJsonLd(html, jsonLdForStaticRoute(route))
@@ -252,7 +252,7 @@ export async function runPrerender() {
   }
 
   return {
-    routes: [...STATIC_ROUTES, ...BLOG_POSTS.map((p) => blogPostUrl(p.meta.slug))],
+    routes: [...PUBLIC_ROUTES, ...BLOG_POSTS.map((p) => blogPostUrl(p.meta.slug))],
   }
 }
 

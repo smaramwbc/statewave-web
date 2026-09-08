@@ -231,14 +231,14 @@ export function AboutPage() {
               <img
                 key={`about-memory-dark-${aboutMemoryReplayKey}`}
                 src={`/images/about/statewave-about-memory-visual-animated-dark.svg?r=${aboutMemoryReplayKey}`}
-                alt=""
+                alt="Statewave memory visual: episodes compiled into durable, ranked memory"
                 className="theme-dark block h-auto w-full max-w-full"
               />
 
               <img
                 key={`about-memory-light-${aboutMemoryReplayKey}`}
                 src={`/images/about/statewave-about-memory-visual-animated-light.svg?r=${aboutMemoryReplayKey}`}
-                alt=""
+                alt="Statewave memory visual: episodes compiled into durable, ranked memory"
                 className="theme-light block h-auto w-full max-w-full"
               />
             </motion.div>
