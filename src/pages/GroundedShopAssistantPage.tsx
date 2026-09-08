@@ -69,10 +69,10 @@ function HeroSection() {
           </h1>
 
           <p className="mx-auto mt-8 max-w-[46rem] text-[18px] leading-[1.6] text-theme-secondary/90 sm:text-[20px]">
-            Every answer traces to retrieved evidence and is cited back to its
-            source. When the assistant can&apos;t find grounded evidence, it says
-            so instead of guessing, and files the gap for the content
-            team to resolve.
+            Every answer traces to retrieved evidence in the assistant&apos;s
+            memory and is cited back to its source. When the assistant can&apos;t
+            find grounded evidence, it says so instead of guessing, and files the
+            gap for the content team to resolve.
           </p>
 
           <motion.div
@@ -276,8 +276,8 @@ function TwoOutcomesSection() {
         </Heading>
 
         <p className="mt-6 max-w-2xl text-[18px] leading-[1.65] text-theme-secondary/85">
-          Grounding is enforced by the runtime, not the prompt. Either an
-          answer survives citation validation, or the question becomes a
+          Grounding is enforced by the memory runtime, not the prompt. Either
+          an answer survives citation validation, or the question becomes a
           coverage gap the Ops Assistant can resolve.
         </p>
 
@@ -734,9 +734,9 @@ function ArchitectureSection() {
         </Heading>
 
         <p className="mt-6 max-w-2xl text-[17px] leading-[1.6] text-theme-secondary/85">
-          Source content flows through ingestion into an append-only store,
-          compiles into Subjects, and is read by both assistants over the
-          same completion path.
+          Source content flows through ingestion into an append-only episode
+          store, compiles into Subjects — the durable memory both assistants
+          read — and is served over the same completion path.
         </p>
 
         <div className="mt-10 overflow-x-auto pb-2">
@@ -920,7 +920,7 @@ function SubjectsSection() {
       </Heading>
 
       <p className="mt-4 max-w-2xl text-[16px] leading-[1.6] text-theme-secondary/85">
-        The compiled read models both assistants query. Each is written by
+        The compiled memory both assistants query. Each is written by
         exactly one path and read where it makes sense.
       </p>
 
