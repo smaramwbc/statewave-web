@@ -139,7 +139,13 @@ function applyHeadMeta(html, meta) {
 function injectJsonLd(html, nodes) {
   if (nodes.length === 0) return html
   const scripts = nodes
-    .map((node) => `<script type="application/ld+json">${JSON.stringify(node)}</script>`)
+    .map(
+      (node) =>
+        // data-seo="managed" so the SPA's first usePageSEO pass REPLACES these
+        // nodes after hydration instead of duplicating every route-specific
+        // schema block (usePageSEO only removes managed scripts).
+        `<script type="application/ld+json" data-seo="managed">${JSON.stringify(node)}</script>`,
+    )
     .join('')
   if (!html.includes('</head>')) throw new Error('Could not find </head> in template')
   return html.replace('</head>', `${scripts}</head>`)
