@@ -414,9 +414,9 @@ return (
             >
               2023 CoALA framework for language agents
             </a>
-            . Recompilation is idempotent — running it twice never creates duplicates,
-            a property the core repo guards with {PROOF_FIGURES.unitTests} unit
-            tests and {PROOF_FIGURES.evalAssertions} eval assertions across the
+            . Recompilation is idempotent — running it twice never creates
+            duplicates. The core repo ships {PROOF_FIGURES.unitTests} unit tests
+            and {PROOF_FIGURES.evalAssertions} eval assertions across the
             record → compile → retrieve path.
           </p>
         </div>
@@ -441,8 +441,8 @@ return (
             , agent task success drops from about 58% on single-turn tasks to about
             35% on multi-turn ones, with lost context a leading cause. A memory
             runtime compacts history into ranked, retrievable facts instead of
-            replaying it whole, assembling each bundle to a fixed budget — 512,
-            1,024, 2,048, or 4,096 tokens.
+            replaying it whole, assembled to whatever token budget you set — the
+            benchmark suite exercises 512, 1,024, 2,048, and 4,096.
           </p>
         </div>
       </div>
