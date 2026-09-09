@@ -3,6 +3,7 @@ import { Section } from '../components/Section'
 import { Button } from '../components/Button'
 import { Heading } from '../components/Heading'
 import { usePageSEO } from '../lib/seo'
+import { PageFaq } from '../components/PageFaq'
 
 const DOCS = 'https://github.com/smaramwbc/statewave-docs/blob/main'
 const CONNECTORS_REPO = 'https://github.com/smaramwbc/statewave-connectors'
@@ -170,6 +171,7 @@ export function ConnectorsPage() {
       <ConnectorsGrid />
       <PackageModelSection />
       <QuickExamplesSection />
+      <PageFaq route="/connectors" />
       <CTASection />
     </>
   )

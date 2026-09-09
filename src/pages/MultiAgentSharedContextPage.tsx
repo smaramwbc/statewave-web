@@ -13,6 +13,7 @@ import {
   History,
   Zap,
 } from "lucide-react";
+import { PageFaq } from '../components/PageFaq'
 
 const PAGE_RAIL_CLASS =
   'mx-auto max-w-[1488px] px-5 sm:px-10 md:px-16 xl:px-[94px]'
@@ -2443,6 +2444,7 @@ export function MultiAgentSharedContextPage() {
         <PreventedSection />
         <TwoCallsSection />
         <FeatureGridSection />
+        <PageFaq route="/use-cases/multi-agent-shared-context" />
         <CTASection />
       </div>
     </div>

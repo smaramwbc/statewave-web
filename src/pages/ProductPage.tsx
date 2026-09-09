@@ -4,6 +4,7 @@ import { Card } from '../components/Card'
 import { Heading } from '../components/Heading'
 import { HowStatewaveWorks } from '../components/HowStatewaveWorks'
 import { usePageSEO } from '../lib/seo'
+import { productJsonLd } from '../lib/seo-meta'
 import { useCallback, useState } from "react";
 import {
   ScrollText,
@@ -14,10 +15,14 @@ import {
   Timer,
   CircleCheckBig,
 } from "lucide-react";
+import { PageFaq } from '../components/PageFaq'
 
 
 export function ProductPage() {
-  usePageSEO()
+  // The page that documents what you actually get — features, deployment,
+  // and the fact that all of it is free and Apache-2.0 — so it carries the
+  // Product node as well as the homepage.
+  usePageSEO({ jsonLd: [productJsonLd()] })
 
   const [replayKey, setReplayKey] = useState(0);
 
@@ -764,6 +769,7 @@ export function ProductPage() {
           </a>
         </p>
       </Section>
+      <PageFaq route="/product" />
     </>
   )
 }

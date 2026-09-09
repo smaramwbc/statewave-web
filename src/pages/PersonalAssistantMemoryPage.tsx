@@ -5,6 +5,7 @@ import { Button } from "../components/Button";
 import { UseCaseSwitcher } from "../components/UseCaseSwitcher";
 import { usePageSEO } from "../lib/seo";
 import { breadcrumbJsonLd } from "../lib/seo-meta";
+import { PageFaq } from '../components/PageFaq'
 
 const PAGE_RAIL_CLASS =
   "mx-auto max-w-[1488px] px-5 sm:px-10 md:px-16 xl:px-[94px]";
@@ -1755,6 +1756,7 @@ export function PersonalAssistantMemoryPage() {
         <ConfidenceSection />
         <ThreeEndpointsSection />
         <FeatureGridSection />
+        <PageFaq route="/use-cases/personal-assistant-memory" />
         <CTASection />
       </div>
     </div>

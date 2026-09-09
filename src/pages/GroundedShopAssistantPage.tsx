@@ -7,6 +7,7 @@ import { CodeCopyButton } from '../components/CodeCopyButton'
 import { UseCaseSwitcher } from '../components/UseCaseSwitcher'
 import { usePageSEO } from '../lib/seo'
 import { breadcrumbJsonLd } from '../lib/seo-meta'
+import { PageFaq } from '../components/PageFaq'
 
 const REPO_URL = 'https://github.com/smaramwbc/statewave-grounded-shop-assistant'
 
@@ -1221,6 +1222,7 @@ export function GroundedShopAssistantPage() {
       <SubjectsSection />
       <ApiSection />
       <RunItSection />
+      <PageFaq route="/use-cases/grounded-shop-assistant" />
       <CTASection />
     </div>
   )

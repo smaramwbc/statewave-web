@@ -10,6 +10,13 @@ configure({ asyncUtilTimeout: 10_000 });
 
 afterEach(() => cleanup());
 
+// Route components are lazy chunks, and a full-suite run resolves them
+// under contention: the 1s default for findBy*/waitFor expires before the
+// page mounts, and an assertion then reads the *previous* test's document
+// (stale <title>, stale JSON-LD). Raising the ceiling doesn't slow a
+// passing test — waitFor polls until the condition holds.
+configure({ asyncUtilTimeout: 10_000 });
+
 // Stub `fetch` globally before every test so components that fire
 // network calls during render (e.g. <HeroBackground> → fetchLiveData
 // → /api/hero-data) get a deterministic, immediate non-success

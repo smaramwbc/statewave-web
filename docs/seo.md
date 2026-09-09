@@ -9,9 +9,10 @@ files documented below.
 | File | Role |
 |---|---|
 | [`index.html`](../index.html) | Static baseline — title, meta, OG/Twitter, canonical, and JSON-LD for `Organization`, `WebSite`, `SoftwareApplication`. Served as-is to crawlers that don't execute JavaScript. |
-| [`src/lib/seo-meta.ts`](../src/lib/seo-meta.ts) | Pure data + JSON-LD builders. `PUBLIC_ROUTES`, `PAGE_META`, `routeMeta`, `canonicalUrl`, plus typed builders for `Organization`, `WebSite`, `SoftwareApplication`, `BreadcrumbList`, `FAQPage`. |
+| [`src/lib/seo-meta.ts`](../src/lib/seo-meta.ts) | Pure data + JSON-LD builders. `PUBLIC_ROUTES`, `PAGE_META`, `routeMeta`, `canonicalUrl`, plus typed builders for `Organization`, `WebSite`, `SoftwareApplication`, `BreadcrumbList`, `FAQPage`, `Product`. |
 | [`src/lib/seo.tsx`](../src/lib/seo.tsx) | The `usePageSEO` React hook. Updates `document.title`, meta tags, canonical, OG/Twitter, and the per-page JSON-LD bundle on route change. |
 | [`src/lib/faq.ts`](../src/lib/faq.ts) | The FAQ entries rendered by the homepage **and** emitted as `FAQPage` JSON-LD. Single source of truth so visible content and structured data never drift. |
+| [`src/lib/page-faqs.ts`](../src/lib/page-faqs.ts) | Per-route Q&A for every other page, keyed by `RouteKey`. Rendered by [`PageFaq`](../src/components/PageFaq.tsx) as question `<h3>`s with the answer directly after, and emitted as that route's `FAQPage` JSON-LD automatically by `usePageSEO`. |
 | [`public/robots.txt`](../public/robots.txt) | Allows the public site, disallows `/api/`, points to the sitemap. |
 | [`scripts/generate-sitemap.mjs`](../scripts/generate-sitemap.mjs) | Generates `dist/sitemap.xml` at build time from `PUBLIC_ROUTES` + the published blog posts. Verified by `tests/seo-static.test.ts`. |
 | [`public/llms.txt`](../public/llms.txt) | AI-crawler / answer-engine summary in the [llms.txt](https://llmstxt.org/) format. Lists positioning, core concepts, public pages, docs, install commands, and integrations. |
@@ -103,6 +104,12 @@ update the tests.
       ship marketing benchmarks, fake logos, or aspirational integrations.
 - [ ] If the page has a FAQ-style section, mirror it into the `FAQPage`
       JSON-LD via `faqPageJsonLd(...)`.
+- [ ] At least one **question heading** (`<h2>`/`<h3>` ending in "?") with
+      its answer as the next thing in the DOM — that pair is what answer
+      engines extract as a citation. Add the questions to
+      `PAGE_FAQS` and drop `<PageFaq route="/your-route" />` into the page;
+      `tests/question-headings.test.tsx` fails if a public route has none.
+      A question styled as a bold `<p>` does not count.
 - [ ] `npm run typecheck && npm run lint && npm run test && npm run build`
       all pass.
 

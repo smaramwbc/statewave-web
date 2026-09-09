@@ -965,7 +965,7 @@ function FaqSection() {
       <div className="mx-auto mt-10 max-w-3xl overflow-hidden rounded-[1.75rem] border border-theme-border">
         {FAQS.map((f, i) => (
           <div key={f.q} className={`p-7 sm:p-8 ${i > 0 ? 'border-t border-theme-border' : ''}`}>
-            <p className="mb-2.5 font-heading text-[16.5px] font-bold text-theme-primary">{f.q}</p>
+            <h3 className="mb-2.5 font-heading text-[16.5px] font-bold text-theme-primary">{f.q}</h3>
             <p className="text-[14.5px] leading-[1.6] text-theme-muted">{f.a}</p>
           </div>
         ))}

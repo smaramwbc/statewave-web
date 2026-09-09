@@ -180,15 +180,27 @@ export async function runPrerender() {
     defaultBreadcrumb,
     articleJsonLd,
     supportAgentHowToJsonLd,
+    howToJsonLd,
+    productJsonLd,
     FAQ_ENTRIES,
+    PAGE_FAQS,
     POST_FAQ,
     HOWTO_SLUGS,
   } = await import(entryUrl)
 
+  // Mirrors what usePageSEO emits on the client for the same route —
+  // crawlers that don't run JS must see the same structured data as the
+  // ones that do, or the two disagree about what the page is.
   function jsonLdForStaticRoute(routePath) {
-    if (routePath === '/') return [softwareApplicationJsonLd(), faqPageJsonLd(FAQ_ENTRIES)]
+    if (routePath === '/') {
+      return [softwareApplicationJsonLd(), productJsonLd(), faqPageJsonLd(FAQ_ENTRIES)]
+    }
     const nodes = []
     if (routePath === '/faq') nodes.push(faqPageJsonLd(FAQ_ENTRIES))
+    if (routePath === '/product') nodes.push(productJsonLd())
+    if (routePath === '/developers') nodes.push(howToJsonLd())
+    const pageFaq = PAGE_FAQS[routePath]
+    if (pageFaq?.length) nodes.push(faqPageJsonLd(pageFaq))
     const crumb = defaultBreadcrumb(routePath)
     if (crumb) nodes.push(crumb)
     return nodes

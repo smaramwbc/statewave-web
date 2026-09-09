@@ -15,6 +15,7 @@ import {
   type ManifestoCopy,
 } from '../lib/manifesto-i18n'
 import { usePageSEO } from '../lib/seo'
+import { PageFaq } from '../components/PageFaq'
 
 export function WhyPage() {
   usePageSEO()
@@ -439,6 +440,7 @@ export function WhyPage() {
           </div>
         </div>
       </Section>
+      <PageFaq route="/why" />
     </>
   )
 }

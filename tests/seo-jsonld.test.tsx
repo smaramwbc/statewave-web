@@ -9,10 +9,12 @@ import {
   faqPageJsonLd,
   howToJsonLd,
   organizationJsonLd,
+  productJsonLd,
   softwareApplicationJsonLd,
   websiteJsonLd,
 } from '../src/lib/seo-meta'
 import { FAQ_ENTRIES } from '../src/lib/faq'
+import { PAGE_FAQS } from '../src/lib/page-faqs'
 
 afterEach(() => {
   cleanup()
@@ -121,9 +123,45 @@ describe('JSON-LD builders', () => {
       expect(q.acceptedAnswer.text).toBe(FAQ_ENTRIES[i].answer)
     }
   })
+
+  it('Product carries an Offer and no invented ratings', () => {
+    const node = productJsonLd()
+    expect(node['@type']).toBe('Product')
+    expect(node.name).toBe('Statewave')
+    const offer = node.offers as { '@type': string; price: string; availability: string }
+    expect(offer['@type']).toBe('Offer')
+    expect(offer.price).toBe('0')
+    expect(offer.availability).toBe('https://schema.org/InStock')
+    // We have no ratings or reviews to report; fabricating them is the
+    // fastest way to get a site's structured data discounted entirely.
+    expect(node.aggregateRating).toBeUndefined()
+    expect(node.review).toBeUndefined()
+  })
 })
 
 describe('Per-page injected JSON-LD', () => {
+  it('the homepage and /product emit the Product node', async () => {
+    for (const route of ['/', '/product']) {
+      renderApp(route)
+      await waitFor(() => {
+        const types = readManagedJsonLd().map((n) => n['@type'])
+        expect(types, `${route} is missing Product`).toContain('Product')
+      })
+      cleanup()
+    }
+  })
+
+  it('a route with page FAQs emits its FAQPage from the same data', async () => {
+    renderApp('/why')
+    await waitFor(() => {
+      const faq = readManagedJsonLd().find((n) => n['@type'] === 'FAQPage')
+      const questions = (faq?.mainEntity ?? []) as Array<{ name: string }>
+      expect(questions.map((q) => q.name)).toEqual(
+        PAGE_FAQS['/why']!.map((e) => e.question),
+      )
+    })
+  })
+
   it('homepage injects SoftwareApplication + FAQPage (route-specific), not the site-wide entities', async () => {
     renderApp('/')
     await waitFor(() => {
@@ -194,7 +232,13 @@ describe('Per-page injected JSON-LD', () => {
     await waitFor(() => {
       const types = readManagedJsonLd().map((n) => n['@type'])
       expect(types).toContain('BreadcrumbList')
-      expect(types).not.toContain('FAQPage')
+      // /product has its own page FAQs, so the FAQPage node must be that
+      // page's — the homepage's must not survive the navigation.
+      const faq = readManagedJsonLd().find((n) => n['@type'] === 'FAQPage')
+      const questions = (faq?.mainEntity ?? []) as Array<{ name: string }>
+      expect(questions.map((q) => q.name)).toEqual(
+        PAGE_FAQS['/product']!.map((e) => e.question),
+      )
     })
   })
 })

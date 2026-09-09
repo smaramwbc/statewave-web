@@ -22,9 +22,12 @@ import {
   SITE_NAME,
   canonicalUrl,
   defaultBreadcrumb,
+  faqPageJsonLd,
   routeMeta,
   type JsonLd,
+  type RouteKey,
 } from './seo-meta'
+import { PAGE_FAQS } from './page-faqs'
 
 export interface UsePageSEOOptions {
   /** Override the page title (rendered as-is — already includes Statewave when desired). */
@@ -113,6 +116,13 @@ export function usePageSEO(options: UsePageSEOOptions = {}) {
       const crumb = defaultBreadcrumb(pathname)
       if (crumb) nodes.push(crumb)
     }
+    // Pages that carry a <PageFaq> section get its FAQPage node for free —
+    // same data, so the visible Q&A and the structured data can't drift.
+    // The homepage and /faq pass FAQ_ENTRIES explicitly via `jsonLd` and
+    // aren't in PAGE_FAQS, so nothing is emitted twice.
+    const pageFaq = PAGE_FAQS[pathname as RouteKey]
+    if (pageFaq?.length) nodes.push(faqPageJsonLd(pageFaq))
+
     if (options.jsonLd) nodes.push(...options.jsonLd)
 
     for (const node of nodes) injectJsonLd(node)

@@ -7,6 +7,7 @@ import { CodeCopyButton } from '../components/CodeCopyButton'
 import { UseCaseSwitcher } from '../components/UseCaseSwitcher'
 import { usePageSEO } from '../lib/seo'
 import { breadcrumbJsonLd } from '../lib/seo-meta'
+import { PageFaq } from '../components/PageFaq'
 
 /* ─── Hero ───────────────────────────────────────────────────────────────── */
 
@@ -1586,6 +1587,7 @@ export function MultiAgentMemoryPage() {
       <WrongFactSection />
       <ThreeEndpointsSection />
       <FeatureGridSection />
+      <PageFaq route="/use-cases/multi-agent-memory" />
       <CTASection />
     </div>
   )

@@ -1190,7 +1190,7 @@ function FaqSection() {
             <span className="mb-3 inline-block rounded-full bg-accent/10 px-2.5 py-1 font-mono text-[10px] font-semibold tracking-[0.06em] text-accent">
               {f.tag}
             </span>
-            <p className="mb-2 font-heading text-[16px] font-bold text-theme-primary">{f.q}</p>
+            <h3 className="mb-2 font-heading text-[16px] font-bold text-theme-primary">{f.q}</h3>
             <p className="text-[14px] leading-[1.6] text-theme-muted">{f.a}</p>
           </div>
         ))}

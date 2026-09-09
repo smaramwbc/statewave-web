@@ -15,6 +15,7 @@ import {
   FlaskConical,
   ServerCog,
 } from 'lucide-react'
+import { PageFaq } from '../components/PageFaq'
 
 export function DevelopersPage() {
   // The install/quickstart HowTo lives here, where the actual steps are
@@ -315,6 +316,7 @@ export function DevelopersPage() {
           })}
         </div>
       </Section>
+      <PageFaq route="/developers" />
     </>
   )
 }

@@ -14,6 +14,7 @@ import {
   BrainCircuit,
   PackageCheck,
 } from 'lucide-react'
+import { PageFaq } from '../components/PageFaq'
 
 /* ─── Hash-based active card highlight ───────────────────────────────────── */
 
@@ -542,6 +543,7 @@ export function UseCasesPage() {
       <ExplorerSection />
       <ConnectorSection />
       <FrontierSection />
+      <PageFaq route="/use-cases" />
       <CTASection />
     </>
   )

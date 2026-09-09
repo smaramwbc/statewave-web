@@ -41,7 +41,11 @@ const HeroBackground = lazy(() =>
   import('../components/HeroBackground').then((m) => ({ default: m.HeroBackground })),
 )
 import { usePageSEO } from '../lib/seo'
-import { faqPageJsonLd, softwareApplicationJsonLd } from '../lib/seo-meta'
+import {
+  faqPageJsonLd,
+  productJsonLd,
+  softwareApplicationJsonLd,
+} from '../lib/seo-meta'
 import { FAQ_ENTRIES } from '../lib/faq'
 import { PROOF_FIGURES, PROOF_STATS } from '../lib/proof-stats'
 import { useChatWidget, useTrackDemoCta } from '../lib/widget-context-api'
@@ -54,8 +58,15 @@ export function HomePage() {
   // to /blog or /about, so they're emitted here on the `/` route only rather
   // than statically. The FAQPage uses the full FAQ_ENTRIES list, matching the
   // visible FAQ section so answer engines can consume it directly.
+  // Product sits alongside SoftwareApplication: same runtime, but it's the
+  // node an answer engine reads for the commercial question — price,
+  // availability, what you get — which SoftwareApplication doesn't carry.
   usePageSEO({
-    jsonLd: [softwareApplicationJsonLd(), faqPageJsonLd(FAQ_ENTRIES)],
+    jsonLd: [
+      softwareApplicationJsonLd(),
+      productJsonLd(),
+      faqPageJsonLd(FAQ_ENTRIES),
+    ],
     breadcrumb: false,
   })
   // Every section below is server-rendered into dist/index.html — same

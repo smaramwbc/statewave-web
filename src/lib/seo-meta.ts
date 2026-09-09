@@ -324,7 +324,7 @@ export function websiteJsonLd(): JsonLd {
  *  constant — update it in the same PR whenever HomePage.tsx's copy
  *  changes. Backs SoftwareApplication.dateModified, the freshness signal
  *  answer engines look for. */
-export const HOMEPAGE_LAST_UPDATED = '2026-08-27'
+export const HOMEPAGE_LAST_UPDATED = '2026-09-08'
 
 export function softwareApplicationJsonLd(): JsonLd {
   return {
@@ -351,6 +351,52 @@ export function softwareApplicationJsonLd(): JsonLd {
       'Self-hosted on Postgres + pgvector',
     ],
     offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+  }
+}
+
+/** Product node for the runtime itself.
+ *
+ *  SoftwareApplication already describes what Statewave *is*; Product is
+ *  what answer engines read when the question is commercial — "how much
+ *  does it cost", "is there a free tier", "what do I get". Both nodes
+ *  describe the same thing on purpose and share the Organization as
+ *  brand/publisher, so a consumer can tell they aren't two products.
+ *
+ *  No aggregateRating or review: we have no ratings to report, and
+ *  inventing them is exactly the kind of schema spam that gets structured
+ *  data ignored. Offer price is genuinely 0 — Apache-2.0, self-hosted,
+ *  nothing gated. */
+export function productJsonLd(): JsonLd {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    '@id': `${BASE_URL}/#product`,
+    name: SITE_NAME,
+    category: 'Developer infrastructure — AI agent memory runtime',
+    description:
+      'Open-source memory runtime for AI agents. Records raw events as immutable episodes, compiles them into typed memories with confidence, validity, and provenance, and returns ranked, token-bounded context bundles for LLM prompts. Self-hosted on Postgres + pgvector.',
+    url: BASE_URL,
+    image: DEFAULT_OG_IMAGE,
+    brand: { '@id': ORGANIZATION_ID },
+    manufacturer: { '@id': ORGANIZATION_ID },
+    additionalProperty: [
+      { '@type': 'PropertyValue', name: 'License', value: 'Apache-2.0' },
+      { '@type': 'PropertyValue', name: 'Deployment', value: 'Self-hosted' },
+      { '@type': 'PropertyValue', name: 'Storage', value: 'Postgres + pgvector' },
+      {
+        '@type': 'PropertyValue',
+        name: 'Interfaces',
+        value: 'REST v1, Python SDK, TypeScript SDK, MCP server',
+      },
+    ],
+    offers: {
+      '@type': 'Offer',
+      price: '0',
+      priceCurrency: 'USD',
+      availability: 'https://schema.org/InStock',
+      url: `${BASE_URL}/developers`,
+      seller: { '@id': ORGANIZATION_ID },
+    },
   }
 }
 

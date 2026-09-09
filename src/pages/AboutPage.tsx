@@ -5,6 +5,7 @@ import { PROOF_STATS } from '../lib/proof-stats'
 import { CREDIBILITY_STATS, formatCompactCount } from '../lib/credibility-stats'
 import { useState } from 'react'
 import { motion } from 'framer-motion'
+import { PageFaq } from '../components/PageFaq'
 
 /* About page.
  *
@@ -486,6 +487,7 @@ export function AboutPage() {
           </p>
         </div>
       </Section>
+      <PageFaq route="/about" />
     </>
   )
 }
