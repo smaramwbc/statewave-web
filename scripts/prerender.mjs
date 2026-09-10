@@ -144,11 +144,21 @@ function injectJsonLd(html, nodes) {
         // data-seo="managed" so the SPA's first usePageSEO pass REPLACES these
         // nodes after hydration instead of duplicating every route-specific
         // schema block (usePageSEO only removes managed scripts).
-        `<script type="application/ld+json" data-seo="managed">${JSON.stringify(node)}</script>`,
+        //
+        // Escape `<` to `\u003c` exactly as the client injectJsonLd in
+        // src/lib/seo.tsx does — a `</script>` sequence inside any
+        // serialized string (an FAQ answer, an Article body) would
+        // otherwise close the block early in the static HTML.
+        `<script type="application/ld+json" data-seo="managed">${JSON.stringify(
+          node,
+        ).replace(/</g, '\\u003c')}</script>`,
     )
     .join('')
   if (!html.includes('</head>')) throw new Error('Could not find </head> in template')
-  return html.replace('</head>', `${scripts}</head>`)
+  // Function replacer, not a string: a literal `$&` / `` $` `` / `$'` in the
+  // serialized JSON-LD would otherwise trigger String.replace's special
+  // patterns and corrupt the document.
+  return html.replace('</head>', () => `${scripts}</head>`)
 }
 
 async function writeRoutePage(routePath, html) {
