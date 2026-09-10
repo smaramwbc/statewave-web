@@ -151,14 +151,26 @@ describe('Per-page injected JSON-LD', () => {
     }
   })
 
-  it('a route with page FAQs emits its FAQPage from the same data', async () => {
-    renderApp('/why')
+  // Every route in the shared table must: (a) emit a FAQPage whose
+  // questions exactly match the data, and (b) render each question as a
+  // real heading — the two ways an answer engine finds a citable Q&A.
+  const pageFaqRoutes = Object.keys(PAGE_FAQS) as Array<keyof typeof PAGE_FAQS>
+  it.each(pageFaqRoutes)('%s: FAQPage schema ↔ visible headings, same questions', async (route) => {
+    const { container } = renderApp(route)
     await waitFor(() => {
       const faq = readManagedJsonLd().find((n) => n['@type'] === 'FAQPage')
-      const questions = (faq?.mainEntity ?? []) as Array<{ name: string }>
-      expect(questions.map((q) => q.name)).toEqual(
-        PAGE_FAQS['/why']!.map((e) => e.question),
+      const schemaQuestions = ((faq?.mainEntity ?? []) as Array<{ name: string }>).map(
+        (q) => q.name,
       )
+      const wanted = PAGE_FAQS[route]!.map((e) => e.question)
+      expect(schemaQuestions).toEqual(wanted)
+
+      const headingText = Array.from(
+        container.querySelectorAll('h2, h3, h4'),
+      ).map((h) => h.textContent?.trim())
+      for (const q of wanted) {
+        expect(headingText, `"${q}" is not a visible heading on ${route}`).toContain(q)
+      }
     })
   })
 
