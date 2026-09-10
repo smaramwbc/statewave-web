@@ -4,7 +4,7 @@ import { Heading } from '../components/Heading'
 import { Button } from '../components/Button'
 import { CodeCopyButton } from '../components/CodeCopyButton'
 import { usePageSEO } from '../lib/seo'
-import { faqPageJsonLd } from '../lib/seo-meta'
+import { PAGE_FAQS } from '../lib/page-faqs'
 
 /*
  * /vs/zep: the third sibling of /vs/mem0 and /vs/letta, using the same section order,
@@ -1147,21 +1147,7 @@ function MigrationSection() {
 
 /* ─── FAQ ────────────────────────────────────────────────────────────────── */
 
-interface Faq {
-  tag: string
-  q: string
-  a: string
-}
-
-const FAQS: Faq[] = [
-  { tag: 'OVERVIEW', q: 'How is Statewave different from Zep?', a: 'Zep is a Graph RAG product: it models memory as a knowledge graph of entities and edges and returns retrieval as an optimized Context Block string. Statewave compiles raw episodes into typed memories with confidence and validity, ranks them with a fixed scoring model to a token budget, and returns a structured bundle: per-row kind, confidence, validity, and source episode ids, with no graph to traverse.' },
-  { tag: 'CAPABILITY', q: 'Can I still do graph reasoning?', a: 'Not natively. Statewave has no graph-traversal surface, so "find everything Alice is connected to within two hops" isn’t its shape. If your domain needs entity-relationship reasoning, keep that in Zep or your own data layer, and use Statewave for episode and typed-memory storage.' },
-  { tag: 'MIGRATION', q: 'What happens to relational facts like "Alice works at Acme"?', a: 'Facts about a single subject migrate cleanly. Relational facts that link two entities don’t survive directly. You encode the relationship in the subject’s memory content, write the memory to both subjects with cross-references, or keep the relationship in your application’s graph.' },
-  { tag: 'DETERMINISM', q: 'What makes retrieval deterministic?', a: 'The bundle is compiled and assembled the same way every run: four ranking signals (kind priority, recency, task relevance, and temporal validity) combined to a fixed token budget. The same subject, task, and point in time produce the same bytes. Graph traversal with a reranker can’t promise that, because index state and reranker variation introduce drift.' },
-  { tag: 'STORAGE', q: 'Do I have to run a graph database?', a: 'No. Storage is Postgres plus pgvector and nothing else, usually already in your stack. There is no separate graph store to operate, back up, or scale.' },
-  { tag: 'DEPLOYMENT', q: 'Does Zep offer a self-hosted option?', a: 'No. Zep discontinued its self-hosted Community Edition in 2025 and now concentrates its open-source work on Graphiti, the temporal-graph engine underneath; the memory API this page compares (thread.get_user_context, graph.search) is only available through Zep Cloud, BYOK, or Bring-Your-Own-Cloud. Statewave runs the whole stack, Postgres included, on your own infrastructure, with no cloud dependency and no usage credits to meter.' },
-  { tag: 'INTEGRATIONS', q: 'Does it work with Claude, Cursor, or Codex?', a: 'Yes. One command (npx @statewavedev/statewave) boots the runtime, and its shipped MCP server connects any MCP-compatible client: Claude, Cursor, Copilot, and agent runtimes. Zep is cloud-only; Statewave runs entirely on your own infrastructure.' },
-]
+const FAQS = PAGE_FAQS['/vs/zep']!
 
 function FaqSection() {
   return (
@@ -1182,7 +1168,7 @@ function FaqSection() {
       <div className="mx-auto mt-10 grid max-w-4xl gap-4 sm:grid-cols-2">
         {FAQS.map((f, i) => (
           <div
-            key={f.q}
+            key={f.question}
             className={`rounded-2xl border border-theme-border bg-surface-1 p-6 sm:p-7 ${
               i === FAQS.length - 1 ? 'sm:col-span-2' : ''
             }`}
@@ -1190,8 +1176,8 @@ function FaqSection() {
             <span className="mb-3 inline-block rounded-full bg-accent/10 px-2.5 py-1 font-mono text-[10px] font-semibold tracking-[0.06em] text-accent">
               {f.tag}
             </span>
-            <h3 className="mb-2 font-heading text-[16px] font-bold text-theme-primary">{f.q}</h3>
-            <p className="text-[14px] leading-[1.6] text-theme-muted">{f.a}</p>
+            <h3 className="mb-2 font-heading text-[16px] font-bold text-theme-primary">{f.question}</h3>
+            <p className="text-[14px] leading-[1.6] text-theme-muted">{f.answer}</p>
           </div>
         ))}
       </div>
@@ -1241,12 +1227,8 @@ function CTASection() {
 
 /* ─── Page ───────────────────────────────────────────────────────────────── */
 
-const FAQ_JSONLD = [
-  faqPageJsonLd(FAQS.map((f) => ({ question: f.q, answer: f.a }))),
-]
-
 export function StatewaveVsZepPage() {
-  usePageSEO({ jsonLd: FAQ_JSONLD })
+  usePageSEO()
 
   return (
     <div className="bg-surface-0">

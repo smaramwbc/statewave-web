@@ -66,6 +66,11 @@ const DOCS = 'https://github.com/smaramwbc/statewave-docs/blob/main'
  *  the same PR whenever an answer below changes. */
 export const PAGE_FAQS_REVIEWED = '2026-09-09'
 
+/* The /vs/* entries are rendered by each comparison page's own FaqSection
+ * (their card layouts differ), not by <PageFaq> — they live here so the
+ * prerenderer can emit their FAQPage JSON-LD too. Before this, those four
+ * pages served visible Q&A with no schema to any crawler that doesn't run
+ * JavaScript, and /vs/mem0 emitted none at all. */
 export const PAGE_FAQS: Partial<Record<RouteKey, readonly FaqEntry[]>> = {
   '/why': [
     {
@@ -99,7 +104,7 @@ export const PAGE_FAQS: Partial<Record<RouteKey, readonly FaqEntry[]>> = {
     {
       question: 'Who is Statewave not a good fit for today?',
       answer:
-        'Teams who want a hosted SaaS — Statewave is self-hosted infrastructure with no managed cloud. Teams who only need nearest-neighbour search, where pgvector or a vector database on its own is simpler. Chatbots with no multi-session requirement, which have nothing to remember. And workloads needing verified high-throughput scale today: the multi-replica API is supported but has not been load-tested beyond 10,000 subjects, on a single Postgres with no cross-region clustering.',
+        'Teams who want a hosted SaaS — Statewave is self-hosted infrastructure with no managed cloud. Teams who only need nearest-neighbor search, where pgvector or a vector database on its own is simpler. Chatbots with no multi-session requirement, which have nothing to remember. And workloads needing verified high-throughput scale today: the multi-replica API is supported but has not been load-tested beyond 10,000 subjects, on a single Postgres with no cross-region clustering.',
       links: [{ label: 'Compare the alternatives', href: '/why#vs-alternatives' }],
     },
   ],
@@ -135,7 +140,7 @@ export const PAGE_FAQS: Partial<Record<RouteKey, readonly FaqEntry[]>> = {
     {
       question: 'Can I change the ranking weights?',
       answer:
-        'Not per call today — fixed weights are what make a bundle reproducible. You can filter the candidate set by kind or subject before retrieval, or subclass the assembler in your own deployment if you need different defaults. Per-call overrides stay unexposed deliberately: we would rather ship them in response to a concrete misranking than speculatively, because every knob is a new way for two deployments to disagree about the same subject.',
+        'Not today. The weights are constants in server/services/context.py with no per-tenant override, a deliberate choice to keep ranking deterministic and reproducible. You can scope requests by subject, filter /v1/memories/search results by kind, or modify the context assembler in your own self-hosted deployment. Per-call overrides stay unexposed on purpose: we would rather ship them in response to a concrete misranking than speculatively, because every knob is a new way for two deployments to disagree about the same subject.',
       links: [{ label: 'Ranking and retrieval', href: `${DOCS}/architecture/ranking.md` }],
     },
   ],
@@ -144,7 +149,7 @@ export const PAGE_FAQS: Partial<Record<RouteKey, readonly FaqEntry[]>> = {
     {
       question: 'How is Statewave licensed, and can I use it commercially?',
       answer:
-        'Everything — the server, both SDKs, the connectors, the admin console, the benchmark harness, and this website — is public on GitHub under Apache-2.0. That licence is permissive and carries an explicit patent grant, so you can use, fork, modify, distribute, and ship commercial products on Statewave without signing anything. Optional SLA, indemnity, architecture review, and managed hosting are available on request at licensing@statewave.ai.',
+        'Everything — the server, both SDKs, the connectors, the admin console, the benchmark harness, and this website — is public on GitHub under Apache-2.0. That license is permissive and carries an explicit patent grant, so you can use, fork, modify, distribute, and ship commercial products on Statewave without signing anything. Optional SLA, indemnity, architecture review, and managed hosting are available on request at licensing@statewave.ai.',
       links: [
         { label: 'Apache License 2.0', href: 'https://www.apache.org/licenses/LICENSE-2.0' },
         { label: 'Source on GitHub', href: 'https://github.com/smaramwbc/statewave' },
@@ -256,7 +261,7 @@ export const PAGE_FAQS: Partial<Record<RouteKey, readonly FaqEntry[]>> = {
     {
       question: 'Can I use Statewave outside customer support?',
       answer:
-        'Yes. The explorer on this page catalogues 54 use-case ideas across coding copilots, workspace and account assistants, voice continuity, and multi-agent infrastructure, four of them written up as full deep-dives. They differ only in which subjects you write and which task you retrieve for; record, compile, retrieve, and govern is the same loop underneath all of them.',
+        'Yes. The explorer on this page catalogs 54 use-case ideas across coding copilots, workspace and account assistants, voice continuity, and multi-agent infrastructure, four of them written up as full deep-dives. They differ only in which subjects you write and which task you retrieve for; record, compile, retrieve, and govern is the same loop underneath all of them.',
       links: [{ label: 'Multi-agent memory', href: '/use-cases/multi-agent-memory' }],
     },
     {
@@ -369,13 +374,13 @@ export const PAGE_FAQS: Partial<Record<RouteKey, readonly FaqEntry[]>> = {
     {
       question: 'What happens when the assistant cannot ground an answer?',
       answer:
-        'It says it does not know, and the route writes the question to an ops:coverage-gaps Episode carrying the shopper’s exact wording. The Ops Assistant reads those gaps beside the catalogue and the FAQs, so the content team resolves them from the same console. An unanswerable question becomes a tracked object with an owner, instead of a guess that reaches a customer.',
+        'It says it does not know, and the route writes the question to an ops:coverage-gaps Episode carrying the shopper’s exact wording. The Ops Assistant reads those gaps beside the catalog and the FAQs, so the content team resolves them from the same console. An unanswerable question becomes a tracked object with an owner, instead of a guess that reaches a customer.',
       links: [{ label: 'More use cases', href: '/use-cases' }],
     },
     {
       question: 'How are product updates handled without rewriting history?',
       answer:
-        'Nothing is mutated in place. Updating a product or resolving a gap appends a new Episode under the same sourceId, and the newest episode per sourceId supersedes the older one at compile time — so facts change while the record of what was true when stays intact. Ingestion deduplicates by content hash, so re-running the job over an unchanged catalogue writes nothing.',
+        'Nothing is mutated in place. Updating a product or resolving a gap appends a new Episode under the same sourceId, and the newest episode per sourceId supersedes the older one at compile time — so facts change while the record of what was true when stays intact. Ingestion deduplicates by content hash, so re-running the job over an unchanged catalog writes nothing.',
       links: [{ label: 'Domain model', href: '/product#domain-model' }],
     },
     {
@@ -384,5 +389,42 @@ export const PAGE_FAQS: Partial<Record<RouteKey, readonly FaqEntry[]>> = {
         'The same open-source memory runtime this site documents: append-only episodes, compileSubject, and Subjects persisted through StatewaveStore, served over one completion path shared by the shopper and ops assistants. Completions route through LiteLLM or OpenRouter, and an offline mode runs the flow with no provider at all. Its test suite is node --test across chat-core, statewave-core, and server, green on every Node version in CI.',
       links: [{ label: 'Source on GitHub', href: 'https://github.com/smaramwbc/statewave' }],
     },
+  ],
+
+  '/vs/mem0': [
+    { question: 'How is Statewave different from Mem0?', answer: 'Mem0 ranks memories by relevance for an id you pass. Statewave compiles raw episodes into typed memories, ranks them with a fixed scoring model to a token budget, applies policy on the read path, and returns an integrity-hashed receipt of exactly what was delivered.' },
+    { question: 'What makes retrieval deterministic?', answer: 'A fixed scoring model: kind priority (3–10), recency (0–5), task relevance (0–8), and temporal validity (−4 to +3). The same subject, task, and budget produce the same bundle every time.' },
+    { question: 'What is a state-assembly receipt?', answer: 'An immutable, ULID-addressable record of one context call. It carries a byte-level integrity hash of what was delivered and references the policy bundle hash, so ‘what did the agent see, under which policy’ is answerable forever.' },
+    { question: 'Does it work with Claude, Cursor, or Codex?', answer: 'Yes. One command (npx @statewavedev/statewave) boots the runtime and auto-wires Claude Code, Claude Desktop, Cursor, VS Code Copilot, and Codex CLI. Any MCP-compatible client connects too.' },
+    { question: 'Can I run it fully offline?', answer: 'Yes. Storage is Postgres-only and self-hosted. The heuristic compiler keeps everything on your network; nothing leaves unless you configure an LLM compiler or hosted embeddings.' },
+  ],
+
+  '/vs/letta': [
+    { question: 'How is Statewave different from Letta?', answer: 'In Letta the agent manages its own memory: it edits memory blocks in a git-tracked context tree (MemFS) with tool calls, so retrieval is the model’s job and costs tokens every turn. Statewave compiles episodes into typed memories, ranks them to a token budget, applies policy on the read path, and returns an integrity-hashed receipt, with no model in the loop.' },
+    { question: 'Do I have to replace my agent framework?', answer: 'No. Letta is a whole agent runtime; Statewave is only the memory layer. Keep your existing agent or framework and point its memory reads and writes at Statewave over REST, the SDKs, or MCP.' },
+    { question: 'What makes retrieval deterministic?', answer: 'A fixed scoring model applied to a hybrid lexical and vector candidate set: kind priority (3–10), recency (0–5), task relevance (0–8), and temporal validity (−4 to +3). The same subject, task, budget, and point in time produce the same bundle every time.' },
+    { question: 'What is a state-assembly receipt?', answer: 'An immutable, ULID-addressable record of one context call. It carries a byte-level integrity hash of what was delivered and references the policy bundle hash, so ‘what did the agent see, under which policy’ is answerable forever.' },
+    { question: 'Does it work with Claude, Cursor, or Codex?', answer: 'Yes. One command (npx @statewavedev/statewave) boots the runtime, and its shipped MCP server connects any MCP-compatible client: Claude, Cursor, Copilot, and agent runtimes.' },
+    { question: 'Can I run it fully offline?', answer: 'Yes. Storage is Postgres-only and self-hosted. The heuristic compiler keeps everything on your network; nothing leaves unless you configure an LLM compiler or hosted embeddings.' },
+  ],
+
+  '/vs/zep': [
+    { tag: 'OVERVIEW', question: 'How is Statewave different from Zep?', answer: 'Zep is a Graph RAG product: it models memory as a knowledge graph of entities and edges and returns retrieval as an optimized Context Block string. Statewave compiles raw episodes into typed memories with confidence and validity, ranks them with a fixed scoring model to a token budget, and returns a structured bundle: per-row kind, confidence, validity, and source episode ids, with no graph to traverse.' },
+    { tag: 'CAPABILITY', question: 'Can I still do graph reasoning?', answer: 'Not natively. Statewave has no graph-traversal surface, so "find everything Alice is connected to within two hops" isn’t its shape. If your domain needs entity-relationship reasoning, keep that in Zep or your own data layer, and use Statewave for episode and typed-memory storage.' },
+    { tag: 'MIGRATION', question: 'What happens to relational facts like "Alice works at Acme"?', answer: 'Facts about a single subject migrate cleanly. Relational facts that link two entities don’t survive directly. You encode the relationship in the subject’s memory content, write the memory to both subjects with cross-references, or keep the relationship in your application’s graph.' },
+    { tag: 'DETERMINISM', question: 'What makes retrieval deterministic?', answer: 'The bundle is compiled and assembled the same way every run: four ranking signals (kind priority, recency, task relevance, and temporal validity) combined to a fixed token budget. The same subject, task, and point in time produce the same bytes. Graph traversal with a reranker can’t promise that, because index state and reranker variation introduce drift.' },
+    { tag: 'STORAGE', question: 'Do I have to run a graph database?', answer: 'No. Storage is Postgres plus pgvector and nothing else, usually already in your stack. There is no separate graph store to operate, back up, or scale.' },
+    { tag: 'DEPLOYMENT', question: 'Does Zep offer a self-hosted option?', answer: 'No. Zep discontinued its self-hosted Community Edition in 2025 and now concentrates its open-source work on Graphiti, the temporal-graph engine underneath; the memory API this page compares (thread.get_user_context, graph.search) is only available through Zep Cloud, BYOK, or Bring-Your-Own-Cloud. Statewave runs the whole stack, Postgres included, on your own infrastructure, with no cloud dependency and no usage credits to meter.' },
+    { tag: 'INTEGRATIONS', question: 'Does it work with Claude, Cursor, or Codex?', answer: 'Yes. One command (npx @statewavedev/statewave) boots the runtime, and its shipped MCP server connects any MCP-compatible client: Claude, Cursor, Copilot, and agent runtimes. Zep is cloud-only; Statewave runs entirely on your own infrastructure.' },
+  ],
+
+  '/vs/supermemory': [
+    { question: 'How is Statewave different from Supermemory?', answer: 'Supermemory ingests documents and chats, extracts memories into a graph with user profiles, and answers search with hybrid retrieval and a reranker, tuned for recall and speed. Statewave compiles typed memories with confidence and validity, ranks them to a token budget, and returns a deterministic bundle with read-path governance and optional receipts.' },
+    { question: 'Can I compare Statewave’s 0.905 against Supermemory’s 59.7%?', answer: 'No, they measure different things. Statewave’s 0.905 is end-to-end QA answer accuracy on LoCoMo; Supermemory’s 59.7% is Precision@1, a retrieval metric. Different metrics, different sample sizes. Read each on its own terms, and benchmark both on your own workload.' },
+    { question: 'Isn’t Supermemory also open-source and self-hostable?', answer: 'Yes, but the two binaries ask different things of you. Supermemory’s self-hosted binary is zero-config, an embedded graph engine with local embeddings and no database to provision. Statewave’s self-hosted core asks you to run Postgres and pgvector. The read path also differs: deterministic, provenance-traced assembly with receipts, versus fast, recall-tuned reranked search with an extracted profile.' },
+    { question: 'Which one is faster?', answer: 'Supermemory is engineered for speed and publishes sub-300ms retrieval at scale. Statewave doesn’t headline a latency number; its read path is a single Postgres query, designed around determinism rather than raw throughput.' },
+    { question: 'What makes Statewave retrieval deterministic?', answer: 'Four ranking signals, kind priority, recency, task relevance, and temporal validity, combine to a fixed token budget. The same subject, task, and point in time always produce the same bytes.' },
+    { question: 'Does it work with Claude, Cursor, or Codex?', answer: 'Yes. One command boots the runtime, and its shipped MCP server connects any MCP-compatible client. Supermemory’s hosted platform also ships MCP and connectors; Statewave is self-hosted, so you operate Postgres and a container.' },
+    { question: 'Can I run it fully offline?', answer: 'Yes. Statewave’s storage is Postgres plus pgvector, self-hosted with no cloud dependency. Supermemory’s local binary also runs standalone, but its managed platform is a Cloudflare-edge service.' },
   ],
 }

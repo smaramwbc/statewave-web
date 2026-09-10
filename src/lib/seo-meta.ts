@@ -578,6 +578,9 @@ export interface FaqEntry {
    *  FAQPage JSON-LD only emits `question` and `answer`, so these are
    *  presentation-only — they don't change the structured data. */
   links?: ReadonlyArray<{ label: string; href: string }>
+  /** Optional topic chip shown above the question on the comparison
+   *  pages (OVERVIEW, MIGRATION, …). Presentation-only, like `links`. */
+  tag?: string
 }
 
 export function faqPageJsonLd(entries: readonly FaqEntry[]): JsonLd {

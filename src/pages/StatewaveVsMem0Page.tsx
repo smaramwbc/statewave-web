@@ -4,6 +4,7 @@ import { Heading } from '../components/Heading'
 import { Button } from '../components/Button'
 import { CodeCopyButton } from '../components/CodeCopyButton'
 import { usePageSEO } from '../lib/seo'
+import { PAGE_FAQS } from '../lib/page-faqs'
 
 const GITHUB_URL = 'https://github.com/smaramwbc/statewave'
 const BENCHMARKS_REPO_URL = 'https://github.com/smaramwbc/statewave-memory-benchmarks'
@@ -944,13 +945,7 @@ function MigrationSection() {
 
 /* ─── FAQ ─────────────────────────────────────────────────────────────────── */
 
-const FAQS = [
-  { q: 'How is Statewave different from Mem0?', a: 'Mem0 ranks memories by relevance for an id you pass. Statewave compiles raw episodes into typed memories, ranks them with a fixed scoring model to a token budget, applies policy on the read path, and returns an integrity-hashed receipt of exactly what was delivered.' },
-  { q: 'What makes retrieval deterministic?', a: 'A fixed scoring model: kind priority (3–10), recency (0–5), task relevance (0–8), and temporal validity (−4 to +3). The same subject, task, and budget produce the same bundle every time.' },
-  { q: 'What is a state-assembly receipt?', a: 'An immutable, ULID-addressable record of one context call. It carries a byte-level integrity hash of what was delivered and references the policy bundle hash, so ‘what did the agent see, under which policy’ is answerable forever.' },
-  { q: 'Does it work with Claude, Cursor, or Codex?', a: 'Yes. One command (npx @statewavedev/statewave) boots the runtime and auto-wires Claude Code, Claude Desktop, Cursor, VS Code Copilot, and Codex CLI. Any MCP-compatible client connects too.' },
-  { q: 'Can I run it fully offline?', a: 'Yes. Storage is Postgres-only and self-hosted. The heuristic compiler keeps everything on your network; nothing leaves unless you configure an LLM compiler or hosted embeddings.' },
-]
+const FAQS = PAGE_FAQS['/vs/mem0']!
 
 function FaqSection() {
   return (
@@ -964,9 +959,9 @@ function FaqSection() {
 
       <div className="mx-auto mt-10 max-w-3xl overflow-hidden rounded-[1.75rem] border border-theme-border">
         {FAQS.map((f, i) => (
-          <div key={f.q} className={`p-7 sm:p-8 ${i > 0 ? 'border-t border-theme-border' : ''}`}>
-            <h3 className="mb-2.5 font-heading text-[16.5px] font-bold text-theme-primary">{f.q}</h3>
-            <p className="text-[14.5px] leading-[1.6] text-theme-muted">{f.a}</p>
+          <div key={f.question} className={`p-7 sm:p-8 ${i > 0 ? 'border-t border-theme-border' : ''}`}>
+            <h3 className="mb-2.5 font-heading text-[16.5px] font-bold text-theme-primary">{f.question}</h3>
+            <p className="text-[14.5px] leading-[1.6] text-theme-muted">{f.answer}</p>
           </div>
         ))}
       </div>

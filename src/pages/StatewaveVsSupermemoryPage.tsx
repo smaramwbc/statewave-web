@@ -4,7 +4,7 @@ import { Heading } from '../components/Heading'
 import { Button } from '../components/Button'
 import { CodeCopyButton } from '../components/CodeCopyButton'
 import { usePageSEO } from '../lib/seo'
-import { faqPageJsonLd } from '../lib/seo-meta'
+import { PAGE_FAQS } from '../lib/page-faqs'
 
 /*
  * /vs/supermemory: the fourth sibling of /vs/mem0, /vs/letta, and /vs/zep,
@@ -1199,20 +1199,7 @@ function MigrationSection() {
 
 /* ─── FAQ ────────────────────────────────────────────────────────────────── */
 
-interface Faq {
-  q: string
-  a: string
-}
-
-const FAQS: Faq[] = [
-  { q: 'How is Statewave different from Supermemory?', a: 'Supermemory ingests documents and chats, extracts memories into a graph with user profiles, and answers search with hybrid retrieval and a reranker, tuned for recall and speed. Statewave compiles typed memories with confidence and validity, ranks them to a token budget, and returns a deterministic bundle with read-path governance and optional receipts.' },
-  { q: 'Can I compare Statewave’s 0.905 against Supermemory’s 59.7%?', a: 'No, they measure different things. Statewave’s 0.905 is end-to-end QA answer accuracy on LoCoMo; Supermemory’s 59.7% is Precision@1, a retrieval metric. Different metrics, different sample sizes. Read each on its own terms, and benchmark both on your own workload.' },
-  { q: 'Isn’t Supermemory also open-source and self-hostable?', a: 'Yes, but the two binaries ask different things of you. Supermemory’s self-hosted binary is zero-config, an embedded graph engine with local embeddings and no database to provision. Statewave’s self-hosted core asks you to run Postgres and pgvector. The read path also differs: deterministic, provenance-traced assembly with receipts, versus fast, recall-tuned reranked search with an extracted profile.' },
-  { q: 'Which one is faster?', a: 'Supermemory is engineered for speed and publishes sub-300ms retrieval at scale. Statewave doesn’t headline a latency number; its read path is a single Postgres query, designed around determinism rather than raw throughput.' },
-  { q: 'What makes Statewave retrieval deterministic?', a: 'Four ranking signals, kind priority, recency, task relevance, and temporal validity, combine to a fixed token budget. The same subject, task, and point in time always produce the same bytes.' },
-  { q: 'Does it work with Claude, Cursor, or Codex?', a: 'Yes. One command boots the runtime, and its shipped MCP server connects any MCP-compatible client. Supermemory’s hosted platform also ships MCP and connectors; Statewave is self-hosted, so you operate Postgres and a container.' },
-  { q: 'Can I run it fully offline?', a: 'Yes. Statewave’s storage is Postgres plus pgvector, self-hosted with no cloud dependency. Supermemory’s local binary also runs standalone, but its managed platform is a Cloudflare-edge service.' },
-]
+const FAQS = PAGE_FAQS['/vs/supermemory']!
 
 /* Native <details> disclosure, the same pattern as /benchmarks and the
  * homepage FAQ, so the section is keyboard- and AT-navigable for free and
@@ -1240,13 +1227,13 @@ function FaqSection() {
         <div className="mt-8 space-y-3">
           {FAQS.map((f, i) => (
             <details
-              key={f.q}
+              key={f.question}
               {...(i === 0 ? { open: true } : {})}
               className="group rounded-2xl border border-theme-border bg-surface-0 transition-colors hover:border-brand-500/35"
             >
               <summary className="flex cursor-pointer list-none items-center justify-between gap-6 px-6 py-4 [&::-webkit-details-marker]:hidden">
                 <h3 className="text-[16.5px] font-semibold leading-snug text-theme-primary text-pretty">
-                  {f.q}
+                  {f.question}
                 </h3>
                 <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-theme-border bg-surface-1 transition-transform duration-200 group-open:rotate-180 group-hover:border-brand-500/40">
                   <svg
@@ -1262,7 +1249,7 @@ function FaqSection() {
               </summary>
               <div className="px-6 pb-6">
                 <div className="mb-4 h-px bg-theme-border" />
-                <p className="text-[15px] leading-relaxed text-theme-secondary">{f.a}</p>
+                <p className="text-[15px] leading-relaxed text-theme-secondary">{f.answer}</p>
               </div>
             </details>
           ))}
@@ -1314,12 +1301,8 @@ function CTASection() {
 
 /* ─── Page ───────────────────────────────────────────────────────────────── */
 
-const FAQ_JSONLD = [
-  faqPageJsonLd(FAQS.map((f) => ({ question: f.q, answer: f.a }))),
-]
-
 export function StatewaveVsSupermemoryPage() {
-  usePageSEO({ jsonLd: FAQ_JSONLD })
+  usePageSEO()
 
   return (
     <div className="bg-surface-0">

@@ -5,7 +5,7 @@ import { Heading } from '../components/Heading'
 import { Button } from '../components/Button'
 import { CodeCopyButton } from '../components/CodeCopyButton'
 import { usePageSEO } from '../lib/seo'
-import { faqPageJsonLd } from '../lib/seo-meta'
+import { PAGE_FAQS } from '../lib/page-faqs'
 
 /*
  * /vs/letta: the sibling of /vs/mem0, and deliberately its twin: same section
@@ -1207,14 +1207,7 @@ function MigrationSection() {
 
 /* ─── FAQ ────────────────────────────────────────────────────────────────── */
 
-const FAQS = [
-  { q: 'How is Statewave different from Letta?', a: 'In Letta the agent manages its own memory: it edits memory blocks in a git-tracked context tree (MemFS) with tool calls, so retrieval is the model’s job and costs tokens every turn. Statewave compiles episodes into typed memories, ranks them to a token budget, applies policy on the read path, and returns an integrity-hashed receipt, with no model in the loop.' },
-  { q: 'Do I have to replace my agent framework?', a: 'No. Letta is a whole agent runtime; Statewave is only the memory layer. Keep your existing agent or framework and point its memory reads and writes at Statewave over REST, the SDKs, or MCP.' },
-  { q: 'What makes retrieval deterministic?', a: 'A fixed scoring model applied to a hybrid lexical and vector candidate set: kind priority (3–10), recency (0–5), task relevance (0–8), and temporal validity (−4 to +3). The same subject, task, budget, and point in time produce the same bundle every time.' },
-  { q: 'What is a state-assembly receipt?', a: 'An immutable, ULID-addressable record of one context call. It carries a byte-level integrity hash of what was delivered and references the policy bundle hash, so ‘what did the agent see, under which policy’ is answerable forever.' },
-  { q: 'Does it work with Claude, Cursor, or Codex?', a: 'Yes. One command (npx @statewavedev/statewave) boots the runtime, and its shipped MCP server connects any MCP-compatible client: Claude, Cursor, Copilot, and agent runtimes.' },
-  { q: 'Can I run it fully offline?', a: 'Yes. Storage is Postgres-only and self-hosted. The heuristic compiler keeps everything on your network; nothing leaves unless you configure an LLM compiler or hosted embeddings.' },
-]
+const FAQS = PAGE_FAQS['/vs/letta']!
 
 function FaqSection() {
   return (
@@ -1230,9 +1223,9 @@ function FaqSection() {
 
       <div className="mx-auto mt-10 max-w-3xl overflow-hidden rounded-[1.75rem] border border-theme-border">
         {FAQS.map((f, i) => (
-          <div key={f.q} className={`p-7 sm:p-8 ${i > 0 ? 'border-t border-theme-border' : ''}`}>
-            <h3 className="mb-2.5 font-heading text-[16.5px] font-bold text-theme-primary">{f.q}</h3>
-            <p className="text-[14.5px] leading-[1.6] text-theme-muted">{f.a}</p>
+          <div key={f.question} className={`p-7 sm:p-8 ${i > 0 ? 'border-t border-theme-border' : ''}`}>
+            <h3 className="mb-2.5 font-heading text-[16.5px] font-bold text-theme-primary">{f.question}</h3>
+            <p className="text-[14.5px] leading-[1.6] text-theme-muted">{f.answer}</p>
           </div>
         ))}
       </div>
@@ -1282,12 +1275,8 @@ function CTASection() {
 
 /* ─── Page ───────────────────────────────────────────────────────────────── */
 
-const FAQ_JSONLD = [
-  faqPageJsonLd(FAQS.map((f) => ({ question: f.q, answer: f.a }))),
-]
-
 export function StatewaveVsLettaPage() {
-  usePageSEO({ jsonLd: FAQ_JSONLD })
+  usePageSEO()
 
   return (
     <div className="bg-surface-0">

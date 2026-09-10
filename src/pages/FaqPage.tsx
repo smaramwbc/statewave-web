@@ -21,8 +21,13 @@ export function FaqPage() {
           FREQUENTLY ASKED QUESTIONS
         </div>
 
+        {/* level={1}: this is the page's title, and <Heading> defaults to
+            h2 — /faq was the one public page shipping no <h1> at all, so
+            its document outline started at h2 and every question sat under
+            nothing. Styling is unchanged; the classes carry the size. */}
         <Heading
           id="faq"
+          level={1}
           className="font-heading text-4xl md:text-[52px] font-bold leading-[1.08] tracking-[-0.03em] text-theme-primary"
         >
           Questions about Statewave
