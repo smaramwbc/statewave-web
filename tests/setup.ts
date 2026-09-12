@@ -34,3 +34,32 @@ beforeEach(() => {
     ),
   );
 });
+
+// happy-dom ≥ 20.12 implements the browser contract for
+// `Animation.cancel()`: the pending `animation.finished` promise REJECTS
+// with an AbortError. In a real browser that rejection is routinely
+// unobserved and harmless; under vitest it fails the run as an unhandled
+// rejection during framer-motion's teardown, while every assertion
+// passes. Defuse exactly that: pre-attach a catch to `finished` around
+// cancel() (and swallow a synchronous AbortError for older happy-dom
+// builds that threw instead). Remove once motion-dom guards its
+// teardown against the cancel rejection.
+const AnimationCtor = (globalThis as { Animation?: { prototype: Animation } }).Animation;
+if (AnimationCtor) {
+  const originalCancel = AnimationCtor.prototype.cancel;
+  const swallowAbort = (error: unknown) => {
+    if ((error as { name?: string })?.name !== "AbortError") throw error;
+  };
+  AnimationCtor.prototype.cancel = function cancelTolerantOfAbort(this: Animation) {
+    try {
+      this.finished?.catch?.(swallowAbort);
+    } catch {
+      /* finished getter itself may throw on detached animations */
+    }
+    try {
+      originalCancel.call(this);
+    } catch (error) {
+      swallowAbort(error);
+    }
+  };
+}
