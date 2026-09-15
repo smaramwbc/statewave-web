@@ -48,6 +48,8 @@ Statewave stores immutable episodes, compiles them into typed memories with prov
 - [Idempotent Compilation and Conflict Resolution](https://www.statewave.ai/blog/idempotent-compilation-and-conflict-resolution): The four meanings of idempotent, why a TTL'd dedup marker won't protect derived facts, and why supersession beats overwrite.
 - [AI Support Agents: Why Session State Beats More Memory](https://www.statewave.ai/blog/ai-support-agent-session-state): The ranking arithmetic that makes a support agent read ticket state instead of similarity, and the four schema mistakes that break it.
 - [Repeat-Issue Detection in Customer Support Automation](https://www.statewave.ai/blog/repeat-issue-detection-customer-support-automation): Why a resolved session is suppressed on purpose, the two-point margin that surfaces the prior fix, and what to write in the resolution summary.
+- [6 Best Open-Source Alternatives to Mem0 (2026)](https://www.statewave.ai/blog/open-source-alternatives-to-mem0): What Mem0's self-hosted build leaves out, which of the six alternatives hold features back from their free edition, and how to pick by requirement.
+- [The Customer Health Score Your Support Agent Can Explain](https://www.statewave.ai/blog/customer-health-score-handoff-context-packs): The eight scoring signals and their caps, why the number drifts on quiet days, and what a handoff context pack keeps under its token budget.
 
 ## Documentation
 

@@ -374,6 +374,65 @@ export const POST_FAQ: Readonly<Record<string, readonly FaqEntry[]>> = {
         'Yes. The same record feeds the customer health score, SLA resolution-time and breach calculations, and the handoff pack that a human or another agent receives on escalation. One skipped write degrades all four surfaces.',
     },
   ],
+  'open-source-alternatives-to-mem0': [
+    {
+      question: 'Is Mem0 open source?',
+      answer:
+        "Yes, Mem0's SDK is Apache-2.0. However, Mem0's Platform vs Open Source page lists capabilities that exist only on the hosted Platform, including graph memory, temporal reasoning and webhooks. By our count there are 14 of them (as of September 2026). Mem0 also says its published benchmark scores reflect platform-only optimizations.",
+    },
+    {
+      question: "Does Mem0's open-source version support graph memory?",
+      answer:
+        "No. The v3 pipeline removed the Neo4j, Memgraph, Kuzu, Apache AGE and Neptune drivers from the OSS SDK. Mem0's migration guide points OSS users who need graph memory to the paid Platform.",
+    },
+    {
+      question: 'Can I migrate from Mem0 to Statewave without rewriting my agent?',
+      answer:
+        "Mostly, yes. Mem0's user_id becomes a Statewave subject_id, add becomes an episode write, and search becomes a context request. Statewave's docs describe a bulk migration that carries each original Mem0 memory ID in the episode's provenance, so you can trace each memory back to where it came from.",
+    },
+    {
+      question: 'Are LoCoMo and LongMemEval scores comparable across vendors?',
+      answer:
+        "Only when the benchmark code, models and judge are identical. The same system can score very differently on different setups. Statewave's comparison runs all three backends through one benchmark suite with gpt-4o as answerer and judge, and anyone can rerun it.",
+    },
+    {
+      question: 'Which Mem0 alternative runs fully offline?',
+      answer:
+        "Statewave's heuristic compiler runs entirely locally with the embedding provider set to none or stub, and no data leaves your network. Supermemory local and LangMem with local models can also run offline, though with the limits described above.",
+    },
+    {
+      question: 'Is Zep still open source?',
+      answer:
+        'Zep stopped maintaining its self-hosted Community Edition. Its open-source work now goes into Graphiti, a temporal knowledge graph library you run on your own graph database.',
+    },
+  ],
+  'customer-health-score-handoff-context-packs': [
+    {
+      question: 'What is a good customer health score?',
+      answer:
+        'In Statewave, 70 or above is healthy, 40 to 69 is watch, and under 40 is at_risk. The band matters more than the exact number, because the factor list explains every point and the webhooks fire on band changes. Other platforms let admins set their own thresholds, so compare bands rather than raw scores across tools.',
+    },
+    {
+      question: "Does Statewave's customer health score use AI or machine learning?",
+      answer:
+        'No. The score is fixed arithmetic over support signals, with no model call and nothing stored in the scoring path. The same history at the same moment always returns the same score and the same factors, which is what makes it safe to put in an escalation brief.',
+    },
+    {
+      question: 'How often is the customer health score updated?',
+      answer:
+        'It is computed on demand, each time you call the health endpoint or generate a handoff pack. Because two signals depend on elapsed time, the score can change between calls without new activity. Run a scheduled health request for accounts with open tickets if you need timely alerts.',
+    },
+    {
+      question: 'Can I change the health score weights or thresholds?',
+      answer:
+        'Not through configuration. The weights, caps, and 70 and 40 band thresholds are constants in health.py, so changing them means running a modified build. The separate /v1/subjects/{subject_id}/sla endpoint does accept custom first-response and resolution thresholds as query parameters.',
+    },
+    {
+      question: 'How is a handoff context pack different from an AI-written conversation summary?',
+      answer:
+        'A handoff pack is assembled from stored memory and ticket state without calling a model, so it cannot invent a detail that was never recorded. It stays inside a fixed token budget, keeps sections in priority order, and can emit a receipt that records exactly what was delivered. A model-written summary can read more smoothly, but it cannot show you afterward what it left out.',
+    },
+  ],
 } as const
 
 export const HOWTO_SLUGS: readonly string[] = ['persistent-memory-for-ai-support-agents']

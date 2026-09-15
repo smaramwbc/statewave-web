@@ -1,0 +1,344 @@
+---
+title: "6 Best Open-Source Alternatives to Mem0 (2026)"
+slug: open-source-alternatives-to-mem0
+date: "2026-09-14T09:00:00+02:00"
+description: Mem0's self-hosted build lacks graph memory, webhooks, and audit logs. Compare six open-source alternatives on benchmarks, governance, and what's actually free.
+author: Saber Maram
+category: Guides
+image: /images/blog/open-source-alternatives-to-mem0/og.png
+headerImage: /images/blog/open-source-alternatives-to-mem0/header.png
+tags:
+  - comparison
+  - open-source
+  - memory
+---
+
+Statewave is our answer to the question this post asks. What separates it from Mem0 is not a leaderboard position; it is what the free build includes: provenance, signed audit receipts and access policies, which Mem0 either charges for or leaves out of self-hosting.
+
+We build Statewave, so weigh the first entry accordingly. Our head-to-head methodology is public and our benchmark fork is open, so you can diff it against Mem0's upstream and run the comparison yourself.
+
+**Open-source Mem0 alternatives covered:**
+
+- **Statewave**: a memory runtime on Postgres that keeps a record of what each agent saw. Best for support agents, multi-agent pipelines, and regulated data.
+- **Graphiti (by Zep)**: a temporal knowledge graph. Best when facts change over time.
+- **Letta**: agents that edit their own memory. Best for building the agent from scratch.
+- **Cognee**: graph plus vector memory over documents and code.
+- **LangMem**: memory building blocks for LangGraph apps.
+- **Supermemory (local)**: memory and RAG on a single machine.
+
+Mem0 earned its place as the default. It takes three lines of code to add, ships Python and JavaScript SDKs, and offers a hosted API. Mem0 [raised $24M in October 2025](https://www.prnewswire.com/news-releases/mem0-raises-24m-series-a-to-build-memory-layer-for-ai-agents-302597157.html) and reported API calls rising from 35 million in Q1 to 186 million in Q3 2025. CrewAI, Flowise and Langflow use it natively, and AWS picked it as the exclusive memory provider for its Agent SDK. The [GitHub repo](https://github.com/mem0ai/mem0) had passed 65,000 stars as of September 2026. For personalizing a chat assistant, that is hard to beat.
+
+The problems start when you self-host, need an audit trail, or run several agents against the same memory. This post covers what changes at that point. It then compares six open-source alternatives against the reasons teams actually leave.
+
+## Why do teams look for alternatives to Mem0?
+
+Teams rarely leave Mem0 because retrieval looked weak in a demo. They leave when production requirements run into the self-hosted edition. The same four reasons keep coming up.
+
+<figure className="my-8">
+<img src="/images/blog/open-source-alternatives-to-mem0/image10.gif" alt="Fourteen capabilities Mem0's docs list as Platform-only, grouped into retrieval and ranking, data operations, tenancy and visibility, and operations." width="937" height="525" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+<figcaption className="mt-3 text-[14px] leading-6 text-theme-secondary/70">Mem0's Platform vs Open Source page lists these as Platform-only, by our count 14 capabilities (as of September 2026). Graph memory was removed from the open-source SDK in v3.</figcaption>
+</figure>
+
+### 1. The open-source build is a different product
+
+Mem0's [Platform vs Open Source page](https://docs.mem0.ai/platform/platform-vs-oss) lists what self-hosted users don't get:
+
+- graph memory, memory decay, temporal reasoning and Dream background consolidation
+- webhooks, memory export, batch updates and deletes, feedback signals, summaries and custom categories
+- app-level scoping, orgs and projects, and a project-wide event log
+- the web dashboard
+
+The same page says the OSS SDK returns a not-supported error if you pass it the decay or temporal parameters. By our count, that is 14 capabilities the page lists as Platform-only (as of September 2026).
+
+Graph memory is the clearest example. When Mem0 moved its open-source SDK to the v3 pipeline, it deleted about 4,000 lines of external graph store drivers, covering Neo4j, Memgraph, Kuzu, Apache AGE and Neptune. Its [migration guide](https://docs.mem0.ai/migration/oss-v2-to-v3) tells OSS users who need graph memory to move to the Platform.
+
+Mem0's headline numbers come with a caveat too. The README says its benchmark scores come from the managed platform, which has proprietary optimizations the open-source SDK does not.
+
+### 2. Graph memory and real retrieval volume start at $249 a month
+
+Mem0's [hosted plans](https://mem0.ai/pricing), as of September 2026, are:
+
+- **Hobby:** free, 1,000 retrievals a month
+- **Starter:** $19, 5,000 retrievals a month
+- **Pro:** $249, 50,000 retrievals a month
+
+Graph memory and Dream consolidation start at Pro.
+
+Retrieval limits hit before storage limits do. Picture a support agent handling 300 conversations a day, with three memory lookups per conversation. That is about 27,000 retrievals a month, more than five times the Starter allowance, which puts you on Pro.
+
+### 3. Audit logs, on-prem and SSO are Enterprise-only
+
+On Mem0's pricing page, on-prem deployment, audit logs, SSO and SLA support appear only in the custom-priced Enterprise plan. Self-hosting doesn't fill that gap. The OSS edition keeps only a history for each individual memory, with no project-wide log of adds, searches and deletes. It can scope memory by `user_id`, `agent_id` and `run_id`, but it has no `app_id` for separating tenants.
+
+Some teams have to prove what an agent saw before it answered: a support team under GDPR, or a fintech facing an auditor. For them this is the core requirement, not an extra. [Governing what the model actually sees](/blog/ai-data-governance-for-ai-agents) happens on the retrieval path, and the retrieval path is exactly where Mem0 OSS keeps no records.
+
+### 4. You can't reproduce what the agent saw
+
+Mem0 search returns whichever memories rank highest at the moment you query. The OSS build doesn't store the exact set of memories a response was built from. So when a customer asks why the agent said their refund was approved, you end up digging through logs instead of looking up a record. That is the case for [an audit trail for agent memory](/blog/agent-memory-provenance-audit-trails).
+
+## What does "open source" actually mean for a memory layer?
+
+An Apache-2.0 badge doesn't guarantee that the free build includes the features you are switching for. We checked Mem0 and the five alternatives that appear most often in these comparisons. **Four of those six document a free, self-hosted edition that offers less than the paid one.**
+
+- **Mem0:** by our count, 14 Platform-only capabilities, and graph memory removed from OSS.
+- **Zep:** [stopped maintaining Community Edition](https://blog.getzep.com/announcing-a-new-direction-for-zeps-open-source-strategy/) and moved its open-source work to Graphiti. Graphiti is a library, not a memory service.
+- **Cognee:** running the whole memory layer on Postgres [ships as a demo feature](https://github.com/topoteretes/cognee). The production-ready version is a licensed product.
+- **Supermemory:** the [local build](https://supermemory.ai/docs/self-hosting/local-vs-enterprise) runs as one process on one machine with a single API key. Proprietary extraction models, multi-member orgs and connectors are Enterprise features.
+
+LangMem ships its memory engine in full, and so does Letta, which keeps only cloud-hosted agent memory as a paid service. Statewave has no paid edition at all.
+
+<figure className="my-8">
+<img src="/images/blog/open-source-alternatives-to-mem0/image9.gif" alt="Table of seven memory projects showing what ships in the free self-hosted build against what is reserved for paid or managed, with each labelled fully open, mostly open or open core." width="937" height="562" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+<figcaption className="mt-3 text-[14px] leading-6 text-theme-secondary/70">Four of those six, Mem0, Zep, Cognee and Supermemory, hold something back from their self-hosted edition.</figcaption>
+</figure>
+
+Ask every candidate one question: is the feature I'm leaving Mem0 for included in the free build today, under the same license?
+
+## Best Mem0 alternatives compared
+
+A quick comparison of open-source memory tools based on architecture, control, auditability, and production readiness, as of September 2026.
+
+| Tool | Memory model | You run | Audit in the free build | Public benchmark | Best for |
+| ----- | ----- | ----- | ----- | ----- | ----- |
+| Mem0 OSS (baseline, Apache-2.0) | Extracted facts + vector search | Vector store, LLM, embedder | Per-memory history only | Same-suite run, methodology public | Quick personalization |
+| **Statewave** (Apache-2.0) | Typed memories compiled from events, ranked bundles | Postgres + pgvector | Source links, signed receipts, policies | Same-suite run, methodology public | Production, support, multi-agent, regulated data |
+| Graphiti (Apache-2.0) | Temporal knowledge graph | Neo4j, FalkorDB or Neptune | Historical graph edges | DMR 94.8% (Zep paper) | Facts that change over time |
+| Letta (Apache-2.0) | Agent-edited memory blocks | Letta App Server | Git-tracked memory | LoCoMo 74.0% (Letta blog) | Stateful agents from scratch |
+| Cognee (Apache-2.0) | Graph + vector over docs and code | Pluggable stores | Inspectable evidence | BEAM report | Knowledge-heavy memory |
+| LangMem (MIT) | Memory tools + background manager | LangGraph store | None built in | None published | LangGraph apps |
+| Supermemory local (MIT) | Memory + RAG engine | One local process | Server logs | Self-reported #1 LongMemEval | Single-machine memory |
+
+Benchmark numbers from different test setups and model stacks can't be compared directly. Only the Mem0 and Statewave rows come from the same run, on a public fork of Mem0's suite that you can clone and rerun yourself.
+
+## The 6 best open-source alternatives to Mem0
+
+These alternatives take different approaches to memory, from vector search and knowledge graphs to governed, agent-managed memory.
+
+### 1. Statewave: governed, reproducible memory for production agents
+
+<figure className="my-8">
+<img src="/images/blog/open-source-alternatives-to-mem0/image7.gif" alt="The smaramwbc/statewave repository on GitHub, described as an open-source memory runtime for AI agents with reproducible, provenance-tagged context bundles." width="937" height="370" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+</figure>
+
+[Statewave](https://github.com/smaramwbc/statewave) is a memory runtime, not a vector store. It works in four steps:
+
+1. **Record:** the agent's raw events are saved as immutable, append-only "episodes."
+2. **Compile:** a compiler turns episodes into typed memories. Each memory carries a confidence score, a validity window and the IDs of the episodes it came from.
+3. **Context:** at answer time, Statewave builds a ranked context bundle that fits a token budget you set.
+4. **Govern:** policies, receipts and deletion control what each caller can see and leave a record of what it saw.
+
+The same subject, task and token budget over the same memory state always return the same bytes. That determinism separates compile-then-use from query-time retrieval, where random variation in results leaks into every answer.
+
+<figure className="my-8">
+<img src="/images/blog/open-source-alternatives-to-mem0/image8.gif" alt="Accuracy on Mem0's own benchmark harness for LoCoMo and LongMemEval, comparing Statewave, Mem0 cloud and Mem0 OSS with only the memory backend changed between runs, noting that Mem0 OSS retrieves at most 20 memories per query against roughly 200 for the other two." width="937" height="456" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+<figcaption className="mt-3 text-[14px] leading-6 text-theme-secondary/70">Same benchmark code, same judge. Only the memory backend changes between runs.</figcaption>
+</figure>
+
+**How we ran the benchmark:** We forked Mem0's own benchmark code and changed only the memory backend, with Mem0's judge unchanged and gpt-4o as both answerer and judge. We also applied three fixes to Mem0's client code, and every one of them raises Mem0's scores:
+
+- a corrected add URL for Mem0 cloud (without it, cloud ingested nothing)
+- a fixed search filter for Mem0 OSS
+- date grounding for Mem0 OSS
+
+One asymmetry runs the other way, and you should weigh it. Mem0's open-source library retrieves at most 20 memories per query by default, against roughly 200 for Statewave and Mem0 cloud. Part of any gap to Mem0 OSS is that retrieval budget rather than ranking quality, which is why the comparison with Mem0 cloud, where budgets are comparable, is the fairer one.
+
+Each result is a single run. LongMemEval used 30 questions, so treat it as directional only. Mem0 publishes higher figures for its newer algorithm, 92.5 on LoCoMo and 94.4 on LongMemEval. Those came from a different model stack than the one our fork runs. You can run the comparison yourself: [clone the benchmark repo](https://github.com/smaramwbc/statewave-memory-benchmarks) and [diff the fork against upstream](https://github.com/mem0ai/memory-benchmarks/compare/main...smaramwbc:statewave-memory-benchmarks:main). The [full methodology](/benchmarks) is on the benchmarks page.
+
+**How Statewave addresses each reason teams leave Mem0:**
+
+| Why teams leave Mem0 | What Statewave does |
+| ----- | ----- |
+| The OSS build is cut down | There is no paid edition. The server, SDKs, connectors and admin console are all Apache-2.0. |
+| Graph and temporal features cost $249 | The free build ranks memories by kind, recency, task relevance, semantic similarity and whether they are still valid. Older overlapping memories are automatically superseded. |
+| Audit logs and tenancy are Enterprise-only | HMAC-signed receipts that can be replayed, sensitivity labels with YAML deny and redact policies, tenant isolation through an `X-Tenant-ID` header, and per-tenant region pinning. |
+| You can't reproduce what the agent saw | Every memory links back to its source episodes, and every context call leaves a receipt. |
+
+**What the reference repos show:**
+
+- [**statewave-multi-agent-memory**](https://github.com/smaramwbc/statewave-multi-agent-memory): Three analyst agents ingest conflicting sources at the same time. One records Stripe's old fee of 3.5% + 35¢ and another records the new 2.9% + 30¢. When the two memories reach a word-overlap score of 0.6 or higher, the compiler marks the older one superseded. The synthesis agent only ever sees 2.9%, and you write no merge logic. See [how conflict resolution keeps memory clean](/blog/idempotent-compilation-and-conflict-resolution).
+- [**statewave-multi-agent-shared-context**](https://github.com/smaramwbc/statewave-multi-agent-shared-context): A Planner agent deprecates a legacy auth module. Because the Coder agent reads shared context before writing code, it skips the deprecated module instead of rebuilding it. A timeline inspector shows what each agent knew when it acted, and the repo includes a CrewAI tool wrapper.
+- [**statewave-personal-assistant**](https://github.com/smaramwbc/statewave-personal-assistant): Memory is added with two API calls around the LLM call. For a user with six sessions, raw history is about 2,800 tokens. Statewave fits the ranked version into about 761 tokens under an 800-token budget, roughly 73% fewer. See [how token-bounded context assembly works](/blog/token-bounded-context-assembly).
+
+<figure className="my-8">
+<img src="/images/blog/open-source-alternatives-to-mem0/image3.gif" alt="The Statewave core loop of record, compile, context and govern next to three parallel agents reading and writing one shared subject." width="937" height="468" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+<figcaption className="mt-3 text-[14px] leading-6 text-theme-secondary/70">One memory loop, shared by every agent, with a receipt for every context call.</figcaption>
+</figure>
+
+**For support teams,** Statewave adds session-aware ranking, handoff packs for escalations, health scores from 0 to 100 and SLA tracking. It also offers [repeat-issue detection](/blog/repeat-issue-detection-customer-support-automation), and [connectors](/connectors) feed in history from Zendesk, Intercom, Freshdesk, GitHub, Slack and Jira.
+
+**Getting started** takes one command: `npx @statewavedev/statewave`, which boots Statewave in demo mode with the API, admin console and Postgres running locally. It wires Statewave into Claude Code, Cursor, VS Code Copilot and Codex CLI. The project has 708 unit tests and 56 eval assertions.
+
+**Honest limits:**
+
+- Self-hosted only, with no managed cloud.
+- No first-class entity graph.
+- Runs on a single Postgres database. Multiple API replicas are verified, but cross-region clustering isn't available.
+- Tenant isolation is enforced in the application, without Postgres row-level security.
+- Bundles are denser than a plain fact store, so each answer uses more tokens.
+
+**Best for:** teams whose memory must stay in their own infrastructure and be explainable to an auditor or customer. That covers support agents, multi-agent pipelines and regulated SaaS. If you're coming from Mem0, the [migration recipe](https://github.com/smaramwbc/statewave-docs/blob/main/comparisons/mem0.md) maps `user_id` to `subject_id`, `add` to `POST /v1/episodes` and `search` to `POST /v1/context`. You can have it [running locally in about two minutes](/developers).
+
+### 2. Graphiti (by Zep): temporal knowledge graphs
+
+<figure className="my-8">
+<img src="/images/blog/open-source-alternatives-to-mem0/image2.gif" alt="The getzep/graphiti repository on GitHub, described as building real-time knowledge graphs for AI agents." width="935" height="370" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+</figure>
+
+[Graphiti](https://github.com/getzep/graphiti) builds a knowledge graph that records when each relationship was true, so an agent can answer questions about how facts changed. In the [Zep paper](https://arxiv.org/abs/2501.13956), Zep beat MemGPT on the DMR benchmark, 94.8% to 93.4%, and improved LongMemEval accuracy by up to 18.5% over baseline implementations.
+
+The trade-off is operations. You run Neo4j, FalkorDB or Neptune, and Kuzu support is deprecated. Zep's full memory service is now cloud-only. There are no receipts or access policies.
+
+**Best for:** CRM, compliance or clinical agents where "who owned this account before March?" is a real question.
+
+### 3. Letta: agents that manage their own memory
+
+<figure className="my-8">
+<img src="/images/blog/open-source-alternatives-to-mem0/image6.gif" alt="The Letta repository on GitHub, the framework for agents that edit their own memory blocks." width="937" height="372" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+</figure>
+
+In Letta, the agent edits its own memory blocks. Context is tracked in git, and scheduled "dreaming" consolidates memory in the background. The original repo is now a landing page, and active source lives in [letta-code](https://github.com/letta-ai/letta-code). Letta agents on gpt-4o-mini [scored 74.0% on LoCoMo](https://www.letta.com/blog/benchmarking-ai-agent-memory/) just by storing conversation history in files, and Letta itself took that as a sign that current memory benchmarks may not mean much.
+
+The trade-off: Letta is a framework you adopt, not a layer you drop into an existing agent.
+
+**Best for:** new agents where you want the agent itself in charge of its memory.
+
+### 4. Cognee: graph plus vector memory over documents and code
+
+<figure className="my-8">
+<img src="/images/blog/open-source-alternatives-to-mem0/image11.gif" alt="The topoteretes/cognee repository on GitHub, a graph and vector memory engine for documents and code." width="936" height="373" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+</figure>
+
+[Cognee](https://github.com/topoteretes/cognee) turns text into entities and relationships, and code into a graph of symbols. Its API has four operations: **remember**, **recall**, **improve** and **forget**. It ships plugins for Claude Code and Codex.
+
+Watch the edition line. Running the whole memory layer on a single Postgres database is a demo feature in the open-source build.
+
+**Best for:** agents that need to reason over documentation, tickets and codebases, not just conversations.
+
+### 5. LangMem: memory building blocks for LangGraph
+
+<figure className="my-8">
+<img src="/images/blog/open-source-alternatives-to-mem0/image1.gif" alt="The langchain-ai/langmem repository on GitHub, a memory tools library for LangGraph applications." width="935" height="368" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+</figure>
+
+[LangMem](https://github.com/langchain-ai/langmem) is MIT-licensed. It gives agents tools to save and search memory during a conversation, plus a background manager that consolidates what they learn. It plugs natively into LangGraph's store.
+
+Two cautions. The default in-memory store loses everything on restart, so production needs a Postgres-backed store. And the [last PyPI release](https://pypi.org/project/langmem/) was 0.0.30 in October 2025.
+
+**Best for:** teams already committed to LangGraph that want the thinnest possible memory layer.
+
+### 6. Supermemory (local): memory plus RAG on one machine
+
+<figure className="my-8">
+<img src="/images/blog/open-source-alternatives-to-mem0/image4.gif" alt="The supermemoryai/supermemory repository on GitHub, a combined memory and RAG engine behind one API." width="936" height="368" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+</figure>
+
+[Supermemory](https://github.com/supermemoryai/supermemory) combines memory and RAG behind the same API as its hosted platform. It reports first place on LongMemEval and LoCoMo, and it publishes MemoryBench so others can compare providers.
+
+The local build runs as one process on one machine with a single API key. Multi-member orgs, connectors and its tuned extraction models are Enterprise features.
+
+**Best for:** personal assistants, prototypes and air-gapped experiments on a single box.
+
+## How do you choose the right Mem0 alternative?
+
+Start from the reason you're leaving Mem0, not from a leaderboard. Five questions settle most evaluations:
+
+1. **Does the free build include the feature you're switching for?** Check the vendor's own edition-comparison or pricing page, not a listicle.
+2. **Can you prove what the agent saw?** If an auditor or customer might ask, you need links back to source events and a per-call record. Of the six here, Statewave is the only one whose free build documents both.
+3. **What infrastructure do you run?** A graph database, a vector database and an LLM are three systems to patch. Statewave needs one Postgres database. Here is [why Postgres-only](/blog/self-hosted-memory-postgres-pgvector).
+4. **Do several agents or tenants share memory?** If so, test conflict handling and tenant boundaries before retrieval quality. See [where tenant boundaries belong](/blog/multi-tenant-isolation-in-ai-memory).
+5. **Can you rerun the benchmark yourself?** A benchmark you can clone and rerun beats a chart you can't.
+
+<figure className="my-8">
+<img src="/images/blog/open-source-alternatives-to-mem0/image5.gif" alt="A six-step decision tree answered top to bottom, routing auditability to Statewave, changing facts to Graphiti, self-editing memory to Letta, docs and code to Cognee, LangGraph to LangMem, and one machine to Supermemory local." width="937" height="432" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+<figcaption className="mt-3 text-[14px] leading-6 text-theme-secondary/70">Pick by requirement, not by star count.</figcaption>
+</figure>
+
+## Which tool should you pick?
+
+The fastest test is to run Statewave next to your current setup this afternoon. Boot it with `npx @statewavedev/statewave`, replay a week of real conversations through the [migration recipe](https://github.com/smaramwbc/statewave-docs/blob/main/comparisons/mem0.md), and compare the two context bundles side by side. If you're unsure whether you need memory or retrieval, read [AI agent memory vs RAG](/blog/ai-agent-memory-vs-rag) first.
+
+Mem0, Zep, Graphiti, Letta, Cognee, LangMem and Supermemory are trademarks of their respective owners; used here for factual comparison. Pricing, feature lists and star counts are as of September 2026 and change frequently, so check each vendor's own page before you rely on them.
+
+## FAQ
+
+<div className="my-8 space-y-3">
+
+<details open className="blog-faq group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35">
+<summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none">
+<h3 className="text-[18px] font-semibold leading-snug text-theme-primary !m-0">1. Is Mem0 open source?</h3>
+<div className="blog-faq-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40">
+<svg className="h-5 w-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" /></svg>
+</div>
+</summary>
+<div className="px-7 pb-7">
+<div className="h-px bg-theme-primary/10 mb-6" />
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">Yes, Mem0's SDK is Apache-2.0. However, Mem0's Platform vs Open Source page lists capabilities that exist only on the hosted Platform, including graph memory, temporal reasoning and webhooks. By our count there are 14 of them (as of September 2026). Mem0 also says its published benchmark scores reflect platform-only optimizations.</p>
+</div>
+</details>
+
+<details className="blog-faq group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35">
+<summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none">
+<h3 className="text-[18px] font-semibold leading-snug text-theme-primary !m-0">2. Does Mem0's open-source version support graph memory?</h3>
+<div className="blog-faq-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40">
+<svg className="h-5 w-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" /></svg>
+</div>
+</summary>
+<div className="px-7 pb-7">
+<div className="h-px bg-theme-primary/10 mb-6" />
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">No. The v3 pipeline removed the Neo4j, Memgraph, Kuzu, Apache AGE and Neptune drivers from the OSS SDK. Mem0's migration guide points OSS users who need graph memory to the paid Platform.</p>
+</div>
+</details>
+
+<details className="blog-faq group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35">
+<summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none">
+<h3 className="text-[18px] font-semibold leading-snug text-theme-primary !m-0">3. Can I migrate from Mem0 to Statewave without rewriting my agent?</h3>
+<div className="blog-faq-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40">
+<svg className="h-5 w-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" /></svg>
+</div>
+</summary>
+<div className="px-7 pb-7">
+<div className="h-px bg-theme-primary/10 mb-6" />
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">Mostly, yes. Mem0's <code>user_id</code> becomes a Statewave <code>subject_id</code>, <code>add</code> becomes an episode write, and <code>search</code> becomes a context request. Statewave's docs describe a bulk migration that carries each original Mem0 memory ID in the episode's provenance, so you can trace each memory back to where it came from.</p>
+</div>
+</details>
+
+<details className="blog-faq group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35">
+<summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none">
+<h3 className="text-[18px] font-semibold leading-snug text-theme-primary !m-0">4. Are LoCoMo and LongMemEval scores comparable across vendors?</h3>
+<div className="blog-faq-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40">
+<svg className="h-5 w-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" /></svg>
+</div>
+</summary>
+<div className="px-7 pb-7">
+<div className="h-px bg-theme-primary/10 mb-6" />
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">Only when the benchmark code, models and judge are identical. The same system can score very differently on different setups. Statewave's comparison runs all three backends through one benchmark suite with gpt-4o as answerer and judge, and anyone can rerun it.</p>
+</div>
+</details>
+
+<details className="blog-faq group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35">
+<summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none">
+<h3 className="text-[18px] font-semibold leading-snug text-theme-primary !m-0">5. Which Mem0 alternative runs fully offline?</h3>
+<div className="blog-faq-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40">
+<svg className="h-5 w-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" /></svg>
+</div>
+</summary>
+<div className="px-7 pb-7">
+<div className="h-px bg-theme-primary/10 mb-6" />
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">Statewave's heuristic compiler runs entirely locally with the embedding provider set to none or stub, and no data leaves your network. Supermemory local and LangMem with local models can also run offline, though with the limits described above.</p>
+</div>
+</details>
+
+<details className="blog-faq group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35">
+<summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none">
+<h3 className="text-[18px] font-semibold leading-snug text-theme-primary !m-0">6. Is Zep still open source?</h3>
+<div className="blog-faq-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40">
+<svg className="h-5 w-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" /></svg>
+</div>
+</summary>
+<div className="px-7 pb-7">
+<div className="h-px bg-theme-primary/10 mb-6" />
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">Zep stopped maintaining its self-hosted Community Edition. Its open-source work now goes into Graphiti, a temporal knowledge graph library you run on your own graph database.</p>
+</div>
+</details>
+
+</div>
