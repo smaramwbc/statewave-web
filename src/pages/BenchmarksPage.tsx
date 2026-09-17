@@ -150,15 +150,23 @@ const FIXES: readonly { helps: SeriesKey; title: string; body: string }[] = [
 
 const systemName = (key: SeriesKey) => SYSTEMS.find((s) => s.key === key)?.name ?? key
 
+/* Claims are scoped to the run they come from. One run gives a result, not a
+ * ranking that repeats: the LoCoMo gap to the cloud tier is about nine
+ * questions out of 1,540, and a single LongMemEval question moves that score
+ * by 0.033. So only the margin over mem0 OSS is stated as a lead; the narrower
+ * ones are stated as figures, with the matching "we don't claim it" line
+ * opposite them in NON_CLAIMS. */
 const CLAIMS = [
-  `Beats its open-source peer on both: LoCoMo ${delta(STATEWAVE.locomo, MEM0_OSS.locomo)}, LongMemEval ${delta(STATEWAVE.lme, MEM0_OSS.lme)}.`,
-  `Edges the paid cloud tier too, ${fmt(STATEWAVE.locomo)} vs ${fmt(MEM0_CLOUD.locomo)}, while staying free and self-hosted.`,
+  `Leads its open-source peer in this run: LoCoMo ${delta(STATEWAVE.locomo, MEM0_OSS.locomo)} at ${METRICS.locomo.n}, LongMemEval ${delta(STATEWAVE.lme, MEM0_OSS.lme)} at ${METRICS.lme.n}.`,
+  `Matches the paid cloud tier, ${fmt(STATEWAVE.locomo)} vs ${fmt(MEM0_CLOUD.locomo)} on LoCoMo, while staying free and self-hosted.`,
   'Holds against mem0’s best config; our client fixes are applied to their backends, not withheld.',
   'Reproduces from one public, Apache-2.0 code path with mem0’s judge unchanged.',
 ]
 
 const NON_CLAIMS = [
   'Not a reproduction of mem0’s published gpt-5 + Qwen figures.',
+  `No win over the paid cloud tier: ${fmt(STATEWAVE.locomo)} vs ${fmt(MEM0_CLOUD.locomo)} is inside single-run noise.`,
+  'Not a multi-run average, so nothing here says a margin repeats on a rerun.',
   'No category-level or per-type breakdowns beyond the aggregate scores.',
   'No long-context BEAM score. The harness runs, but no number is claimed.',
   'LongMemEval (n=30) is directional, not a significance test.',
@@ -211,11 +219,11 @@ const FAQS = [
   },
   {
     q: "Isn't n=30 too small on LongMemEval?",
-    a: "Yes, treat it as directional. It's a matched 30-question subset with wide error bars. LoCoMo at n=1,540 is the robust signal, and Statewave leads both.",
+    a: "Yes, treat it as directional. It's a matched 30-question subset with wide error bars: one question moves the score by 0.033, so the whole spread between the three backends is a handful of answers. LoCoMo at n=1,540 is the robust signal, and the margin over mem0 OSS there is the only one wide enough to read as more than run-to-run noise.",
   },
   {
     q: 'Did you tune Statewave and handicap mem0?',
-    a: "The opposite. Three client fixes we shipped raise mem0's own scores; without the cloud v3 add-URL fix, cloud ingested nothing. We beat their best config, not a strawman.",
+    a: "The opposite. Three client fixes we shipped raise mem0's own scores; without the cloud v3 add-URL fix, cloud ingested nothing. The scoreboard runs against their best config, not a strawman.",
   },
   {
     q: 'Why run on mem0’s harness instead of your own?',
@@ -223,7 +231,7 @@ const FAQS = [
   },
   {
     q: "It's one run. Can I trust it?",
-    a: "Don't take our word for it. The harness is Apache-2.0 and copy-pasteable: clone it and re-run every number yourself. LoCoMo's margin is stable across runs.",
+    a: "Don't take our word for it. The harness is Apache-2.0 and copy-pasteable: clone it and re-run every number yourself. It's a single run, so read small margins as noise: a rerun can land slightly either side of these figures.",
   },
   {
     q: 'What is Statewave, exactly?',
@@ -367,7 +375,7 @@ function Hero() {
           An open-source, self-hosted memory runtime for AI agents. It clears mem0 OSS on
           both LoCoMo and LongMemEval, run on mem0&apos;s own harness at{' '}
           <span className="font-semibold text-theme-primary">gpt-4o</span>, same eval loop,
-          their judge unchanged, and edges the paid mem0 cloud tier too.
+          their judge unchanged, and matches the paid mem0 cloud tier.
         </p>
 
         <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
@@ -382,8 +390,11 @@ function Hero() {
 
         <HeroLeaderboard />
 
+        {/* The single-run disclosure rides with the headline claim rather than
+            waiting for the caveats panel: the hero is where a reader decides
+            how much the scoreboard is worth, so the limit travels with it. */}
         <p className="mt-6 font-mono text-xs text-theme-muted">
-          Not a reproduction of mem0&apos;s published gpt-5 + Qwen figures.
+          A single run. Not a reproduction of mem0&apos;s published gpt-5 + Qwen figures.
         </p>
       </div>
     </section>
@@ -967,8 +978,11 @@ function ScoreRow({
       onBlur={() => setHovered(false)}
       tabIndex={0}
       role="img"
+      // The gap is described as what was measured in this run, not as a
+      // standing lead: on LoCoMo the cloud gap is under a hundredth, which a
+      // rerun can land either side of.
       aria-label={`${system.name}, ${METRICS[metric].label} score ${fmt(value)}${
-        swDelta ? `, Statewave leads by ${swDelta}` : ''
+        swDelta ? `, Statewave scored ${swDelta} in this run` : ''
       }`}
     >
       <div className="mb-2 flex items-center justify-between gap-3">
@@ -1069,7 +1083,7 @@ function ScoreRow({
             {METRICS[metric].label} {fmt(value)} · {METRICS[metric].n}
           </p>
           <p className="mt-0.5 font-mono text-[11px] text-theme-muted">
-            {swDelta ? `Statewave leads by ${swDelta}` : 'Leads this benchmark'}
+            {swDelta ? `Statewave ${swDelta} in this run` : 'Highest score in this run'}
           </p>
         </div>
       )}
@@ -1824,9 +1838,9 @@ function GovernanceBridge() {
           What <span className="font-mono">mem0</span> doesn&apos;t do
         </Heading>
         <p className="mt-4 text-base text-theme-secondary text-pretty">
-          Retrieval is table stakes, and the benchmark above settles it. Statewave&apos;s real
-          difference is governance: the controls a memory layer needs before it touches
-          production data.
+          Retrieval is table stakes, and the run above puts Statewave level with the paid
+          tier. Statewave&apos;s real difference is governance: the controls a memory layer
+          needs before it touches production data.
         </p>
       </div>
 
@@ -1871,7 +1885,8 @@ function GovernanceBridge() {
       <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-3">
         <Button to="/product#audit-governance">See how Statewave governs memory →</Button>
         <p className="font-mono text-[11px] text-theme-muted">
-          mem0 cloud is the paid tier — their strongest showing on the retrieval rows.
+          mem0 cloud is the paid tier — their strongest showing on the retrieval rows, which
+          carry the single run above.
         </p>
       </div>
     </Section>

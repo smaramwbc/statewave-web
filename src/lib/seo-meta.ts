@@ -134,7 +134,7 @@ export const PAGE_META: Record<RouteKey, PageMeta> = {
   '/benchmarks': {
     title: 'Statewave Benchmarks: LoCoMo & LongMemEval vs. mem0',
     description:
-      "Statewave beats mem0 OSS on both LoCoMo and LongMemEval, run on mem0's own harness at gpt-4o, and edges the paid mem0 cloud tier while staying free and self-hosted. Apache-2.0, fully reproducible.",
+      "In a single run on mem0's own harness at gpt-4o, Statewave leads mem0 OSS on both LoCoMo and LongMemEval and matches the paid mem0 cloud tier, free and self-hosted. Apache-2.0, reproducible.",
     breadcrumbLabel: 'Benchmarks',
     // Long-form editorial with a methodology and a scope section, not a
     // landing page: 'article' is what tells social scrapers and answer

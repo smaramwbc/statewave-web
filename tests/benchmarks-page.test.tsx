@@ -51,6 +51,65 @@ describe('BenchmarksPage: figures', () => {
   })
 })
 
+/*
+ * One run supports "these are the scores", never "this is the ranking". The
+ * page publishes a single run of three backends, and two of its margins are
+ * narrow enough to flip on a reader's own rerun: LoCoMo against the cloud tier
+ * is about nine questions in 1,540, and on LongMemEval one question is 0.033.
+ * These lock the page to figures-plus-conditions for those margins.
+ */
+describe('BenchmarksPage: claims a single run can carry', () => {
+  /** Phrasings that assert a standing ranking rather than a measured run. */
+  const OVERCLAIMS = [
+    /stable across runs/i,
+    /edges? the paid/i,
+    /(beat|beats|leads|ahead of|outperforms?)[^.]{0,30}\bcloud\b/i,
+    /leads both/i,
+    /settles it/i,
+  ]
+
+  it('states the cloud-tier margin without claiming a win', () => {
+    const text = renderPage().container.textContent ?? ''
+
+    for (const claim of OVERCLAIMS) {
+      expect(text, `page asserts a ranking one run can't support: ${claim}`).not.toMatch(claim)
+    }
+    // The figures themselves stay, on both sides of the comparison.
+    expect(text).toContain('0.905')
+    expect(text).toContain('0.899')
+    expect(text).toMatch(/matches the paid cloud tier/i)
+  })
+
+  it('keeps the single-run limit on the page, not only in the fine print', () => {
+    const { container } = renderPage()
+    const text = container.textContent ?? ''
+
+    // Hero, caveats panel and the FAQ each carry it: a reader who stops after
+    // the headline still gets the limit that qualifies it.
+    expect(container.querySelector('section')!.textContent).toMatch(/a single run/i)
+    expect(text).toMatch(/one run, not an average/i)
+    expect(text).toMatch(/a rerun can land slightly either side/i)
+    expect(text).toMatch(/not a multi-run average/i)
+  })
+
+  it('keeps the disclosures the scores are only publishable with', () => {
+    const { container } = renderPage()
+    const text = container.textContent ?? ''
+
+    // The harness fork and the upstream it forked from, both linkable.
+    expect(container.querySelector('a[href*="statewave-memory-benchmarks"]')).toBeTruthy()
+    expect(container.querySelector('a[href*="mem0ai/memory-benchmarks"]')).toBeTruthy()
+    // The opponents, named rather than anonymized into "other systems".
+    expect(text).toContain('mem0 cloud')
+    expect(text).toContain('mem0 OSS')
+    // The retrieval-budget asymmetry the cloud tier can't opt out of. The
+    // mem0 OSS ≤20 cap is scoped to its own tab, covered separately below.
+    expect(text).toMatch(/product-inherent asymmetry/i)
+    // n=30 stays labeled as directional wherever the LongMemEval score is.
+    expect(text).toMatch(/directional/i)
+  })
+})
+
 describe('BenchmarksPage: chart accessibility', () => {
   it('labels every bar with its system and score, not color alone', () => {
     renderPage()
@@ -62,7 +121,7 @@ describe('BenchmarksPage: chart accessibility', () => {
       screen.getByLabelText(/Statewave, LoCoMo score 0\.905/i),
     ).toBeTruthy()
     expect(
-      screen.getByLabelText(/mem0 OSS, LongMemEval score 0\.833.*leads by \+0\.134/i),
+      screen.getByLabelText(/mem0 OSS, LongMemEval score 0\.833.*Statewave scored \+0\.134 in this run/i),
     ).toBeTruthy()
   })
 
