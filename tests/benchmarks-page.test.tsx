@@ -17,6 +17,8 @@ import { render, screen, cleanup, within, fireEvent } from '@testing-library/rea
 import { MemoryRouter } from 'react-router'
 import { ThemeProvider } from '../src/lib/theme'
 import { BenchmarksPage } from '../src/pages/BenchmarksPage'
+import { StatewaveVsMem0Page } from '../src/pages/StatewaveVsMem0Page'
+import { PAGE_META } from '../src/lib/seo-meta'
 
 function renderPage() {
   return render(
@@ -67,6 +69,36 @@ describe('BenchmarksPage: claims a single run can carry', () => {
     /leads both/i,
     /settles it/i,
   ]
+
+  it('keeps the meta description run-scoped too', () => {
+    // The description is crawler-facing and never rendered into the page body,
+    // so renderPage() cannot see it: without this it can regress on its own.
+    const description = PAGE_META['/benchmarks'].description
+
+    for (const claim of OVERCLAIMS) {
+      expect(description, `meta description asserts a ranking one run can't support: ${claim}`)
+        .not.toMatch(claim)
+    }
+  })
+
+  it('holds the sibling comparison page to the same standard', () => {
+    // /vs/mem0 renders the same three-backend run. A claim retired here that
+    // survives there is still published, just one click away.
+    const text = render(
+      <ThemeProvider>
+        <MemoryRouter initialEntries={['/vs/mem0']}>
+          <StatewaveVsMem0Page />
+        </MemoryRouter>
+      </ThemeProvider>,
+    ).container.textContent ?? ''
+
+    for (const claim of OVERCLAIMS) {
+      expect(text, `/vs/mem0 asserts a ranking one run can't support: ${claim}`).not.toMatch(claim)
+    }
+    // "reproducible win" is the strongest form of the same claim: it asserts
+    // the margin survives a rerun, which no published run demonstrates.
+    expect(text).not.toMatch(/reproducible win/i)
+  })
 
   it('states the cloud-tier margin without claiming a win', () => {
     const text = renderPage().container.textContent ?? ''

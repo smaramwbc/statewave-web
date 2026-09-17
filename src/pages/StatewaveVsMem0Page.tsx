@@ -781,11 +781,11 @@ function BenchmarksSection() {
           id="bench-heading"
           className="font-heading text-4xl font-bold leading-[1.02] tracking-[-0.03em] text-theme-primary md:text-[48px]"
         >
-          A fair, in-harness win
+          A fair, in-harness run
         </Heading>
         <p className="mt-4 text-[17px] leading-[1.6] text-theme-secondary/90">
           Measured on Mem0&apos;s own harness, same models, judge unchanged. A
-          narrow, reproducible win beats an inflated one.
+          narrow margin you can re-run beats an inflated one you cannot.
         </p>
       </div>
 
@@ -826,8 +826,8 @@ function BenchmarksSection() {
               </div>
             </div>
             <p className="mt-3 text-[12.5px] leading-[1.5] text-theme-muted">
-              Statewave leads both. Treat n=30 as directional; LoCoMo at
-              n=1,540 is the robust figure.
+              Statewave scored higher on both in this run. Treat n=30 as
+              directional; LoCoMo at n=1,540 is the robust figure.
             </p>
           </div>
 
