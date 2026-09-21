@@ -201,6 +201,41 @@ export function GuideJourneyPage() {
             </ol>
           )}
 
+          {/* Question headings with the answer directly after them: the pair
+              answer engines extract as a citable answer, and a site-wide
+              rule (tests/question-headings.test.tsx). This is the series'
+              permanent page, so it is where those answers belong. Both are
+              taken from the project brief and the series concept, not
+              written fresh. */}
+          <div className="mt-16 grid gap-10 md:grid-cols-2">
+            <div>
+              <h2 id="what-is-statewave-guide" className="font-heading text-xl font-semibold text-theme-primary">
+                What is Statewave Guide?
+              </h2>
+              <p className="mt-3 text-sm leading-relaxed text-theme-secondary sm:text-base">
+                An AI help system with Statewave underneath. It works only from
+                the program code and its comments, and from that alone it takes
+                a visitor straight to what they are trying to do — pointing at the
+                right control, explaining it, and walking them through the task.
+                It is built to replace manuals and tutorial videos, not to sit
+                beside them.
+              </p>
+            </div>
+
+            <div>
+              <h2 id="why-is-the-series-written-after-the-build" className="font-heading text-xl font-semibold text-theme-primary">
+                Why is this series written after the build?
+              </h2>
+              <p className="mt-3 text-sm leading-relaxed text-theme-secondary sm:text-base">
+                Because the code is ahead of the story. Every build day is
+                already a commit in the public repository, and it shows how the
+                project ended. The posts are about why each step went the way it
+                did — nearly every day ended with something we got wrong, and a
+                rule we took away from it.
+              </p>
+            </div>
+          </div>
+
           <h2 className="mt-16 font-heading text-2xl font-semibold text-theme-primary">
             The running threads
           </h2>
