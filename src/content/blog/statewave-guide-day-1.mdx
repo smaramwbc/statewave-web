@@ -1,9 +1,12 @@
 ---
 title: "Statewave Guide — Day 1: The DOM is not the product"
 slug: statewave-guide-day-1
-date: "2026-09-03T21:00:00Z"
+date: "2026-09-30T21:00:00Z"
 description: Day 0 ended with 257 tests passing and a working closed loop. Adversarial review found six bugs anyway — and forced the decision that shapes the whole project.
 author: Saber Maram
+built: "2026-08-26"
+repoLabel: "PR #1"
+repoUrl: https://github.com/smaramwbc/statewave-guide/pull/1
 series: statewave-guide
 episode: 1
 image: /images/blog/statewave-guide-day-1/og.png
@@ -155,6 +158,12 @@ Confidently wrong product knowledge is how you build an assistant that confident
 
 And once that happens twice, nobody trusts it again.
 
+That rule isn't new, by the way. It's borrowed from one layer down.
+
+In Statewave — the memory runtime underneath all of this — you don't write a memory directly. You record what happened, and memories are compiled from those events. Each one keeps the ids of the events it came from.
+
+We're holding the product's own source code to the same standard.
+
 So Day 1 isn't about chat.
 
 It's about reconstructing the real application:
@@ -171,12 +180,3 @@ We just normally call it **source code**.
 <p className="!my-0 font-heading text-2xl font-bold tracking-tight text-theme-primary sm:text-3xl">Statewave Guide — Day 1.</p>
 <p className="!mb-0 mt-4 text-base text-theme-secondary"><strong className="text-theme-primary">Next question:</strong> Can we follow one real user action all the way from a button to the backend — without guessing?</p>
 </div>
-
----
-
-*This is Day 1 of a build journey we're publishing as it happens. Previous: [Day 0 — The Beginning](/blog/statewave-guide-day-0).*
-
-*Statewave Guide is built on **Statewave** — an open-source, self-hosted memory runtime for AI agents. Governance and provenance, not just retrieval. Apache 2.0.*
-*→ [statewave.ai](https://statewave.ai) · [github.com/smaramwbc/statewave](https://github.com/smaramwbc/statewave)*
-
-*Every post in this series: [The Statewave Guide Journey Index](/blog/statewave-guide)*
