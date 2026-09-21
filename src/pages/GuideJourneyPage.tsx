@@ -3,6 +3,7 @@ import { Section } from '../components/Section'
 import { usePageSEO } from '../lib/seo'
 import { SERIES, getSeriesPosts, blogPostUrl } from '../lib/blog'
 import { BASE_URL, PAGE_META, breadcrumbJsonLd } from '../lib/seo-meta'
+import { GuideSubscribe } from '../components/GuideSubscribe'
 
 /* /blog/statewave-guide — the Journey Index for the Statewave Guide series.
  *
@@ -200,6 +201,10 @@ export function GuideJourneyPage() {
               ))}
             </ol>
           )}
+
+          <div className="mt-10">
+            <GuideSubscribe />
+          </div>
 
           {/* Question headings with the answer directly after them: the pair
               answer engines extract as a citable answer, and a site-wide

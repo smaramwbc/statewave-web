@@ -1,6 +1,7 @@
 import { Link } from 'react-router'
 import { SERIES, getSeriesPosts, blogPostUrl } from '../lib/blog'
 import type { BlogPost } from '../lib/blog'
+import { GuideSubscribe } from './GuideSubscribe'
 
 /* The standing frame under every series episode: where this day lives in
  * the repository, the episodes either side of it, and the Statewave
@@ -72,6 +73,8 @@ export function SeriesFrame({ post }: { post: BlogPost }) {
           ))}
         </p>
       )}
+
+      <GuideSubscribe />
 
       <hr />
 
