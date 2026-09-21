@@ -14,6 +14,7 @@ import {
 } from '../lib/seo-meta'
 import { POST_FAQ, HOWTO_SLUGS } from '../lib/blog-schema'
 import { GiscusComments } from '../components/GiscusComments'
+import { SeriesFrame } from '../components/SeriesFrame'
 
 /* /blog/:slug post page.
  *
@@ -29,6 +30,20 @@ import { GiscusComments } from '../components/GiscusComments'
  * the post markup without the Giscus iframe (which is browser-only and
  * would otherwise stall hydration on the third-party script load).
  */
+
+/** "25 Aug 2026". UTC, so a date-only value like "2026-08-25" does not
+ *  render as the 24th for a reader west of Greenwich, or during a
+ *  prerender on a machine that is. */
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+
+function formatShort(iso: string): string {
+  // Built by hand rather than with toLocaleDateString: recent ICU data
+  // abbreviates September as "Sept" in en-GB, so the same post would read
+  // "Sep" on one machine and "Sept" on another.
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return iso
+  return `${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]} ${d.getUTCFullYear()}`
+}
 
 function formatDate(iso: string): string {
   const d = new Date(iso)
@@ -174,7 +189,11 @@ export function BlogPostPage() {
                 dateTime={post.meta.date}
                 className="section-eyebrow text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75"
               >
-                {formatDate(post.meta.date)}
+                {/* A series episode written up after the build says so: both
+                    dates, build first. Everything else keeps the one date. */}
+                {post.meta.series && post.meta.built
+                  ? `Built ${formatShort(post.meta.built)} · written up ${formatShort(post.meta.date)}`
+                  : formatDate(post.meta.date)}
               </time>
 
               {post.meta.tags?.map((tag) => (
@@ -230,6 +249,7 @@ export function BlogPostPage() {
           <MDXProvider>
             <PostBody />
           </MDXProvider>
+          <SeriesFrame post={post} />
         </article>
       </section>
 

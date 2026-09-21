@@ -65,6 +65,15 @@ export interface BlogPostFrontmatter {
    *  Statewave Guide that's the build day, not a post counter, so gaps are
    *  honest). Required whenever `series` is set. */
   episode?: number
+  /** When the work a series episode describes was actually built — the
+   *  date of the day's commit. The Statewave Guide series is written up
+   *  weeks after the build, and says so under every title: "Built 25 Aug ·
+   *  written up 28 Sep". `date` stays the publish date. */
+  built?: string
+  /** The repository artefact this episode describes, e.g. "commit 5cb3c8a"
+   *  or "PR #1", and where it lives. */
+  repoLabel?: string
+  repoUrl?: string
   /** Site-relative path to this post's banner image, shown inline at the
    *  top of the post itself (below the title card, above the article
    *  body). Separate from `image` (the OG/social-share card) because the
