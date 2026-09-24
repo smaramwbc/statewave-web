@@ -28,6 +28,7 @@ const ImpressumPage = lazy(() => import('./pages/ImpressumPage').then(m => ({ de
 const AboutPage = lazy(() => import('./pages/AboutPage').then(m => ({ default: m.AboutPage })))
 const BlogIndexPage = lazy(() => import('./pages/BlogIndexPage').then(m => ({ default: m.BlogIndexPage })))
 const BlogPostPage = lazy(() => import('./pages/BlogPostPage').then(m => ({ default: m.BlogPostPage })))
+const GuideJourneyPage = lazy(() => import('./pages/GuideJourneyPage').then(m => ({ default: m.GuideJourneyPage })))
 const FaqPage = lazy(() => import('./pages/FaqPage').then(m => ({ default: m.FaqPage })))
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage').then(m => ({ default: m.NotFoundPage })))
 
@@ -61,6 +62,10 @@ export default function App() {
           <Route path="/cookies" element={<CookiesPage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/blog" element={<BlogIndexPage />} />
+          {/* Static series index — declared before /blog/:slug so the
+              Journey Index owns the URL rather than falling through to
+              the post route (which would redirect to /blog). */}
+          <Route path="/blog/statewave-guide" element={<GuideJourneyPage />} />
           <Route path="/blog/:slug" element={<BlogPostPage />} />
           <Route path="/faq" element={<FaqPage />} />
           <Route path="*" element={<NotFoundPage />} />

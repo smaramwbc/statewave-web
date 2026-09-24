@@ -14,6 +14,7 @@ import {
 } from '../lib/seo-meta'
 import { POST_FAQ, HOWTO_SLUGS } from '../lib/blog-schema'
 import { GiscusComments } from '../components/GiscusComments'
+import { SeriesFrame } from '../components/SeriesFrame'
 
 /* /blog/:slug post page.
  *
@@ -29,6 +30,20 @@ import { GiscusComments } from '../components/GiscusComments'
  * the post markup without the Giscus iframe (which is browser-only and
  * would otherwise stall hydration on the third-party script load).
  */
+
+/** "25 Aug 2026". UTC, so a date-only value like "2026-08-25" does not
+ *  render as the 24th for a reader west of Greenwich, or during a
+ *  prerender on a machine that is. */
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+
+function formatShort(iso: string): string {
+  // Built by hand rather than with toLocaleDateString: recent ICU data
+  // abbreviates September as "Sept" in en-GB, so the same post would read
+  // "Sep" on one machine and "Sept" on another.
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return iso
+  return `${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]} ${d.getUTCFullYear()}`
+}
 
 function formatDate(iso: string): string {
   const d = new Date(iso)
@@ -94,6 +109,29 @@ const PROSE_CLASSES = [
   '[&_hr]:my-10 [&_hr]:border-theme-border',
 ].join(' ')
 
+/* Series episodes are written in feed cadence — one sentence per paragraph,
+ * white space as punctuation, which the project brief calls for explicitly.
+ * At the site's uniform paragraph spacing a three-word line and a
+ * forty-word one get identical air, so sixty paragraphs read as one
+ * undifferentiated column with nothing for the eye to hold.
+ *
+ * The fix is contrast rather than a smaller number: consecutive lines sit
+ * close enough to read as one passage, and the gap opens up wherever a
+ * card, quote, list or diagram breaks the run — which is where the
+ * sections actually are in these posts, since they carry no headings.
+ *
+ * Scoped to posts with a `series` so no existing post shifts. */
+const SERIES_PROSE = [
+  // Bottom margins off: every gap is owned by the element that follows, so
+  // two rules can decide it rather than one uniform value.
+  '[&_p]:mb-0!',
+  // A line after another line is the same beat — close it up.
+  '[&_p+p]:mt-3!',
+  // A line after a block, or a card after a line, is a real break.
+  '[&_:not(p)+p]:mt-7!',
+  '[&_p+div]:mt-7!',
+].join(' ')
+
 export function BlogPostPage() {
   const { slug } = useParams<{ slug: string }>()
   const post = slug ? getPostBySlug(slug) : undefined
@@ -151,7 +189,11 @@ export function BlogPostPage() {
                 dateTime={post.meta.date}
                 className="section-eyebrow text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75"
               >
-                {formatDate(post.meta.date)}
+                {/* A series episode written up after the build says so: both
+                    dates, build first. Everything else keeps the one date. */}
+                {post.meta.series && post.meta.built
+                  ? `Built ${formatShort(post.meta.built)} · written up ${formatShort(post.meta.date)}`
+                  : formatDate(post.meta.date)}
               </time>
 
               {post.meta.tags?.map((tag) => (
@@ -199,10 +241,15 @@ export function BlogPostPage() {
       </section>
 
       <section className="px-5 pt-8 sm:px-6 sm:pt-12">
-        <article className={`mx-auto max-w-4xl ${PROSE_CLASSES}`}>
+        <article
+          className={`mx-auto max-w-4xl ${PROSE_CLASSES} ${
+            post.meta.series ? SERIES_PROSE : ''
+          }`}
+        >
           <MDXProvider>
             <PostBody />
           </MDXProvider>
+          <SeriesFrame post={post} />
         </article>
       </section>
 

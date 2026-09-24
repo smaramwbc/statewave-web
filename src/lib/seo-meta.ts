@@ -55,6 +55,7 @@ export type RouteKey =
   | '/developers'
   | '/about'
   | '/blog'
+  | '/blog/statewave-guide'
   | '/faq'
 
 /** Canonical, indexable public routes. Order matters — used to render the
@@ -79,6 +80,7 @@ export const PUBLIC_ROUTES: readonly RouteKey[] = [
   '/developers',
   '/about',
   '/blog',
+  '/blog/statewave-guide',
   '/faq',
 ] as const
 
@@ -258,6 +260,15 @@ export const PAGE_META: Record<RouteKey, PageMeta> = {
     breadcrumbLabel: 'Blog',
     ogType: 'website',
     priority: 0.7,
+    changefreq: 'weekly',
+  },
+  '/blog/statewave-guide': {
+    title: 'Statewave Guide — the Journey Index',
+    description:
+      'Every episode of the Statewave Guide build journey, in order. Building a help chat that understands a product by reading its codebase — architecture, dead ends and reversals included.',
+    breadcrumbLabel: 'Statewave Guide',
+    ogType: 'website',
+    priority: 0.6,
     changefreq: 'weekly',
   },
   '/faq': {
