@@ -1,0 +1,296 @@
+---
+title: "6 Best Open-Source Zep Alternatives (2026)"
+slug: zep-alternatives
+date: "2026-09-24T09:00:00+02:00"
+description: Compare six Zep alternatives for self-hosted agent memory, temporal graphs, predictable ingestion cost, and governed context.
+author: Saber Maram
+category: Guides
+image: /images/blog/zep-alternatives/og.png
+headerImage: /images/blog/zep-alternatives/header.png
+tags:
+  - comparison
+  - open-source
+  - memory
+---
+
+If the reason for leaving Zep is to run memory on Postgres with retrieval policy, source provenance, and an auditable context bundle, Statewave is the strongest fit. Graphiti is the closest open-source replacement for Zep's temporal graph, while Hindsight is the stronger choice for agents that must synthesize observations and reflect.
+
+Zep is no longer one interchangeable open-source memory server. Zep describes its managed service as a Context Lake of many governed graphs, and its open-source graph engine is Graphiti. Any useful comparison must decide which of those two layers the team is replacing.
+
+## What does Zep do well?
+
+Zep's strongest idea is that agent context changes over time. Raw episodes become entities and relationships with temporal meaning, so the system can distinguish a current fact from an older fact that was once true.
+
+The managed product adds operations at scale: projects, users, retrieval, entity and edge types, logs, webhooks, analytics, security options, and enterprise deployment. [Graphiti](https://github.com/getzep/graphiti) provides the Apache-2.0 temporal graph engine for teams willing to build the surrounding service.
+
+That separation is explicit in Zep's own [Zep versus Graphiti guide](https://help.getzep.com/zep-vs-graphiti): Graphiti builds one graph, while Zep operates a large population of graphs and supplies the product controls around them.
+
+## Why do teams look for Zep alternatives?
+
+The reasons usually come from the managed product boundary, the graph infrastructure, or a mismatch between temporal graph memory and the application's actual data model.
+
+### The former Community Edition is not the current self-hosted Zep product
+
+Zep's official FAQ states that the old Community Edition is deprecated and no longer supported. The open-source route is Graphiti. Teams that need the same managed product surface inside their own environment must evaluate Enterprise BYOC rather than assume that the old community server maps to the current cloud.
+
+This is the first migration fork: adopt Graphiti and build the service around it, negotiate a Zep BYOC deployment, or choose a different memory runtime.
+
+### Episode size changes the credit requirement
+
+Zep charges for episode ingestion, not retrieval or storage. The [pricing page](https://www.getzep.com/pricing/) assigns one credit to the first 350 bytes and another credit for every additional 350 bytes or part.
+
+Flex costs **$125 per month** with 50,000 credits.
+
+Flex Plus costs **$375 per month** with 200,000 credits.
+
+The same event count can therefore land in a different plan because of serialization, metadata, or batching. A compact chat turn and a JSON tool trace are not the same billable unit.
+
+### A temporal graph can be more infrastructure than a subject timeline needs
+
+Graphiti currently supports Neo4j, FalkorDB, and Amazon Neptune. That is appropriate when relationships and validity intervals drive the answer. A support agent that needs a per-customer timeline, typed facts, deletion, token budgeting, and policy may get a simpler operating model from Postgres plus pgvector.
+
+### Managed convenience and retrieval control are separate decisions
+
+Zep Cloud offers enterprise controls, BYOK, BYOC, and 1-year audit and API log retention on enterprise plans. Some teams still need application-owned logic that can allow, deny, redact, or cap memory before it reaches an LLM, with a receipt tied to the exact assembled context. That requirement is not the same as operating a temporal graph securely.
+
+## How much can Zep episode size change monthly credits?
+
+We calculated the credit load directly from Zep's published rule: credits = ceil(episode bytes / 350). This is a workload model, not a quote.
+
+| Monthly episodes | Average episode | Credits per episode | Monthly credits | Lowest listed plan that includes the volume |
+| ----- | ----- | ----- | ----- | ----- |
+| 15,000 | 300 bytes | 1 | 15,000 | Flex |
+| 15,000 | 700 bytes | 2 | 30,000 | Flex |
+| 15,000 | 1,200 bytes | 4 | 60,000 | Flex plus one automatic 10,000-credit top-up ($25) |
+| 15,000 | 3,500 bytes | 10 | 150,000 | Flex Plus |
+
+At a fixed **15,000 episodes**, expanding the average payload from 300 bytes to 3,500 bytes raises credit use from **15,000 to 150,000**, a tenfold increase. Retrieval remains unmetered, but ingestion shape still changes the plan. On Flex, top-ups are automatic: one fires when the balance drops below 20%, and each 10,000-credit top-up costs $25, so an undersized plan shows up on the bill without a manual decision. Compressing repeated metadata or choosing a different event boundary can matter as much as reducing the number of calls.
+
+<figure className="my-8">
+<img src="/images/blog/zep-alternatives/image1.png" alt="Bar chart showing Zep credits required for 15,000 monthly episodes at four payload sizes: 300, 700, 1,200, and 3,500 bytes, rising from 15,000 to 150,000 credits." width="1280" height="719" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+<figcaption className="mt-3 text-[14px] leading-6 text-theme-secondary/70">Zep credits required for the same 15,000 monthly episodes at four payload sizes.</figcaption>
+</figure>
+
+## Zep alternatives compared
+
+The six options below are ranked by fit for the reasons above, not by GitHub stars or a single memory benchmark.
+
+| Alternative | Best replacement target | Core storage shape | Managed option | Main tradeoff |
+| ----- | ----- | ----- | ----- | ----- |
+| **Statewave** | governed subject memory outside a graph stack | Postgres + pgvector | no | no entity-relationship graph |
+| **Graphiti** | Zep's temporal graph engine | Neo4j, FalkorDB, or Neptune | use Zep for managed operation | requires surrounding identity and operations work |
+| **Hindsight** | recall plus learned observations and reflection | PostgreSQL or embedded pg0 | yes | more model work and a larger memory pipeline |
+| **Cognee** | document and code knowledge graphs | relational + graph + vector stores | yes | more backend choices and configuration |
+| **Mem0** | familiar per-user memory API | configurable vector store, optional graph path | yes | verify OSS and cloud feature boundaries |
+| **Letta** | stateful agent runtime with editable memory | agent memory blocks, transcript, MemFS | yes | replaces the agent runtime, not only memory |
+
+<figure className="my-8">
+<img src="/images/blog/zep-alternatives/image2.png" alt="Comparison matrix showing which Zep capability each alternative replaces: Statewave, Graphiti, Hindsight, Cognee, Mem0, and Letta scored on Episode API, Temporal graph, Managed path, Policy receipts, and Full agent." width="1280" height="730" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+<figcaption className="mt-3 text-[14px] leading-6 text-theme-secondary/70">A comparison matrix showing which Zep capability each alternative replaces and what remains to build.</figcaption>
+</figure>
+
+## How we selected the six alternatives
+
+We used the current official documentation and repositories, then tested each option against four migration motives: leaving a managed-only boundary, removing graph infrastructure, reducing ingestion-cost uncertainty, or gaining tighter control over assembled context.
+
+We didn't score every product on the same graph features. That would reward Graphiti for a requirement that some readers are trying to remove. Instead, each entry states which part of Zep it can replace and which part it cannot.
+
+## The 6 best open-source Zep alternatives
+
+Statewave comes first for teams that want an independent memory runtime without adopting a graph database. Graphiti remains the closest option when the graph is the requirement.
+
+### 1. Statewave: best for governed subject memory on Postgres
+
+<figure className="my-8">
+<img src="/images/blog/zep-alternatives/image3.jpg" alt="The smaramwbc/statewave repository on GitHub, described as an open-source memory runtime for AI agents with reproducible, provenance-tagged context bundles." width="1568" height="621" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+</figure>
+
+[Statewave](https://github.com/smaramwbc/statewave) keeps raw history and durable memory apart. Episodes go in unchanged, a compiler derives typed memories that link back to them, and each context request is ranked under a token budget, filtered by policy, and stored as a receipt. The [architecture overview](https://github.com/smaramwbc/statewave-docs/blob/main/architecture/overview.md) covers the pipeline in detail.
+
+This architecture replaces Zep's episode ingestion and context delivery without recreating an entity graph. The primary scope is a subject, such as a user, account, support case, agent, or repository. That is often a better match for customer support and workflow automation than a graph per user.
+
+The target-specific reason to rank Statewave first is operational evidence. It runs as one Python service plus Postgres with pgvector, rather than a memory service plus a graph database.
+
+The published eval suite runs 56 assertions, and context assembly is bounded by a token budget the caller supplies on each request. Retrieval policy, sensitivity labels, provenance, subject deletion, and state-assembly receipts are first-class parts of the same runtime.
+
+A practical migration maps each Zep Episode to a Statewave episode. Preserve the user, thread, or account as subject_id; keep timestamps and external IDs; store message or event type in metadata; then compile in the background. Run Zep and Statewave side by side until the new path passes four tests: changed facts, cross-session recall, denied sensitive context, and subject deletion.
+
+**Trade-off:** Statewave is not the best choice when graph traversal or entity-to-entity temporal reasoning is the product.
+
+Statewave also has no managed cloud, no cross-region clustering, and application-enforced tenant scoping rather than Postgres RLS.
+
+Read the [multi-tenant isolation audit](/blog/multi-tenant-isolation-in-ai-memory) before designing the application boundary.
+
+<figure className="my-8">
+<img src="/images/blog/zep-alternatives/image4.png" alt="A field-level migration diagram: scope a Zep episode to a user or account, preserve its timestamp and external ID, record it, compile a typed memory with validity, then verify with policy and a receipt." width="1280" height="734" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+<figcaption className="mt-3 text-[14px] leading-6 text-theme-secondary/70">A field-level migration from Zep episodes and graphs to Statewave subjects, episodes, memories, and receipts.</figcaption>
+</figure>
+
+### 2. Graphiti: best for keeping Zep's temporal graph without Zep Cloud
+
+<figure className="my-8">
+<img src="/images/blog/zep-alternatives/image5.jpg" alt="The getzep/graphiti repository on GitHub, building real-time knowledge graphs for AI agents." width="1568" height="621" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+</figure>
+
+[Graphiti](https://github.com/getzep/graphiti) is the direct open-source engine behind Zep's temporal context-graph approach. It ingests episodes, extracts entities and relations, tracks time, and supports semantic, keyword, and graph-aware search. The current Apache-2.0 package supports Neo4j, FalkorDB, and Neptune; its server and MCP adapter can be self-hosted.
+
+The cost of closeness is ownership. Zep's official comparison says Graphiti does not include the full user, conversation, management, scaling, and governance layer of Zep Cloud. Your team must design graph grouping, authentication, queueing, monitoring, backups, schema constraints, and application APIs.
+
+Choose Graphiti when "alternative to Zep" means "the same temporal graph model under our control." Do not choose it merely because the old Zep Community Edition was self-hosted; the operating surface is different.
+
+### 3. Hindsight: best for memory that forms evidence-backed beliefs
+
+<figure className="my-8">
+<img src="/images/blog/zep-alternatives/image6.jpg" alt="The vectorize-io/hindsight repository on GitHub, described as agent memory that learns." width="1568" height="621" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+</figure>
+
+[Hindsight](https://github.com/vectorize-io/hindsight) is a better fit when the desired output is learned understanding rather than graph traversal. Retain extracts world facts and experiences. Background work consolidates evidence into observations. Mental models maintain standing answers, and reflect synthesizes conclusions over stored memory.
+
+Recall combines four strategies in parallel: semantic, keyword, graph, and temporal retrieval. The MIT server runs with Postgres or embedded pg0, and Hindsight Cloud offers a managed route. This gives teams a strong temporal and relational retrieval path without adopting Zep's graph product model.
+
+**The tradeoff** is compute and complexity. Retain is asynchronous, reflect runs model reasoning, and multi-user production deployments require a deliberate bank and tenant design. Choose Hindsight for agents that learn patterns from experience; choose a narrower store when raw context will be reasoned over elsewhere.
+
+### 4. Cognee: best for knowledge graphs over documents, code, and mixed data
+
+<figure className="my-8">
+<img src="/images/blog/zep-alternatives/image7.jpg" alt="The topoteretes/cognee repository on GitHub, an open-source AI memory platform giving agents persistent long-term memory through a self-hosted knowledge graph engine." width="1568" height="621" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+</figure>
+
+[Cognee](https://github.com/topoteretes/cognee) turns documents, code, and sessions into a graph-plus-vector knowledge layer. Its pipeline can classify sources, extract a graph, store data points, and query the resulting knowledge with inspectable evidence. It supports embedded local defaults and several external graph, vector, and relational backends.
+
+Cognee is more suitable than Zep when the core input is a heterogeneous knowledge base rather than a stream of conversational episodes. It also exposes code analysis, data connectors, and a hosted service.
+
+That flexibility increases the configuration surface. The official install documentation spans relational storage, vector storage, graph storage, model providers, and optional access control. Choose Cognee when source knowledge and graph enrichment justify that breadth.
+
+### 5. Mem0: best for a simpler managed or self-hosted memory API
+
+<figure className="my-8">
+<img src="/images/blog/zep-alternatives/image8.jpg" alt="The mem0ai/mem0 repository on GitHub, described as the memory layer for AI agents with drop-in memory infrastructure and context that persists." width="1568" height="621" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+</figure>
+
+[Mem0](https://github.com/mem0ai/mem0) offers a conventional memory abstraction with a large integration ecosystem. It is a reasonable replacement when Zep's temporal graph is more than the application needs and the goal is to store, search, update, and delete per-user memories through a compact API.
+
+The Apache-2.0 core supports self-hosting, while the managed service supplies a production path. Treat them as related but distinct surfaces during evaluation. Confirm which edition supplies graph features, event history, access controls, observability, and support.
+
+Choose Mem0 when API familiarity and integrations have more value than explicit temporal-graph semantics or policy-bound context assembly. If you're weighing Mem0 specifically, see [six open-source alternatives to Mem0](/blog/open-source-alternatives-to-mem0).
+
+### 6. Letta: best for replacing Zep and the agent runtime together
+
+<figure className="my-8">
+<img src="/images/blog/zep-alternatives/image9.jpg" alt="The letta-ai/letta-code repository on GitHub, for stateful agents with memory, identity, and the ability to learn and adapt." width="1568" height="621" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+</figure>
+
+[Letta](https://docs.letta.com/) places memory inside a full stateful agent runtime. Agents can revise memory blocks, store long-form context in a Git-backed MemFS, search messages, call subagents, schedule work, use channels, and operate remote computers.
+
+This is a much larger decision than changing a memory database. It is the right one when the application wants agent-managed state and is willing to adopt Letta's execution model. It is the wrong one when several existing agent frameworks need a shared, neutral memory service.
+
+Choose Letta when agent identity, tools, memory, skills, schedules, and execution should move together. Choose Statewave, Graphiti, Hindsight, or Mem0 when the existing agent loop should remain intact.
+
+## What should a Zep migration preserve?
+
+A safe migration preserves meaning before storage. Copying text without its scope and time can make the new system appear accurate while serving the wrong user or the wrong version of a fact.
+
+### Preserve event boundaries and timestamps
+
+Do not concatenate an entire thread into one record simply to reduce calls. Keep the event unit needed for deletion, time-based reasoning, and conflict handling. If you change the unit to control credits, record a stable list of source event IDs.
+
+### Map graph identity to the new isolation model
+
+Zep graphs, Graphiti group IDs, Hindsight banks, Statewave subjects, and Mem0 users are not interchangeable names. Document which application identity can read, write, and delete each scope.
+
+### Re-test changed facts, not only remembered facts
+
+Memory quality is easiest on stable preferences. Include address changes, role changes, a revoked permission, a reopened support issue, and two entities with the same name. Temporal correctness is the reason Zep exposes bi-temporal facts and relationship invalidation in the first place.
+
+### Run a cost replay before cutover
+
+Replay a week of serialized events through the candidate's pricing unit. For Zep, count bytes in each episode. For model-driven self-hosted systems, measure extraction and embedding calls. For Postgres systems, include database, backup, and operations costs.
+
+<figure className="my-8">
+<img src="/images/blog/zep-alternatives/image10.png" alt="A cutover checklist with four tests that catch false migration confidence: changed facts losing authority, identity staying isolated, denied context blocked before the prompt, and complete subject deletion." width="1280" height="739" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+<figcaption className="mt-3 text-[14px] leading-6 text-theme-secondary/70">A four-stage migration validation plan for leaving Zep.</figcaption>
+</figure>
+
+## Which Zep alternative should you pick?
+
+Statewave fits policy-bound, token-limited context on Postgres. Graphiti preserves the temporal graph model, while Hindsight is stronger for learned beliefs. Cognee targets document and code graphs; Mem0 offers the smaller memory API. Letta is the full-runtime choice.
+
+The decision should begin with one sentence: "We are replacing Zep Cloud because…" or "We are replacing Graphiti because…". If the sentence does not name the layer, the shortlist will mix products that solve different problems.
+
+<figure className="my-8">
+<img src="/images/blog/zep-alternatives/image11.png" alt="A decision path starting from what must persist, routing relationship traversal to Graphiti, a governed subject timeline to Statewave, learned beliefs to Hindsight, and a document graph to Cognee." width="1280" height="719" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+<figcaption className="mt-3 text-[14px] leading-6 text-theme-secondary/70">A decision path for keeping a temporal graph or moving to subject memory, learned beliefs, or document GraphRAG.</figcaption>
+</figure>
+
+Zep, Graphiti, Hindsight, Cognee, Mem0 and Letta are trademarks of their respective owners; used here for factual comparison. Pricing, feature lists and repository details are as of September 2026 and change frequently, so check each vendor's own page before you rely on them.
+
+## FAQ
+
+<div className="my-8 space-y-3">
+
+<details open className="blog-faq group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35">
+<summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none">
+<h3 className="text-[18px] font-semibold leading-snug text-theme-primary !m-0">1. Is Zep open source?</h3>
+<div className="blog-faq-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40">
+<svg className="h-5 w-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" /></svg>
+</div>
+</summary>
+<div className="px-7 pb-7">
+<div className="h-px bg-theme-primary/10 mb-6" />
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">The current Zep managed product is commercial. Graphiti, its temporal graph engine, is open source under Apache-2.0. The former Zep Community Edition is deprecated and unsupported.</p>
+</div>
+</details>
+
+<details className="blog-faq group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35">
+<summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none">
+<h3 className="text-[18px] font-semibold leading-snug text-theme-primary !m-0">2. What is the closest open-source Zep alternative?</h3>
+<div className="blog-faq-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40">
+<svg className="h-5 w-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" /></svg>
+</div>
+</summary>
+<div className="px-7 pb-7">
+<div className="h-px bg-theme-primary/10 mb-6" />
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">Graphiti is the closest engine-level alternative because it implements Zep's temporal graph model. Statewave is closer when the goal is a self-hosted subject-memory service without a graph database.</p>
+</div>
+</details>
+
+<details className="blog-faq group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35">
+<summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none">
+<h3 className="text-[18px] font-semibold leading-snug text-theme-primary !m-0">3. Is Graphiti a drop-in replacement for Zep Cloud?</h3>
+<div className="blog-faq-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40">
+<svg className="h-5 w-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" /></svg>
+</div>
+</summary>
+<div className="px-7 pb-7">
+<div className="h-px bg-theme-primary/10 mb-6" />
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">No. It provides graph construction and retrieval. Your application must supply user and thread management, authentication, scaling, operations, and the product controls around the graph.</p>
+</div>
+</details>
+
+<details className="blog-faq group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35">
+<summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none">
+<h3 className="text-[18px] font-semibold leading-snug text-theme-primary !m-0">4. How does Zep pricing change with episode size?</h3>
+<div className="blog-faq-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40">
+<svg className="h-5 w-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" /></svg>
+</div>
+</summary>
+<div className="px-7 pb-7">
+<div className="h-px bg-theme-primary/10 mb-6" />
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">Every 350 bytes or part consumes one credit. At 15,000 monthly episodes, 300-byte payloads use 15,000 credits, while 3,500-byte payloads use 150,000 credits.</p>
+</div>
+</details>
+
+<details className="blog-faq group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35">
+<summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none">
+<h3 className="text-[18px] font-semibold leading-snug text-theme-primary !m-0">5. Can Statewave model temporal facts?</h3>
+<div className="blog-faq-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40">
+<svg className="h-5 w-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" /></svg>
+</div>
+</summary>
+<div className="px-7 pb-7">
+<div className="h-px bg-theme-primary/10 mb-6" />
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">Statewave memories have validity windows and conflict handling. Statewave extracts entities per memory to improve retrieval, but it does not model relationships between them or support graph traversal. Use Graphiti when graph traversal is a core query pattern.</p>
+</div>
+</details>
+
+</div>

@@ -50,6 +50,7 @@ Statewave stores immutable episodes, compiles them into typed memories with prov
 - [Repeat-Issue Detection in Customer Support Automation](https://www.statewave.ai/blog/repeat-issue-detection-customer-support-automation): Why a resolved session is suppressed on purpose, the two-point margin that surfaces the prior fix, and what to write in the resolution summary.
 - [6 Best Open-Source Alternatives to Mem0 (2026)](https://www.statewave.ai/blog/open-source-alternatives-to-mem0): What Mem0's self-hosted build leaves out, which of the six alternatives hold features back from their free edition, and how to pick by requirement.
 - [The Customer Health Score Your Support Agent Can Explain](https://www.statewave.ai/blog/customer-health-score-handoff-context-packs): The eight scoring signals and their caps, why the number drifts on quiet days, and what a handoff context pack keeps under its token budget.
+- [6 Best Open-Source Zep Alternatives (2026)](https://www.statewave.ai/blog/zep-alternatives): The Zep-vs-Graphiti split, how episode size multiplies Zep's credit cost tenfold, and how to pick a narrower replacement by requirement.
 
 ## Documentation
 
