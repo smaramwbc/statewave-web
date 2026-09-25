@@ -30,6 +30,7 @@ Statewave stores immutable episodes, compiles them into typed memories with prov
 
 ## Comparisons
 
+- [Alternatives](https://www.statewave.ai/alternatives) — every Statewave comparison in one place: Mem0, Letta, Zep, and Supermemory.
 - [Statewave vs Mem0](https://www.statewave.ai/vs/mem0) — deterministic, token-bounded context assembly with policy enforcement and integrity-hashed receipts vs ranked similarity retrieval, plus LoCoMo and LongMemEval results measured on Mem0's own harness.
 - [Statewave vs Letta](https://www.statewave.ai/vs/letta) — runtime-managed vs agent-managed memory: Letta's agent edits and searches its own memory with tool calls; Statewave assembles the bundle mechanically.
 - [Statewave vs Zep](https://www.statewave.ai/vs/zep) — inspectable bundle vs opaque Context Block: typed, provenance-traced memories with per-row confidence and validity against a knowledge-graph string.
@@ -50,6 +51,7 @@ Statewave stores immutable episodes, compiles them into typed memories with prov
 - [Repeat-Issue Detection in Customer Support Automation](https://www.statewave.ai/blog/repeat-issue-detection-customer-support-automation): Why a resolved session is suppressed on purpose, the two-point margin that surfaces the prior fix, and what to write in the resolution summary.
 - [6 Best Open-Source Alternatives to Mem0 (2026)](https://www.statewave.ai/blog/open-source-alternatives-to-mem0): What Mem0's self-hosted build leaves out, which of the six alternatives hold features back from their free edition, and how to pick by requirement.
 - [The Customer Health Score Your Support Agent Can Explain](https://www.statewave.ai/blog/customer-health-score-handoff-context-packs): The eight scoring signals and their caps, why the number drifts on quiet days, and what a handoff context pack keeps under its token budget.
+- [6 Best Open-Source Supermemory Alternatives (2026)](https://www.statewave.ai/blog/supermemory-alternatives): What job Supermemory is actually doing for you, the four deployment surfaces behind "open source," and how to pick a narrower replacement by requirement.
 
 ## Documentation
 

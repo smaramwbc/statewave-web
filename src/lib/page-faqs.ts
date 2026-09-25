@@ -222,6 +222,13 @@ export const PAGE_FAQS: Partial<Record<RouteKey, readonly FaqEntry[]>> = {
     },
   ],
 
+  '/alternatives': [
+    { question: 'How does Statewave compare to Mem0, Letta, Zep, and Supermemory?', answer: 'All four rank or retrieve memory at query time in their own way — Mem0 by relevance score, Letta through agent-managed tool calls, Zep via knowledge-graph traversal, Supermemory with hybrid search plus reranking. Statewave instead compiles episodes into typed memories ahead of time and assembles a deterministic, token-bounded bundle with policy enforcement and an integrity-hashed receipt of what was delivered.' },
+    { question: 'Is Statewave self-hosted like these alternatives?', answer: 'Yes — Apache-2.0, self-hosted on PostgreSQL and pgvector, with no cloud dependency. That is not universal among the alternatives: Zep discontinued its self-hosted Community Edition in 2025 and now runs memory only through Zep Cloud, BYOK, or Bring-Your-Own-Cloud.' },
+    { question: 'Are Mem0, Letta, Zep, and Supermemory open source?', answer: 'Partially, and the gate lands in different places. Mem0’s core is Apache 2.0 but its hosted platform is paid. Letta is Apache 2.0 with a managed Letta Cloud. Supermemory’s repo is MIT, but the local build caps out at 10,000 documents and supported self-hosted deployment starts on its $399/month Scale plan. Zep dropped its self-hosted Community Edition in 2025. Statewave is Apache-2.0 across the server and SDKs with no paid tier gating self-hosting.' },
+    { question: 'Which comparison should I read first?', answer: 'Match it to what you already have: read vs Mem0 if you’re replacing an existing Mem0 integration, vs Letta if your agent framework already manages its own memory with tool calls, vs Zep if you need a knowledge-graph model or are affected by its Community Edition sunset, and vs Supermemory if you need the multimodal or local-binary surface it covers.' },
+  ],
+
   '/connectors': [
     {
       question: 'What does a Statewave connector actually do?',

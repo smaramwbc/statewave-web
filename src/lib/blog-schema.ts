@@ -433,6 +433,33 @@ export const POST_FAQ: Readonly<Record<string, readonly FaqEntry[]>> = {
         'A handoff pack is assembled from stored memory and ticket state without calling a model, so it cannot invent a detail that was never recorded. It stays inside a fixed token budget, keeps sections in priority order, and can emit a receipt that records exactly what was delivered. A model-written summary can read more smoothly, but it cannot show you afterward what it left out.',
     },
   ],
+  'supermemory-alternatives': [
+    {
+      question: 'Is Supermemory open source?',
+      answer:
+        'The main repository is MIT licensed. The packaged local server and supported self-hosted offers have separate workload and support boundaries, including a 10,000-document limit on the local release since server v0.0.7 and supported self-hosting on Scale and Enterprise.',
+    },
+    {
+      question: 'What is the closest open-source Supermemory alternative?',
+      answer:
+        'OpenViking is closest for an integrated context filesystem. Mem0 is closer for a general memory API. Statewave is closer for governed interaction memory running on Postgres.',
+    },
+    {
+      question: 'Can Statewave replace Supermemory RAG?',
+      answer:
+        'Not fully. Statewave focuses on durable interaction memory and context assembly. Keep a document retrieval system when PDFs, media extraction, web crawling, and large knowledge bases are core inputs.',
+    },
+    {
+      question: 'Which alternative is best for a coding agent?',
+      answer:
+        "OpenViking and Letta Code have the closest project-context models in this list. Statewave can store coding-agent events and decisions through MCP or API, but it does not copy Supermemory's local graph console or file-oriented RAG experience.",
+    },
+    {
+      question: 'Which option is easiest to self-host?',
+      answer:
+        'The answer changes with scale. Supermemory Local is the simplest single-binary start. Statewave uses a familiar Postgres plus pgvector deployment. Hindsight offers one-container and embedded paths. Graphiti requires a graph database. Test the intended production topology before deciding.',
+    },
+  ],
 } as const
 
 export const HOWTO_SLUGS: readonly string[] = ['persistent-memory-for-ai-support-agents']

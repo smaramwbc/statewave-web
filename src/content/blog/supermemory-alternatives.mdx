@@ -1,0 +1,294 @@
+---
+title: "6 Best Open-Source Supermemory Alternatives (2026)"
+slug: supermemory-alternatives
+date: "2026-09-22T09:00:00+02:00"
+description: Compare six Supermemory alternatives for governed agent memory, local context, temporal graphs, reflection, and self-hosting.
+author: Saber Maram
+category: Guides
+image: /images/blog/supermemory-alternatives/og.png
+headerImage: /images/blog/supermemory-alternatives/header.png
+tags:
+  - comparison
+  - open-source
+  - memory
+---
+
+For product teams that need a self-hosted memory service with policy checks, provenance, and an audit record of assembled context, Statewave is the strongest Supermemory alternative. OpenViking is closer for filesystem-style context, while Hindsight is stronger when agents must form observations and reflect over experience.
+
+Supermemory is difficult to replace with a single tool because it combines four jobs: conversational memory, document retrieval, user profiles, and local memory for coding agents. The right alternative depends on which of those jobs is creating value and which boundary is creating friction.
+
+## Why do developers choose Supermemory?
+
+Supermemory removes a large amount of context infrastructure from an application. One API can ingest conversations and files, extract atomic memories, maintain profiles, search a graph, and retrieve document chunks.
+
+Its local edition is also unusually convenient. The official product page describes one binary with an embedded graph engine and local embeddings, without a separate database. Code can move between local and cloud by changing the base URL. That is a strong prototype path for TypeScript teams and coding-agent users.
+
+The same breadth creates the first selection problem: a team searching for a Supermemory alternative may be replacing a memory API, a RAG service, an MCP tool, or a deployment model. Those are different buying decisions.
+
+## Why do teams look for Supermemory alternatives?
+
+The clearest reasons aren't a lack of features. They are product scope, deployment boundaries, operational fit, and the level of control required around memory.
+
+### The open repository, local binary, and supported self-hosted offer have different boundaries
+
+The [Supermemory repository](https://github.com/supermemoryai/supermemory) is MIT licensed. The local release is described as "Supermemory Lite" and enforces a limit of 10,000 documents, first stated in the [server v0.0.7 release notes](https://github.com/supermemoryai/supermemory/releases). The later v0.0.8 notes do not restate the cap, so confirm it against the build you plan to run. Supported self-hosted deployments appear on the **$399 per month Scale plan** and Enterprise, while fully air-gapped deployment is an Enterprise option on the [pricing page](https://supermemory.ai/pricing/).
+
+That gives developers three distinct questions to resolve: Can we modify the code? Can the packaged local server carry our workload? Who supports the production deployment? An MIT license answers the first question, not the other two.
+
+### A single context platform may be broader than the application needs
+
+Supermemory includes memory extraction, profiles, hybrid search, graph traversal, multimodal RAG, connectors, plugins, and a filesystem interface. That consolidation is useful when one vendor should own the whole context stack. It is unnecessary weight when the actual requirement is narrower, such as retaining customer interactions with source lineage and retrieval policy.
+
+### Embedded local storage has a different scaling profile from managed cloud
+
+The one-binary experience trades infrastructure setup for an embedded data path. One public [issue report](https://github.com/supermemoryai/supermemory/issues/1366) measured roughly 7 GB of resident memory with about 5,000 memories and a 2 GB store because the PGlite memory filesystem held the corpus in RAM.
+
+Another [issue](https://github.com/supermemoryai/supermemory/issues/1413) reports full-database snapshots every ten seconds on a non-trivial store. These are issue reports, not universal benchmarks, but they are good reasons to load-test the exact local release before treating laptop convenience as a server architecture.
+
+### Governance may need to happen before retrieval, not after it
+
+Supermemory Cloud documents organizations, roles, scoped keys, logs, per-tag access, and compliance options. Some teams need a different control: a deterministic decision about which memories may enter a model call, plus a durable record of the selected bytes and their sources. That requirement points toward a policy-oriented memory runtime rather than a broader context service.
+
+<figure className="my-8">
+<img src="/images/blog/supermemory-alternatives/image1.png" alt="Four deployment surfaces for Supermemory: an open repository under MIT, a local binary capped at 10,000 documents, a supported Scale self-host plan, and an Enterprise air-gapped option." width="1600" height="897" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+<figcaption className="mt-3 text-[14px] leading-6 text-theme-secondary/70">The deployment and support boundaries across Supermemory's repository, local binary, cloud, and enterprise paths.</figcaption>
+</figure>
+
+## What are you actually replacing?
+
+A useful shortlist starts by naming the job. Treating every product below as a universal substitute creates a misleading comparison.
+
+| Supermemory job | What the replacement must preserve | Best-matched alternative |
+| ----- | ----- | ----- |
+| Product memory API | per-user facts, updates, retrieval, deletion | Statewave or Mem0 |
+| Document and multimodal RAG | ingestion, chunking, search, source content | OpenViking |
+| Learning from interactions | evidence consolidation and higher-order synthesis | Hindsight |
+| Time-aware entity facts | changed relationships and fact validity | Graphiti |
+| Stateful agent identity | editable memory inside a full agent runtime | Letta |
+| Local coding context | cross-session project knowledge through agent tools | OpenViking or Letta Code |
+
+Our finding from the product documentation is that Supermemory spans **four distinct deployment surfaces** as well as four context jobs: an MIT source tree, a capped local binary, a managed API, and supported self-hosted or air-gapped deployments. A migration plan should name both the job and the deployment surface it is replacing.
+
+## Supermemory alternatives compared
+
+The table compares the operational shape of each option. "Open source" refers to the cited core project, not every hosted or enterprise feature sold around it.
+
+| Alternative | Strongest fit | Data model | Self-hosted path | Main tradeoff |
+| ----- | ----- | ----- | ----- | ----- |
+| **Statewave** | policy-bound application memory | episodes plus typed memories | Postgres + pgvector, Apache-2.0 | no managed cloud or entity-relationship graph |
+| **OpenViking** | browsable context across files, memory, and skills | hierarchical viking:// filesystem | server under AGPL-3.0 | broader context platform and copyleft license |
+| **Hindsight** | agents that learn and reflect | facts, experiences, observations, mental models | MIT server on Postgres or embedded pg0 | more model work and a larger runtime surface |
+| **Mem0** | conventional memory API with a managed option | extracted memories with optional graph features | Apache-2.0 core | cloud and OSS capabilities must be checked separately |
+| **Graphiti** | temporal entity relationships | episode, entity, and time-aware relation graph | Apache-2.0 with Neo4j, FalkorDB, or Neptune | you operate the graph and application services around it |
+| **Letta** | complete stateful agents | agent-managed memory blocks and MemFS | open agent runtime and App Server | replaces more than the memory component |
+
+<figure className="my-8">
+<img src="/images/blog/supermemory-alternatives/image2.png" alt="Comparison matrix matching Statewave, OpenViking, Hindsight, Mem0, Graphiti and Letta against a memory API, RAG or files, a temporal graph, reflection, and agent runtime." width="1600" height="898" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+<figcaption className="mt-3 text-[14px] leading-6 text-theme-secondary/70">A comparison matrix matching each Supermemory replacement to memory, RAG, graph, learning, and runtime needs.</figcaption>
+</figure>
+
+## How we evaluated the alternatives
+
+We compared the current official repository, product documentation, deployment instructions, pricing boundary, and published limitations for every tool. We weighted five questions that matter to Statewave's ICP:
+
+1. Can the system run in infrastructure the team controls?
+2. Can one memory be traced to the event that produced it?
+3. Can retrieval be constrained by identity, sensitivity, or application policy?
+4. Can operators explain the context that reached a model call?
+5. Does the product fit an existing agent stack without replacing the agent runtime?
+
+Benchmark scores were not used as a universal ranking. The products do not expose the same task, storage model, answerer, or retrieval budget. Reproduce any published score with the models and traffic shape you plan to deploy.
+
+## The 6 best open-source alternatives to Supermemory
+
+Each option below replaces a different part of Supermemory. Statewave is first because governed, framework-neutral interaction memory is the use case this article is designed to answer.
+
+### 1. Statewave: best for governed memory in customer-facing agents
+
+<figure className="my-8">
+<img src="/images/blog/supermemory-alternatives/image3.jpg" alt="The smaramwbc/statewave repository on GitHub, described as an open-source memory runtime for AI agents with reproducible, provenance-tagged context bundles." width="1568" height="621" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+</figure>
+
+[Statewave](https://github.com/smaramwbc/statewave) records conversations, tool calls, and decisions as append-only episodes. A compiler produces typed memories with confidence, validity, and source episode IDs. Retrieval then ranks memory under a token budget, evaluates YAML policy, and emits a ULID-addressable state-assembly receipt with a byte-level integrity hash.
+
+That sequence matters for support agents, internal copilots, and workflow agents. A vector search result only says what was similar. A Statewave receipt records which context was assembled, while provenance connects each compiled fact to the raw event behind it. Sensitivity labels can travel with a memory, and subject deletion removes the subject's episodes and memories.
+
+Statewave's public proof for this comparison is operational rather than a recycled leaderboard claim. The published eval suite runs 56 assertions across recall, compilation, ranking, provenance, token budgets, and repeat-issue workflows. In Statewave's own personal assistant reference demo, compiled context used 73% fewer tokens than replaying the raw history. Those results describe the published setups, not every workload.
+
+Migration is clean when the application already owns its prompts and agent loop. Keep Supermemory and Statewave in shadow mode for a representative set of subjects. Send new interaction events to Statewave, compile them, then compare the returned bundle against Supermemory search and profile output. Test changed preferences, deletion, sensitive memories, tenant boundaries, and a strict token cap before moving reads.
+
+Statewave is not a replacement for Supermemory's multimodal RAG, managed cloud, or ontology graph. It extracts entities per memory to improve retrieval, but it does not model relationships between them or support graph traversal. It is the better fit when interaction memory must remain inside your Postgres estate and the model's context needs policy and evidence. See the [self-hosted Postgres architecture](/blog/self-hosted-memory-postgres-pgvector) and the [provenance model](/blog/agent-memory-provenance-audit-trails) for the design details, or the [Statewave architecture overview](https://github.com/smaramwbc/statewave-docs/blob/main/architecture/overview.md) for the full pipeline.
+
+<figure className="my-8">
+<img src="/images/blog/supermemory-alternatives/image4.png" alt="A five-step migration map: export conversations and facts, record them as append-only episodes, compile typed memories, apply policy and sensitivity controls, then assemble a token-bounded receipt." width="1600" height="897" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+<figcaption className="mt-3 text-[14px] leading-6 text-theme-secondary/70">How Statewave converts interaction episodes into governed, receipt-backed context.</figcaption>
+</figure>
+
+See [Statewave vs Supermemory](/vs/supermemory) for a closer look at deterministic assembly with per-row provenance against hybrid vector-plus-keyword search with context-aware reranking.
+
+### 2. OpenViking: best for filesystem-style context and progressive disclosure
+
+<figure className="my-8">
+<img src="/images/blog/supermemory-alternatives/image5.jpg" alt="The volcengine/OpenViking repository on GitHub, a self-evolving context database for AI agents unifying agent memory, knowledge, and skills." width="1568" height="621" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+</figure>
+
+[OpenViking](https://github.com/volcengine/OpenViking) is the closest option when Supermemory is being used as a context filesystem rather than only a fact store. It places resources, memories, skills, sessions, and agent context behind `viking://` URIs. Directories carry an L0 abstract and L1 overview, while full L2 content is read only when needed.
+
+That three-level model gives an agent a cheap way to decide whether a directory deserves deeper inspection. The server also documents account and user isolation, resource ACLs, encryption, session-to-memory extraction, Python/Go/TypeScript SDKs, and MCP support. The open server is AGPL-3.0; a licensed self-managed edition adds distributed deployment and official support.
+
+**Choose OpenViking** when the replacement must preserve documents, project trees, reusable skills, and human-browsable context in one namespace. Choose Statewave when the primary records are interactions and the harder requirement is policy-bound assembly with provenance.
+
+### 3. Hindsight: best for observations, mental models, and reflection
+
+<figure className="my-8">
+<img src="/images/blog/supermemory-alternatives/image6.jpg" alt="The vectorize-io/hindsight repository on GitHub, described as agent memory that learns." width="1568" height="621" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+</figure>
+
+[Hindsight](https://github.com/vectorize-io/hindsight) organizes memory into world facts, experiences, evidence-backed observations, and mental models. Its recall path runs semantic, keyword, graph, and temporal retrieval in parallel. Reflect adds an agentic synthesis step for questions that require a conclusion rather than a list of matching memories.
+
+The MIT-licensed server can run with embedded pg0 or external PostgreSQL, and the managed service adds team and operating features. The cost and latency profile differs from a simple retrieval API because retain extracts structure and reflect runs model reasoning. This is worthwhile when the product should learn patterns from repeated experience.
+
+**Choose Hindsight** when Supermemory's fact graph is not enough and the agent should maintain standing interpretations of a user, project, or process. It may be excessive for deterministic support context where the application already owns reasoning.
+
+### 4. Mem0: best for a familiar memory API and managed adoption path
+
+<figure className="my-8">
+<img src="/images/blog/supermemory-alternatives/image7.jpg" alt="The mem0ai/mem0 repository on GitHub, described as the memory layer for AI agents with drop-in memory infrastructure and context that persists." width="1568" height="621" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+</figure>
+
+[Mem0](https://github.com/mem0ai/mem0) is a direct architectural alternative for teams that want add, search, update, and delete operations behind a well-known memory abstraction. Its Apache-2.0 core supports self-hosting, while the managed platform reduces database and deployment work. The integration catalog covers common agent frameworks and MCP workflows.
+
+The purchasing work is to separate the open-source package from the hosted product. Verify the exact edition for graph features, audit data, deletion behavior, access controls, and support. Mem0 is a good choice when broad ecosystem support matters more than owning a deterministic context-assembly layer. If you're weighing Mem0 specifically, see [six open-source alternatives to Mem0](/blog/open-source-alternatives-to-mem0).
+
+### 5. Graphiti: best for facts whose truth changes over time
+
+<figure className="my-8">
+<img src="/images/blog/supermemory-alternatives/image8.jpg" alt="The getzep/graphiti repository on GitHub, building real-time knowledge graphs for AI agents." width="1568" height="621" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+</figure>
+
+[Graphiti](https://github.com/getzep/graphiti) is a temporal knowledge-graph engine built around episodes, entities, relationships, and validity through time. Hybrid semantic and keyword retrieval can be reranked with graph distance, which helps answer questions such as what changed, when it changed, and which entity relationship is current.
+
+The Apache-2.0 project supports Neo4j, FalkorDB, and Amazon Neptune. It is an engine, not the full Zep service, so your team supplies identity, conversation management, database operations, authentication, and the product surface around it.
+
+**Choose Graphiti** when the loss you are fixing is temporal relationship reasoning. It is less direct when the key requirement is customer-memory policy, subject deletion, or an audit record for one assembled prompt.
+
+### 6. Letta: best when memory should live inside the agent runtime
+
+<figure className="my-8">
+<img src="/images/blog/supermemory-alternatives/image9.jpg" alt="The letta-ai/letta-code repository on GitHub, for stateful agents with memory, identity, and the ability to learn and adapt." width="1568" height="621" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+</figure>
+
+[Letta](https://docs.letta.com/) gives agents editable memory blocks, a Git-backed memory filesystem, skills, schedules, subagents, channels, permissions, and remote computers. Its memory model is part of a stateful agent runtime, not a neutral service placed below any framework.
+
+That is attractive when the application is willing to adopt Letta's execution model and wants an agent that can revise its own operating context. It is a larger migration when the team already has orchestration, tools, and identity services. Memory and transcript export remain available, although AgentFile import and export have been removed from Letta Code.
+
+**Choose Letta** when replacing both Supermemory and the surrounding agent runtime is intentional. Keep a separate memory service when multiple frameworks and services need to read the same governed subject history.
+
+## How should you choose a Supermemory alternative?
+
+Use the narrowest test that reflects production. A feature checklist will hide the differences that matter.
+
+### Choose the unit of memory first
+
+A user profile, document corpus, coding project, account timeline, and entity graph require different scopes. Write the identifier you expect on every read and delete call. If the answer is unclear, the data model is not ready.
+
+<figure className="my-8">
+<img src="/images/blog/supermemory-alternatives/image10.png" alt="A decision tree starting from 'what must persist?' and routing user or account history to Statewave, project files and skills to OpenViking, learned observations to Hindsight, and entity relationships to Graphiti." width="1600" height="894" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+<figcaption className="mt-3 text-[14px] leading-6 text-theme-secondary/70">A decision path for choosing among the six Supermemory alternatives.</figcaption>
+</figure>
+
+### Separate retrieval quality from control quality
+
+Measure whether the correct information is found, then separately test whether prohibited information is excluded. A high recall score does not establish tenant isolation, policy enforcement, source lineage, or deletion.
+
+### Test the production deployment, not only the quickstart
+
+Load-test the exact local binary, container, or database topology you plan to operate. Include restarts, schema upgrades, queues, backup and restore, a failed model provider, and a noisy tenant. The easiest local demo is not always the easiest production system.
+
+### Put cost against a real traffic model
+
+Supermemory bills unique ingested tokens, queries, and operations. Hindsight bills retain and recall volume plus reflect calls. Zep bills episode bytes. Self-hosted projects move more cost into databases and model providers. Use one month of representative messages and files so that pricing units map to your data rather than an invented average.
+
+<figure className="my-8">
+<img src="/images/blog/supermemory-alternatives/image11.png" alt="A production evaluation scorecard with four panels: retrieval at a fixed token cap, control where denied data never enters the prompt, operations covering restarts and noisy tenants, and cost replayed against one month of real traffic." width="1600" height="903" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+<figcaption className="mt-3 text-[14px] leading-6 text-theme-secondary/70">A production evaluation scorecard for testing retrieval, control, deployment, and cost.</figcaption>
+</figure>
+
+## Which Supermemory alternative should you pick?
+
+Statewave fits customer-facing or workflow memory that needs self-hosting, policy, provenance, and context receipts. OpenViking supplies a browsable context filesystem; Hindsight adds evidence consolidation and reflective learning. Mem0 is the conventional API with a managed route, Graphiti handles time-aware relationships, and Letta puts memory inside the full agent runtime.
+
+Supermemory remains a strong option when one provider should own memory, profiles, RAG, connectors, and local developer tooling. The alternative becomes compelling when a narrower system better matches the application's data model, production boundary, or control requirements. If you're unsure whether you need a memory layer or a document-retrieval stack in the first place, read [AI agent memory vs RAG](/blog/ai-agent-memory-vs-rag) first.
+
+Supermemory, Mem0, Zep, Graphiti, OpenViking, Hindsight and Letta are trademarks of their respective owners; used here for factual comparison. Pricing, feature lists and repository details are as of September 2026 and change frequently, so check each vendor's own page before you rely on them.
+
+## FAQ
+
+<div className="my-8 space-y-3">
+
+<details open className="blog-faq group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35">
+<summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none">
+<h3 className="text-[18px] font-semibold leading-snug text-theme-primary !m-0">1. Is Supermemory open source?</h3>
+<div className="blog-faq-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40">
+<svg className="h-5 w-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" /></svg>
+</div>
+</summary>
+<div className="px-7 pb-7">
+<div className="h-px bg-theme-primary/10 mb-6" />
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">The main repository is MIT licensed. The packaged local server and supported self-hosted offers have separate workload and support boundaries, including a 10,000-document limit on the local release since server v0.0.7 and supported self-hosting on Scale and Enterprise.</p>
+</div>
+</details>
+
+<details className="blog-faq group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35">
+<summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none">
+<h3 className="text-[18px] font-semibold leading-snug text-theme-primary !m-0">2. What is the closest open-source Supermemory alternative?</h3>
+<div className="blog-faq-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40">
+<svg className="h-5 w-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" /></svg>
+</div>
+</summary>
+<div className="px-7 pb-7">
+<div className="h-px bg-theme-primary/10 mb-6" />
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">OpenViking is closest for an integrated context filesystem. Mem0 is closer for a general memory API. Statewave is closer for governed interaction memory running on Postgres.</p>
+</div>
+</details>
+
+<details className="blog-faq group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35">
+<summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none">
+<h3 className="text-[18px] font-semibold leading-snug text-theme-primary !m-0">3. Can Statewave replace Supermemory RAG?</h3>
+<div className="blog-faq-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40">
+<svg className="h-5 w-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" /></svg>
+</div>
+</summary>
+<div className="px-7 pb-7">
+<div className="h-px bg-theme-primary/10 mb-6" />
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">Not fully. Statewave focuses on durable interaction memory and context assembly. Keep a document retrieval system when PDFs, media extraction, web crawling, and large knowledge bases are core inputs.</p>
+</div>
+</details>
+
+<details className="blog-faq group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35">
+<summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none">
+<h3 className="text-[18px] font-semibold leading-snug text-theme-primary !m-0">4. Which alternative is best for a coding agent?</h3>
+<div className="blog-faq-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40">
+<svg className="h-5 w-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" /></svg>
+</div>
+</summary>
+<div className="px-7 pb-7">
+<div className="h-px bg-theme-primary/10 mb-6" />
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">OpenViking and Letta Code have the closest project-context models in this list. Statewave can store coding-agent events and decisions through MCP or API, but it does not copy Supermemory's local graph console or file-oriented RAG experience.</p>
+</div>
+</details>
+
+<details className="blog-faq group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35">
+<summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none">
+<h3 className="text-[18px] font-semibold leading-snug text-theme-primary !m-0">5. Which option is easiest to self-host?</h3>
+<div className="blog-faq-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40">
+<svg className="h-5 w-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" /></svg>
+</div>
+</summary>
+<div className="px-7 pb-7">
+<div className="h-px bg-theme-primary/10 mb-6" />
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">The answer changes with scale. Supermemory Local is the simplest single-binary start. Statewave uses a familiar Postgres plus pgvector deployment. Hindsight offers one-container and embedded paths. Graphiti requires a graph database. Test the intended production topology before deciding.</p>
+</div>
+</details>
+
+</div>

@@ -51,6 +51,7 @@ export type RouteKey =
   | '/vs/letta'
   | '/vs/zep'
   | '/vs/supermemory'
+  | '/alternatives'
   | '/connectors'
   | '/developers'
   | '/about'
@@ -75,6 +76,7 @@ export const PUBLIC_ROUTES: readonly RouteKey[] = [
   '/vs/letta',
   '/vs/zep',
   '/vs/supermemory',
+  '/alternatives',
   '/connectors',
   '/developers',
   '/about',
@@ -220,6 +222,15 @@ export const PAGE_META: Record<RouteKey, PageMeta> = {
     description:
       'How Statewave compares to Supermemory: deterministic, token-bounded context assembly with per-row provenance and integrity-hashed receipts vs. hybrid vector-plus-keyword search with context-aware reranking — plus each product’s own LoCoMo and LongMemEval figures, shown apart since they measure different things.',
     breadcrumbLabel: 'vs Supermemory',
+    ogType: 'article',
+    priority: 0.7,
+    changefreq: 'monthly',
+  },
+  '/alternatives': {
+    title: 'Statewave vs. Mem0, Letta, Zep & Supermemory',
+    description:
+      'Every Statewave comparison in one place: deterministic, token-bounded context assembly with provenance and policy enforcement, measured against Mem0, Letta, Zep, and Supermemory’s own retrieval models. Apache-2.0, self-hosted on Postgres.',
+    breadcrumbLabel: 'Alternatives',
     ogType: 'article',
     priority: 0.7,
     changefreq: 'monthly',
