@@ -14,6 +14,7 @@ import {
   FileCode2,
   FlaskConical,
   ServerCog,
+  Waypoints,
 } from 'lucide-react'
 import { PageFaq } from '../components/PageFaq'
 
@@ -222,21 +223,34 @@ export function DevelopersPage() {
               tag: 'Source',
               icon: null,
             },
+            {
+              title: 'OpenRouter Proxy',
+              desc: 'Give OpenRouter calls persistent memory without touching your client: change the base URL, add one header.',
+              to: '/openrouter',
+              tag: 'Proxy',
+              icon: Waypoints,
+            },
           ].map((item, i) => {
             const Icon = item.icon
+            // Most of these are docs on GitHub, but an on-site route has to go
+            // through the router and must not open in a new tab. Rendering it
+            // as an <a href={undefined}> would produce a card that looks
+            // clickable and does nothing.
+            const internal = 'to' in item && typeof item.to === 'string'
+            const Wrapper = internal ? motion(Link) : motion.a
+            const linkProps = internal
+              ? { to: item.to as string }
+              : { href: item.href, target: '_blank', rel: 'noopener noreferrer' }
 
             return (
-              <motion.a
+              <Wrapper
                 key={item.title}
-                href={item.href}
-                target="_blank"
-                rel="noopener noreferrer"
+                {...linkProps}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.05 }}
-                className={`sw-card group flex flex-col rounded-2xl border border-theme-border/80 bg-surface-1/80 p-6 transition-all duration-300 hover:-translate-y-1 hover:border-brand-500/35 ${i < 4 ? 'lg:col-span-3' : 'lg:col-span-4'
-                  }`}
+                className="sw-card group flex flex-col rounded-2xl border border-theme-border/80 bg-surface-1/80 p-6 transition-all duration-300 hover:-translate-y-1 hover:border-brand-500/35 lg:col-span-3"
               >
                 <div className="flex items-start gap-4">
                   <div className="flex h-6 w-6 shrink-0 items-center justify-center">
@@ -311,7 +325,7 @@ export function DevelopersPage() {
                     </p>
                   </div>
                 </div>
-              </motion.a>
+              </Wrapper>
             )
           })}
         </div>

@@ -56,7 +56,13 @@ describe('Per-page SEO metadata', () => {
       expect(metaContent('og:type', 'property')).toBe(meta.ogType ?? 'website')
       expect(metaContent('og:site_name', 'property')).toBe('Statewave')
       expect(metaContent('og:locale', 'property')).toBe('en_US')
-      expect(metaContent('og:image', 'property')).toBe(`${BASE_URL}/og-image.png`)
+      // A route may ship its own share card (PageMeta.ogImage); the rest fall
+      // back to the site one. Asserting the expected value per route keeps this
+      // a real check rather than one that passes on either.
+      const expectedCard = meta.ogImage
+        ? `${BASE_URL}${meta.ogImage}`
+        : `${BASE_URL}/og-image.png`
+      expect(metaContent('og:image', 'property')).toBe(expectedCard)
       expect(metaContent('og:image:width', 'property')).toBe('1200')
       expect(metaContent('og:image:height', 'property')).toBe('630')
       expect(metaContent('og:image:alt', 'property')).toBeTruthy()
@@ -64,7 +70,7 @@ describe('Per-page SEO metadata', () => {
       expect(metaContent('twitter:card')).toBe('summary_large_image')
       expect(metaContent('twitter:title')).toBe(meta.title)
       expect(metaContent('twitter:description')).toBe(meta.description)
-      expect(metaContent('twitter:image')).toBe(`${BASE_URL}/og-image.png`)
+      expect(metaContent('twitter:image')).toBe(expectedCard)
 
       expect(metaContent('robots')).toMatch(/index, follow/)
       expect(document.documentElement.lang).toBe('en')

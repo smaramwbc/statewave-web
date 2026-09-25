@@ -222,6 +222,70 @@ export const PAGE_FAQS: Partial<Record<RouteKey, readonly FaqEntry[]>> = {
     },
   ],
 
+  '/openrouter': [
+    {
+      question: 'What is statewave-openrouter?',
+      answer:
+        'An OpenAI-compatible HTTP proxy that gives OpenRouter calls persistent memory. It assembles a bundle for the subject before each call and writes the turn back as an episode after the reply.',
+      links: [
+        { label: 'Source on GitHub', href: 'https://github.com/smaramwbc/statewave-openrouter' },
+        { label: 'How the memory runtime works', href: '/product' },
+      ],
+    },
+    {
+      question: 'How much do I have to change in my code?',
+      answer:
+        'Two lines: point your existing OpenAI client at the proxy base URL and add an X-Statewave-Subject header to the request. Everything else in the integration stays the same, and a request with no subject header is proxied through unchanged.',
+    },
+    {
+      question: 'Does the proxy add latency to completions?',
+      answer:
+        'The episode write is fire-and-forget, so it costs nothing. The context fetch is one blocking read ahead of the upstream call.',
+    },
+    {
+      question: 'What happens if Statewave is down?',
+      answer:
+        'It fails open. The failure is logged and the completion still goes through, just without memory for that turn.',
+    },
+    {
+      question: 'Does it work with streaming?',
+      answer:
+        'Yes. SSE chunks relay byte for byte and the episode is written once the stream closes.',
+    },
+    {
+      question: 'Which endpoints support memory?',
+      answer:
+        'Three endpoints are memory-aware: /v1/chat/completions, where the bundle becomes the first system message; /v1/completions, where it is prefixed onto the prompt; and /v1/responses, where it is prepended to top-level instructions. Every other path is proxied verbatim.',
+    },
+    {
+      question: 'Do I need the Statewave SDK to use the proxy?',
+      answer:
+        'No. The proxy speaks the OpenAI HTTP API, so any OpenAI-compatible client in any language works: the Python SDK, the TypeScript SDK, plain curl, or an HTTP library you already use. The SDKs are for talking to Statewave directly, not for going through the proxy.',
+      links: [{ label: 'Python and TypeScript SDKs', href: '/developers' }],
+    },
+    {
+      question: 'Can one proxy serve several subjects at once?',
+      answer:
+        'Yes. The subject is read per request, and two subjects never share a bundle.',
+    },
+    {
+      question: 'What happens to the statewave_subject body field?',
+      answer:
+        'It is read by the proxy and then stripped from the payload before the request is forwarded, so OpenRouter never sees a field it does not recognise. If both the header and the body field are present, the header wins.',
+    },
+    {
+      question: 'Is it tied to OpenRouter models only?',
+      answer:
+        'The upstream is OpenRouter, so any model OpenRouter routes to is available, and the model string passes through untouched. Switching models is a change to your request, not to the proxy.',
+    },
+    {
+      question: 'How do I run it in production?',
+      answer:
+        'Run the published container or the pip package under uvicorn behind whatever ingress you already use, set PROXY_JWT_SECRET if untrusted clients can reach it, and point /health at your load balancer. Shutdown drains in-flight episode writes before the HTTP client closes.',
+      links: [{ label: 'Self-hosting guide', href: '/developers' }],
+    },
+  ],
+
   '/connectors': [
     {
       question: 'What does a Statewave connector actually do?',

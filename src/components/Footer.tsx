@@ -75,6 +75,7 @@ export function Footer() {
               <li><a href="https://github.com/smaramwbc/statewave-docs/blob/main/api/v1-contract.md" target="_blank" rel="noopener noreferrer" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">API Reference</a></li>
               <li><a href="https://github.com/smaramwbc/statewave-py" target="_blank" rel="noopener noreferrer" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">Python SDK</a></li>
               <li><a href="https://github.com/smaramwbc/statewave-ts" target="_blank" rel="noopener noreferrer" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">TypeScript SDK</a></li>
+              <li><Link to="/openrouter" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">OpenRouter proxy</Link></li>
               <li><Link to="/whitepaper" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">White paper</Link></li>
               <li><Link to="/benchmarks" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">Benchmarks</Link></li>
             </ul>

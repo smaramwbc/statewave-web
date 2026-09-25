@@ -7,8 +7,13 @@ import { ChatWidget } from './ChatWidget'
 import { ClientOnly } from './ClientOnly'
 
 export function Layout() {
+  // overflow-x-CLIP, not -hidden: `hidden` makes this div a scroll container,
+  // which silently breaks `position: sticky` for every descendant — both
+  // SectionNav rails (/benchmarks, /openrouter) scrolled away instead of
+  // parking under the navbar. `clip` suppresses the same horizontal overflow
+  // without establishing a scroll container.
   return (
-    <div className="min-h-screen min-h-[100dvh] flex flex-col overflow-x-hidden">
+    <div className="min-h-screen min-h-[100dvh] flex flex-col overflow-x-clip">
       <ScrollToTop />
       <a
         href="#main-content"

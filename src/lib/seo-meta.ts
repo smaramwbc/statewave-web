@@ -33,7 +33,17 @@ export const REPOS = {
   examples: 'https://github.com/smaramwbc/statewave-examples',
   admin: 'https://github.com/smaramwbc/statewave-admin',
   web: 'https://github.com/smaramwbc/statewave-web',
+  openrouter: 'https://github.com/smaramwbc/statewave-openrouter',
 } as const
+
+/** Shipped version of the statewave-openrouter proxy. Lives here so the
+ *  /openrouter page and its SoftwareApplication schema can't disagree. */
+export const OPENROUTER_PROXY_VERSION = '1.0.0'
+
+/** Last substantive revision of /openrouter. A constant, not the build
+ *  date: a timestamp that moves on every deploy is not a freshness
+ *  signal, it is noise, and answer engines discount it. */
+export const OPENROUTER_LAST_UPDATED = '2026-09-17'
 
 /* ─── Route table ────────────────────────────────────────────────────────── */
 
@@ -53,6 +63,7 @@ export type RouteKey =
   | '/vs/supermemory'
   | '/connectors'
   | '/developers'
+  | '/openrouter'
   | '/about'
   | '/blog'
   | '/faq'
@@ -77,6 +88,7 @@ export const PUBLIC_ROUTES: readonly RouteKey[] = [
   '/vs/supermemory',
   '/connectors',
   '/developers',
+  '/openrouter',
   '/about',
   '/blog',
   '/faq',
@@ -89,6 +101,11 @@ export interface PageMeta {
   breadcrumbLabel: string
   /** Open Graph type. Defaults to 'website'. */
   ogType?: 'website' | 'article'
+  /** Route-specific share card, absolute path from the site root (e.g.
+   *  '/openrouter/og.png'). Falls back to DEFAULT_OG_IMAGE when unset. */
+  ogImage?: string
+  /** Alt text for `ogImage`. Required whenever ogImage is set. */
+  ogImageAlt?: string
   /** Robots directive override. Defaults to DEFAULT_ROBOTS. */
   robots?: string
   /** Sitemap priority (0.0–1.0). */
@@ -242,6 +259,18 @@ export const PAGE_META: Record<RouteKey, PageMeta> = {
     priority: 0.8,
     changefreq: 'monthly',
   },
+  '/openrouter': {
+    ogImage: '/openrouter/og.png',
+    ogImageAlt:
+      'statewave-openrouter: an OpenAI-compatible proxy that gives OpenRouter calls persistent memory.',
+    title: 'Add Persistent Memory to OpenRouter Calls | statewave-openrouter',
+    description:
+      'statewave-openrouter is an open-source, OpenAI-compatible proxy that gives OpenRouter calls persistent memory. Change the base URL, add one header. Apache-2.0, Python 3.11+.',
+    breadcrumbLabel: 'OpenRouter Proxy',
+    ogType: 'article',
+    priority: 0.8,
+    changefreq: 'monthly',
+  },
   '/about': {
     title: 'About Statewave — Open-Source Memory Runtime for AI Agents',
     description:
@@ -351,6 +380,61 @@ export function softwareApplicationJsonLd(): JsonLd {
       'Self-hosted on Postgres + pgvector',
     ],
     offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+  }
+}
+
+/** SoftwareApplication node for statewave-openrouter, the proxy documented on
+ *  /openrouter. A separate entity from the runtime above on purpose: different
+ *  package, different repo, different install. Kept here rather than inline in
+ *  the page so the prerenderer can emit it too — see lib/page-schema.ts. */
+export function openrouterProxyJsonLd(): JsonLd {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: 'statewave-openrouter',
+    description:
+      'statewave-openrouter is an open-source, OpenAI-compatible HTTP proxy that gives OpenRouter calls persistent memory. It assembles a memory bundle for a subject before the call and writes the turn back as an episode after the reply.',
+    applicationCategory: 'DeveloperApplication',
+    operatingSystem: 'Linux, macOS, Windows',
+    softwareVersion: OPENROUTER_PROXY_VERSION,
+    programmingLanguage: 'Python',
+    runtimePlatform: 'Python 3.11+',
+    url: `${BASE_URL}/openrouter`,
+    license: 'https://www.apache.org/licenses/LICENSE-2.0',
+    dateModified: OPENROUTER_LAST_UPDATED,
+    softwareHelp: REPOS.openrouter,
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+    publisher: { '@id': ORGANIZATION_ID },
+  }
+}
+
+/** Blog node for /blog. Needs the post list, so it takes it as an argument
+ *  rather than importing lib/blog (which would make this module circular). */
+export interface BlogPostSummary {
+  title: string
+  date: string
+  url: string
+  description: string
+  author: string
+}
+
+export function blogIndexJsonLd(posts: readonly BlogPostSummary[]): JsonLd {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Blog',
+    name: 'Statewave blog',
+    url: `${BASE_URL}/blog`,
+    description:
+      'Notes from the Statewave project — memory infrastructure for AI agents, deployment patterns, and how the runtime works under the hood.',
+    publisher: { '@id': ORGANIZATION_ID },
+    blogPost: posts.map((p) => ({
+      '@type': 'BlogPosting',
+      headline: p.title,
+      datePublished: p.date,
+      url: p.url,
+      description: p.description,
+      author: { '@type': 'Organization', name: p.author, url: `${BASE_URL}/about` },
+    })),
   }
 }
 
