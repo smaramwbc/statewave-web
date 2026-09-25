@@ -1,0 +1,293 @@
+---
+title: "6 Best Open-Source Cognee Alternatives (2026)"
+slug: cognee-alternatives
+date: "2026-09-25T10:00:00+02:00"
+description: Compare six Cognee alternatives for agent memory, GraphRAG, temporal graphs, simpler storage, and governed interaction context.
+author: Saber Maram
+category: Guides
+image: /images/blog/cognee-alternatives/og.png
+headerImage: /images/blog/cognee-alternatives/header.png
+tags:
+  - comparison
+  - open-source
+  - memory
+---
+
+Pick Statewave over Cognee when the product needs governed interaction memory on one Postgres system and has little use for a graph-and-vector knowledge platform. LightRAG is closer for self-hosted GraphRAG, Microsoft GraphRAG (now in maintenance mode) still suits corpus-level community analysis, and Graphiti is better for relationships that change over time.
+
+Cognee sits between two categories: agent memory and knowledge-graph retrieval. A useful alternative must match the category you actually need. Replacing Cognee with a thin memory API can simplify a support agent, but it can also remove the graph reasoning a document intelligence product depends on.
+
+## Why do developers choose Cognee?
+
+Cognee turns source material into persistent graph and vector representations that agents can query across sessions. Its pipeline can ingest documents, code, and session data; classify content; extract entities and relationships; store data points; and improve the knowledge layer over time.
+
+That combination is useful when retrieval must connect facts across heterogeneous sources. A product can start with local SQLite, LanceDB, and an embedded graph store, then move to external databases and hosted model providers. Cognee also provides a server, UI, CLI, MCP integrations, code graph tooling, and a managed service.
+
+The attraction is choice. The main reason to consider an alternative is also choice: every additional storage and pipeline decision becomes something a production team must own.
+
+## Why do teams look for Cognee alternatives?
+
+Common reasons include category mismatch, storage complexity, processing cost, and the need for tighter control over customer interaction data.
+
+### The product may need memory, not a company knowledge graph
+
+Cognee's graph extraction is useful for documents, codebases, and connected organizational knowledge. A support agent often needs a different record: what this customer said, what the agent did, which issue was resolved, which preference is current, and what may be shown on the next call.
+
+Those interaction semantics are awkward to recover from a general document graph after ingestion. A subject-oriented memory runtime can make the write unit, lifecycle, and deletion boundary explicit.
+
+### The default local setup spans three storage roles
+
+Cognee's current repository describes separate relational, vector, and graph interfaces. The local defaults use **SQLite** for relational data, **LanceDB** for vectors, and **Ladybug/Kuzu** for the graph. The official configuration also names at least **five graph providers** and **four vector providers**, with access-control support depending on the chosen pair.
+
+That breadth is a benefit for platform teams that need backend choice. It is overhead for teams that want one backup, one restore process, one consistency boundary, and one set of database skills.
+
+### Graph extraction adds a model-dependent ingestion stage
+
+The cognify pipeline asks a model to classify or extract structured relationships from source content. Quality therefore depends on source segmentation, extraction prompts, model behavior, ontology choices, and later retrieval. A graph can be wrong before the query begins.
+
+This does not make graph extraction unreliable by definition. It means evaluation must score graph construction as well as answer quality, especially for changed facts and duplicated entities.
+
+### Production isolation depends on the backend combination
+
+Cognee documents per-user and per-dataset isolation through dataset database handlers. Some graph and vector backends support that model; others require access control to be disabled or a different deployment. The current documentation also labels graph-on-Postgres as a demo path.
+
+Teams should select the storage topology and tenant model together. "Cognee supports multi-tenancy" is not enough without the chosen graph and vector providers.
+
+<figure className="my-8">
+<img src="/images/blog/cognee-alternatives/image11.png" alt="A chart showing Cognee's local default spanning three storage roles: relational, vector, and graph, plus a model extraction stage." width="1600" height="922" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+<figcaption className="mt-3 text-[14px] leading-6 text-theme-secondary/70">Cognee's three storage roles and the production decisions behind each one.</figcaption>
+</figure>
+
+## Do you need agent memory or GraphRAG?
+
+This is the highest-value question in the comparison. It determines both the shortlist and the evaluation dataset.
+
+| Workload | Primary record | Query pattern | Best category |
+| ----- | ----- | ----- | ----- |
+| Customer support memory | time-ordered interactions and durable case facts | "What happened before, and what is relevant now?" | Statewave |
+| Large document corpus | entities, relationships, passages, communities | "How are concepts connected across the corpus?" | LightRAG or Microsoft GraphRAG |
+| Changing relationship data | events plus time-valid edges | "What was true, and when?" | Graphiti |
+| Custom RAG application | application-defined graph and retrievers | "How do we compose our own graph query path?" | LlamaIndex PropertyGraphIndex |
+| Adaptive agent | facts, experiences, observations, mental models | "What has the agent learned?" | Hindsight |
+
+A system can need more than one category. In that case, compose them deliberately. Use an interaction-memory service for subject history and a GraphRAG system for the knowledge base instead of forcing both workloads into one index.
+
+## Cognee alternatives compared
+
+The table focuses on the data model and operating surface, because those differences affect production more than a generic feature count.
+
+| Alternative | Best for | Storage shape | License | Main tradeoff |
+| ----- | ----- | ----- | ----- | ----- |
+| **Statewave** | governed interaction memory | one Postgres + pgvector system | Apache-2.0 | no entity-relationship graph or multimodal document pipeline |
+| **LightRAG** | self-hosted hybrid GraphRAG | KV + vector + graph + document-status stores, with single-backend options | MIT | production setup and auth require care |
+| **Microsoft GraphRAG** | corpus-level entity and community analysis | indexed tables plus configured storage/vector layer | MIT | maintenance mode; indexing can be expensive |
+| **Graphiti** | temporal knowledge graphs | Neo4j, FalkorDB, or Neptune | Apache-2.0 | not a complete application memory service |
+| **LlamaIndex PropertyGraphIndex** | custom graph retrieval inside a RAG application | selected property-graph and optional vector stores | MIT ecosystem | lower-level assembly and operations work |
+| **Hindsight** | learned observations and reflection | PostgreSQL or embedded pg0 | MIT | broader model pipeline than a simple fact store |
+
+<figure className="my-8">
+<img src="/images/blog/cognee-alternatives/image8.png" alt="A comparison matrix scoring Statewave, LightRAG, Microsoft GraphRAG, Graphiti, LlamaIndex PropertyGraphIndex and Hindsight against interaction with tools, document graph, temporal engine, global search, and reflection." width="1600" height="912" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+<figcaption className="mt-3 text-[14px] leading-6 text-theme-secondary/70">A comparison matrix separating interaction memory, temporal graphs, and document GraphRAG.</figcaption>
+</figure>
+
+## How we evaluated the alternatives
+
+We separated five technical jobs: event retention, document ingestion, entity extraction, graph retrieval, and context delivery. We evaluated each candidate only on the jobs it claims to own.
+
+Our original architecture audit counted Cognee's three storage roles and the named provider choices in its current configuration documentation. The purpose was not to penalize optionality. It was to expose the operating decisions hidden by a single "self-hosted" label.
+
+We did not compare benchmark scores across unrelated tasks. A graph question over a document corpus and a multi-session customer-memory question do not establish the same capability.
+
+## The 6 best open-source Cognee alternatives
+
+Statewave leads for Statewave's ICP: teams building support, operations, workflow, or multi-agent products that need governed memory of interactions. The next four entries are closer to when Cognee's graph is the feature, not the burden.
+
+### 1. Statewave: best for one-Postgres interaction memory with policy and provenance
+
+<figure className="my-8">
+<img src="/images/blog/cognee-alternatives/image6.gif" alt="The smaramwbc/statewave repository on GitHub, described as an open-source memory runtime for AI agents with reproducible, provenance-tagged context bundles." width="903" height="352" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+</figure>
+
+[Statewave](https://github.com/smaramwbc/statewave) compiles append-only episodes into typed semantic and episodic memories that keep their source episode IDs, then assembles policy-checked context under a token cap and records a receipt. The [architecture overview](https://github.com/smaramwbc/statewave-docs/blob/main/architecture/overview.md) has the details.
+
+The Cognee-specific advantage is a smaller consistency boundary. Statewave stores relational records and vectors in Postgres with pgvector. There is no graph database to synchronize with a vector store, and raw episodes remain available if the compiler or schema changes. The [Statewave account of its own early prototype](/blog/self-hosted-memory-postgres-pgvector) says synchronization between separate stores grew to roughly **30% of the code** before the project moved to one database. That is first-party engineering evidence, not a neutral industry benchmark, but it is directly relevant to this trade.
+
+Statewave's published eval suite runs 56 assertions. For this comparison, what they cover matters more than any recall score: provenance, idempotent compilation, token budgets, session-aware ranking, repeat-issue detection, and support handoff.
+
+Migration starts by separating Cognee inputs. Conversation turns, tool calls, decisions, and case events become Statewave episodes. Stable facts compiled from those events become memories. Documents, code, and wide organizational knowledge should stay in Cognee or move to a dedicated RAG system. The application can retrieve both and keep the sources distinct in the prompt.
+
+Statewave is not a substitute for graph traversal, community detection, code graphs, or broad data connectors. It also has no managed cloud and no cross-region clustering. Choose it when the real job is governed subject memory, then pair it with a knowledge system if the application also needs corpus retrieval. See [episodic versus semantic memory](/blog/episodic-vs-semantic-memory) for the record split.
+
+<figure className="my-8">
+<img src="/images/blog/cognee-alternatives/image2.png" alt="A two-system design showing Statewave holding messages, tool events, case facts, decisions, and policy-filtered context, next to a GraphRAG system holding documents, code, entities, and communities." width="1600" height="908" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+<figcaption className="mt-3 text-[14px] leading-6 text-theme-secondary/70">A two-system design that separates Statewave interaction memory from a document knowledge graph.</figcaption>
+</figure>
+
+### 2. LightRAG: best for an open GraphRAG server with flexible storage
+
+<figure className="my-8">
+<img src="/images/blog/cognee-alternatives/image9.gif" alt="The HKUDS/LightRAG repository on GitHub, described as simple and fast retrieval-augmented generation." width="902" height="344" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+</figure>
+
+[LightRAG](https://github.com/HKUDS/LightRAG) extracts entities and relationships, builds a knowledge graph, and supports local, global, hybrid, mix, and naive retrieval modes. The current server includes a web UI, REST API, Docker deployment, authentication options, offline deployment guidance, and multimodal processing.
+
+LightRAG defines four storage roles: key-value, vector, graph, and document status. Development defaults are file-persisted in-memory stores. Production can use one backend such as PostgreSQL, MongoDB, or OpenSearch for all four roles, or separate systems such as Qdrant and Neo4j. The documentation warns that the default stores are not production storage and that unauthenticated endpoints should not be exposed.
+
+Choose LightRAG when Cognee is being replaced as a GraphRAG engine and the team wants control over retrieval modes and storage. It does not provide Statewave's interaction provenance or context receipts, and it does not model agent learning like Hindsight.
+
+### 3. Microsoft GraphRAG: best for global questions across a large corpus
+
+<figure className="my-8">
+<img src="/images/blog/cognee-alternatives/image5.gif" alt="The microsoft/graphrag repository on GitHub, described as a modular graph-based retrieval-augmented generation (RAG) system." width="902" height="386" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+</figure>
+
+[Microsoft GraphRAG](https://github.com/microsoft/graphrag) builds entities, relationships, communities, and community reports from source text. Its global search pattern is designed for questions that require themes across an entire corpus rather than a few nearest chunks.
+
+The project is MIT licensed, but its README now says it is largely in maintenance mode: Microsoft will ship bug fixes and dependency updates, and won't accept new PRs or build new features. A docstring in the indexing API source (graphrag/api/index.py) also still warns that it is under development and does not guarantee backward compatibility. Graph extraction and community summarization can also create a large model bill, so start with a representative subset and measure indexing cost before committing to the full corpus.
+
+Choose Microsoft GraphRAG for research, intelligence, and corpus-level synthesis when a feature-frozen pipeline is acceptable. If you need a GraphRAG server that is still gaining features, LightRAG is the safer pick. It is not a drop-in agent-memory service and does not own per-user memory lifecycles.
+
+### 4. Graphiti: best for time-aware entities and relationships
+
+<figure className="my-8">
+<img src="/images/blog/cognee-alternatives/image1.gif" alt="The getzep/graphiti repository on GitHub, building real-time knowledge graphs for AI agents." width="903" height="352" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+</figure>
+
+[Graphiti](https://github.com/getzep/graphiti) ingests episodes into a temporal graph, tracks entity relationships and their validity, and supports hybrid search with graph-aware reranking. Neo4j, FalkorDB, and Neptune are supported in the current project.
+
+This is a strong Cognee alternative when change over time is more important than general document processing. It is also much smaller in scope: there is no document ingestion or connector platform, and your team builds the service layer around the graph.
+
+Choose Graphiti for dynamic facts, timelines, and relationship reasoning. Choose LightRAG or Microsoft GraphRAG for large document corpora, and Statewave for governed interaction history.
+
+### 5. LlamaIndex PropertyGraphIndex: best for custom graph retrieval inside an existing RAG stack
+
+<figure className="my-8">
+<img src="/images/blog/cognee-alternatives/image7.gif" alt="The run-llama/llama_index repository on GitHub, described as the document processing platform for AI." width="903" height="350" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+</figure>
+
+[LlamaIndex PropertyGraphIndex](https://github.com/run-llama/llama_index/blob/main/llama-index-core/llama_index/core/indices/property_graph/base.py) is a lower-level option for teams already using LlamaIndex. It can extract graph paths, store them in a selected property-graph store, add a vector store when needed, and compose sub-retrievers such as LLM synonym and vector-context retrieval.
+
+The benefit is application control. You choose the graph store, extraction transformations, vector layer, and retrieval composition. The cost is that you also own persistence, tenancy, APIs, background jobs, monitoring, and evaluation.
+
+Choose it when Cognee's packaged pipeline is too prescriptive, and the team already operates a LlamaIndex RAG application. Do not choose it to reduce engineering work.
+
+### 6. Hindsight: best for agents that learn from experience
+
+<figure className="my-8">
+<img src="/images/blog/cognee-alternatives/image4.gif" alt="The vectorize-io/hindsight repository on GitHub, described as agent memory that learns." width="903" height="358" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+</figure>
+
+[Hindsight](https://github.com/vectorize-io/hindsight) treats world facts, experiences, observations, and mental models as distinct memory structures. Recall merges semantic, keyword, graph, and temporal retrieval. Reflect runs a reasoning step over relevant memory and cites the basis for its output.
+
+This is a better Cognee alternative when the desired "graph" is really an adaptive model of a user, agent, or project. It is less suitable for wide document intelligence and code knowledge graphs.
+
+The MIT server can self-host on Postgres or embedded pg0, and a managed cloud is available. Test asynchronous ingestion, model cost, bank isolation, and reflect latency with your own workflow.
+
+## How should you evaluate a Cognee replacement?
+
+Use two evaluation sets if the product handles both knowledge and interaction memory. One blended score will hide which system is failing.
+
+### Score graph construction before answer quality
+
+Sample extracted entities, duplicate resolution, relationship direction, source links, and changed facts. A fluent answer can conceal a malformed graph.
+
+### Measure retrieval at a fixed context budget
+
+Give every candidate the same token allowance. Record source coverage, contradiction rate, irrelevant context, and answer abstention. Unbounded graph context can make a system look accurate while moving the cost downstream.
+
+### Test isolation on the selected storage combination
+
+Create two tenants with overlapping names and similar content. Verify writes, graph traversal, vector search, caches, exports, and deletion. Do not infer isolation from an SDK namespace alone.
+
+### Include re-indexing and recovery
+
+Change an extraction prompt or embedding model, restart workers during ingestion, restore from backup, and rebuild one tenant. The operating cost of a knowledge system often appears during maintenance rather than normal queries.
+
+<figure className="my-8">
+<img src="/images/blog/cognee-alternatives/image10.png" alt="An evaluation scorecard with four stages: build (entity and edge precision), retrieve (fixed context budget), isolate (backend-specific tenant tests), and recover (re-index and restore)." width="1600" height="924" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+<figcaption className="mt-3 text-[14px] leading-6 text-theme-secondary/70">An evaluation scorecard for graph construction, retrieval, isolation, and recovery.</figcaption>
+</figure>
+
+<figure className="my-8">
+<img src="/images/blog/cognee-alternatives/image3.png" alt="A decision tree starting from what must persist, routing prior interactions to Statewave, corpus-wide themes to Microsoft GraphRAG, fast hybrid GraphRAG to LightRAG, and changing relations to Graphiti." width="1600" height="909" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+<figcaption className="mt-3 text-[14px] leading-6 text-theme-secondary/70">A decision path for selecting an interaction-memory service, temporal graph, or GraphRAG system.</figcaption>
+</figure>
+
+## Which Cognee alternative should you pick?
+
+Statewave fits governed interaction memory on Postgres. LightRAG supplies a self-hosted GraphRAG server, while Microsoft GraphRAG targets corpus-wide analysis. Graphiti handles temporal relationships; LlamaIndex PropertyGraphIndex suits a custom RAG stack. Hindsight is the learning-and-reflection option.
+
+Keep Cognee when one platform should ingest documents and code, build a knowledge graph, support several storage backends, and serve memory through the same SDK. Its breadth is valuable when the team intends to use it.
+
+Cognee, LightRAG, Microsoft GraphRAG, Graphiti, LlamaIndex and Hindsight are trademarks of their respective owners; used here for factual comparison. Pricing, feature lists and repository details are as of September 2026 and change frequently, so check each vendor's own page before you rely on them.
+
+## FAQ
+
+<div className="my-8 space-y-3">
+
+<details open className="blog-faq group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35">
+<summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none">
+<h3 className="text-[18px] font-semibold leading-snug text-theme-primary !m-0">1. Is Cognee an agent memory tool or a GraphRAG tool?</h3>
+<div className="blog-faq-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40">
+<svg className="h-5 w-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" /></svg>
+</div>
+</summary>
+<div className="px-7 pb-7">
+<div className="h-px bg-theme-primary/10 mb-6" />
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">It is both. Cognee exposes memory operations for agents and builds graph-plus-vector knowledge from documents, code, and sessions. The better alternative depends on which workload matters.</p>
+</div>
+</details>
+
+<details className="blog-faq group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35">
+<summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none">
+<h3 className="text-[18px] font-semibold leading-snug text-theme-primary !m-0">2. What is the simplest Cognee alternative to self-host?</h3>
+<div className="blog-faq-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40">
+<svg className="h-5 w-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" /></svg>
+</div>
+</summary>
+<div className="px-7 pb-7">
+<div className="h-px bg-theme-primary/10 mb-6" />
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">For interaction memory, Statewave uses one Postgres plus pgvector system. For GraphRAG, LightRAG can use a single supported backend in production, but still has graph extraction and indexing jobs to operate.</p>
+</div>
+</details>
+
+<details className="blog-faq group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35">
+<summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none">
+<h3 className="text-[18px] font-semibold leading-snug text-theme-primary !m-0">3. Can Statewave replace Cognee's knowledge graph?</h3>
+<div className="blog-faq-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40">
+<svg className="h-5 w-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" /></svg>
+</div>
+</summary>
+<div className="px-7 pb-7">
+<div className="h-px bg-theme-primary/10 mb-6" />
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">No. Statewave has typed memories and temporal validity. It extracts entities per memory to improve retrieval, but it does not model relationships between them or support graph traversal. Pair it with a RAG or graph system when relationships across a document corpus are required.</p>
+</div>
+</details>
+
+<details className="blog-faq group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35">
+<summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none">
+<h3 className="text-[18px] font-semibold leading-snug text-theme-primary !m-0">4. Which alternative is best for changing relationships?</h3>
+<div className="blog-faq-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40">
+<svg className="h-5 w-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" /></svg>
+</div>
+</summary>
+<div className="px-7 pb-7">
+<div className="h-px bg-theme-primary/10 mb-6" />
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">Graphiti is the strongest fit because temporal validity is central to its entity and relationship model.</p>
+</div>
+</details>
+
+<details className="blog-faq group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35">
+<summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none">
+<h3 className="text-[18px] font-semibold leading-snug text-theme-primary !m-0">5. Which alternative is best for global questions over documents?</h3>
+<div className="blog-faq-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40">
+<svg className="h-5 w-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" /></svg>
+</div>
+</summary>
+<div className="px-7 pb-7">
+<div className="h-px bg-theme-primary/10 mb-6" />
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">Microsoft GraphRAG is designed for corpus-level questions through entity communities and community reports. It is now in maintenance mode, so expect fixes and no new features. LightRAG is a more service-oriented option with several hybrid retrieval modes.</p>
+</div>
+</details>
+
+</div>

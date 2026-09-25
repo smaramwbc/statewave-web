@@ -1,0 +1,296 @@
+---
+title: "6 Best Open-Source Letta Alternatives (2026)"
+slug: letta-alternatives
+date: "2026-09-25T09:00:00+02:00"
+description: Compare six Letta alternatives for external memory, full agent runtimes, LangGraph, learned behavior, and portable context systems.
+author: Saber Maram
+category: Guides
+image: /images/blog/letta-alternatives/og.png
+headerImage: /images/blog/letta-alternatives/header.png
+tags:
+  - comparison
+  - open-source
+  - memory
+---
+
+Statewave is the best Letta alternative when you want to keep your current agent framework and move durable memory into an independent, governed service. Agno is the closest choice when you still want a full agent platform, while LangGraph with native stores is the better route for explicit workflow control.
+
+Letta is not only a memory library. It is a stateful agent runtime that combines identity, editable memory, skills, subagents, channels, schedules, permissions, and remote execution. Replacing it means choosing whether to swap the full runtime or only separate memory from it.
+
+## Why do developers choose Letta?
+
+Letta gives a long-lived agent control over its own context. The agent can edit memory blocks, keep reference material in MemFS, learn skills, search prior messages, schedule future work, and use subagents. The runtime preserves state across sessions and can be self-hosted through the Letta App Server or used through Letta Cloud.
+
+That model is valuable when the agent itself is the product. Identity and memory live together, and the agent can change what it knows and how it behaves over time. It also reduces the work of assembling a coding agent, assistant, or always-on worker from separate components.
+
+The same strength creates switching friction. Letta owns decisions that other stacks distribute across an orchestrator, a memory service, a permissions layer, a scheduler, and channel integrations.
+
+## Why do teams look for Letta alternatives?
+
+The main question is architectural control. Some products need a stateful agent. Others need many services and agents to share memory without moving execution into one runtime.
+
+### Memory is coupled to an opinionated agent runtime
+
+Letta agents can revise memory, prompts, skills, and even runtime behavior through mods. That is powerful for adaptive agents, but it changes the trust model. Teams must decide which agent-written changes are guidance, which are executable capability, which need review, and which should be enforced outside the model.
+
+An external memory service keeps the agent loop replaceable. It also lets a support agent, batch worker, human console, and analytics job read the same subject history through a stable API.
+
+### The migration surface is much larger than "export the memories"
+
+We counted **11 major subsystems** in the current [Letta Code feature table](https://github.com/letta-ai/letta-code): self-improvement, message search, MemFS, skills, subagents, messaging channels, hooks, permissions, schedules, remote computers, and secrets. A tool that replaces only storage will not preserve the other ten operating surfaces.
+
+This is why a Letta migration should start with a dependency map. Mark each subsystem as keep, replace, or remove before comparing memory products.
+
+### Agent-controlled memory can conflict with application-owned policy
+
+Letta's model intentionally lets the agent revise durable context. Regulated or customer-facing applications may need the application to decide what is recorded, which source supports a fact, who can retrieve it, and when it must be deleted. Those controls are easier to enforce when the raw event and compiled memory are separate from the agent's editable prompt state.
+
+### Portability now has more than one format
+
+Letta Code removed the older AgentFile import and export workflow. Memory import/export and conversation transcript export remain available, and MemFS is Git-backed. The change is not data lock-in, but it does mean older migration instructions and .af workflows should not be used for current deployments.
+
+<figure className="my-8">
+<img src="/images/blog/letta-alternatives/image6.png" alt="A chart showing Letta spanning eleven operating subsystems grouped into memory, execution, coordination, operations, control, and learning." width="1600" height="924" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+<figcaption className="mt-3 text-[14px] leading-6 text-theme-secondary/70">The eleven Letta subsystems that make a migration larger than moving memory records.</figcaption>
+</figure>
+
+## Are you replacing Letta memory or the Letta runtime?
+
+Answering this question removes half the wrong tools from the shortlist.
+
+| Desired change | Keep | Replace | Best-fit option |
+| ----- | ----- | ----- | ----- |
+| Externalize memory only | existing agent loop, tools, channels | memory blocks and recall service | Statewave or Mem0 |
+| Keep explicit graph workflows | LangGraph orchestration | Letta runtime and memory | LangGraph store or LangMem |
+| Keep a full agent platform | agents, teams, schedules, control plane | Letta runtime | Agno |
+| Prioritize learned beliefs | existing application | memory formation and synthesis | Hindsight |
+| Prioritize browsable files and skills | existing agent clients | MemFS-style context | OpenViking |
+| Keep Letta's self-editing agent model | everything | nothing | Stay with Letta |
+
+The last row matters. A replacement project has no value if Letta's agent-managed memory and integrated runtime are exactly what the product needs.
+
+## Letta alternatives compared
+
+These alternatives are intentionally mixed between memory services and full runtimes because Letta spans both categories. The "replacement depth" column shows how much of Letta each one can take over.
+
+| Alternative | Replacement depth | Best for | Open-source core | Main tradeoff |
+| ----- | ----- | ----- | ----- | ----- |
+| **Statewave** | memory service | shared, governed interaction memory | Apache-2.0 | no agent loop, channels, or scheduler |
+| **Agno** | full platform | agents, teams, workflows, AgentOS | Apache-2.0 | different programming model and migration effort |
+| **LangGraph + native stores** | runtime building blocks | explicit state machines and durable workflows | open-source libraries | more assembly work than Letta |
+| **Hindsight** | memory service with reflection | observations, mental models, learned behavior | MIT | larger model and operations footprint |
+| **Mem0** | memory service | compact memory API and managed path | Apache-2.0 | no complete agent identity or execution runtime |
+| **OpenViking** | context service | filesystem-style resources, memories, skills | AGPL-3.0 server | no full autonomous agent runtime |
+
+<figure className="my-8">
+<img src="/images/blog/letta-alternatives/image8.png" alt="A comparison matrix scoring Statewave, Agno, LangGraph, Hindsight, Mem0 and OpenViking against external memory, workflow runtime, self-editing, reflection, and context hints." width="1600" height="922" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+<figcaption className="mt-3 text-[14px] leading-6 text-theme-secondary/70">A comparison matrix separating memory-service replacements from complete agent-runtime replacements.</figcaption>
+</figure>
+
+## How we evaluated Letta alternatives
+
+We scored products against the reason a team would leave Letta, not against Letta's entire feature list. The criteria were runtime independence, state portability, memory-write control, shared access across agents, self-hosting, and the amount of missing infrastructure a team must rebuild.
+
+We also separated "memory" from "conversation state." A durable workflow checkpoint can resume execution after a failure. Long-term memory can inform a different session or agent. A product can support one without solving the other.
+
+## The 6 best open-source Letta alternatives
+
+Statewave comes first for the common unbundling path: keep orchestration, move memory to a neutral service, and add controls that do not depend on the agent remembering to follow them.
+
+### 1. Statewave: best for decoupling memory from agent execution
+
+<figure className="my-8">
+<img src="/images/blog/letta-alternatives/image11.png" alt="The smaramwbc/statewave repository on GitHub, described as an open-source memory runtime for AI agents with reproducible, provenance-tagged context bundles." width="1888" height="735" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+</figure>
+
+[Statewave](https://github.com/smaramwbc/statewave) is a framework-neutral memory runtime on Postgres and pgvector. Applications record immutable episodes, such as messages, tool calls, decisions, or workflow events. A compiler turns those events into typed memories with confidence, validity, and source episode IDs. Retrieval assembles eligible context under a token limit and records a state-assembly receipt.
+
+The Letta-specific advantage is separation of authority. The agent can propose or consume memory, but application code and retrieval policy decide what is recorded and what may be returned. Sensitivity labels and YAML policy can restrict context before it enters the prompt. Provenance keeps the durable fact linked to the event that produced it.
+
+Statewave's [multi-agent memory example](https://github.com/smaramwbc/statewave-multi-agent-memory) and [shared-context example](https://github.com/smaramwbc/statewave-multi-agent-shared-context) show how several agents can use one subject-oriented memory plane without sharing an execution runtime. The core publishes **708 unit tests** and **56 evaluation assertions** across recording, compilation, retrieval, budgets, and governance behavior.
+
+A Letta migration should not flatten MemFS into unstructured text. Export memory and transcripts, then classify each item:
+
+- always-in-context identity becomes a high-priority profile or policy input;
+- user and project facts become typed memories;
+- past interactions become episodes;
+- reusable procedures remain skills in the target agent framework;
+- schedules, channels, tools, and secrets move to the runtime, not the memory database.
+
+Statewave will not replace Letta's agent loop, subagents, channels, remote computers, or self-editable skills. That's why you choose it when those responsibilities already live elsewhere. Review [memory provenance](/blog/agent-memory-provenance-audit-trails) and [AI memory versus RAG](/blog/ai-agent-memory-vs-rag) before designing the split.
+
+<figure className="my-8">
+<img src="/images/blog/letta-alternatives/image1.png" alt="A five-step responsibility map: export memory and transcript, record it in Statewave as episodes and memories, keep tools and prompts in the agent app, keep jobs and channels in the scheduler, and resolve canonical identity." width="1600" height="891" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+<figcaption className="mt-3 text-[14px] leading-6 text-theme-secondary/70">How to separate Letta memory, skills, execution, and schedules during a move to Statewave.</figcaption>
+</figure>
+
+See [Statewave vs Letta](/vs/letta) for a closer look at policy-checked context assembly against MemFS and agent-managed memory blocks.
+
+### 2. Agno: best for replacing Letta with another full agent platform
+
+<figure className="my-8">
+<img src="/images/blog/letta-alternatives/image7.png" alt="The agno-agi/agno repository on GitHub, described as a platform to build, run, and manage agent platforms." width="1872" height="751" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+</figure>
+
+[Agno](https://github.com/agno-agi/agno) is the closest match in scope. Its Apache-2.0 SDK supports agents, teams, workflows, sessions, user memory, knowledge, guardrails, learning, compression, context providers, human approval, background execution, evaluations, and scheduling. AgentOS serves the components through REST, MCP, and chat interfaces.
+
+Agno distinguishes session storage from per-user memory. An agent can update memory through a tool or run a memory manager after each interaction. The surrounding runtime can also expose traces, sessions, approvals, schedules, and databases to its control plane.
+
+Choose Agno when the goal is still one agent platform, but you prefer explicit agents, teams, and workflows over Letta's self-editing, identity-centered model. It is not a low-effort migration: tools, channels, schedules, memory semantics, and permission behavior all need reimplementation and testing.
+
+### 3. LangGraph with native stores: best for explicit state and durable workflow control
+
+<figure className="my-8">
+<img src="/images/blog/letta-alternatives/image4.png" alt="The langchain-ai/langmem repository on GitHub, LangChain's long-term memory library for LangGraph agents." width="1885" height="691" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+</figure>
+
+[LangGraph](https://docs.langchain.com/oss/python/concepts/memory) separates thread-scoped state from long-term memory. Checkpointers preserve graph execution inside a thread; stores hold data across threads under custom namespaces. Production deployments can use Postgres-backed savers and stores.
+
+This is a good alternative when the team wants every transition, retry, approval, and memory write to be visible in application code. LangMem can add extraction, consolidation, search tools, and prompt optimization, but it is optional. The result is more assembly work and less agent self-configuration than Letta.
+
+Choose this path for durable, typed workflows where the graph is the product architecture. Add Statewave or another external memory service if multiple languages or runtimes must share memory outside LangGraph.
+
+### 4. Hindsight: best for agents that should form observations and reflect
+
+<figure className="my-8">
+<img src="/images/blog/letta-alternatives/image10.png" alt="The vectorize-io/hindsight repository on GitHub, described as agent memory that learns." width="1858" height="736" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+</figure>
+
+[Hindsight](https://github.com/vectorize-io/hindsight) is a memory system rather than a full agent runtime. It retains facts and experiences, consolidates evidence into observations, maintains mental models, and offers reflect for synthesized answers over memory.
+
+This is closer to Letta's learning goal than a simple vector store. It also runs as a separate MIT-licensed service, so the agent framework can change without moving the memory bank. The self-hosted server supports Postgres, MCP, SDKs, monitoring, webhooks, and extension points.
+
+Choose Hindsight when learned understanding is the reason Letta appealed, but channels, tools, and execution should stay in your application. Account for asynchronous retention and model work in latency and cost tests.
+
+### 5. Mem0: best for a compact memory API with broad integrations
+
+<figure className="my-8">
+<img src="/images/blog/letta-alternatives/image2.png" alt="The mem0ai/mem0 repository on GitHub, described as the memory layer for AI agents with drop-in memory infrastructure and context that persists." width="1860" height="718" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+</figure>
+
+[Mem0](https://github.com/mem0ai/mem0) is a straightforward alternative when Letta feels too opinionated. The application adds and searches memories through an independent layer, while the existing agent framework keeps responsibility for tools and execution. An Apache-2.0 core and a managed service provide two adoption paths.
+
+The trade is capability for separation. Mem0 does not replace Letta's agent identity, editable in-context blocks, MemFS, schedules, or channels. Verify which deployment supplies the graph, access controls, deletion, logging, and support your product needs.
+
+Choose Mem0 when a familiar memory API and integration catalog matter more than full agent self-management or receipt-backed context assembly.
+
+### 6. OpenViking: best for hierarchical context, resources, and skills
+
+<figure className="my-8">
+<img src="/images/blog/letta-alternatives/image9.png" alt="The volcengine/OpenViking repository on GitHub, a self-evolving context database for AI agents unifying agent memory, knowledge, and skills." width="1858" height="745" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+</figure>
+
+[OpenViking](https://github.com/volcengine/OpenViking) is a strong alternative to Letta's MemFS side. It organizes resources, memories, sessions, skills, and peer context under viking:// paths. L0 abstracts, L1 overviews, and L2 details support progressive disclosure, while accounts, user isolation, ACLs, and at-rest encryption define sharing boundaries.
+
+The open server is AGPL-3.0. It is a context platform, not a complete Letta replacement. Your application still needs an agent loop, tool permissions, schedules, channels, and remote execution.
+
+Choose OpenViking when human-browsable, folder-like context and reusable skills are more important than Letta's autonomous runtime. It is especially relevant for coding, research, and knowledge-work agents.
+
+## What commonly breaks after leaving Letta?
+
+Memory quality is not the only migration risk. Hidden failures usually come from responsibilities Letta previously handled.
+
+### Skills are copied into memory instead of moved to the runtime
+
+Procedures and tool instructions should remain versioned skills or code. Turning them into semantically retrieved facts makes execution depend on whether retrieval happens to find the instruction.
+
+### Thread state is mistaken for long-term memory
+
+A checkpoint answers "where should this workflow resume?" A long-term memory answers "what should another session know?" Preserve both if the agent performs multi-step work.
+
+### Agent-written changes lose review history
+
+MemFS is Git-backed. If the new system allows memory or prompt changes, preserve version history, reviewer identity, and rollback. A database timestamp alone may not replace that operating model.
+
+### Channels and schedules lose identity scope
+
+A Slack user, web user, scheduled agent, and internal service may refer to the same person or project through different IDs. Define the canonical subject before replaying data into the new memory system.
+
+<figure className="my-8">
+<img src="/images/blog/letta-alternatives/image3.png" alt="A migration checklist naming four boundaries that break most often: state versus memory, skills, review history, and identity." width="1600" height="904" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+<figcaption className="mt-3 text-[14px] leading-6 text-theme-secondary/70">A migration checklist covering state, memory, skills, identity, and execution.</figcaption>
+</figure>
+
+<figure className="my-8">
+<img src="/images/blog/letta-alternatives/image5.png" alt="An authority map assigning application, agent runtime, Statewave, and knowledge store as the owner of identity, tools, durable memory, and documents respectively." width="1600" height="891" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+<figcaption className="mt-3 text-[14px] leading-6 text-theme-secondary/70">An authority map showing which Letta responsibilities belong to the application, memory service, or agent runtime after migration.</figcaption>
+</figure>
+
+## Which Letta alternative should you pick?
+
+Statewave fits shared, governed memory below existing agents. Agno is the full-platform replacement, while LangGraph gives tighter workflow-state control. Hindsight adds observations and reflection; Mem0 offers the smaller memory API. OpenViking is the filesystem-style option for context and skills.
+
+Keep Letta when the agent's ability to revise its own memory, identity, skills, and operating behavior is the core product idea. Replacing it with a database will remove the feature you selected it for.
+
+Letta, Agno, LangGraph, LangMem, Hindsight, Mem0 and OpenViking are trademarks of their respective owners; used here for factual comparison. Pricing, feature lists and repository details are as of September 2026 and change frequently, so check each vendor's own page before you rely on them.
+
+## FAQ
+
+<div className="my-8 space-y-3">
+
+<details open className="blog-faq group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35">
+<summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none">
+<h3 className="text-[18px] font-semibold leading-snug text-theme-primary !m-0">1. Is Letta only an AI memory tool?</h3>
+<div className="blog-faq-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40">
+<svg className="h-5 w-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" /></svg>
+</div>
+</summary>
+<div className="px-7 pb-7">
+<div className="h-px bg-theme-primary/10 mb-6" />
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">No. Letta is a stateful agent runtime with memory, identity, tools, skills, subagents, channels, permissions, schedules, secrets, and remote-computer support.</p>
+</div>
+</details>
+
+<details className="blog-faq group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35">
+<summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none">
+<h3 className="text-[18px] font-semibold leading-snug text-theme-primary !m-0">2. What is the closest open-source Letta alternative?</h3>
+<div className="blog-faq-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40">
+<svg className="h-5 w-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" /></svg>
+</div>
+</summary>
+<div className="px-7 pb-7">
+<div className="h-px bg-theme-primary/10 mb-6" />
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">Agno is closest in platform scope. LangGraph is closer for explicit workflow orchestration. Statewave is closer when you only want to replace the memory layer.</p>
+</div>
+</details>
+
+<details className="blog-faq group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35">
+<summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none">
+<h3 className="text-[18px] font-semibold leading-snug text-theme-primary !m-0">3. Can Statewave run inside a Letta application?</h3>
+<div className="blog-faq-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40">
+<svg className="h-5 w-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" /></svg>
+</div>
+</summary>
+<div className="px-7 pb-7">
+<div className="h-px bg-theme-primary/10 mb-6" />
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">Yes. A Letta agent can call Statewave over MCP or REST while Letta continues to run the agent. This can be useful when several Letta and non-Letta agents need one shared subject history.</p>
+</div>
+</details>
+
+<details className="blog-faq group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35">
+<summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none">
+<h3 className="text-[18px] font-semibold leading-snug text-theme-primary !m-0">4. Can Letta memory be exported?</h3>
+<div className="blog-faq-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40">
+<svg className="h-5 w-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" /></svg>
+</div>
+</summary>
+<div className="px-7 pb-7">
+<div className="h-px bg-theme-primary/10 mb-6" />
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">Current Letta Code retains memory import/export and transcript export. The older AgentFile .af import and export workflow has been removed.</p>
+</div>
+</details>
+
+<details className="blog-faq group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35">
+<summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none">
+<h3 className="text-[18px] font-semibold leading-snug text-theme-primary !m-0">5. When should a team keep Letta?</h3>
+<div className="blog-faq-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40">
+<svg className="h-5 w-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" /></svg>
+</div>
+</summary>
+<div className="px-7 pb-7">
+<div className="h-px bg-theme-primary/10 mb-6" />
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">Keep it when agent-managed memory, identity, skills, schedules, and long-lived self-improvement are requirements rather than unwanted coupling.</p>
+</div>
+</details>
+
+</div>

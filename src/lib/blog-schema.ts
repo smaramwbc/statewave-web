@@ -433,6 +433,60 @@ export const POST_FAQ: Readonly<Record<string, readonly FaqEntry[]>> = {
         'A handoff pack is assembled from stored memory and ticket state without calling a model, so it cannot invent a detail that was never recorded. It stays inside a fixed token budget, keeps sections in priority order, and can emit a receipt that records exactly what was delivered. A model-written summary can read more smoothly, but it cannot show you afterward what it left out.',
     },
   ],
+  'letta-alternatives': [
+    {
+      question: 'Is Letta only an AI memory tool?',
+      answer:
+        'No. Letta is a stateful agent runtime with memory, identity, tools, skills, subagents, channels, permissions, schedules, secrets, and remote-computer support.',
+    },
+    {
+      question: 'What is the closest open-source Letta alternative?',
+      answer:
+        "Agno is closest in platform scope. LangGraph is closer for explicit workflow orchestration. Statewave is closer when you only want to replace the memory layer.",
+    },
+    {
+      question: 'Can Statewave run inside a Letta application?',
+      answer:
+        'Yes. A Letta agent can call Statewave over MCP or REST while Letta continues to run the agent. This can be useful when several Letta and non-Letta agents need one shared subject history.',
+    },
+    {
+      question: 'Can Letta memory be exported?',
+      answer:
+        'Current Letta Code retains memory import/export and transcript export. The older AgentFile .af import and export workflow has been removed.',
+    },
+    {
+      question: 'When should a team keep Letta?',
+      answer:
+        'Keep it when agent-managed memory, identity, skills, schedules, and long-lived self-improvement are requirements rather than unwanted coupling.',
+    },
+  ],
+  'cognee-alternatives': [
+    {
+      question: 'Is Cognee an agent memory tool or a GraphRAG tool?',
+      answer:
+        'It is both. Cognee exposes memory operations for agents and builds graph-plus-vector knowledge from documents, code, and sessions. The better alternative depends on which workload matters.',
+    },
+    {
+      question: 'What is the simplest Cognee alternative to self-host?',
+      answer:
+        'For interaction memory, Statewave uses one Postgres plus pgvector system. For GraphRAG, LightRAG can use a single supported backend in production, but still has graph extraction and indexing jobs to operate.',
+    },
+    {
+      question: "Can Statewave replace Cognee's knowledge graph?",
+      answer:
+        'No. Statewave has typed memories and temporal validity. It extracts entities per memory to improve retrieval, but it does not model relationships between them or support graph traversal. Pair it with a RAG or graph system when relationships across a document corpus are required.',
+    },
+    {
+      question: 'Which alternative is best for changing relationships?',
+      answer:
+        'Graphiti is the strongest fit because temporal validity is central to its entity and relationship model.',
+    },
+    {
+      question: 'Which alternative is best for global questions over documents?',
+      answer:
+        'Microsoft GraphRAG is designed for corpus-level questions through entity communities and community reports. It is now in maintenance mode, so expect fixes and no new features. LightRAG is a more service-oriented option with several hybrid retrieval modes.',
+    },
+  ],
 } as const
 
 export const HOWTO_SLUGS: readonly string[] = ['persistent-memory-for-ai-support-agents']
