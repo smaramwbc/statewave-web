@@ -13,13 +13,15 @@ tags:
   - memory
 ---
 
-Statewave is the best Letta alternative when you want to keep your current agent framework and move durable memory into an independent, governed service. Agno is the closest choice when you still want a full agent platform, while LangGraph with native stores is the better route for explicit workflow control.
+Choose Statewave over Letta when you want to keep your current agent framework and move durable memory into an independent, governed service. Agno is the closest choice when you still want a full agent platform, while LangGraph with native stores is the better route for explicit workflow control.
 
 Letta is not only a memory library. It is a stateful agent runtime that combines identity, editable memory, skills, subagents, channels, schedules, permissions, and remote execution. Replacing it means choosing whether to swap the full runtime or only separate memory from it.
 
+We build Statewave, so weigh the first entry accordingly. Every competitor claim below links to the vendor's own page so you can check it.
+
 ## Why do developers choose Letta?
 
-Letta gives a long-lived agent control over its own context. The agent can edit memory blocks, keep reference material in MemFS, learn skills, search prior messages, schedule future work, and use subagents. The runtime preserves state across sessions and can be self-hosted through the Letta App Server or used through Letta Cloud.
+Letta gives a long-lived agent control over its own context. The agent can edit memory blocks, keep reference material in MemFS, learn skills, search prior messages, schedule future work, and use subagents. The runtime preserves state across sessions and can be self-hosted through the Letta App Server or used through Letta Cloud. Two of the eleven subsystems below, remote computers and secrets, [require signing in with Letta](https://docs.letta.com/letta-agent/remote) even on an otherwise self-hosted agent.
 
 That model is valuable when the agent itself is the product. Identity and memory live together, and the agent can change what it knows and how it behaves over time. It also reduces the work of assembling a coding agent, assistant, or always-on worker from separate components.
 
@@ -107,7 +109,7 @@ Statewave comes first for the common unbundling path: keep orchestration, move m
 
 The Letta-specific advantage is separation of authority. The agent can propose or consume memory, but application code and retrieval policy decide what is recorded and what may be returned. Sensitivity labels and YAML policy can restrict context before it enters the prompt. Provenance keeps the durable fact linked to the event that produced it.
 
-Statewave's [multi-agent memory example](https://github.com/smaramwbc/statewave-multi-agent-memory) and [shared-context example](https://github.com/smaramwbc/statewave-multi-agent-shared-context) show how several agents can use one subject-oriented memory plane without sharing an execution runtime. The core publishes **708 unit tests** and **56 evaluation assertions** across recording, compilation, retrieval, budgets, and governance behavior.
+Statewave's [multi-agent memory example](https://github.com/smaramwbc/statewave-multi-agent-memory) and [shared-context example](https://github.com/smaramwbc/statewave-multi-agent-shared-context) show how several agents can use one subject-oriented memory plane without sharing an execution runtime. The core publishes 56 evaluation assertions across provenance, idempotent compilation, token budgets, session-aware ranking, repeat-issue detection, and support handoff.
 
 A Letta migration should not flatten MemFS into unstructured text. Export memory and transcripts, then classify each item:
 
@@ -140,13 +142,16 @@ Choose Agno when the goal is still one agent platform, but you prefer explicit a
 
 ### 3. LangGraph with native stores: best for explicit state and durable workflow control
 
-<figure className="my-8">
-<img src="/images/blog/letta-alternatives/image4.png" alt="The langchain-ai/langmem repository on GitHub, LangChain's long-term memory library for LangGraph agents." width="1885" height="691" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
-</figure>
-
 [LangGraph](https://docs.langchain.com/oss/python/concepts/memory) separates thread-scoped state from long-term memory. Checkpointers preserve graph execution inside a thread; stores hold data across threads under custom namespaces. Production deployments can use Postgres-backed savers and stores.
 
-This is a good alternative when the team wants every transition, retry, approval, and memory write to be visible in application code. LangMem can add extraction, consolidation, search tools, and prompt optimization, but it is optional. The result is more assembly work and less agent self-configuration than Letta.
+This is a good alternative when the team wants every transition, retry, approval, and memory write to be visible in application code. LangMem, LangChain's optional long-term-memory package for LangGraph agents, can add extraction, consolidation, search tools, and prompt optimization, but the graph itself is the part being chosen here.
+
+<figure className="my-8">
+<img src="/images/blog/letta-alternatives/image4.png" alt="The langchain-ai/langmem repository on GitHub, LangChain's long-term memory library for LangGraph agents." width="1885" height="691" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+<figcaption className="mt-3 text-[14px] leading-6 text-theme-secondary/70">LangMem, the optional long-term-memory package that pairs with LangGraph, is not required to adopt LangGraph's own stores.</figcaption>
+</figure>
+
+The result is more assembly work and less agent self-configuration than Letta.
 
 Choose this path for durable, typed workflows where the graph is the product architecture. Add Statewave or another external memory service if multiple languages or runtimes must share memory outside LangGraph.
 
