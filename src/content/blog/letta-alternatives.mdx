@@ -17,11 +17,11 @@ Choose Statewave over Letta when you want to keep your current agent framework a
 
 Letta is not only a memory library. It is a stateful agent runtime that combines identity, editable memory, skills, subagents, channels, schedules, permissions, and remote execution. Replacing it means choosing whether to swap the full runtime or only separate memory from it.
 
-We build Statewave, so weigh the first entry accordingly. Every competitor claim below links to the vendor's own page so you can check it.
+We build Statewave, so weigh the first entry accordingly. Competitor claims come from each vendor's own repository, documentation and pricing pages, and the main sources are linked.
 
 ## Why do developers choose Letta?
 
-Letta gives a long-lived agent control over its own context. The agent can edit memory blocks, keep reference material in MemFS, learn skills, search prior messages, schedule future work, and use subagents. The runtime preserves state across sessions and can be self-hosted through the Letta App Server or used through Letta Cloud. Two of the eleven subsystems below, remote computers and secrets, [require signing in with Letta](https://docs.letta.com/letta-agent/remote) even on an otherwise self-hosted agent.
+Letta gives a long-lived agent control over its own context. The agent can edit memory blocks, keep reference material in MemFS, learn skills, search prior messages, schedule future work, and use subagents. The runtime preserves state across sessions and can be self-hosted through the [Letta App Server](https://docs.letta.com/self-hosting/app-server) or used through Letta Cloud. Remote computers [require signing in with Letta](https://docs.letta.com/platform/computers/byom), and Letta's feature table marks secrets the same way, although its [secrets docs](https://docs.letta.com/configuration/secrets) store local-agent secrets in the OS credential manager.
 
 That model is valuable when the agent itself is the product. Identity and memory live together, and the agent can change what it knows and how it behaves over time. It also reduces the work of assembling a coding agent, assistant, or always-on worker from separate components.
 
@@ -105,7 +105,7 @@ Statewave comes first for the common unbundling path: keep orchestration, move m
 <img src="/images/blog/letta-alternatives/image11.png" alt="The smaramwbc/statewave repository on GitHub, described as an open-source memory runtime for AI agents with reproducible, provenance-tagged context bundles." width="1888" height="735" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
 </figure>
 
-[Statewave](https://github.com/smaramwbc/statewave) is a framework-neutral memory runtime on Postgres and pgvector. Applications record immutable episodes, such as messages, tool calls, decisions, or workflow events. A compiler turns those events into typed memories with confidence, validity, and source episode IDs. Retrieval assembles eligible context under a token limit and records a state-assembly receipt.
+[Statewave](https://github.com/smaramwbc/statewave) is a framework-neutral memory runtime on Postgres and pgvector. Applications record immutable episodes, such as messages, tool calls, decisions, or workflow events. A compiler turns those events into typed memories with confidence, validity, and source episode IDs. Retrieval assembles eligible context under a token limit and, when receipts are enabled, records a state-assembly receipt.
 
 The Letta-specific advantage is separation of authority. The agent can propose or consume memory, but application code and retrieval policy decide what is recorded and what may be returned. Sensitivity labels and YAML policy can restrict context before it enters the prompt. Provenance keeps the durable fact linked to the event that produced it.
 

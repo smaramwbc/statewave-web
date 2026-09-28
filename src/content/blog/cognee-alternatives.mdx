@@ -17,7 +17,7 @@ Pick Statewave over Cognee when the product needs governed interaction memory on
 
 Cognee sits between two categories: agent memory and knowledge-graph retrieval. A useful alternative must match the category you actually need. Replacing Cognee with a thin memory API can simplify a support agent, but it can also remove the graph reasoning a document intelligence product depends on.
 
-We build Statewave, so weigh the first entry accordingly. Every competitor claim below links to the vendor's own page so you can check it.
+We build Statewave, so weigh the first entry accordingly. Competitor claims come from each vendor's own repository, documentation and pricing pages, and the main sources are linked.
 
 ## Why do developers choose Cognee?
 
@@ -39,7 +39,7 @@ Those interaction semantics are awkward to recover from a general document graph
 
 ### The default local setup spans three storage roles
 
-Cognee's current repository describes separate relational, vector, and graph interfaces. The local defaults use **SQLite** for relational data, **LanceDB** for vectors, and **Ladybug/Kuzu** for the graph. The official configuration also names at least **five graph providers** and **four vector providers**, with access-control support depending on the chosen pair.
+Cognee's current repository describes separate relational, vector, and graph interfaces. The local defaults use **SQLite** for [relational data](https://docs.cognee.ai/setup-configuration/relational-databases), **LanceDB** for [vectors](https://docs.cognee.ai/setup-configuration/vector-stores), and **Ladybug/Kuzu** for the [graph](https://docs.cognee.ai/setup-configuration/graph-stores). The official configuration also names at least **five graph providers** and **four vector providers**, with access-control support depending on the chosen pair.
 
 That breadth is a benefit for platform teams that need backend choice. It is overhead for teams that want one backup, one restore process, one consistency boundary, and one set of database skills.
 
@@ -51,12 +51,12 @@ This does not make graph extraction unreliable by definition. It means evaluatio
 
 ### Production isolation depends on the backend combination
 
-Cognee documents per-user and per-dataset isolation through dataset database handlers. Some graph and vector backends support that model; others require access control to be disabled or a different deployment. The current documentation also labels graph-on-Postgres as a demo path.
+Cognee documents per-user and per-dataset isolation through [dataset database handlers](https://docs.cognee.ai/setup-configuration/permissions). Some graph and vector backends support that model; others require access control to be disabled or a different deployment. Since Cognee 1.0 the whole memory layer can run on a single Postgres instance, but the [Cognee README](https://github.com/topoteretes/cognee#run-the-whole-memory-layer-on-postgres) calls Postgres as a graph store a demo feature and offers the production-ready version as a licensed product.
 
 Teams should select the storage topology and tenant model together. "Cognee supports multi-tenancy" is not enough without the chosen graph and vector providers.
 
 <figure className="my-8">
-<img src="/images/blog/cognee-alternatives/image11.png" alt="A chart showing Cognee's local default spanning three storage roles: relational, vector, and graph, plus a model extraction stage." width="1600" height="922" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+<img src="/images/blog/cognee-alternatives/image11.png" alt="A chart showing Cognee's local default spanning three storage roles: relational, vector, and graph." width="1600" height="790" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
 <figcaption className="mt-3 text-[14px] leading-6 text-theme-secondary/70">Cognee's three storage roles and the production decisions behind each one.</figcaption>
 </figure>
 
@@ -102,7 +102,7 @@ We did not compare benchmark scores across unrelated tasks. A graph question ove
 
 ## The 6 best open-source Cognee alternatives
 
-Statewave leads for Statewave's ICP: teams building support, operations, workflow, or multi-agent products that need governed memory of interactions. The next four entries are closer to when Cognee's graph is the feature, not the burden.
+Statewave leads for teams building support, operations, workflow, or multi-agent products that need governed memory of interactions. The next four entries are closer to when Cognee's graph is the feature, not the burden.
 
 ### 1. Statewave: best for one-Postgres interaction memory with policy and provenance
 
@@ -110,11 +110,11 @@ Statewave leads for Statewave's ICP: teams building support, operations, workflo
 <img src="/images/blog/cognee-alternatives/image6.gif" alt="The smaramwbc/statewave repository on GitHub, described as an open-source memory runtime for AI agents with reproducible, provenance-tagged context bundles." width="903" height="352" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
 </figure>
 
-[Statewave](https://github.com/smaramwbc/statewave) compiles append-only episodes into typed semantic and episodic memories that keep their source episode IDs, then assembles policy-checked context under a token cap and records a receipt. The [architecture overview](https://github.com/smaramwbc/statewave-docs/blob/main/architecture/overview.md) has the details.
+[Statewave](https://github.com/smaramwbc/statewave) compiles append-only episodes into typed semantic and episodic memories that keep their source episode IDs, then assembles policy-checked context under a token cap and, when receipts are enabled, records a receipt. The [architecture overview](https://github.com/smaramwbc/statewave-docs/blob/main/architecture/overview.md) has the details.
 
 The Cognee-specific advantage is a smaller consistency boundary. Statewave stores relational records and vectors in Postgres with pgvector. There is no graph database to synchronize with a vector store, and raw episodes remain available if the compiler or schema changes. The [Statewave account of its own early prototype](/blog/self-hosted-memory-postgres-pgvector) says synchronization between separate stores grew to roughly **30% of the code** before the project moved to one database. That is first-party engineering evidence, not a neutral industry benchmark, but it is directly relevant to this trade.
 
-Statewave's published eval suite runs 56 assertions. For this comparison, what they cover matters more than any recall score: provenance, idempotent compilation, token budgets, session-aware ranking, repeat-issue detection, and support handoff.
+Statewave's published eval suite runs 55 assertions. For this comparison, what they cover matters more than any recall score: provenance, idempotent compilation, token budgets, session-aware ranking, repeat-issue detection, and support handoff.
 
 Migration starts by separating Cognee inputs. Conversation turns, tool calls, decisions, and case events become Statewave episodes. Stable facts compiled from those events become memories. Documents, code, and wide organizational knowledge should stay in Cognee or move to a dedicated RAG system. The application can retrieve both and keep the sources distinct in the prompt.
 
@@ -145,7 +145,7 @@ Choose LightRAG when Cognee is being replaced as a GraphRAG engine and the team 
 
 [Microsoft GraphRAG](https://github.com/microsoft/graphrag) builds entities, relationships, communities, and community reports from source text. Its global search pattern is designed for questions that require themes across an entire corpus rather than a few nearest chunks.
 
-The project is MIT licensed, but its README now says it is largely in maintenance mode: Microsoft will ship bug fixes and dependency updates, and won't accept new PRs or build new features. A docstring in the indexing API source (graphrag/api/index.py) also still warns that it is under development and does not guarantee backward compatibility. Graph extraction and community summarization can also create a large model bill, so start with a representative subset and measure indexing cost before committing to the full corpus.
+The project is MIT licensed, but its README now says it is largely in maintenance mode: Microsoft will ship bug fixes and dependency updates as appropriate, particularly to address CVEs, and won't accept new PRs or build new features. A docstring in the indexing API source (graphrag/api/index.py) also still warns that it is under development and does not guarantee backward compatibility. Graph extraction and community summarization can also create a large model bill, so start with a representative subset and measure indexing cost before committing to the full corpus.
 
 Choose Microsoft GraphRAG for research, intelligence, and corpus-level synthesis when a feature-frozen pipeline is acceptable. If you need a GraphRAG server that is still gaining features, LightRAG is the safer pick. It is not a drop-in agent-memory service and does not own per-user memory lifecycles.
 
