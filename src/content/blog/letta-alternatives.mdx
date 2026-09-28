@@ -109,7 +109,7 @@ Statewave comes first for the common unbundling path: keep orchestration, move m
 
 The Letta-specific advantage is separation of authority. The agent can propose or consume memory, but application code and retrieval policy decide what is recorded and what may be returned. Sensitivity labels and YAML policy can restrict context before it enters the prompt. Provenance keeps the durable fact linked to the event that produced it.
 
-Statewave's [multi-agent memory example](https://github.com/smaramwbc/statewave-multi-agent-memory) and [shared-context example](https://github.com/smaramwbc/statewave-multi-agent-shared-context) show how several agents can use one subject-oriented memory plane without sharing an execution runtime. The core publishes 56 evaluation assertions across provenance, idempotent compilation, token budgets, session-aware ranking, repeat-issue detection, and support handoff.
+Statewave's [multi-agent memory example](https://github.com/smaramwbc/statewave-multi-agent-memory) and [shared-context example](https://github.com/smaramwbc/statewave-multi-agent-shared-context) show how several agents can use one subject-oriented memory plane without sharing an execution runtime. The core publishes 55 evaluation assertions across provenance, idempotent compilation, token budgets, session-aware ranking, repeat-issue detection, and support handoff.
 
 A Letta migration should not flatten MemFS into unstructured text. Export memory and transcripts, then classify each item:
 
