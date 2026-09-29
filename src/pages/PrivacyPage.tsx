@@ -166,10 +166,9 @@ export function PrivacyPage() {
             <li>
               <strong className="text-theme-primary">Bot protection:</strong> Cloudflare,
               Inc. (US; EU&ndash;US Data Privacy Framework) &mdash; the &ldquo;I&rsquo;m
-              human&rdquo; check (Turnstile) on the newsletter signup form. The check is
-              loaded on pages that show the form, including blog posts, and Cloudflare
-              receives your IP address, browser information and a verification token. It
-              may set a short-lived cookie so a passed check is not repeated. It is not
+              human&rdquo; check (Turnstile) on the newsletter signup form. The check
+              loads when you start entering an email address, and Cloudflare receives
+              your IP address, browser information and a verification token. It is not
               used for advertising or cross-site tracking (Art. 6(1)(f) GDPR &mdash;
               legitimate interest in preventing automated abuse of the form).
             </li>

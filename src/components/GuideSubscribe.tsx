@@ -1,4 +1,4 @@
-import { useCallback, useState, type FormEvent } from 'react'
+import { useCallback, useRef, useState, type FormEvent } from 'react'
 import { Link } from 'react-router'
 import { Turnstile } from './Turnstile'
 import { TURNSTILE_SITE_KEY } from '../lib/turnstile'
@@ -50,8 +50,33 @@ export function GuideSubscribe({ variant = 'guide' }: { variant?: keyof typeof C
   const [honeypot, setHoneypot] = useState('')
   const [token, setToken] = useState('')
   const [nonce, setNonce] = useState(0)
+  /* Turnstile only mounts once someone starts signing up. Mounting it with the
+   * form would have every reader of every post contact Cloudflare, including
+   * the ones who never touch the field. */
+  const [armed, setArmed] = useState(false)
   const turnstileOn = TURNSTILE_SITE_KEY !== ''
-  const onToken = useCallback((t: string) => setToken(t), [])
+
+  const tokenRef = useRef('')
+  const waiting = useRef<((t: string) => void)[]>([])
+  const onToken = useCallback((t: string) => {
+    tokenRef.current = t
+    setToken(t)
+    if (t) waiting.current.splice(0).forEach((resolve) => resolve(t))
+  }, [])
+
+  /* Arming on focus means a fast submit — autofill, or Enter straight after
+   * typing — can arrive before the token does. Wait for it rather than
+   * refusing the signup. */
+  function tokenWithin(ms: number): Promise<string> {
+    if (tokenRef.current) return Promise.resolve(tokenRef.current)
+    return new Promise((resolve) => {
+      const timer = window.setTimeout(() => resolve(''), ms)
+      waiting.current.push((t) => {
+        window.clearTimeout(timer)
+        resolve(t)
+      })
+    })
+  }
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -63,16 +88,22 @@ export function GuideSubscribe({ variant = 'guide' }: { variant?: keyof typeof C
       setMessage("That doesn't look like a valid email address.")
       return
     }
-    if (turnstileOn && !token) {
-      setState('error')
-      setMessage('Please complete the “I’m human” check, then subscribe.')
-      return
-    }
-
     setState('submitting')
     setMessage('')
+
+    let verified = token
+    if (turnstileOn) {
+      setArmed(true)
+      verified = await tokenWithin(10_000)
+      if (!verified) {
+        setState('error')
+        setMessage('The “I’m human” check didn’t finish. Please try again.')
+        return
+      }
+    }
     // Tokens are single-use; a failed attempt needs a fresh challenge.
     const resetChallenge = () => {
+      tokenRef.current = ''
       setToken('')
       setNonce((n) => n + 1)
     }
@@ -83,7 +114,7 @@ export function GuideSubscribe({ variant = 'guide' }: { variant?: keyof typeof C
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email: value,
-          turnstile_token: token,
+          turnstile_token: verified,
           hp_company_url: honeypot,
           source: copy.source,
         }),
@@ -134,7 +165,9 @@ export function GuideSubscribe({ variant = 'guide' }: { variant?: keyof typeof C
             autoComplete="email"
             required
             value={email}
+            onFocus={() => setArmed(true)}
             onChange={(e) => {
+              setArmed(true)
               setEmail(e.target.value)
               if (state === 'error') setState('idle')
             }}
@@ -167,7 +200,7 @@ export function GuideSubscribe({ variant = 'guide' }: { variant?: keyof typeof C
         </form>
       )}
 
-      {turnstileOn && state !== 'success' && (
+      {turnstileOn && armed && state !== 'success' && (
         <Turnstile key={nonce} siteKey={TURNSTILE_SITE_KEY} onToken={onToken} />
       )}
 

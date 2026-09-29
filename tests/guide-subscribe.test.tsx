@@ -80,3 +80,30 @@ describe('GuideSubscribe', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent(/aren.t available right now/i)
   })
 })
+
+/**
+ * The form sits under every blog post now, so the Cloudflare script must not
+ * load for people who are only reading: it mounts when the email field first
+ * takes focus, not with the form.
+ */
+describe('GuideSubscribe and Cloudflare', () => {
+  it('does not load the Turnstile script until the field is used', async () => {
+    vi.stubEnv('VITE_TURNSTILE_SITE_KEY', 'test-site-key')
+    vi.resetModules()
+    const { GuideSubscribe: Fresh } = await import('../src/components/GuideSubscribe')
+
+    render(
+      <MemoryRouter>
+        <Fresh />
+      </MemoryRouter>,
+    )
+    expect(document.getElementById('cf-turnstile-script')).toBeNull()
+
+    fireEvent.focus(screen.getByLabelText('Email address'))
+    await waitFor(() => expect(document.getElementById('cf-turnstile-script')).not.toBeNull())
+
+    document.getElementById('cf-turnstile-script')?.remove()
+    vi.unstubAllEnvs()
+    vi.resetModules()
+  })
+})
