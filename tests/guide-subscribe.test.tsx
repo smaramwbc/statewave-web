@@ -16,10 +16,10 @@ afterEach(() => {
   vi.restoreAllMocks()
 })
 
-function mount() {
+function mount(variant?: 'guide' | 'blog') {
   render(
     <MemoryRouter>
-      <GuideSubscribe />
+      <GuideSubscribe variant={variant} />
     </MemoryRouter>,
   )
   const input = screen.getByLabelText('Email address')
@@ -54,6 +54,22 @@ describe('GuideSubscribe', () => {
       source: 'statewave-guide',
     })
     expect(await screen.findByRole('status')).toHaveTextContent(/subscribed/i)
+  })
+
+  it('posts the blog source, and promises only what that page delivers', async () => {
+    const fetchSpy = vi
+      .spyOn(globalThis, 'fetch')
+      .mockResolvedValue(new Response('{}', { status: 200 }))
+    const { input, button } = mount('blog')
+    // The series wording would promise Guide episodes on a post that is not one.
+    expect(screen.queryByText(/Statewave Guide post by email/i)).toBeNull()
+
+    fireEvent.change(input, { target: { value: 'reader@example.com' } })
+    fireEvent.click(button)
+
+    await waitFor(() => expect(fetchSpy).toHaveBeenCalledTimes(1))
+    const [, init] = fetchSpy.mock.calls[0]
+    expect(JSON.parse(String((init as RequestInit).body))).toMatchObject({ source: 'blog' })
   })
 
   it('explains an unconfigured endpoint instead of failing silently', async () => {
