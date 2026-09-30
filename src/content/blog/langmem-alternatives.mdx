@@ -1,0 +1,296 @@
+---
+title: "6 Best Open-Source LangMem Alternatives (2026)"
+slug: langmem-alternatives
+date: "2026-09-28T09:30:00+02:00"
+description: Compare six LangMem alternatives for production memory services, native LangGraph stores, reflection, managed APIs, and temporal graphs.
+author: Saber Maram
+category: Guides
+image: /images/blog/langmem-alternatives/og.png
+headerImage: /images/blog/langmem-alternatives/header.png
+tags:
+  - comparison
+  - open-source
+  - memory
+---
+
+When a small Python memory SDK has to grow into a framework-neutral production service with persistence, policy, provenance, and controlled context assembly, Statewave is the LangMem alternative that fits. Native LangGraph stores are the closest option when you want to stay in LangGraph but remove LangMem's model-driven memory managers.
+
+LangMem is intentionally small. It extracts and updates memories, gives agents search and write tools, runs background reflection, and optimizes prompts. It does not try to be a database, multi-tenant API, admin product, or independent memory service. The last PyPI release was 0.0.30 in October 2025.
+
+We build Statewave, so weigh the first entry accordingly. Every competitor claim below links to the vendor's own page so you can check it.
+
+<figure className="my-8">
+<img src="/images/blog/langmem-alternatives/image3.gif" alt="The langchain-ai/langmem repository on GitHub, LangChain's long-term memory library for LangGraph agents." width="903" height="330" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+</figure>
+
+## Why do developers choose LangMem?
+
+LangMem fits naturally into LangGraph. A developer can add tools that let an agent save and search memory in the hot path, or run a memory manager after a conversation to extract and consolidate facts in the background.
+
+The SDK also provides a useful memory taxonomy. Semantic memory stores facts, episodic memory stores experiences, and procedural memory updates behavior or prompt rules. Schemas and custom instructions let an application define what a durable memory should look like.
+
+For a LangGraph team that already owns deployment, persistence, identity, and operations, this is a good level of abstraction. There is no reason to add a remote service only to reproduce work the application already does well.
+
+## Why do teams look for LangMem alternatives?
+
+The pressure usually arrives after a prototype. The SDK solves memory transformation, while the application remains responsible for the system that makes those transformations safe and durable.
+
+### LangMem is a library, not a memory service
+
+The official [API reference](https://langchain-ai.github.io/langmem/reference/) lists eight items: two memory managers, two memory tools, two prompt optimizers, ReflectionExecutor, and the NamespaceTemplate helper. That compact surface is the design. It does not include a standalone server, authentication, tenant management, usage controls, audit UI, backups, or an administrative deletion workflow.
+
+Our finding is therefore a scope finding, not a criticism: replacing LangMem with a memory service means choosing to buy or adopt the operating layer that LangMem intentionally leaves out.
+
+### Production persistence is a separate LangGraph decision
+
+Official examples use InMemoryStore for clarity and state that production should use AsyncPostgresStore or another database-backed store. LangGraph also distinguishes the long-term store from the checkpointer that preserves thread execution.
+
+That gives teams at least two persistence lifecycles to design: workflow checkpoints and cross-thread memory. Schema migrations, backup, deletion, retention, and identity namespaces remain application work.
+
+### Background memory needs scheduling and failure handling
+
+LangMem can run extraction after the response through ReflectionExecutor or a separate server. Production still needs a durable queue or retry policy, idempotency, concurrency control, monitoring, and a way to reconcile a memory update that fails after the user has already received a response.
+
+### Model-driven writes need an application trust policy
+
+Hot-path tools let the agent decide what to save. Background managers let a model extract, update, and optionally delete memories. Those choices need review when memory can affect permissions, financial decisions, customer treatment, or future tool behavior. A schema validates shape; it does not establish that the memory is allowed or supported by a source.
+
+<figure className="my-8">
+<img src="/images/blog/langmem-alternatives/image6.png" alt="A chart naming four layers a production deployment adds around the LangMem package: a durable store, scheduling with retries, tenant isolation, and operations such as metrics and deletion." width="1600" height="914" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+<figcaption className="mt-3 text-[14px] leading-6 text-theme-secondary/70">The production layers that sit around LangMem's eight public building blocks.</figcaption>
+</figure>
+
+## Should you replace LangMem or build around it?
+
+The answer depends on which parts of the missing service your application already has.
+
+| Current situation | Better decision |
+| ----- | ----- |
+| One LangGraph app, one team, existing Postgres store | Keep LangMem and harden the surrounding code |
+| Several languages or agent frameworks need the same memory | Move memory behind Statewave, Mem0, or Hindsight |
+| The application only needs deterministic records and search | Use native LangGraph stores without LangMem |
+| The agent should form observations and reason over experience | Use Hindsight |
+| Memory should be part of a complete stateful agent | Use Letta |
+| Entity relationships and temporal validity drive retrieval | Use Graphiti |
+
+Keeping LangMem is often the correct choice. Replace it when the boundary, not the extraction prompt, has become the problem.
+
+## LangMem alternatives compared
+
+The six entries cover three distinct strategies: build directly on LangGraph, adopt an independent memory service, or move to a more opinionated memory or agent model.
+
+| Alternative | Architectural move | Best for | License / deployment | Main tradeoff |
+| ----- | ----- | ----- | ----- | ----- |
+| **Statewave** | SDK to independent runtime | governed memory shared across services | Apache-2.0, Postgres + pgvector | another service and no managed cloud |
+| **LangGraph BaseStore** | remove LangMem, keep framework | deterministic application-owned memory | open-source LangGraph libraries | you still build extraction and operations |
+| **Hindsight** | SDK to learning memory server | observations, mental models, reflection | MIT self-host or cloud | more model work and asynchronous processing |
+| **Mem0** | SDK to general memory API | broad integrations and managed adoption | Apache-2.0 core and cloud | verify feature boundaries by edition |
+| **Letta** | replace framework and memory | long-lived agents that edit their own context | open agent runtime and App Server | much larger migration |
+| **Graphiti** | SDK to temporal graph engine | changing entity relationships | Apache-2.0 with graph database | build the service and governance around it |
+
+<figure className="my-8">
+<img src="/images/blog/langmem-alternatives/image5.png" alt="A comparison matrix scoring Statewave, LangGraph store, Hindsight, Mem0, Letta, and Graphiti against library, durable store, service API, policy layer, and agent runtime." width="1600" height="914" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+<figcaption className="mt-3 text-[14px] leading-6 text-theme-secondary/70">A comparison matrix showing which production layers each LangMem alternative includes.</figcaption>
+</figure>
+
+## How we evaluated the alternatives
+
+We began with LangMem's actual scope, then asked what each candidate adds: a storage boundary, operational APIs, learning and synthesis, agent execution, or graph semantics. We also checked whether the candidate can coexist with LangGraph so that a memory migration does not force an orchestration rewrite.
+
+The ranking gives extra weight to framework independence and control because those are the reasons a LangMem user would accept the cost of a separate runtime.
+
+## The 6 best open-source LangMem alternatives
+
+Statewave is first for applications that want memory to behave like infrastructure. Native LangGraph storage is second because it is the least disruptive alternative for teams that do not need model-managed extraction.
+
+### 1. Statewave: best for turning memory into a governed service
+
+<figure className="my-8">
+<img src="/images/blog/langmem-alternatives/image4.gif" alt="The smaramwbc/statewave repository on GitHub, described as an open-source memory runtime for AI agents with reproducible, provenance-tagged context bundles instead of query-time retrieval." width="903" height="352" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+</figure>
+
+[Statewave](https://github.com/smaramwbc/statewave) exposes memory over REST, Python, TypeScript, and MCP. Any framework can append an episode, trigger compilation, and request a ranked context bundle for a subject. Postgres with pgvector stores both the records and vectors.
+
+The critical difference from LangMem is the record model. Raw interactions stay append-only as episodes, and the typed memories compiled from them keep their source and conflict state. The [architecture overview](https://github.com/smaramwbc/statewave-docs/blob/main/architecture/overview.md) walks through the pipeline. Because the original episodes are kept, every compiled memory can be traced to the events it came from.
+
+This comparison does not need a borrowed Mem0 benchmark. Statewave's relevant evidence is the behavior it tests: **55 evaluation assertions** across provenance, idempotent compilation, token budgets, session-aware ranking, repeat-issue detection, and support handoff. Context assembly is bounded by a token budget the caller can set per request (4,000 tokens by default).
+
+A low-risk migration keeps LangGraph unchanged:
+
+1. Continue using the checkpointer for thread state.
+2. Send completed turns and important tool events to Statewave as episodes.
+3. Compile in the background.
+4. Retrieve a context bundle before the relevant LangGraph node.
+5. Compare it with the existing LangMem store in shadow mode.
+
+The separation also makes multi-agent sharing explicit. Statewave's [shared-context reference](https://github.com/smaramwbc/statewave-multi-agent-shared-context) scopes memory around a common subject rather than one graph process. The tradeoff is another service, and Statewave does not provide a managed cloud, an entity-relationship graph, or a workflow checkpointer. It extracts entities per memory to improve retrieval, but it does not model relationships between them or support graph traversal. Read [token-bounded context assembly](/blog/token-bounded-context-assembly) for the retrieval contract.
+
+<figure className="my-8">
+<img src="/images/blog/langmem-alternatives/image10.png" alt="A side-by-side architecture: the LangMem path has the graph node call the SDK with the store and jobs living in the application, while the Statewave path has the graph node call an API backed by a Postgres memory service with policy and opt-in receipts built in." width="1600" height="912" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+<figcaption className="mt-3 text-[14px] leading-6 text-theme-secondary/70">A side-by-side architecture showing LangGraph with LangMem versus LangGraph with Statewave.</figcaption>
+</figure>
+
+### 2. LangGraph BaseStore: best for deterministic memory without another abstraction
+
+[LangGraph's native long-term memory](https://docs.langchain.com/oss/python/concepts/memory) stores values under custom namespaces and keeps them separate from thread checkpoints. A team can write explicit nodes for profile updates, event summaries, deletion, and retrieval without using LangMem's memory managers or tools.
+
+This is the closest alternative because it removes one package while preserving the framework and persistence model. It is also the most work. You must define schemas, extraction logic, conflict handling, search, background jobs, and access rules.
+
+Choose native stores when memory writes must be deterministic application code or when LangMem's model-driven update behavior is unnecessary. Use AsyncPostgresStore or another durable implementation for production and test migrations separately from the graph checkpointer.
+
+### 3. Hindsight: best for evidence-backed learning and reflection
+
+<figure className="my-8">
+<img src="/images/blog/langmem-alternatives/image7.gif" alt="The vectorize-io/hindsight repository on GitHub, described as agent memory that learns." width="903" height="358" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+</figure>
+
+[Hindsight](https://github.com/vectorize-io/hindsight) provides a separate server with retain, recall, and reflect operations. Facts and experiences become evidence-backed observations and mental models. Recall merges semantic, keyword, graph, and temporal retrieval; reflect synthesizes an answer with cited basis.
+
+This replaces LangMem's extraction and reflection primitives with a more complete memory product. The MIT server can use PostgreSQL or embedded pg0, while Hindsight Cloud adds management and billing. See [Hindsight alternatives](/blog/hindsight-alternatives) for a closer look at what replacing it involves.
+
+Choose Hindsight when the agent should learn patterns or maintain standing interpretations. Account for asynchronous retention, model cost, and a larger production surface than LangMem's in-process SDK.
+
+### 4. Mem0: best for a conventional memory API and integration breadth
+
+<figure className="my-8">
+<img src="/images/blog/langmem-alternatives/image2.gif" alt="The mem0ai/mem0 repository on GitHub, described as the memory layer for AI agents with drop-in memory infrastructure and context that persists." width="902" height="348" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+</figure>
+
+[Mem0](https://github.com/mem0ai/mem0) moves memory behind add, search, update, and delete operations with an Apache-2.0 core and a managed service. It integrates with common agent frameworks, which makes it a practical bridge out of a LangGraph-only memory path.
+
+This is a closer functional replacement than a graph engine or full agent runtime. The application keeps its own orchestration and calls a memory layer. During evaluation, separate open-source and managed capabilities, especially graph features, access controls, observability, and support.
+
+Choose Mem0 when ecosystem reach and a familiar API matter more than Statewave's episode provenance or Hindsight's observations.
+
+### 5. Letta: best for making memory part of a long-lived agent
+
+<figure className="my-8">
+<img src="/images/blog/langmem-alternatives/image11.gif" alt="The letta-ai/letta repository on GitHub, described as a platform for stateful agents with advanced memory that can learn and self-improve over time." width="902" height="354" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+</figure>
+
+[Letta](https://docs.letta.com/) combines memory with a stateful agent runtime. Agents edit memory blocks and MemFS, search messages, learn skills, call subagents, use channels, schedule work, and operate remote computers.
+
+This is not a drop-in LangMem alternative. It replaces the orchestration model as well as memory. The benefit is one runtime designed around agent identity and continual change. The cost is adopting Letta's application model.
+
+Choose Letta when the team is building a new long-lived agent and wants memory, tools, skills, and execution to evolve together. Keep LangGraph plus an external memory service when workflow control should remain explicit.
+
+### 6. Graphiti: best for temporal knowledge graphs
+
+<figure className="my-8">
+<img src="/images/blog/langmem-alternatives/image9.gif" alt="The getzep/graphiti repository on GitHub, described as a framework to build real-time knowledge graphs for AI agents." width="902" height="358" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+</figure>
+
+[Graphiti](https://github.com/getzep/graphiti) ingests episodes into a time-aware entity graph and retrieves through semantic, keyword, and graph signals. It is useful when the correct answer depends on relationships and when those relationships were valid.
+
+Moving from LangMem means trading an in-process library for an Apache-2.0 engine backed by a separate graph database, with the service layer yours to build.
+
+Choose Graphiti when LangMem's namespace store cannot express the temporal relationships the product needs. Do not add a graph when user facts and event timelines are sufficient.
+
+## What should you test before leaving LangMem?
+
+The migration should prove that the new boundary solves a real production problem. Otherwise, it only adds network calls.
+
+### Consistency between memory writes and user responses
+
+Simulate an extraction failure after the agent responds. Confirm the queue retries safely and does not create duplicate or contradictory memory.
+
+### Namespace and tenant isolation
+
+Use two users with similar preferences and overlapping text. Test every search, update, delete, export, cache, and admin path for cross-scope leakage.
+
+### Source evidence and corrections
+
+Ask which event produced a memory, then change the underlying fact. Check whether the old memory is invalidated, preserved as history, or simply overwritten.
+
+### Token and latency budgets
+
+Set a hard context limit and p95 latency target. A service can improve operations while making every agent turn slower. Measure the full path, including extraction lag and reranking.
+
+<figure className="my-8">
+<img src="/images/blog/langmem-alternatives/image1.png" alt="A production test plan with four checks: consistency between writes and user responses, namespace and tenant isolation, correction handling when a source changes, and a p95 latency and token budget." width="1600" height="894" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+<figcaption className="mt-3 text-[14px] leading-6 text-theme-secondary/70">A four-part production test plan for replacing LangMem.</figcaption>
+</figure>
+
+<figure className="my-8">
+<img src="/images/blog/langmem-alternatives/image8.png" alt="A decision guide asking what must persist: keep LangMem for primitives only, use LangGraph BaseStore for a deterministic store, use Statewave for a governed service, or use Hindsight for learned beliefs." width="1600" height="898" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+<figcaption className="mt-3 text-[14px] leading-6 text-theme-secondary/70">A decision path for keeping LangMem, extending LangGraph, or moving memory into a service.</figcaption>
+</figure>
+
+## Which LangMem alternative should you pick?
+
+Statewave fits a framework-neutral, policy-bound production API. Native LangGraph stores keep the abstraction count low but leave memory logic to the application. Hindsight adds learning and reflection; Mem0 provides a general API with a managed path. Letta supplies the full agent, while Graphiti supplies the temporal entity graph.
+
+Keep LangMem when one LangGraph application already owns persistence, identity, background jobs, and access control. Its small surface is an advantage in that environment.
+
+LangMem, LangGraph, Hindsight, Mem0, Letta and Graphiti are trademarks of their respective owners; used here for factual comparison. Pricing, feature lists and repository details are as of September 2026 and change frequently, so check each vendor's own page before you rely on them.
+
+## FAQ
+
+<div className="my-8 space-y-3">
+
+<details open className="blog-faq group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35">
+<summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none">
+<h3 className="text-[18px] font-semibold leading-snug text-theme-primary !m-0">1. Is LangMem a database?</h3>
+<div className="blog-faq-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40">
+<svg className="h-5 w-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" /></svg>
+</div>
+</summary>
+<div className="px-7 pb-7">
+<div className="h-px bg-theme-primary/10 mb-6" />
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">No. LangMem is a Python SDK for memory transformation, tools, reflection, and prompt optimization. Persistent storage comes from LangGraph's store layer or another store you connect.</p>
+</div>
+</details>
+
+<details className="blog-faq group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35">
+<summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none">
+<h3 className="text-[18px] font-semibold leading-snug text-theme-primary !m-0">2. What is the closest LangMem alternative?</h3>
+<div className="blog-faq-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40">
+<svg className="h-5 w-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" /></svg>
+</div>
+</summary>
+<div className="px-7 pb-7">
+<div className="h-px bg-theme-primary/10 mb-6" />
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">LangGraph BaseStore with application-written memory logic is closest in architecture. Statewave, Mem0, and Hindsight are closer when the goal is an independent memory service.</p>
+</div>
+</details>
+
+<details className="blog-faq group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35">
+<summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none">
+<h3 className="text-[18px] font-semibold leading-snug text-theme-primary !m-0">3. Can Statewave work with LangGraph?</h3>
+<div className="blog-faq-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40">
+<svg className="h-5 w-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" /></svg>
+</div>
+</summary>
+<div className="px-7 pb-7">
+<div className="h-px bg-theme-primary/10 mb-6" />
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">Yes. LangGraph can keep workflow state and call Statewave before or after selected nodes through REST, Python, TypeScript, or MCP.</p>
+</div>
+</details>
+
+<details className="blog-faq group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35">
+<summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none">
+<h3 className="text-[18px] font-semibold leading-snug text-theme-primary !m-0">4. Does LangMem support background memory?</h3>
+<div className="blog-faq-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40">
+<svg className="h-5 w-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" /></svg>
+</div>
+</summary>
+<div className="px-7 pb-7">
+<div className="h-px bg-theme-primary/10 mb-6" />
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">Yes. It provides ReflectionExecutor and examples for background processing. Your deployment still needs durable scheduling, retries, monitoring, and a production store.</p>
+</div>
+</details>
+
+<details className="blog-faq group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35">
+<summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none">
+<h3 className="text-[18px] font-semibold leading-snug text-theme-primary !m-0">5. When should a team keep LangMem?</h3>
+<div className="blog-faq-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40">
+<svg className="h-5 w-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" /></svg>
+</div>
+</summary>
+<div className="px-7 pb-7">
+<div className="h-px bg-theme-primary/10 mb-6" />
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">Keep it when the application is already based on LangGraph and the team wants small, customizable memory primitives rather than another service.</p>
+</div>
+</details>
+
+</div>

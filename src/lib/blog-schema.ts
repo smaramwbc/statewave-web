@@ -342,6 +342,87 @@ export const POST_FAQ: Readonly<Record<string, readonly FaqEntry[]>> = {
         "Yes, that is what the handoff pack is for. POST /v1/handoff returns a token-bounded brief with the customer's profile facts, the active issue, the steps already attempted, related history, and the health score with its contributing factors. It also emits a receipt, so the human can see exactly what the agent had in context.",
     },
   ],
+  'hindsight-alternatives': [
+    {
+      question: 'Is Hindsight open source?',
+      answer:
+        'Yes. The core server is MIT licensed and can be self-hosted. Hindsight Cloud and enterprise features add managed operations and commercial controls.',
+    },
+    {
+      question: 'What is the closest Hindsight alternative?',
+      answer:
+        'No single product copies its four memory structures and retain, recall, reflect model. Mem0 is closer for a general API, Graphiti for temporal graphs, and Statewave for governed context delivery.',
+    },
+    {
+      question: 'Why can reflect cost more than recall?',
+      answer:
+        'Recall searches and returns memory. Reflect runs an agentic synthesis step over relevant memory. Hindsight Cloud prices recall by output tokens and reflect at $0.05 per call.',
+    },
+    {
+      question: 'Can Statewave replace mental models?',
+      answer:
+        'Not directly. A product can store derived summaries as typed memories or generate them in application code, but Statewave does not maintain Hindsight-style standing mental models.',
+    },
+    {
+      question: 'When should a team keep Hindsight?',
+      answer:
+        'Keep it when the agent should consolidate evidence, maintain learned interpretations, and answer reflection questions inside the memory system.',
+    },
+  ],
+  'byterover-alternatives': [
+    {
+      question: 'Is ByteRover open source?',
+      answer:
+        'The CLI source is public under Elastic License 2.0. ELv2 is source-available, not an OSI-approved or permissive open-source license.',
+    },
+    {
+      question: 'Does ByteRover work without a cloud account?',
+      answer:
+        'Yes. Its official matrix lists 21 interactive commands that work locally without authentication. Cloud authentication is required for login, remote sync, shared spaces, multi-machine access, and backup.',
+    },
+    {
+      question: 'What is the closest open-source ByteRover alternative?',
+      answer:
+        'OpenViking is closest for hierarchical context, while Claude-Mem is closest for automatic coding-session capture. Hindsight is close for cross-agent project memory and learning.',
+    },
+    {
+      question: 'Can Statewave store coding-agent memory?',
+      answer:
+        "Yes. It can record session and tool events, compile project facts and decisions, and serve policy-filtered context through MCP or API. It does not provide ByteRover's context-tree UI or Git-semantic commands.",
+    },
+    {
+      question: 'Which alternative has the most permissive license?',
+      answer:
+        "Statewave, Claude-Mem, Hindsight, Supermemory's repository, and Letta's open runtime use Apache-2.0 or MIT cores. OpenViking uses AGPL-3.0, and ByteRover uses ELv2.",
+    },
+  ],
+  'langmem-alternatives': [
+    {
+      question: 'Is LangMem a database?',
+      answer:
+        "No. LangMem is a Python SDK for memory transformation, tools, reflection, and prompt optimization. Persistent storage comes from LangGraph's store layer or another store you connect.",
+    },
+    {
+      question: 'What is the closest LangMem alternative?',
+      answer:
+        'LangGraph BaseStore with application-written memory logic is closest in architecture. Statewave, Mem0, and Hindsight are closer when the goal is an independent memory service.',
+    },
+    {
+      question: 'Can Statewave work with LangGraph?',
+      answer:
+        'Yes. LangGraph can keep workflow state and call Statewave before or after selected nodes through REST, Python, TypeScript, or MCP.',
+    },
+    {
+      question: 'Does LangMem support background memory?',
+      answer:
+        'Yes. It provides ReflectionExecutor and examples for background processing. Your deployment still needs durable scheduling, retries, monitoring, and a production store.',
+    },
+    {
+      question: 'When should a team keep LangMem?',
+      answer:
+        'Keep it when the application is already based on LangGraph and the team wants small, customizable memory primitives rather than another service.',
+    },
+  ],
   'repeat-issue-detection-customer-support-automation': [
     {
       question: 'What is repeat-issue detection in customer support automation?',

@@ -1,0 +1,288 @@
+---
+title: "6 Best Open-Source Hindsight Alternatives (2026)"
+slug: hindsight-alternatives
+date: "2026-09-28T09:00:00+02:00"
+description: Compare six Hindsight alternatives for governed recall, simpler memory APIs, temporal graphs, LangGraph, and stateful agents.
+author: Saber Maram
+category: Guides
+image: /images/blog/hindsight-alternatives/og.png
+headerImage: /images/blog/hindsight-alternatives/header.png
+tags:
+  - comparison
+  - open-source
+  - memory
+---
+
+If you need deterministic, policy-bound context with source provenance and don't need a model reflecting on every memory bank, Statewave is the Hindsight alternative to start with. Graphiti is better for temporal graph retrieval, while LangMem is lighter for teams already building inside LangGraph.
+
+Hindsight is one of the broadest open-source agent-memory systems in this list. It stores facts and experiences, consolidates evidence into observations, maintains mental models, retrieves through four parallel strategies, and can synthesize answers through reflection. Teams usually leave because they need less reasoning, a different control model, or a different cost shape, not because Hindsight lacks memory features.
+
+We build Statewave, so weigh the first entry accordingly. Every competitor claim below links to the vendor's own page so you can check it.
+
+## Why do developers choose Hindsight?
+
+Hindsight is designed for agents that should learn, not only look up prior messages. Retain extracts facts, entities, relationships, and time. Recall searches memory. Reflect runs an agentic reasoning step over the relevant evidence.
+
+The system separates four structures: world facts, the agent's experiences, consolidated observations, and mental models. Recall combines semantic vectors, BM25 keywords, graph links, and time filters, then fuses and reranks the results. A mental model can hold a standing answer that is read without running a new retrieval loop.
+
+The MIT-licensed server supports Docker, bare-metal Python, an embedded pg0 mode, external PostgreSQL, MCP, SDKs, Prometheus, webhooks, and extension points. Hindsight Cloud adds management, backups, team features, enterprise controls, and usage billing.
+
+## Why do teams look for Hindsight alternatives?
+
+Hindsight's design is a good fit for adaptive agents. It can be more system than a product needs when the job is controlled retrieval of customer or workflow history.
+
+### Recall and reflect solve different problems and have different costs
+
+Recall returns raw memories for the application to reason over. Reflect returns a synthesized answer after an internal agent loop. Hindsight's [FAQ](https://hindsight.vectorize.io/faq) gives a typical latency range of **50 to 500 milliseconds for recall** and **1 to 10 seconds for reflect**.
+
+Applications that already call an LLM after retrieval may not need another reasoning step inside the memory layer. Keeping synthesis in the agent can reduce duplicated model work and make prompt behavior easier to test.
+
+### Retention is asynchronous
+
+Hindsight's integrations warn that a fact may not be searchable immediately after retain because extraction and indexing happen in the background. That is a valid throughput design, but workflows that read immediately after write need completion events, polling, or a fallback to the raw turn.
+
+### Model work is part of the memory path
+
+Retain uses an LLM to extract structured memory, and reflect uses a reasoning loop. Hindsight supports hosted and local providers, but model availability, latency, prompt behavior, and provider credentials remain part of memory operations. A deterministic heuristic compiler can be preferable for narrow schemas or air-gapped workflows.
+
+### Open-source multi-tenancy is capable but not a full organization ACL product
+
+The server includes tenant extensions, including Supabase-based schema isolation. Hindsight's public issue tracker also documents requests for team, agent, bank, and memory-level access controls in the open server. Rich organization roles and bank-scoped keys are part of the managed product surface.
+
+That is not a security verdict. It is a design boundary to verify if private and shared memory must coexist under many application roles.
+
+<figure className="my-8">
+<img src="/images/blog/hindsight-alternatives/image10.png" alt="A chart contrasting Hindsight's recall and reflect operations by latency and billing: recall retrieves evidence in roughly 50-500ms billed on output tokens, while reflect reasons over memory in roughly 1-10s billed at a flat per-call rate." width="1600" height="827" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+<figcaption className="mt-3 text-[14px] leading-6 text-theme-secondary/70">The operational differences between Hindsight recall, reflect, and mental-model reads.</figcaption>
+</figure>
+
+## What does Hindsight Cloud pricing imply for workload design?
+
+Hindsight Cloud bills each operation in the unit that matches its work. As of 6 July 2026, when the current rates took effect, the [billing documentation](https://docs.hindsight.vectorize.io/billing/) lists retain at **$10 per million input tokens**, recall at **$0.75 per million output tokens**, reflect at **$0.05 per call**, mental-model refresh at **$0.05 per call**, and storage older than 30 days at **$0.25 per million tokens per month**.
+
+| Example monthly workload | Published unit price (as of 6 July 2026) | Estimated line item |
+| ----- | ----- | ----- |
+| 1 million retain input tokens | $10 / 1M | $10 |
+| 10 million recall output tokens | $0.75 / 1M | $7.50 |
+| 100,000 reflect calls | $0.05 / call | $5,000 |
+| 100 million stored tokens older than 30 days | $0.25 / 1M / month | $25 / month |
+
+The arithmetic reveals the control knob: reflect frequency can dominate the bill long before storage does. A team that needs synthesis on 1% of reads has a different workload from a team that calls reflect on every turn. This is an example based on list pricing, before free credits, discounts, model costs for self-hosting, or contract terms.
+
+<figure className="my-8">
+<img src="/images/blog/hindsight-alternatives/image6.png" alt="A bar chart of illustrative Hindsight Cloud costs: 10k reflects cost $500, 100k reflects cost $5,000, 100M retain input tokens cost $1,000, and 100M tokens stored past 30 days cost $25 per month." width="1599" height="893" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+<figcaption className="mt-3 text-[14px] leading-6 text-theme-secondary/70">Four Hindsight Cloud cost examples showing how reflect-call volume can dominate.</figcaption>
+</figure>
+
+## Hindsight alternatives compared
+
+The alternatives are grouped by the capability a team wants to simplify or move elsewhere.
+
+| Alternative | Best reason to switch | Memory model | Self-hosted core | Main tradeoff |
+| ----- | ----- | ----- | ----- | ----- |
+| **Statewave** | retrieval policy, provenance, and opt-in context receipts | episodes plus typed memories | Apache-2.0 on Postgres | no mental models or built-in reflect operation |
+| **Mem0** | smaller general memory API | extracted user and agent memories | Apache-2.0 | fewer native learning structures |
+| **Graphiti** | temporal entities without Hindsight's observation layer | episode and time-aware entity graph | Apache-2.0 | graph database and surrounding service work |
+| **LangMem** | in-process memory for LangGraph | semantic, episodic, procedural schemas | MIT Python SDK | not a standalone service |
+| **Letta** | memory inside a complete stateful agent | editable blocks, transcript, Git-backed MemFS | open harness and App Server | replaces the agent runtime too |
+| **Supermemory** | integrated memory, profiles, RAG, and local binary | fact graph plus document retrieval | MIT repository and local edition | self-host and support boundaries need review |
+
+<figure className="my-8">
+<img src="/images/blog/hindsight-alternatives/image8.png" alt="A comparison matrix scoring Statewave, Mem0, Graphiti, LangMem, Letta, and Supermemory against recall, reflection, temporal graph, external policy, and full-agent capability." width="1600" height="878" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+<figcaption className="mt-3 text-[14px] leading-6 text-theme-secondary/70">A comparison matrix matching Hindsight alternatives to recall, reflection, graph, runtime, and governance needs.</figcaption>
+</figure>
+
+## How we evaluated the alternatives
+
+We separated the memory pipeline into retain, retrieve, synthesize, govern, and operate. A candidate did not receive credit for reflect if the intended architecture deliberately keeps reasoning in the application. It did receive credit if it reduced a dependency or made an access decision easier to prove.
+
+The price analysis uses Hindsight's published units and simple multiplication. It is included to show which operation shapes cost, not to predict one company's invoice.
+
+## The 6 best open-source Hindsight alternatives
+
+Statewave comes first for products where the memory layer should provide controlled evidence and leave reasoning to the agent. The remaining options fit narrower APIs, graph-native data, in-process frameworks, full agent runtimes, or integrated RAG.
+
+### 1. Statewave: best for governed context without mandatory model reasoning
+
+<figure className="my-8">
+<img src="/images/blog/hindsight-alternatives/image5.gif" alt="The smaramwbc/statewave repository on GitHub, described as an open-source memory runtime for AI agents with reproducible, provenance-tagged context bundles instead of query-time retrieval." width="903" height="352" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+</figure>
+
+[Statewave](https://github.com/smaramwbc/statewave) stores raw interaction events as immutable episodes and compiles typed memories that keep their source. The [architecture overview](https://github.com/smaramwbc/statewave-docs/blob/main/architecture/overview.md) describes the ranking, policy, and receipt steps.
+
+The Hindsight-specific reason to choose Statewave is control over where intelligence lives. Statewave's default heuristic compiler runs locally without an LLM. Teams can opt into an LLM compiler or hosted embeddings, but the record, policy, and assembly model does not require an internal reflect call. The application receives evidence and decides how to reason over it.
+
+This is a strong fit for support and operations agents where deterministic fields, repeat-issue detection, handoff context, sensitivity labels, and subject deletion matter more than a bank's changing disposition. The [support-agent implementation guide](/blog/persistent-memory-for-ai-support-agents) documents session-aware context, resolution tracking, and repeat-issue evaluation in addition to general memory primitives.
+
+Migration maps a Hindsight bank to a Statewave subject when the bank represents one user, case, project, or agent. Raw facts and experiences should be replayed as episodes when source events are available. Mental models require a product decision: store them as derived memories with source links, regenerate them in application code, or remove them if they duplicate the agent's reasoning step.
+
+Statewave is not the right replacement when reflect, evidence consolidation, and mental models are the product feature. It has no managed cloud, no entity-relationship graph (entities are extracted per memory to improve retrieval, but relationships between them are not modeled or traversable), and no equivalent to Hindsight's four memory networks. Choose it when [audit trails and retrieval policy](/blog/agent-memory-provenance-audit-trails) are the stronger requirements.
+
+<figure className="my-8">
+<img src="/images/blog/hindsight-alternatives/image4.png" alt="A five-step migration map: scope a bank to a subject, replay facts and experiences as episodes, compile typed memories, decide whether to keep or rebuild mental models, and control access with policy and opt-in receipts." width="1600" height="909" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+<figcaption className="mt-3 text-[14px] leading-6 text-theme-secondary/70">How a Hindsight bank maps to Statewave episodes, compiled memories, policy, and opt-in context receipts.</figcaption>
+</figure>
+
+### 2. Mem0: best for a smaller general-purpose memory API
+
+<figure className="my-8">
+<img src="/images/blog/hindsight-alternatives/image9.gif" alt="The mem0ai/mem0 repository on GitHub, described as the memory layer for AI agents with drop-in memory infrastructure and context that persists." width="902" height="348" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+</figure>
+
+[Mem0](https://github.com/mem0ai/mem0) is a natural alternative when retain, recall, observations, mental models, and reflect feel like too many layers. The application adds and searches memories through a compact API, with an Apache-2.0 core and a managed service.
+
+Its large integration surface makes it easier to attach memory to several agent frameworks. The tradeoff is that the application owns more reasoning and must verify provenance, update behavior, access controls, and logging for the selected edition.
+
+Choose Mem0 when the desired architecture is "memory as a service" but not "learning system as a service."
+
+### 3. Graphiti: best for temporal relationship retrieval
+
+<figure className="my-8">
+<img src="/images/blog/hindsight-alternatives/image11.gif" alt="The getzep/graphiti repository on GitHub, described as a framework to build real-time knowledge graphs for AI agents." width="902" height="358" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+</figure>
+
+[Graphiti](https://github.com/getzep/graphiti) is a strong alternative when Hindsight's graph and time-aware recall are valuable, but observations and mental models are not. Episodes become entities and relationships with temporal validity, then semantic, keyword, and graph signals support retrieval.
+
+Compared with Hindsight, you give up observations, mental models, and reflect, and take on an Apache-2.0 engine that runs on a separate graph database (Neo4j, FalkorDB, or Neptune).
+
+Choose Graphiti for dynamic entity facts, relationship histories, and graph traversal. Keep Hindsight for higher-order observations, or choose Statewave for subject memory with policy and opt-in receipts.
+
+### 4. LangMem: best for LangGraph-native memory primitives
+
+<figure className="my-8">
+<img src="/images/blog/hindsight-alternatives/image7.gif" alt="The langchain-ai/langmem repository on GitHub, LangChain's long-term memory library for LangGraph agents." width="902" height="348" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+</figure>
+
+[LangMem](https://github.com/langchain-ai/langmem) provides memory managers, agent tools, background reflection, and prompt optimization inside a LangGraph application. It can use custom schemas for semantic and episodic memories and store them through LangGraph's BaseStore.
+
+This is the lightest alternative in the list. It is also the least complete operational product. Production storage, background execution, retries, tenant isolation, deletion, monitoring, and administrative tools remain application responsibilities.
+
+Choose LangMem when the team already operates LangGraph and wants to control the memory system in code. Avoid it if the reason for leaving Hindsight is a desire for an independent, shared service.
+
+### 5. Letta: best for agents that own and revise their context
+
+<figure className="my-8">
+<img src="/images/blog/hindsight-alternatives/image2.gif" alt="The letta-ai/letta repository on GitHub, described as a platform for stateful agents with advanced memory that can learn and self-improve over time." width="902" height="354" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+</figure>
+
+[Letta](https://docs.letta.com/) makes memory part of a long-lived agent's identity. The agent can revise memory blocks, keep external memory and skills in Git-backed MemFS, search past messages, use subagents, and schedule future work.
+
+This is a different learning model from Hindsight. Hindsight derives facts, observations, and mental models in a separate memory server. Letta lets the agent directly manage its context inside a full runtime.
+
+Choose Letta when you are willing to move the agent runtime as well as memory. It is not a small replacement for an existing multi-framework application.
+
+### 6. Supermemory: best for combining memory, profiles, and document retrieval
+
+<figure className="my-8">
+<img src="/images/blog/hindsight-alternatives/image1.gif" alt="The supermemoryai/supermemory repository on GitHub, described as a memory and context engine plus app that can run fully locally." width="903" height="376" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+</figure>
+
+[Supermemory](https://github.com/supermemoryai/supermemory) combines conversational memory, a fact graph, user profiles, hybrid search, document RAG, connectors, coding-agent plugins, and a local server. That makes it a strong Hindsight alternative when the missing feature is document context rather than reflection.
+
+Its MIT repository, managed API, capped local binary, and supported self-hosted offers have different boundaries. The server v0.0.7 release notes first stated a 10,000-document cap for the local release, while supported self-hosting appears on Scale and Enterprise pricing.
+
+Choose Supermemory when one context platform should own profiles, RAG, and memory. Choose Hindsight when learned observations and reflect are central, or Statewave when policy-bound interaction context is central.
+
+## What should you test before switching from Hindsight?
+
+The evaluation must preserve the behaviors that Hindsight adds beyond search. Otherwise, a simpler system may look cheaper only because the test stopped measuring learning.
+
+### Separate recall questions from reflection questions
+
+Label each test as lookup, temporal lookup, multi-memory synthesis, or decision support. Measure a retrieval system on the first two and the full reasoning path on the latter two.
+
+### Include delayed-write tests
+
+Retain an event and immediately issue a read. Then test after the completion event. Decide whether the product requires read-your-write behavior, eventual memory, or a raw-turn fallback.
+
+### Test evidence changes
+
+Add evidence that strengthens, weakens, and contradicts an observation. Check whether the alternative updates a derived belief, supersedes a fact, or returns both without explanation.
+
+### Model tenant and sharing rules explicitly
+
+Create private user memory, shared team memory, and agent-only memory. Test reads and writes from every role, including the admin UI and deletion APIs.
+
+<figure className="my-8">
+<img src="/images/blog/hindsight-alternatives/image3.png" alt="A migration evaluation grid with four tests: delay (reads before and after retain), conflict (new evidence changes the answer), sharing (bank access is explicit), and reasoning (the recall vs reflect split)." width="1600" height="886" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+<figcaption className="mt-3 text-[14px] leading-6 text-theme-secondary/70">A migration evaluation grid for recall, reflection, write delay, evidence changes, and access rules.</figcaption>
+</figure>
+
+## Which Hindsight alternative should you pick?
+
+Statewave fits deterministic context assembly with policy, provenance, and opt-in receipts. Mem0 is the smaller general memory API; Graphiti handles temporal entity relationships. LangMem stays inside LangGraph, Letta supplies a complete self-editing runtime, and Supermemory combines memory with profiles and RAG.
+
+Keep Hindsight when observations, mental models, and reflection are the value. Replacing it with a simpler store will reduce both cost and capability, so the product must decide which side of that trade-off it wants.
+
+Hindsight, Mem0, Graphiti, LangMem, Letta and Supermemory are trademarks of their respective owners; used here for factual comparison. Pricing, feature lists and repository details are as of September 2026 and change frequently, so check each vendor's own page before you rely on them.
+
+## FAQ
+
+<div className="my-8 space-y-3">
+
+<details open className="blog-faq group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35">
+<summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none">
+<h3 className="text-[18px] font-semibold leading-snug text-theme-primary !m-0">1. Is Hindsight open source?</h3>
+<div className="blog-faq-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40">
+<svg className="h-5 w-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" /></svg>
+</div>
+</summary>
+<div className="px-7 pb-7">
+<div className="h-px bg-theme-primary/10 mb-6" />
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">Yes. The core server is MIT licensed and can be self-hosted. Hindsight Cloud and enterprise features add managed operations and commercial controls.</p>
+</div>
+</details>
+
+<details className="blog-faq group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35">
+<summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none">
+<h3 className="text-[18px] font-semibold leading-snug text-theme-primary !m-0">2. What is the closest Hindsight alternative?</h3>
+<div className="blog-faq-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40">
+<svg className="h-5 w-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" /></svg>
+</div>
+</summary>
+<div className="px-7 pb-7">
+<div className="h-px bg-theme-primary/10 mb-6" />
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">No single product copies its four memory structures and retain, recall, reflect model. Mem0 is closer for a general API, Graphiti for temporal graphs, and Statewave for governed context delivery.</p>
+</div>
+</details>
+
+<details className="blog-faq group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35">
+<summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none">
+<h3 className="text-[18px] font-semibold leading-snug text-theme-primary !m-0">3. Why can reflect cost more than recall?</h3>
+<div className="blog-faq-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40">
+<svg className="h-5 w-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" /></svg>
+</div>
+</summary>
+<div className="px-7 pb-7">
+<div className="h-px bg-theme-primary/10 mb-6" />
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">Recall searches and returns memory. Reflect runs an agentic synthesis step over relevant memory. Hindsight Cloud prices recall by output tokens and reflect at $0.05 per call.</p>
+</div>
+</details>
+
+<details className="blog-faq group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35">
+<summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none">
+<h3 className="text-[18px] font-semibold leading-snug text-theme-primary !m-0">4. Can Statewave replace mental models?</h3>
+<div className="blog-faq-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40">
+<svg className="h-5 w-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" /></svg>
+</div>
+</summary>
+<div className="px-7 pb-7">
+<div className="h-px bg-theme-primary/10 mb-6" />
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">Not directly. A product can store derived summaries as typed memories or generate them in application code, but Statewave does not maintain Hindsight-style standing mental models.</p>
+</div>
+</details>
+
+<details className="blog-faq group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35">
+<summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none">
+<h3 className="text-[18px] font-semibold leading-snug text-theme-primary !m-0">5. When should a team keep Hindsight?</h3>
+<div className="blog-faq-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40">
+<svg className="h-5 w-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" /></svg>
+</div>
+</summary>
+<div className="px-7 pb-7">
+<div className="h-px bg-theme-primary/10 mb-6" />
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">Keep it when the agent should consolidate evidence, maintain learned interpretations, and answer reflection questions inside the memory system.</p>
+</div>
+</details>
+
+</div>
