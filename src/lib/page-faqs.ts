@@ -222,6 +222,44 @@ export const PAGE_FAQS: Partial<Record<RouteKey, readonly FaqEntry[]>> = {
     },
   ],
 
+  '/guide': [
+    {
+      question: 'What is Statewave Guide?',
+      answer:
+        'An open-source, in-app guidance framework. It statically analyzes your React + Node source into an application graph, builds a verified Product Model from it, and answers user questions by pointing at the real control, or refusing when there is no evidence.',
+      links: [{ label: 'README', href: 'https://github.com/smaramwbc/statewave-guide' }],
+    },
+    {
+      question: "Is it the same as Statewave's memory runtime?",
+      answer:
+        'No. Guide is a separate framework. It can optionally use Statewave as its durable-memory backend through the server-side @statewavedev/guide-statewave adapter.',
+      links: [{ label: 'How the memory runtime works', href: '/product' }],
+    },
+    {
+      question: 'Is it on npm?',
+      answer:
+        'Not yet. None of the eight packages is published; the install path is cloning the repository.',
+      links: [{ label: 'Quick start in the README', href: 'https://github.com/smaramwbc/statewave-guide#quick-start-10-minutes-no-ai-keys-no-statewave' }],
+    },
+    {
+      question: 'How does it avoid hallucinating features?',
+      answer:
+        'The graph enumerates provably true claim opportunities before a model sees anything. The model only selects and phrases from that menu, or declines, and a verifier re-checks the selected claim before it reaches the Product Model.',
+      links: [{ label: 'Provider reality check, round 2', href: 'https://github.com/smaramwbc/statewave-guide/blob/main/docs/provider-reality-check-round-2.md' }],
+    },
+    {
+      question: 'Which frameworks does it support?',
+      answer:
+        'React + Node today. The core is framework-free so other adapters can follow; Vue, Svelte and Tauri adapters are not built yet.',
+    },
+    {
+      question: 'Is it production-ready?',
+      answer:
+        'It is a working research prototype: 139 green gates and 1,500+ unit tests. No human usefulness review has been run yet, and an independent review scored current output below its own bar.',
+      links: [{ label: 'Trust it by evening', href: 'https://github.com/smaramwbc/statewave-guide/blob/main/docs/trust.md' }],
+    },
+  ],
+
   '/connectors': [
     {
       question: 'What does a Statewave connector actually do?',

@@ -53,6 +53,7 @@ export type RouteKey =
   | '/vs/supermemory'
   | '/connectors'
   | '/developers'
+  | '/guide'
   | '/about'
   | '/blog'
   | '/blog/statewave-guide'
@@ -78,6 +79,7 @@ export const PUBLIC_ROUTES: readonly RouteKey[] = [
   '/vs/supermemory',
   '/connectors',
   '/developers',
+  '/guide',
   '/about',
   '/blog',
   '/blog/statewave-guide',
@@ -242,6 +244,15 @@ export const PAGE_META: Record<RouteKey, PageMeta> = {
     breadcrumbLabel: 'Developers',
     ogType: 'article',
     priority: 0.8,
+    changefreq: 'monthly',
+  },
+  '/guide': {
+    title: 'Statewave Guide — In-App Guidance Backed by Source-Code Evidence',
+    description:
+      'Statewave Guide is an open-source, in-app guidance framework. It indexes your React + Node source into an evidence-backed graph, points users at the real control, and refuses when there is no evidence. Apache-2.0.',
+    breadcrumbLabel: 'Guide',
+    ogType: 'article',
+    priority: 0.7,
     changefreq: 'monthly',
   },
   '/about': {

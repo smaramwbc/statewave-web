@@ -16,6 +16,7 @@ Statewave stores immutable episodes, compiles them into typed memories with prov
 - [Use Cases](https://www.statewave.ai/use-cases) — support agents, coding copilots, account intelligence, voice continuity, and multi-agent systems.
 - [Connectors](https://www.statewave.ai/connectors) — GitHub, Jira, Slack, Notion, Discord, Zendesk, Intercom, Freshdesk, Gmail, n8n, Zapier, databases, Markdown/ADRs, MCP, and more.
 - [Developers](https://www.statewave.ai/developers) — SDKs, docs, API reference, and examples.
+- [Statewave Guide](https://www.statewave.ai/guide) — open-source in-app guidance framework: indexes React + Node source into an evidence-backed graph, points users at the real control, and refuses when there is no evidence. Separate from the memory runtime; optional Statewave adapter.
 - [About](https://www.statewave.ai/about) — what Statewave is, who it's for, the repos that ship it, and how to get in touch.
 - [Blog](https://www.statewave.ai/blog) — design notes, deployment patterns, and how the runtime works under the hood. Also at [/blog/rss.xml](https://www.statewave.ai/blog/rss.xml), [/blog/atom.xml](https://www.statewave.ai/blog/atom.xml), [/blog/feed.json](https://www.statewave.ai/blog/feed.json).
 - [FAQ](https://www.statewave.ai/faq) — common questions about Statewave, answered directly.
