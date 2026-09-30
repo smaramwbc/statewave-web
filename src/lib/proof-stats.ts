@@ -17,7 +17,7 @@
  *  that would drift the next time a run changes. */
 export const PROOF_FIGURES = {
   unitTests: '708',
-  evalAssertions: '56',
+  evalAssertions: '55',
   supportCriteria: '8',
   tokenReduction: '73%',
 } as const

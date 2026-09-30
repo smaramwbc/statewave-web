@@ -10,7 +10,7 @@ export function Footer() {
   return (
     <footer className="border-t border-theme-border bg-surface-0 pl-safe pr-safe">
       <div className="mx-auto max-w-7xl px-5 sm:px-6 py-12 sm:py-14 md:py-16">
-        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-10 md:gap-12">
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-5 gap-x-6 gap-y-10 md:gap-12">
           <div className="col-span-2 md:col-span-1">
             <Link to="/" className="flex items-center gap-2">
               <Logo variant="full" className="w-34" />
@@ -50,10 +50,6 @@ export function Footer() {
               <li><Link to="/product" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">How it works</Link></li>
               <li><Link to="/why" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">Why Statewave</Link></li>
               <li><Link to="/use-cases" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">Use Cases</Link></li>
-              <li><Link to="/vs/mem0" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">vs Mem0</Link></li>
-              <li><Link to="/vs/letta" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">vs Letta</Link></li>
-              <li><Link to="/vs/zep" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">vs Zep</Link></li>
-              <li><Link to="/vs/supermemory" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">vs Supermemory</Link></li>
               <li><Link to="/connectors" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">Connectors</Link></li>
               <li>
                 <button
@@ -65,6 +61,19 @@ export function Footer() {
                   Live Demo
                 </button>
               </li>
+            </ul>
+          </div>
+
+          {/* The /vs pages are the site's comparison entry points, so each keeps a
+              sitewide link here instead of sitting one click behind the hub. */}
+          <div>
+            <h3 className="text-sm font-medium text-theme-primary mb-4">Alternatives</h3>
+            <ul className="space-y-2.5 sm:space-y-2">
+              <li><Link to="/vs" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">All comparisons</Link></li>
+              <li><Link to="/vs/mem0" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">vs Mem0</Link></li>
+              <li><Link to="/vs/letta" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">vs Letta</Link></li>
+              <li><Link to="/vs/zep" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">vs Zep</Link></li>
+              <li><Link to="/vs/supermemory" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">vs Supermemory</Link></li>
             </ul>
           </div>
 

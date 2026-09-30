@@ -47,6 +47,7 @@ export type RouteKey =
   | '/use-cases/personal-assistant-memory'
   | '/use-cases/multi-agent-shared-context'
   | '/use-cases/grounded-shop-assistant'
+  | '/vs'
   | '/vs/mem0'
   | '/vs/letta'
   | '/vs/zep'
@@ -72,6 +73,7 @@ export const PUBLIC_ROUTES: readonly RouteKey[] = [
   '/use-cases/personal-assistant-memory',
   '/use-cases/multi-agent-shared-context',
   '/use-cases/grounded-shop-assistant',
+  '/vs',
   '/vs/mem0',
   '/vs/letta',
   '/vs/zep',
@@ -193,7 +195,7 @@ export const PAGE_META: Record<RouteKey, PageMeta> = {
   '/vs/mem0': {
     title: 'Statewave vs. Mem0 — Deterministic Context vs. Ranked Retrieval',
     description:
-      'How Statewave compares to Mem0: deterministic, token-bounded context assembly with policy enforcement and integrity-hashed receipts vs. ranked similarity retrieval — plus LoCoMo and LongMemEval benchmark results measured on Mem0’s own harness.',
+      'How Statewave compares to Mem0: deterministic, token-bounded context assembly with policy enforcement and optional integrity-hashed receipts vs. ranked similarity retrieval — plus LoCoMo and LongMemEval benchmark results measured on Mem0’s own harness.',
     breadcrumbLabel: 'vs Mem0',
     ogType: 'article',
     priority: 0.7,
@@ -202,7 +204,7 @@ export const PAGE_META: Record<RouteKey, PageMeta> = {
   '/vs/letta': {
     title: 'Statewave vs. Letta — Runtime-Managed vs. Agent-Managed Memory',
     description:
-      'How Statewave compares to Letta: in Letta the agent edits and searches its own memory with tool calls, while Statewave assembles a deterministic, token-bounded context bundle mechanically — with policy on the read path and an integrity-hashed receipt of what the agent saw.',
+      'How Statewave compares to Letta: in Letta the agent edits and searches its own memory with tool calls, while Statewave assembles a deterministic, token-bounded context bundle mechanically — with policy on the read path and an optional integrity-hashed receipt of what the agent saw.',
     breadcrumbLabel: 'vs Letta',
     ogType: 'article',
     priority: 0.7,
@@ -211,7 +213,7 @@ export const PAGE_META: Record<RouteKey, PageMeta> = {
   '/vs/zep': {
     title: 'Statewave vs. Zep — Inspectable Bundle vs. Opaque Context Block',
     description:
-      'How Statewave compares to Zep: Zep models memory as a knowledge graph and returns retrieval as an opaque Context Block string, while Statewave compiles typed, provenance-traced memories into a deterministic, token-bounded bundle with per-row confidence, validity, and an integrity-hashed receipt.',
+      'How Statewave compares to Zep: Zep models memory as a knowledge graph and returns retrieval as an opaque Context Block string, while Statewave compiles typed, provenance-traced memories into a deterministic, token-bounded bundle with per-row confidence, validity, and an optional integrity-hashed receipt.',
     breadcrumbLabel: 'vs Zep',
     ogType: 'article',
     priority: 0.7,
@@ -220,8 +222,17 @@ export const PAGE_META: Record<RouteKey, PageMeta> = {
   '/vs/supermemory': {
     title: 'Statewave vs. Supermemory — Deterministic Bundle vs. Reranked Search',
     description:
-      'How Statewave compares to Supermemory: deterministic, token-bounded context assembly with per-row provenance and integrity-hashed receipts vs. hybrid vector-plus-keyword search with context-aware reranking — plus each product’s own LoCoMo and LongMemEval figures, shown apart since they measure different things.',
+      'How Statewave compares to Supermemory: deterministic, token-bounded context assembly with per-row provenance and optional integrity-hashed receipts vs. hybrid vector-plus-keyword search with context-aware reranking — plus each product’s own LoCoMo and LongMemEval figures, shown apart as they measure different things.',
     breadcrumbLabel: 'vs Supermemory',
+    ogType: 'article',
+    priority: 0.7,
+    changefreq: 'monthly',
+  },
+  '/vs': {
+    title: 'Statewave vs. Mem0, Letta, Zep & Supermemory',
+    description:
+      'Every Statewave comparison in one place: deterministic, token-bounded context assembly with provenance and policy enforcement, compared with Mem0, Letta, Zep, and Supermemory’s own retrieval models. Apache-2.0, self-hosted on Postgres.',
+    breadcrumbLabel: 'Alternatives',
     ogType: 'article',
     priority: 0.7,
     changefreq: 'monthly',

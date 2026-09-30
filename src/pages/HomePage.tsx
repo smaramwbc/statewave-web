@@ -834,7 +834,7 @@ function GovernanceSection() {
     },
     {
       title: 'State-assembly receipts',
-      desc: 'Every context call produces an immutable, ULID-addressable receipt with a byte-level integrity hash. Replay any call. Prove exactly what the agent saw.',
+      desc: 'Any context call can produce an immutable, ULID-addressable receipt with a byte-level integrity hash. Replay any call. Prove exactly what the agent saw.',
       Icon: ReceiptText,
     },
     {

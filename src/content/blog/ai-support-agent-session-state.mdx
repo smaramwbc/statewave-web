@@ -154,7 +154,7 @@ The default SLA thresholds are five minutes to first response and 24 hours to re
 
 ### The handoff pack answers seven questions, in order
 
-`POST /v1/handoff` assembles a token-bounded brief covering who the customer is, which profile facts matter, what the active issue is, what has already been tried, what related history is relevant, what is resolved and should be deprioritized, and what the next agent needs immediately. It defaults to a 4,000-token budget and emits a state-assembly receipt.
+`POST /v1/handoff` assembles a token-bounded brief covering who the customer is, which profile facts matter, what the active issue is, what has already been tried, what related history is relevant, what is resolved and should be deprioritized, and what the next agent needs immediately. It defaults to a 4,000-token budget and can emit a state-assembly receipt.
 
 Receipts matter more for support than for most workloads. When a human takes over a ticket the AI mishandled, "what did the agent actually see" is the first question asked. A receipt answers it exactly. Our [provenance model](/blog/agent-memory-provenance-audit-trails) covers how the chain back to source episodes is built and what it costs to store.
 
@@ -197,7 +197,7 @@ The mechanics of recording, compiling, retrieving, and splicing are covered step
 4. **Write a resolution with a summary when a ticket closes.** This is the +6 versus +4 decision.
 5. **Poll or subscribe to the health score.** Alert on band changes, not on raw values.
 
-Two repos are worth cloning before you write anything. [`eval-support-agent`](https://github.com/smaramwbc/statewave-examples) runs 56 assertions across 23 tests covering session-aware ranking, health scoring, handoff packs, provenance, and determinism, so you can see each signal fire in isolation. [`benchmark-support-agent`](https://github.com/smaramwbc/statewave-examples) puts the memory runtime against history stuffing and TF-IDF retrieval on recall, token count, and provenance.
+Two repos are worth cloning before you write anything. [`eval-support-agent`](https://github.com/smaramwbc/statewave-examples) runs 55 assertions across 23 tests covering session-aware ranking, health scoring, handoff packs, provenance, and determinism, so you can see each signal fire in isolation. [`benchmark-support-agent`](https://github.com/smaramwbc/statewave-examples) puts the memory runtime against history stuffing and TF-IDF retrieval on recall, token count, and provenance.
 
 Score it on a task rather than on recall. The support workflow benchmark scores an agent on eight criteria that map to real support concerns: identity persistence across sessions, preference surfacing, token budget compliance, provenance tracing, idempotent compilation, session-aware ranking, repeat-issue detection, and explainable health scoring. Run it against your own stack before you run it against ours. The criteria are the transferable part, and the harness is open source, so the scoring is inspectable rather than asserted. Head-to-head retrieval results, with the harness, the answerer, the judge, and the per-system retrieval budgets documented alongside them, are on the [benchmarks page](/benchmarks).
 
@@ -297,7 +297,7 @@ We build Statewave, so treat the framing here as ours and the constants as check
 </summary>
 <div className="px-7 pb-7">
 <div className="h-px bg-theme-primary/10 mb-6" />
-<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">Yes, that is what the handoff pack is for. <code>POST /v1/handoff</code> returns a token-bounded brief with the customer's profile facts, the active issue, the steps already attempted, related history, and the health score with its contributing factors. It also emits a receipt, so the human can see exactly what the agent had in context.</p>
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">Yes, that is what the handoff pack is for. <code>POST /v1/handoff</code> returns a token-bounded brief with the customer's profile facts, the active issue, the steps already attempted, related history, and the health score with its contributing factors. When receipts are enabled it also emits one, so the human can see exactly what the agent had in context.</p>
 </div>
 </details>
 
