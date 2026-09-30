@@ -83,11 +83,11 @@ export function PrivacyPage() {
               </p>
             </div>
             <div>
-              <h3 className="text-theme-primary font-medium mb-2">Newsletter (/launch)</h3>
+              <h3 className="text-theme-primary font-medium mb-2">Newsletter</h3>
               <p>
                 When you subscribe via the form on{' '}
                 <a href="/launch" className="text-accent hover:underline">/launch</a>{' '}
-                we store your email address. We use it only to send occasional
+                or under a blog post, we store your email address. We use it only to send occasional
                 Statewave project updates &mdash; releases, connectors, SDK changes,
                 benchmarks, governance features, and important project news (Art.
                 6(1)(a) GDPR &mdash; consent). You can withdraw consent at any time via
@@ -162,6 +162,15 @@ export function PrivacyPage() {
               <strong className="text-theme-primary">Newsletter storage:</strong> Beehiiv
               or Resend Audiences (depending on the channel) &mdash; the newsletter
               subscription record itself.
+            </li>
+            <li>
+              <strong className="text-theme-primary">Bot protection:</strong> Cloudflare,
+              Inc. (US; EU&ndash;US Data Privacy Framework) &mdash; the &ldquo;I&rsquo;m
+              human&rdquo; check (Turnstile) on the newsletter signup form. The check
+              loads when you start entering an email address, and Cloudflare receives
+              your IP address, browser information and a verification token. It is not
+              used for advertising or cross-site tracking (Art. 6(1)(f) GDPR &mdash;
+              legitimate interest in preventing automated abuse of the form).
             </li>
             <li>
               <strong className="text-theme-primary">LLM API providers:</strong> Demo

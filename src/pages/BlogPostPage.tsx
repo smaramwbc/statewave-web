@@ -15,6 +15,7 @@ import {
 import { POST_FAQ, HOWTO_SLUGS } from '../lib/blog-schema'
 import { GiscusComments } from '../components/GiscusComments'
 import { SeriesFrame } from '../components/SeriesFrame'
+import { GuideSubscribe } from '../components/GuideSubscribe'
 
 /* /blog/:slug post page.
  *
@@ -250,6 +251,14 @@ export function BlogPostPage() {
             <PostBody />
           </MDXProvider>
           <SeriesFrame post={post} />
+          {/* Series episodes get theirs from SeriesFrame, with the series
+              wording; every other post gets the general one here. Never both:
+              the form's ids are fixed. */}
+          {!post.meta.series && (
+            <div className="mt-12">
+              <GuideSubscribe variant="blog" />
+            </div>
+          )}
         </article>
       </section>
 

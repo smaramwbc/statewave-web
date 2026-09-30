@@ -1,21 +1,27 @@
-import { useCallback, useState, type FormEvent } from 'react'
+import { useCallback, useRef, useState, type FormEvent } from 'react'
 import { Link } from 'react-router'
 import { Turnstile } from './Turnstile'
 import { TURNSTILE_SITE_KEY } from '../lib/turnstile'
 
-/* "Get the next post" — email capture for the Statewave Guide series, on the
- * Journey Index and at the foot of every episode.
+/* "Get the next post" — email capture at the foot of every blog post, and on
+ * the Journey Index.
+ *
+ * Two variants, one form. `guide` is the series wording, used on the Journey
+ * Index and under each episode; `blog` is the wording for every other post,
+ * where "each new Statewave Guide post" would be a promise the page doesn't
+ * keep. Only one instance renders per page — the ids below are fixed, so a
+ * second one on the same page would duplicate them.
  *
  * It posts to the same endpoint as /launch (/api/launch-signup): same rate
  * limit, same honeypot, same Turnstile check, same Resend + Beehiiv
  * forwarding. One hardened path for every signup on the site rather than a
  * second one to keep in step.
  *
- * It also sends `source: 'statewave-guide'`. The endpoint reads only the
- * fields it knows, so today that is ignored and a Guide signup is an
- * ordinary newsletter signup — which is why the copy says so. If Guide
- * readers are to be segmented, the endpoint starts reading `source` and
- * nothing here changes.
+ * It also sends a `source`: `statewave-guide` from the series, `blog` from
+ * everywhere else. The endpoint reads only the fields it knows, so today both
+ * are ordinary newsletter signups — which is why neither wording promises a
+ * separate list. If the two audiences are to be segmented, the endpoint starts
+ * reading `source` and nothing here changes.
  */
 
 // Mirror of the server-side check in server/handlers/launch-signup.ts.
@@ -23,15 +29,54 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 type State = 'idle' | 'submitting' | 'success' | 'error'
 
-export function GuideSubscribe() {
+const COPY = {
+  guide: {
+    eyebrow: 'Follow the build',
+    heading: 'Get each new Statewave Guide post by email.',
+    source: 'statewave-guide',
+  },
+  blog: {
+    eyebrow: 'Stay in the loop',
+    heading: 'Get new Statewave posts by email.',
+    source: 'blog',
+  },
+} as const
+
+export function GuideSubscribe({ variant = 'guide' }: { variant?: keyof typeof COPY }) {
+  const copy = COPY[variant]
   const [email, setEmail] = useState('')
   const [state, setState] = useState<State>('idle')
   const [message, setMessage] = useState('')
   const [honeypot, setHoneypot] = useState('')
   const [token, setToken] = useState('')
   const [nonce, setNonce] = useState(0)
+  /* Turnstile only mounts once someone starts signing up. Mounting it with the
+   * form would have every reader of every post contact Cloudflare, including
+   * the ones who never touch the field. */
+  const [armed, setArmed] = useState(false)
   const turnstileOn = TURNSTILE_SITE_KEY !== ''
-  const onToken = useCallback((t: string) => setToken(t), [])
+
+  const tokenRef = useRef('')
+  const waiting = useRef<((t: string) => void)[]>([])
+  const onToken = useCallback((t: string) => {
+    tokenRef.current = t
+    setToken(t)
+    if (t) waiting.current.splice(0).forEach((resolve) => resolve(t))
+  }, [])
+
+  /* Arming on focus means a fast submit — autofill, or Enter straight after
+   * typing — can arrive before the token does. Wait for it rather than
+   * refusing the signup. */
+  function tokenWithin(ms: number): Promise<string> {
+    if (tokenRef.current) return Promise.resolve(tokenRef.current)
+    return new Promise((resolve) => {
+      const timer = window.setTimeout(() => resolve(''), ms)
+      waiting.current.push((t) => {
+        window.clearTimeout(timer)
+        resolve(t)
+      })
+    })
+  }
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -43,16 +88,22 @@ export function GuideSubscribe() {
       setMessage("That doesn't look like a valid email address.")
       return
     }
-    if (turnstileOn && !token) {
-      setState('error')
-      setMessage('Please complete the “I’m human” check, then subscribe.')
-      return
-    }
-
     setState('submitting')
     setMessage('')
+
+    let verified = token
+    if (turnstileOn) {
+      setArmed(true)
+      verified = await tokenWithin(10_000)
+      if (!verified) {
+        setState('error')
+        setMessage('The “I’m human” check didn’t finish. Please try again.')
+        return
+      }
+    }
     // Tokens are single-use; a failed attempt needs a fresh challenge.
     const resetChallenge = () => {
+      tokenRef.current = ''
       setToken('')
       setNonce((n) => n + 1)
     }
@@ -63,9 +114,9 @@ export function GuideSubscribe() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email: value,
-          turnstile_token: token,
+          turnstile_token: verified,
           hp_company_url: honeypot,
-          source: 'statewave-guide',
+          source: copy.source,
         }),
       })
       if (!response.ok) {
@@ -93,10 +144,10 @@ export function GuideSubscribe() {
   return (
     <div className="rounded-2xl border border-brand-500/25 bg-brand-500/[0.05] p-6 sm:p-7">
       <p className="section-eyebrow m-0! text-xs font-semibold uppercase tracking-[0.18em] text-brand-500">
-        Follow the build
+        {copy.eyebrow}
       </p>
       <p className="mt-2! mb-0! font-heading text-lg font-semibold not-italic text-theme-primary">
-        Get each new Statewave Guide post by email.
+        {copy.heading}
       </p>
 
       {state === 'success' ? (
@@ -114,7 +165,9 @@ export function GuideSubscribe() {
             autoComplete="email"
             required
             value={email}
+            onFocus={() => setArmed(true)}
             onChange={(e) => {
+              setArmed(true)
               setEmail(e.target.value)
               if (state === 'error') setState('idle')
             }}
@@ -147,7 +200,7 @@ export function GuideSubscribe() {
         </form>
       )}
 
-      {turnstileOn && state !== 'success' && (
+      {turnstileOn && armed && state !== 'success' && (
         <Turnstile key={nonce} siteKey={TURNSTILE_SITE_KEY} onToken={onToken} />
       )}
 

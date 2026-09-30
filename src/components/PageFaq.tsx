@@ -17,8 +17,10 @@ export function PageFaq({ route }: { route: RouteKey }) {
   const entries = PAGE_FAQS[route]
   if (!entries || entries.length === 0) return null
 
+  // scroll-mt clears the fixed navbar (and any sticky section rail above it)
+  // when an in-page nav links straight to #page-faq.
   return (
-    <Section id="page-faq" className="bg-surface-1/40">
+    <Section id="page-faq" className="scroll-mt-32 bg-surface-1/40">
       <div className="mx-auto max-w-4xl">
         <div className="mb-8 max-w-2xl">
           <p className="section-eyebrow mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
