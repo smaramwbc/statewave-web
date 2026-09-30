@@ -374,6 +374,33 @@ export const POST_FAQ: Readonly<Record<string, readonly FaqEntry[]>> = {
         'Yes. The same record feeds the customer health score, SLA resolution-time and breach calculations, and the handoff pack that a human or another agent receives on escalation. One skipped write degrades all four surfaces.',
     },
   ],
+  'zep-alternatives': [
+    {
+      question: 'Is Zep open source?',
+      answer:
+        'The current Zep managed product is commercial. Graphiti, its temporal graph engine, is open source under Apache-2.0. The former Zep Community Edition is deprecated and unsupported.',
+    },
+    {
+      question: 'What is the closest open-source Zep alternative?',
+      answer:
+        "Graphiti is the closest engine-level alternative because it implements Zep's temporal graph model. Statewave is closer when the goal is a self-hosted subject-memory service without a graph database.",
+    },
+    {
+      question: 'Is Graphiti a drop-in replacement for Zep Cloud?',
+      answer:
+        'No. It provides graph construction and retrieval. Your application must supply user and thread management, authentication, scaling, operations, and the product controls around the graph.',
+    },
+    {
+      question: 'How does Zep pricing change with episode size?',
+      answer:
+        'Every 350 bytes or part consumes one credit. At 15,000 monthly episodes, 300-byte payloads use 15,000 credits, while 3,500-byte payloads use 150,000 credits.',
+    },
+    {
+      question: 'Can Statewave model temporal facts?',
+      answer:
+        'Statewave memories have validity windows and conflict handling. Statewave extracts entities per memory to improve retrieval, but it does not model relationships between them or support graph traversal. Use Graphiti when graph traversal is a core query pattern.',
+    },
+  ],
   'open-source-alternatives-to-mem0': [
     {
       question: 'Is Mem0 open source?',
