@@ -32,7 +32,7 @@
 
   --font-sans: "Inter", system-ui, -apple-system, sans-serif;
   --font-heading: "Geist", "Inter", system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", "Fira Code", monospace;
+  --font-mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
 /* Dark theme tokens (default) */
@@ -861,4 +861,21 @@ html[data-theme="dark"] .connector-logo-black {
 
 [data-theme="light"] .page-hero-glow {
   display: none;
+}
+/* Scroll affordance for horizontally-scrollable panels (wide diagrams and
+ * data tables on narrow viewports). Pure CSS: the `local` layers scroll with
+ * the content and uncover the `scroll` layers, so a shadow appears on
+ * whichever edge still has content behind it and disappears at the ends.
+ * No JS, no listener, and it degrades to a plain scroller if unsupported. */
+.sw-scroll-x {
+  /* The cover layers have to match whatever the scroller sits on, or they
+     paint a mismatched rectangle over it. The page ground is the fallback,
+     written as var(..., default) rather than a local `--sw-scroll-bg:`
+     declaration — declaring it here sets it ON this element, which beats the
+     value inherited from a surface band and was exactly the bug. */
+  background:
+    linear-gradient(to right, var(--sw-scroll-bg, var(--theme-surface-0)) 30%, transparent) left center / 36px 100% no-repeat local,
+    linear-gradient(to left, var(--sw-scroll-bg, var(--theme-surface-0)) 30%, transparent) right center / 36px 100% no-repeat local,
+    radial-gradient(farthest-side at 0 50%, rgba(2, 6, 23, .18), transparent) left center / 12px 100% no-repeat scroll,
+    radial-gradient(farthest-side at 100% 50%, rgba(2, 6, 23, .18), transparent) right center / 12px 100% no-repeat scroll;
 }

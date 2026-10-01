@@ -5,6 +5,12 @@ import { useEffect, useRef } from 'react'
  * Moved here from LaunchPage unchanged so the Statewave Guide subscribe form
  * uses the same widget, the same fail-open seam and the same single script
  * load rather than a second copy of all three.
+ *
+ * The script loads when this component mounts, and the forms mount it only
+ * once someone starts signing up (the email field taking focus) — not with
+ * the form itself. Since the form now sits under every blog post, mounting
+ * it with the form would mean every reader of every article contacts
+ * Cloudflare, including the ones who never sign up.
  */
 
 

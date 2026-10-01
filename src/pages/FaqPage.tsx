@@ -3,7 +3,6 @@ import { Section } from '../components/Section'
 import { Heading } from '../components/Heading'
 import { FaqAccordion } from '../components/FaqAccordion'
 import { usePageSEO } from '../lib/seo'
-import { faqPageJsonLd } from '../lib/seo-meta'
 import { FAQ_ENTRIES } from '../lib/faq'
 
 /* Dedicated /faq page. FAQ_ENTRIES already renders on the homepage's FAQ
@@ -12,7 +11,8 @@ import { FAQ_ENTRIES } from '../lib/faq'
  * and search results that want an FAQ page specifically rather than a
  * section of the homepage. */
 export function FaqPage() {
-  usePageSEO({ jsonLd: [faqPageJsonLd(FAQ_ENTRIES)] })
+  // FAQPage JSON-LD comes from routeJsonLd (lib/page-schema.ts).
+  usePageSEO({})
 
   return (
     <Section className="pt-28 sm:pt-32 md:pt-36">

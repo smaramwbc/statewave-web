@@ -49,29 +49,13 @@ export function BlogIndexPage() {
   const filters: Filter[] = ['All', ...active]
 
   usePageSEO({
-    jsonLd: [
-      {
-        '@context': 'https://schema.org',
-        '@type': 'Blog',
-        name: 'Statewave blog',
-        url: `${BASE_URL}/blog`,
-        description:
-          'Notes from the Statewave project — memory infrastructure for AI agents, deployment patterns, and how the runtime works under the hood.',
-        publisher: { '@type': 'Organization', name: 'Statewave', url: BASE_URL },
-        blogPost: BLOG_POSTS.map((p) => ({
-          '@type': 'BlogPosting',
-          headline: p.meta.title,
-          datePublished: p.meta.date,
-          url: `${BASE_URL}${blogPostUrl(p.meta.slug)}`,
-          description: p.meta.description,
-          author: {
-            '@type': 'Organization',
-            name: p.meta.author,
-            url: `${BASE_URL}/about`,
-          },
-        })),
-      },
-    ],
+    blogPosts: BLOG_POSTS.map((p) => ({
+      title: p.meta.title,
+      date: p.meta.date,
+      url: `${BASE_URL}${blogPostUrl(p.meta.slug)}`,
+      description: p.meta.description,
+      author: p.meta.author,
+    })),
   })
 
   return (

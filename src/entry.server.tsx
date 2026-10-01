@@ -33,6 +33,7 @@ export {
 } from './lib/seo-meta'
 export { FAQ_ENTRIES } from './lib/faq'
 export { PAGE_FAQS } from './lib/page-faqs'
+export { routeJsonLd } from './lib/page-schema'
 export { POST_FAQ, HOWTO_SLUGS } from './lib/blog-schema'
 
 /* Render the SPA tree for a single URL into an HTML string. Used by the

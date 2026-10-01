@@ -1372,7 +1372,7 @@ const ENDPOINT_FEATURES = [
 ];
 
 const MONO: React.CSSProperties = {
-  fontFamily: "'JetBrains Mono', 'Fira Mono', 'Courier New', monospace",
+  fontFamily: 'var(--font-mono)',
   fontSize: 12,
   lineHeight: "1.8",
 };

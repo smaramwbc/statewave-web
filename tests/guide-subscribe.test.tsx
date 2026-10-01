@@ -16,10 +16,10 @@ afterEach(() => {
   vi.restoreAllMocks()
 })
 
-function mount() {
+function mount(variant?: 'guide' | 'blog') {
   render(
     <MemoryRouter>
-      <GuideSubscribe />
+      <GuideSubscribe variant={variant} />
     </MemoryRouter>,
   )
   const input = screen.getByLabelText('Email address')
@@ -56,11 +56,54 @@ describe('GuideSubscribe', () => {
     expect(await screen.findByRole('status')).toHaveTextContent(/subscribed/i)
   })
 
+  it('posts the blog source, and promises only what that page delivers', async () => {
+    const fetchSpy = vi
+      .spyOn(globalThis, 'fetch')
+      .mockResolvedValue(new Response('{}', { status: 200 }))
+    const { input, button } = mount('blog')
+    // The series wording would promise Guide episodes on a post that is not one.
+    expect(screen.queryByText(/Statewave Guide post by email/i)).toBeNull()
+
+    fireEvent.change(input, { target: { value: 'reader@example.com' } })
+    fireEvent.click(button)
+
+    await waitFor(() => expect(fetchSpy).toHaveBeenCalledTimes(1))
+    const [, init] = fetchSpy.mock.calls[0]
+    expect(JSON.parse(String((init as RequestInit).body))).toMatchObject({ source: 'blog' })
+  })
+
   it('explains an unconfigured endpoint instead of failing silently', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('{}', { status: 503 }))
     const { input, button } = mount()
     fireEvent.change(input, { target: { value: 'reader@example.com' } })
     fireEvent.click(button)
     expect(await screen.findByRole('alert')).toHaveTextContent(/aren.t available right now/i)
+  })
+})
+
+/**
+ * The form sits under every blog post now, so the Cloudflare script must not
+ * load for people who are only reading: it mounts when the email field first
+ * takes focus, not with the form.
+ */
+describe('GuideSubscribe and Cloudflare', () => {
+  it('does not load the Turnstile script until the field is used', async () => {
+    vi.stubEnv('VITE_TURNSTILE_SITE_KEY', 'test-site-key')
+    vi.resetModules()
+    const { GuideSubscribe: Fresh } = await import('../src/components/GuideSubscribe')
+
+    render(
+      <MemoryRouter>
+        <Fresh />
+      </MemoryRouter>,
+    )
+    expect(document.getElementById('cf-turnstile-script')).toBeNull()
+
+    fireEvent.focus(screen.getByLabelText('Email address'))
+    await waitFor(() => expect(document.getElementById('cf-turnstile-script')).not.toBeNull())
+
+    document.getElementById('cf-turnstile-script')?.remove()
+    vi.unstubAllEnvs()
+    vi.resetModules()
   })
 })
