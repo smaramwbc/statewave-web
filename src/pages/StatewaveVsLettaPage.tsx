@@ -101,8 +101,8 @@ function HeroSection() {
 
           <p className="mx-auto mt-6 max-w-[600px] text-[18px] leading-[1.6] text-theme-secondary">
             Letta hands memory to the model and lets it decide. Statewave
-            assembles a deterministic, token-bounded context bundle and
-            returns an integrity-hashed receipt of what the agent saw.
+            assembles a deterministic, token-bounded context bundle and can
+            return an integrity-hashed receipt of what the agent saw.
           </p>
 
           <div className="mt-8 flex flex-wrap justify-center gap-3">
@@ -573,7 +573,7 @@ function ComparisonSection() {
           <p className="relative text-[14.5px] leading-[1.6] text-theme-secondary">
             Agents run in production across many sessions and you need
             deterministic context, source provenance, policy on the read
-            path, and an auditable receipt for every decision.
+            path, and an optional auditable receipt for every decision.
           </p>
         </div>
       </div>
@@ -688,7 +688,7 @@ function WorkedExampleSection() {
   )
 }
 
-/* ─── Every call leaves a receipt ────────────────────────────────────────── */
+/* ─── Every call can leave a receipt ────────────────────────────────────────── */
 
 const MECHANISM_CARDS = [
   { icon: '{}', title: 'Policy engine', body: 'Content-hashed YAML or JSON bundles. Deny or redact by sensitivity label and caller identity; log_only audits a policy before you enforce it.' },

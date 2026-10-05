@@ -222,6 +222,13 @@ export const PAGE_FAQS: Partial<Record<RouteKey, readonly FaqEntry[]>> = {
     },
   ],
 
+  '/vs': [
+    { question: 'How does Statewave compare to Mem0, Letta, Zep, and Supermemory?', answer: 'All four rank or retrieve memory at query time in their own way — Mem0 by relevance score, Letta through agent-managed tool calls, Zep via knowledge-graph traversal, Supermemory with hybrid search plus reranking. Statewave instead compiles episodes into typed memories ahead of time and assembles a deterministic, token-bounded bundle with policy enforcement and an optional integrity-hashed receipt of what was delivered.' },
+    { question: 'Is Statewave self-hosted like these alternatives?', answer: 'Yes — Apache-2.0, self-hosted on PostgreSQL and pgvector, with no cloud dependency. That is not universal among the alternatives: Zep discontinued its self-hosted Community Edition in 2025 and now runs memory only through Zep Cloud, BYOK, or Bring-Your-Own-Cloud.' },
+    { question: 'Are Mem0, Letta, Zep, and Supermemory open source?', answer: 'Partially, and the gate lands in different places. Mem0’s core is Apache 2.0 but its hosted platform is paid. Letta is Apache 2.0 with a managed Letta Cloud. Supermemory’s repo is MIT, but its v0.0.7 release notes first stated a 10,000-document cap for the local build and supported self-hosted deployment starts on its $399/month Scale plan. Zep dropped its self-hosted Community Edition in 2025. Statewave is Apache-2.0 across the server and SDKs with no paid tier gating self-hosting.' },
+    { question: 'Which comparison should I read first?', answer: 'Match it to what you already have: read vs Mem0 if you’re replacing an existing Mem0 integration, vs Letta if your agent framework already manages its own memory with tool calls, vs Zep if you need a knowledge-graph model or are affected by its Community Edition sunset, and vs Supermemory if you need the multimodal or local-binary surface it covers.' },
+  ],
+
   '/connectors': [
     {
       question: 'What does a Statewave connector actually do?',
@@ -248,6 +255,70 @@ export const PAGE_FAQS: Partial<Record<RouteKey, readonly FaqEntry[]>> = {
       answer:
         'Only what you allow. It authenticates with a bot token and requires an explicit --channels allowlist, then pulls channel and thread history and subscribes to the Events API for messages, reactions, and pins. Direct messages (dm:<user>) and group DMs (mpim:<channel>) are opt-in behind --include-dms and --include-mpim, and stay off unless you pass them. Per-memory sensitivity labels and the policy engine then govern who can read the result.',
       links: [{ label: 'Governance model', href: '/product' }],
+    },
+  ],
+
+  '/openrouter': [
+    {
+      question: 'What is statewave-openrouter?',
+      answer:
+        'An OpenAI-compatible HTTP proxy that gives OpenRouter calls persistent memory. It assembles a bundle for the subject before each call and writes the turn back as an episode after the reply.',
+      links: [
+        { label: 'Source on GitHub', href: 'https://github.com/smaramwbc/statewave-openrouter' },
+        { label: 'How the memory runtime works', href: '/product' },
+      ],
+    },
+    {
+      question: 'How much do I have to change in my code?',
+      answer:
+        'Two lines: point your existing OpenAI client at the proxy base URL and add an X-Statewave-Subject header to the request, with header trust enabled on the proxy. In JWT mode, send X-Statewave-Token instead. Everything else in the integration stays the same, and a request with no subject (no header, and in JWT mode no sub claim) gets no memory.',
+    },
+    {
+      question: 'Does the proxy add latency to completions?',
+      answer:
+        'The episode write is fire-and-forget, so it costs nothing. The context fetch is one blocking read ahead of the upstream call.',
+    },
+    {
+      question: 'What happens if Statewave is down?',
+      answer:
+        'It fails open. The failure is logged and the completion still goes through, just without memory for that turn.',
+    },
+    {
+      question: 'Does it work with streaming?',
+      answer:
+        'Yes. SSE chunks relay byte for byte and the episode is written once the stream closes.',
+    },
+    {
+      question: 'Which endpoints support memory?',
+      answer:
+        'Three endpoints are memory-aware: /v1/chat/completions, where the bundle becomes the first system message; /v1/completions, where it is prefixed onto the prompt; and /v1/responses, where it is prepended to top-level instructions. Every other path is proxied verbatim.',
+    },
+    {
+      question: 'Do I need the Statewave SDK to use the proxy?',
+      answer:
+        'No. The proxy speaks the OpenAI HTTP API, so any OpenAI-compatible client in any language works: the Python SDK, the TypeScript SDK, plain curl, or an HTTP library you already use. The SDKs are for talking to Statewave directly, not for going through the proxy.',
+      links: [{ label: 'Python and TypeScript SDKs', href: '/developers' }],
+    },
+    {
+      question: 'Can one proxy serve several subjects at once?',
+      answer:
+        'Yes. The subject is read per request, and two subjects never share a bundle.',
+    },
+    {
+      question: 'What happens to the statewave_subject body field?',
+      answer:
+        'It is read by the proxy and then stripped from the payload before the request is forwarded, so OpenRouter never sees a field it does not recognise. If both the header and the body field are present, the header wins.',
+    },
+    {
+      question: 'Is it tied to OpenRouter models only?',
+      answer:
+        'The upstream is OpenRouter, so any model OpenRouter routes to is available, and the model string passes through untouched. Switching models is a change to your request, not to the proxy.',
+    },
+    {
+      question: 'How do I run it in production?',
+      answer:
+        "Build the container or install the package from the repository and run it under uvicorn behind whatever ingress you already use, set PROXY_JWT_SECRET if untrusted clients can reach it, and point your load balancer's health check at /health. Shutdown drains in-flight episode writes before the HTTP client closes.",
+      links: [{ label: 'Quick start on GitHub', href: 'https://github.com/smaramwbc/statewave-openrouter#quick-start' }],
     },
   ],
 
@@ -392,7 +463,7 @@ export const PAGE_FAQS: Partial<Record<RouteKey, readonly FaqEntry[]>> = {
   ],
 
   '/vs/mem0': [
-    { question: 'How is Statewave different from Mem0?', answer: 'Mem0 ranks memories by relevance for an id you pass. Statewave compiles raw episodes into typed memories, ranks them with a fixed scoring model to a token budget, applies policy on the read path, and returns an integrity-hashed receipt of exactly what was delivered.' },
+    { question: 'How is Statewave different from Mem0?', answer: 'Mem0 ranks memories by relevance for an id you pass. Statewave compiles raw episodes into typed memories, ranks them with a fixed scoring model to a token budget, applies policy on the read path, and can return an integrity-hashed receipt of exactly what was delivered.' },
     { question: 'What makes retrieval deterministic?', answer: 'A fixed scoring model: kind priority (3–10), recency (0–5), task relevance (0–8), and temporal validity (−4 to +3). The same subject, task, and budget produce the same bundle every time.' },
     { question: 'What is a state-assembly receipt?', answer: 'An immutable, ULID-addressable record of one context call. It carries a byte-level integrity hash of what was delivered and references the policy bundle hash, so ‘what did the agent see, under which policy’ is answerable forever.' },
     { question: 'Does it work with Claude, Cursor, or Codex?', answer: 'Yes. One command (npx @statewavedev/statewave) boots the runtime and auto-wires Claude Code, Claude Desktop, Cursor, VS Code Copilot, and Codex CLI. Any MCP-compatible client connects too.' },
@@ -400,7 +471,7 @@ export const PAGE_FAQS: Partial<Record<RouteKey, readonly FaqEntry[]>> = {
   ],
 
   '/vs/letta': [
-    { question: 'How is Statewave different from Letta?', answer: 'In Letta the agent manages its own memory: it edits memory blocks in a git-tracked context tree (MemFS) with tool calls, so retrieval is the model’s job and costs tokens every turn. Statewave compiles episodes into typed memories, ranks them to a token budget, applies policy on the read path, and returns an integrity-hashed receipt, with no model in the loop.' },
+    { question: 'How is Statewave different from Letta?', answer: 'In Letta the agent manages its own memory: it edits memory blocks in a git-tracked context tree (MemFS) with tool calls, so retrieval is the model’s job and costs tokens every turn. Statewave compiles episodes into typed memories, ranks them to a token budget, applies policy on the read path, and can return an integrity-hashed receipt, with no model in the loop.' },
     { question: 'Do I have to replace my agent framework?', answer: 'No. Letta is a whole agent runtime; Statewave is only the memory layer. Keep your existing agent or framework and point its memory reads and writes at Statewave over REST, the SDKs, or MCP.' },
     { question: 'What makes retrieval deterministic?', answer: 'A fixed scoring model applied to a hybrid lexical and vector candidate set: kind priority (3–10), recency (0–5), task relevance (0–8), and temporal validity (−4 to +3). The same subject, task, budget, and point in time produce the same bundle every time.' },
     { question: 'What is a state-assembly receipt?', answer: 'An immutable, ULID-addressable record of one context call. It carries a byte-level integrity hash of what was delivered and references the policy bundle hash, so ‘what did the agent see, under which policy’ is answerable forever.' },

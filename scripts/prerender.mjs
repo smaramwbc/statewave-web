@@ -184,16 +184,11 @@ export async function runPrerender() {
     canonicalUrl,
     DEFAULT_OG_IMAGE,
     DEFAULT_OG_IMAGE_ALT,
-    softwareApplicationJsonLd,
     faqPageJsonLd,
+    routeJsonLd,
     breadcrumbJsonLd,
-    defaultBreadcrumb,
     articleJsonLd,
     supportAgentHowToJsonLd,
-    howToJsonLd,
-    productJsonLd,
-    FAQ_ENTRIES,
-    PAGE_FAQS,
     POST_FAQ,
     HOWTO_SLUGS,
   } = await import(entryUrl)
@@ -201,19 +196,20 @@ export async function runPrerender() {
   // Mirrors what usePageSEO emits on the client for the same route —
   // crawlers that don't run JS must see the same structured data as the
   // ones that do, or the two disagree about what the page is.
+  // Delegates to the same list usePageSEO uses on the client, so the two can
+  // no longer disagree about what a route emits. Previously this was a
+  // separate hardcoded switch and /openrouter's SoftwareApplication plus
+  // /blog's Blog node never reached a non-JS crawler.
+  const blogSummaries = BLOG_POSTS.map((p) => ({
+    title: p.meta.title,
+    date: p.meta.date,
+    url: `${BASE_URL}${blogPostUrl(p.meta.slug)}`,
+    description: p.meta.description,
+    author: p.meta.author,
+  }))
+
   function jsonLdForStaticRoute(routePath) {
-    if (routePath === '/') {
-      return [softwareApplicationJsonLd(), productJsonLd(), faqPageJsonLd(FAQ_ENTRIES)]
-    }
-    const nodes = []
-    if (routePath === '/faq') nodes.push(faqPageJsonLd(FAQ_ENTRIES))
-    if (routePath === '/product') nodes.push(productJsonLd())
-    if (routePath === '/developers') nodes.push(howToJsonLd())
-    const pageFaq = PAGE_FAQS[routePath]
-    if (pageFaq?.length) nodes.push(faqPageJsonLd(pageFaq))
-    const crumb = defaultBreadcrumb(routePath)
-    if (crumb) nodes.push(crumb)
-    return nodes
+    return routeJsonLd(routePath, blogSummaries)
   }
 
   function jsonLdForPost(post) {
@@ -245,8 +241,9 @@ export async function runPrerender() {
     return {
       title: page.title,
       description: page.description,
-      image: DEFAULT_OG_IMAGE,
-      imageAlt: DEFAULT_OG_IMAGE_ALT,
+      // A route may ship its own share card; most fall back to the site one.
+      image: page.ogImage ? `${BASE_URL}${page.ogImage}` : DEFAULT_OG_IMAGE,
+      imageAlt: page.ogImage ? (page.ogImageAlt ?? page.title) : DEFAULT_OG_IMAGE_ALT,
       ogType: page.ogType ?? 'website',
       url: canonicalUrl(routePath),
     }

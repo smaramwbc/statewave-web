@@ -16,18 +16,17 @@ import { useLocation } from 'react-router'
 import {
   DEFAULT_LANG,
   DEFAULT_LOCALE,
+  BASE_URL,
   DEFAULT_OG_IMAGE,
   DEFAULT_OG_IMAGE_ALT,
   DEFAULT_ROBOTS,
   SITE_NAME,
   canonicalUrl,
-  defaultBreadcrumb,
-  faqPageJsonLd,
   routeMeta,
   type JsonLd,
-  type RouteKey,
+  type BlogPostSummary,
 } from './seo-meta'
-import { PAGE_FAQS } from './page-faqs'
+import { routeJsonLd } from './page-schema'
 
 export interface UsePageSEOOptions {
   /** Override the page title (rendered as-is — already includes Statewave when desired). */
@@ -44,6 +43,8 @@ export interface UsePageSEOOptions {
   robots?: string
   /** Per-page JSON-LD nodes layered on top of the static baseline. */
   jsonLd?: readonly JsonLd[]
+  /** Only /blog needs these; see lib/page-schema.ts. */
+  blogPosts?: readonly BlogPostSummary[]
   /** Set false to skip the auto-generated breadcrumb (default true). */
   breadcrumb?: boolean
   /** Override the Open Graph type. Defaults to the per-route value in
@@ -72,8 +73,13 @@ export function usePageSEO(options: UsePageSEOOptions = {}) {
     const pageTitle = options.title ?? meta.title
     const pageDescription = options.description ?? meta.description
     const url = canonicalUrl(pathname)
-    const ogImage = options.ogImage ?? DEFAULT_OG_IMAGE
-    const ogImageAlt = options.ogImageAlt ?? DEFAULT_OG_IMAGE_ALT
+    // Route card first, then any explicit override, then the site default.
+    // Kept in the same precedence order as scripts/prerender.mjs so a share
+    // preview cannot disagree with what the SPA sets after hydration.
+    const routeCard = meta.ogImage ? `${BASE_URL}${meta.ogImage}` : null
+    const ogImage = options.ogImage ?? routeCard ?? DEFAULT_OG_IMAGE
+    const ogImageAlt =
+      options.ogImageAlt ?? (routeCard ? (meta.ogImageAlt ?? pageTitle) : DEFAULT_OG_IMAGE_ALT)
     const robots = options.robots ?? meta.robots ?? DEFAULT_ROBOTS
 
     document.title = pageTitle
@@ -111,17 +117,12 @@ export function usePageSEO(options: UsePageSEOOptions = {}) {
       )
       .forEach((el) => el.remove())
 
-    const nodes: JsonLd[] = []
-    if (options.breadcrumb !== false) {
-      const crumb = defaultBreadcrumb(pathname)
-      if (crumb) nodes.push(crumb)
-    }
-    // Pages that carry a <PageFaq> section get its FAQPage node for free —
-    // same data, so the visible Q&A and the structured data can't drift.
-    // The homepage and /faq pass FAQ_ENTRIES explicitly via `jsonLd` and
-    // aren't in PAGE_FAQS, so nothing is emitted twice.
-    const pageFaq = PAGE_FAQS[pathname as RouteKey]
-    if (pageFaq?.length) nodes.push(faqPageJsonLd(pageFaq))
+    // One shared list, also used by scripts/prerender.mjs — see
+    // lib/page-schema.ts for why route-static schema must not be passed
+    // through `options.jsonLd` (it would reach the client only).
+    const nodes: JsonLd[] = routeJsonLd(pathname, options.blogPosts).filter(
+      (n) => options.breadcrumb !== false || n['@type'] !== 'BreadcrumbList',
+    )
 
     if (options.jsonLd) nodes.push(...options.jsonLd)
 

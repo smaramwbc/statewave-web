@@ -154,7 +154,7 @@ The default SLA thresholds are five minutes to first response and 24 hours to re
 
 ### The handoff pack answers seven questions, in order
 
-`POST /v1/handoff` assembles a token-bounded brief covering who the customer is, which profile facts matter, what the active issue is, what has already been tried, what related history is relevant, what is resolved and should be deprioritized, and what the next agent needs immediately. It defaults to a 4,000-token budget and emits a state-assembly receipt.
+`POST /v1/handoff` assembles a token-bounded brief covering who the customer is, which profile facts matter, what the active issue is, what has already been tried, what related history is relevant, what is resolved and should be deprioritized, and what the next agent needs immediately. It defaults to a 4,000-token budget and can emit a state-assembly receipt.
 
 Receipts matter more for support than for most workloads. When a human takes over a ticket the AI mishandled, "what did the agent actually see" is the first question asked. A receipt answers it exactly. Our [provenance model](/blog/agent-memory-provenance-audit-trails) covers how the chain back to source episodes is built and what it costs to store.
 
@@ -297,7 +297,7 @@ We build Statewave, so treat the framing here as ours and the constants as check
 </summary>
 <div className="px-7 pb-7">
 <div className="h-px bg-theme-primary/10 mb-6" />
-<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">Yes, that is what the handoff pack is for. <code>POST /v1/handoff</code> returns a token-bounded brief with the customer's profile facts, the active issue, the steps already attempted, related history, and the health score with its contributing factors. It also emits a receipt, so the human can see exactly what the agent had in context.</p>
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">Yes, that is what the handoff pack is for. <code>POST /v1/handoff</code> returns a token-bounded brief with the customer's profile facts, the active issue, the steps already attempted, related history, and the health score with its contributing factors. When receipts are enabled it also emits one, so the human can see exactly what the agent had in context.</p>
 </div>
 </details>
 

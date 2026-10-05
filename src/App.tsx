@@ -14,8 +14,10 @@ const StatewaveVsMem0Page = lazy(() => import('./pages/StatewaveVsMem0Page').the
 const StatewaveVsLettaPage = lazy(() => import('./pages/StatewaveVsLettaPage').then(m => ({ default: m.StatewaveVsLettaPage })))
 const StatewaveVsZepPage = lazy(() => import('./pages/StatewaveVsZepPage').then(m => ({ default: m.StatewaveVsZepPage })))
 const StatewaveVsSupermemoryPage = lazy(() => import('./pages/StatewaveVsSupermemoryPage').then(m => ({ default: m.StatewaveVsSupermemoryPage })))
+const AlternativesPage = lazy(() => import('./pages/AlternativesPage').then(m => ({ default: m.AlternativesPage })))
 const ConnectorsPage = lazy(() => import('./pages/ConnectorsPage').then(m => ({ default: m.ConnectorsPage })))
 const DevelopersPage = lazy(() => import('./pages/DevelopersPage').then(m => ({ default: m.DevelopersPage })))
+const OpenRouterPage = lazy(() => import('./pages/OpenRouterPage').then(m => ({ default: m.OpenRouterPage })))
 const CookiesPage = lazy(() => import('./pages/CookiesPage').then(m => ({ default: m.CookiesPage })))
 const LaunchPage = lazy(() => import('./pages/LaunchPage').then(m => ({ default: m.LaunchPage })))
 const BenchmarksPage = lazy(() => import('./pages/BenchmarksPage').then(m => ({ default: m.BenchmarksPage })))
@@ -49,8 +51,10 @@ export default function App() {
           <Route path="/vs/letta" element={<StatewaveVsLettaPage />} />
           <Route path="/vs/zep" element={<StatewaveVsZepPage />} />
           <Route path="/vs/supermemory" element={<StatewaveVsSupermemoryPage />} />
+          <Route path="/vs" element={<AlternativesPage />} />
           <Route path="/connectors" element={<ConnectorsPage />} />
           <Route path="/developers" element={<DevelopersPage />} />
+          <Route path="/openrouter" element={<OpenRouterPage />} />
           <Route path="/launch" element={<LaunchPage />} />
           <Route path="/benchmarks" element={<BenchmarksPage />} />
           <Route path="/press" element={<PressPage />} />

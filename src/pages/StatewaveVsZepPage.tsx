@@ -713,7 +713,7 @@ function WorkedExampleSection() {
   )
 }
 
-/* ─── Every call leaves a receipt ────────────────────────────────────────── */
+/* ─── Every call can leave a receipt ────────────────────────────────────────── */
 
 const MECHANISM_CARDS = [
   { icon: '{}', title: 'Policy engine', body: 'Content-hashed YAML or JSON bundles. Deny or redact by sensitivity label and caller identity; log_only audits a policy before you enforce it.' },

@@ -151,7 +151,7 @@ Each result is a single run. LongMemEval used 30 questions, so treat it as direc
 | The OSS build is cut down | There is no paid edition. The server, SDKs, connectors and admin console are all Apache-2.0. |
 | Graph and temporal features cost $249 | The free build ranks memories by kind, recency, task relevance, semantic similarity and whether they are still valid. Older overlapping memories are automatically superseded. |
 | Audit logs and tenancy are Enterprise-only | HMAC-signed receipts that can be replayed, sensitivity labels with YAML deny and redact policies, tenant isolation through an `X-Tenant-ID` header, and per-tenant region pinning. |
-| You can't reproduce what the agent saw | Every memory links back to its source episodes, and every context call leaves a receipt. |
+| You can't reproduce what the agent saw | Every memory links back to its source episodes, and any context call can leave a receipt. |
 
 **What the reference repos show:**
 
@@ -161,12 +161,12 @@ Each result is a single run. LongMemEval used 30 questions, so treat it as direc
 
 <figure className="my-8">
 <img src="/images/blog/open-source-alternatives-to-mem0/image3.gif" alt="The Statewave core loop of record, compile, context and govern next to three parallel agents reading and writing one shared subject." width="937" height="468" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
-<figcaption className="mt-3 text-[14px] leading-6 text-theme-secondary/70">One memory loop, shared by every agent, with a receipt for every context call.</figcaption>
+<figcaption className="mt-3 text-[14px] leading-6 text-theme-secondary/70">One memory loop, shared by every agent, with an optional receipt for every context call.</figcaption>
 </figure>
 
 **For support teams,** Statewave adds session-aware ranking, handoff packs for escalations, health scores from 0 to 100 and SLA tracking. It also offers [repeat-issue detection](/blog/repeat-issue-detection-customer-support-automation), and [connectors](/connectors) feed in history from Zendesk, Intercom, Freshdesk, GitHub, Slack and Jira.
 
-**Getting started** takes one command: `npx @statewavedev/statewave`, which boots Statewave in demo mode with the API, admin console and Postgres running locally. It wires Statewave into Claude Code, Cursor, VS Code Copilot and Codex CLI. The project has 708 unit tests and 56 eval assertions.
+**Getting started** takes one command: `npx @statewavedev/statewave`, which boots Statewave in demo mode with the API, admin console and Postgres running locally. It wires Statewave into Claude Code, Cursor, VS Code Copilot and Codex CLI. The published eval suite runs 56 assertions across 23 tests.
 
 **Honest limits:**
 

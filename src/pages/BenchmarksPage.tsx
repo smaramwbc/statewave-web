@@ -12,6 +12,7 @@ import { Section } from '../components/Section'
 import { Heading } from '../components/Heading'
 import { Button } from '../components/Button'
 import { CodeCopyButton } from '../components/CodeCopyButton'
+import { SectionNav, type NavSection } from '../components/SectionNav'
 import { usePageSEO } from '../lib/seo'
 
 /*
@@ -239,7 +240,7 @@ const FAQS = [
   },
 ]
 
-const NAV_SECTIONS = [
+const NAV_SECTIONS: readonly NavSection[] = [
   { id: 'results', label: 'Scoreboard' },
   { id: 'methodology', label: 'Methodology' },
   { id: 'run', label: 'Run it' },
@@ -303,7 +304,7 @@ export function BenchmarksPage() {
   return (
     <>
       <Hero />
-      <SectionNav />
+      <SectionNav sections={NAV_SECTIONS} label="Benchmark sections" />
       <Scoreboard />
       <Methodology />
       <RunIt />
@@ -459,65 +460,6 @@ function HeroLeaderboard() {
         )
       })}
     </motion.div>
-  )
-}
-
-/* ─── Sticky section nav ────────────────────────────────────────────────────
- * The page is long and every section is anchored; this is the wayfinding.
- * Scroll-spy uses one IntersectionObserver over the section elements rather
- * than a scroll listener, so it costs nothing per frame.
- */
-
-function SectionNav() {
-  const [active, setActive] = useState<string>(NAV_SECTIONS[0].id)
-
-  useEffect(() => {
-    const els = NAV_SECTIONS.map((s) => document.getElementById(s.id)).filter(
-      (el): el is HTMLElement => el !== null,
-    )
-    if (els.length === 0) return
-
-    const io = new IntersectionObserver(
-      (entries) => {
-        // Pick the entry nearest the top of the viewport among those visible;
-        // "last one that crossed" alone flickers when two sections overlap.
-        const visible = entries
-          .filter((e) => e.isIntersecting)
-          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)
-        if (visible[0]) setActive(visible[0].target.id)
-      },
-      { rootMargin: '-20% 0px -70% 0px', threshold: 0 },
-    )
-    els.forEach((el) => io.observe(el))
-    return () => io.disconnect()
-  }, [])
-
-  return (
-    <nav
-      aria-label="Benchmark sections"
-      // Parks directly under the fixed 60px navbar. That bar also carries
-      // `pt-safe`, so the offset has to include the same inset or this row
-      // tucks underneath it on notched devices in standalone mode.
-      style={{ top: 'calc(60px + env(safe-area-inset-top))' }}
-      className="sticky z-30 border-y border-theme-border bg-surface-0/85 backdrop-blur-md"
-    >
-      <div className="mx-auto flex max-w-7xl gap-1.5 overflow-x-auto px-5 py-2.5 sm:px-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        {NAV_SECTIONS.map((s) => (
-          <a
-            key={s.id}
-            href={`#${s.id}`}
-            aria-current={active === s.id ? 'true' : undefined}
-            className={`shrink-0 rounded-full px-3.5 py-1.5 text-[13px] font-medium transition-colors ${
-              active === s.id
-                ? 'bg-accent/12 text-accent'
-                : 'text-theme-muted hover:bg-surface-2/60 hover:text-theme-primary'
-            }`}
-          >
-            {s.label}
-          </a>
-        ))}
-      </div>
-    </nav>
   )
 }
 

@@ -33,7 +33,13 @@ export const REPOS = {
   examples: 'https://github.com/smaramwbc/statewave-examples',
   admin: 'https://github.com/smaramwbc/statewave-admin',
   web: 'https://github.com/smaramwbc/statewave-web',
+  openrouter: 'https://github.com/smaramwbc/statewave-openrouter',
 } as const
+
+/** Last substantive revision of /openrouter. A constant, not the build
+ *  date: a timestamp that moves on every deploy is not a freshness
+ *  signal, it is noise, and answer engines discount it. */
+export const OPENROUTER_LAST_UPDATED = '2026-09-28'
 
 /* ─── Route table ────────────────────────────────────────────────────────── */
 
@@ -47,12 +53,14 @@ export type RouteKey =
   | '/use-cases/personal-assistant-memory'
   | '/use-cases/multi-agent-shared-context'
   | '/use-cases/grounded-shop-assistant'
+  | '/vs'
   | '/vs/mem0'
   | '/vs/letta'
   | '/vs/zep'
   | '/vs/supermemory'
   | '/connectors'
   | '/developers'
+  | '/openrouter'
   | '/about'
   | '/blog'
   | '/blog/statewave-guide'
@@ -72,12 +80,14 @@ export const PUBLIC_ROUTES: readonly RouteKey[] = [
   '/use-cases/personal-assistant-memory',
   '/use-cases/multi-agent-shared-context',
   '/use-cases/grounded-shop-assistant',
+  '/vs',
   '/vs/mem0',
   '/vs/letta',
   '/vs/zep',
   '/vs/supermemory',
   '/connectors',
   '/developers',
+  '/openrouter',
   '/about',
   '/blog',
   '/blog/statewave-guide',
@@ -91,6 +101,11 @@ export interface PageMeta {
   breadcrumbLabel: string
   /** Open Graph type. Defaults to 'website'. */
   ogType?: 'website' | 'article'
+  /** Route-specific share card, absolute path from the site root (e.g.
+   *  '/openrouter/og.png'). Falls back to DEFAULT_OG_IMAGE when unset. */
+  ogImage?: string
+  /** Alt text for `ogImage`. Required whenever ogImage is set. */
+  ogImageAlt?: string
   /** Robots directive override. Defaults to DEFAULT_ROBOTS. */
   robots?: string
   /** Sitemap priority (0.0–1.0). */
@@ -193,7 +208,7 @@ export const PAGE_META: Record<RouteKey, PageMeta> = {
   '/vs/mem0': {
     title: 'Statewave vs. Mem0 — Deterministic Context vs. Ranked Retrieval',
     description:
-      'How Statewave compares to Mem0: deterministic, token-bounded context assembly with policy enforcement and integrity-hashed receipts vs. ranked similarity retrieval — plus LoCoMo and LongMemEval benchmark results measured on Mem0’s own harness.',
+      'How Statewave compares to Mem0: deterministic, token-bounded context assembly with policy enforcement and optional integrity-hashed receipts vs. ranked similarity retrieval — plus LoCoMo and LongMemEval benchmark results measured on Mem0’s own harness.',
     breadcrumbLabel: 'vs Mem0',
     ogType: 'article',
     priority: 0.7,
@@ -202,7 +217,7 @@ export const PAGE_META: Record<RouteKey, PageMeta> = {
   '/vs/letta': {
     title: 'Statewave vs. Letta — Runtime-Managed vs. Agent-Managed Memory',
     description:
-      'How Statewave compares to Letta: in Letta the agent edits and searches its own memory with tool calls, while Statewave assembles a deterministic, token-bounded context bundle mechanically — with policy on the read path and an integrity-hashed receipt of what the agent saw.',
+      'How Statewave compares to Letta: in Letta the agent edits and searches its own memory with tool calls, while Statewave assembles a deterministic, token-bounded context bundle mechanically — with policy on the read path and an optional integrity-hashed receipt of what the agent saw.',
     breadcrumbLabel: 'vs Letta',
     ogType: 'article',
     priority: 0.7,
@@ -211,7 +226,7 @@ export const PAGE_META: Record<RouteKey, PageMeta> = {
   '/vs/zep': {
     title: 'Statewave vs. Zep — Inspectable Bundle vs. Opaque Context Block',
     description:
-      'How Statewave compares to Zep: Zep models memory as a knowledge graph and returns retrieval as an opaque Context Block string, while Statewave compiles typed, provenance-traced memories into a deterministic, token-bounded bundle with per-row confidence, validity, and an integrity-hashed receipt.',
+      'How Statewave compares to Zep: Zep models memory as a knowledge graph and returns retrieval as an opaque Context Block string, while Statewave compiles typed, provenance-traced memories into a deterministic, token-bounded bundle with per-row confidence, validity, and an optional integrity-hashed receipt.',
     breadcrumbLabel: 'vs Zep',
     ogType: 'article',
     priority: 0.7,
@@ -220,8 +235,17 @@ export const PAGE_META: Record<RouteKey, PageMeta> = {
   '/vs/supermemory': {
     title: 'Statewave vs. Supermemory — Deterministic Bundle vs. Reranked Search',
     description:
-      'How Statewave compares to Supermemory: deterministic, token-bounded context assembly with per-row provenance and integrity-hashed receipts vs. hybrid vector-plus-keyword search with context-aware reranking — plus each product’s own LoCoMo and LongMemEval figures, shown apart since they measure different things.',
+      'How Statewave compares to Supermemory: deterministic, token-bounded context assembly with per-row provenance and optional integrity-hashed receipts vs. hybrid vector-plus-keyword search with context-aware reranking — plus each product’s own LoCoMo and LongMemEval figures, shown apart as they measure different things.',
     breadcrumbLabel: 'vs Supermemory',
+    ogType: 'article',
+    priority: 0.7,
+    changefreq: 'monthly',
+  },
+  '/vs': {
+    title: 'Statewave vs. Mem0, Letta, Zep & Supermemory',
+    description:
+      'Every Statewave comparison in one place: deterministic, token-bounded context assembly with provenance and policy enforcement, compared with Mem0, Letta, Zep, and Supermemory’s own retrieval models. Apache-2.0, self-hosted on Postgres.',
+    breadcrumbLabel: 'Alternatives',
     ogType: 'article',
     priority: 0.7,
     changefreq: 'monthly',
@@ -240,6 +264,18 @@ export const PAGE_META: Record<RouteKey, PageMeta> = {
     description:
       'Get started with Statewave in about 5 minutes. Python and TypeScript SDKs, REST API, Docker Compose deployment, OpenTelemetry, LiteLLM-backed compilers, and 100+ LLM providers.',
     breadcrumbLabel: 'Developers',
+    ogType: 'article',
+    priority: 0.8,
+    changefreq: 'monthly',
+  },
+  '/openrouter': {
+    ogImage: '/openrouter/og.png',
+    ogImageAlt:
+      'statewave-openrouter: an OpenAI-compatible proxy that gives OpenRouter calls persistent memory.',
+    title: 'Add Persistent Memory to OpenRouter Calls | statewave-openrouter',
+    description:
+      'statewave-openrouter is an open-source, OpenAI-compatible proxy that gives OpenRouter calls persistent memory. Change the base URL, add one header. Apache-2.0, Python 3.11+.',
+    breadcrumbLabel: 'OpenRouter Proxy',
     ogType: 'article',
     priority: 0.8,
     changefreq: 'monthly',
@@ -362,6 +398,60 @@ export function softwareApplicationJsonLd(): JsonLd {
       'Self-hosted on Postgres + pgvector',
     ],
     offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+  }
+}
+
+/** SoftwareApplication node for statewave-openrouter, the proxy documented on
+ *  /openrouter. A separate entity from the runtime above on purpose: different
+ *  package, different repo, different install. Kept here rather than inline in
+ *  the page so the prerenderer can emit it too — see lib/page-schema.ts. */
+export function openrouterProxyJsonLd(): JsonLd {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: 'statewave-openrouter',
+    description:
+      'statewave-openrouter is an open-source, OpenAI-compatible HTTP proxy that gives OpenRouter calls persistent memory. It assembles a memory bundle for a subject before the call and writes the turn back as an episode after the reply.',
+    applicationCategory: 'DeveloperApplication',
+    operatingSystem: 'Linux, macOS, Windows',
+    programmingLanguage: 'Python',
+    runtimePlatform: 'Python 3.11+',
+    url: `${BASE_URL}/openrouter`,
+    license: 'https://www.apache.org/licenses/LICENSE-2.0',
+    dateModified: OPENROUTER_LAST_UPDATED,
+    softwareHelp: REPOS.openrouter,
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+    publisher: { '@id': ORGANIZATION_ID },
+  }
+}
+
+/** Blog node for /blog. Needs the post list, so it takes it as an argument
+ *  rather than importing lib/blog (which would make this module circular). */
+export interface BlogPostSummary {
+  title: string
+  date: string
+  url: string
+  description: string
+  author: string
+}
+
+export function blogIndexJsonLd(posts: readonly BlogPostSummary[]): JsonLd {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Blog',
+    name: 'Statewave blog',
+    url: `${BASE_URL}/blog`,
+    description:
+      'Notes from the Statewave project — memory infrastructure for AI agents, deployment patterns, and how the runtime works under the hood.',
+    publisher: { '@id': ORGANIZATION_ID },
+    blogPost: posts.map((p) => ({
+      '@type': 'BlogPosting',
+      headline: p.title,
+      datePublished: p.date,
+      url: p.url,
+      description: p.description,
+      author: { '@type': 'Organization', name: p.author, url: `${BASE_URL}/about` },
+    })),
   }
 }
 

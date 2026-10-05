@@ -77,7 +77,7 @@ function HeroSection() {
 
           <p className="mx-auto mt-6 max-w-[600px] text-[18px] leading-[1.6] text-theme-secondary">
             Mem0 ranks by relevance and hands you the result. Statewave assembles
-            a deterministic, token-bounded context bundle and returns an
+            a deterministic, token-bounded context bundle and can return an
             integrity-hashed receipt of exactly what the agent saw.
           </p>
 
@@ -538,8 +538,8 @@ function ComparisonSection() {
           <p className="relative text-[14.5px] leading-[1.6] text-theme-secondary">
             Agents run in production across many sessions and you need
             deterministic context, provenance back to source episodes, policy
-            enforced on the read path, and an auditable receipt for every
-            decision.
+            enforced on the read path, and an optional auditable receipt for
+            every decision.
           </p>
         </div>
       </div>
@@ -654,7 +654,7 @@ function WorkedExampleSection() {
   )
 }
 
-/* ─── Every call leaves a receipt ────────────────────────────────────────── */
+/* ─── Every call can leave a receipt ────────────────────────────────────────── */
 
 const MECHANISM_CARDS = [
   { icon: '{}', title: 'Policy engine', body: 'Content-hashed YAML or JSON bundles. Deny or redact by sensitivity label and caller identity; log_only records each decision so you can audit a policy before enforcing it.' },
@@ -720,7 +720,7 @@ function GovernanceSection() {
           id="governance-heading"
           className="font-heading text-4xl font-bold leading-[1.02] tracking-[-0.03em] text-theme-primary md:text-[48px]"
         >
-          Every call leaves a receipt
+          Every call can leave a receipt
         </Heading>
         <p className="mt-4 text-[17px] leading-[1.6] text-theme-secondary/90">
           Mem0 leaves auditability to your application. In Statewave every
@@ -991,7 +991,7 @@ function CTASection() {
 
           <p className="mx-auto mt-6 max-w-xl text-[17px] leading-[1.6] text-theme-secondary/85">
             Self-host the Apache 2.0 runtime, wire it to your MCP client, and
-            every context call comes back with a receipt.
+            every context call can come back with a receipt.
           </p>
 
           <div className="mt-10 flex flex-wrap justify-center gap-4">

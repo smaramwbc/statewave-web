@@ -41,11 +41,6 @@ const HeroBackground = lazy(() =>
   import('../components/HeroBackground').then((m) => ({ default: m.HeroBackground })),
 )
 import { usePageSEO } from '../lib/seo'
-import {
-  faqPageJsonLd,
-  productJsonLd,
-  softwareApplicationJsonLd,
-} from '../lib/seo-meta'
 import { FAQ_ENTRIES } from '../lib/faq'
 import { PROOF_FIGURES, PROOF_STATS } from '../lib/proof-stats'
 import { useChatWidget, useTrackDemoCta } from '../lib/widget-context-api'
@@ -61,14 +56,9 @@ export function HomePage() {
   // Product sits alongside SoftwareApplication: same runtime, but it's the
   // node an answer engine reads for the commercial question — price,
   // availability, what you get — which SoftwareApplication doesn't carry.
-  usePageSEO({
-    jsonLd: [
-      softwareApplicationJsonLd(),
-      productJsonLd(),
-      faqPageJsonLd(FAQ_ENTRIES),
-    ],
-    breadcrumb: false,
-  })
+  // Those three nodes are emitted by routeJsonLd('/') in lib/page-schema.ts,
+  // which the prerenderer shares; passing them here too duplicated them.
+  usePageSEO({ breadcrumb: false })
   // Every section below is server-rendered into dist/index.html — same
   // pattern HeroSection already used. Previously everything past the hero
   // was wrapped in <ClientOnly> to keep the SSR payload small; that traded
@@ -834,7 +824,7 @@ function GovernanceSection() {
     },
     {
       title: 'State-assembly receipts',
-      desc: 'Every context call produces an immutable, ULID-addressable receipt with a byte-level integrity hash. Replay any call. Prove exactly what the agent saw.',
+      desc: 'Any context call can produce an immutable, ULID-addressable receipt with a byte-level integrity hash. Replay any call. Prove exactly what the agent saw.',
       Icon: ReceiptText,
     },
     {

@@ -1372,7 +1372,7 @@ const ENDPOINT_FEATURES = [
 ];
 
 const MONO: React.CSSProperties = {
-  fontFamily: "'JetBrains Mono', 'Fira Mono', 'Courier New', monospace",
+  fontFamily: 'var(--font-mono)',
   fontSize: 12,
   lineHeight: "1.8",
 };
@@ -1580,7 +1580,7 @@ const FEATURE_GRID = [
   },
   {
     title: "Full Audit Trail",
-    body: "Every context call produces an HMAC-signed receipt tracing facts back to their source episode.",
+    body: "Any context call can produce an HMAC-signed receipt tracing facts back to their source episode.",
   },
   {
     title: "Fails Open, Never Blocks",
