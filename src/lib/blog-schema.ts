@@ -538,7 +538,7 @@ export const POST_FAQ: Readonly<Record<string, readonly FaqEntry[]>> = {
     {
       question: 'Which alternative is best for global questions over documents?',
       answer:
-        'Microsoft GraphRAG is designed for corpus-level questions through entity communities and community reports. It is now in maintenance mode: expect bug fixes and dependency updates as appropriate, particularly to address CVEs, and no new features. LightRAG is a more service-oriented option with several hybrid retrieval modes.',
+        'Microsoft GraphRAG is designed for corpus-level questions through entity communities and community reports. It is largely in maintenance mode: expect bug fixes and dependency updates as appropriate, particularly to address CVEs, and no new features. LightRAG is a more service-oriented option with several hybrid retrieval modes.',
     },
   ],
 } as const

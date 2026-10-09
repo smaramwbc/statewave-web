@@ -13,7 +13,7 @@ tags:
   - memory
 ---
 
-Pick Statewave over Cognee when the product needs governed interaction memory on one Postgres system and has little use for a graph-and-vector knowledge platform. LightRAG is closer for self-hosted GraphRAG, Microsoft GraphRAG (now in maintenance mode) still suits corpus-level community analysis, and Graphiti is better for relationships that change over time.
+Pick Statewave over Cognee when the product needs governed interaction memory on one Postgres system and has little use for a graph-and-vector knowledge platform. LightRAG is closer for self-hosted GraphRAG, Microsoft GraphRAG (largely in maintenance mode) still suits corpus-level community analysis, and Graphiti is better for relationships that change over time.
 
 Cognee sits between two categories: agent memory and knowledge-graph retrieval. A useful alternative must match the category you actually need. Replacing Cognee with a thin memory API can simplify a support agent, but it can also remove the graph reasoning a document intelligence product depends on.
 
@@ -145,7 +145,7 @@ Choose LightRAG when Cognee is being replaced as a GraphRAG engine and the team 
 
 [Microsoft GraphRAG](https://github.com/microsoft/graphrag) builds entities, relationships, communities, and community reports from source text. Its global search pattern is designed for questions that require themes across an entire corpus rather than a few nearest chunks.
 
-The project is MIT licensed, but its README now says it is largely in maintenance mode: Microsoft will ship bug fixes and dependency updates as appropriate, particularly to address CVEs, and won't accept new PRs or build new features. A docstring in the indexing API source (graphrag/api/index.py) also still warns that it is under development and does not guarantee backward compatibility. Graph extraction and community summarization can also create a large model bill, so start with a representative subset and measure indexing cost before committing to the full corpus.
+The project is MIT licensed, but its README now says it is largely in maintenance mode: Microsoft will ship bug fixes and dependency updates as appropriate, particularly to address CVEs, and won't accept new PRs or build new features. A docstring in the indexing API source (packages/graphrag/graphrag/api/index.py) also still warns that it is under development and does not guarantee backward compatibility. Graph extraction and community summarization can also create a large model bill, so start with a representative subset and measure indexing cost before committing to the full corpus.
 
 Choose Microsoft GraphRAG for research, intelligence, and corpus-level synthesis when a feature-frozen pipeline is acceptable. If you need a GraphRAG server that is still gaining features, LightRAG is the safer pick. It is not a drop-in agent-memory service and does not own per-user memory lifecycles.
 
@@ -221,7 +221,7 @@ Statewave fits governed interaction memory on Postgres. LightRAG supplies a self
 
 Keep Cognee when one platform should ingest documents and code, build a knowledge graph, support several storage backends, and serve memory through the same SDK. Its breadth is valuable when the team intends to use it.
 
-Cognee, LightRAG, Microsoft GraphRAG, Graphiti, LlamaIndex and Hindsight are trademarks of their respective owners; used here for factual comparison. Pricing, feature lists and repository details are as of September 2026 and change frequently, so check each vendor's own page before you rely on them.
+Cognee, LightRAG, Microsoft GraphRAG, Graphiti, LlamaIndex and Hindsight are trademarks of their respective owners; used here for factual comparison. Pricing, feature lists and repository details are as of October 2026 and change frequently, so check each vendor's own page before you rely on them.
 
 ## FAQ
 
@@ -288,7 +288,7 @@ Cognee, LightRAG, Microsoft GraphRAG, Graphiti, LlamaIndex and Hindsight are tra
 </summary>
 <div className="px-7 pb-7">
 <div className="h-px bg-theme-primary/10 mb-6" />
-<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">Microsoft GraphRAG is designed for corpus-level questions through entity communities and community reports. It is now in maintenance mode: expect bug fixes and dependency updates as appropriate, particularly to address CVEs, and no new features. LightRAG is a more service-oriented option with several hybrid retrieval modes.</p>
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">Microsoft GraphRAG is designed for corpus-level questions through entity communities and community reports. It is largely in maintenance mode: expect bug fixes and dependency updates as appropriate, particularly to address CVEs, and no new features. LightRAG is a more service-oriented option with several hybrid retrieval modes.</p>
 </div>
 </details>
 
