@@ -2,7 +2,7 @@
 title: "Statewave Guide — Day 3: True is not the same as relevant"
 slug: statewave-guide-day-3
 date: "2026-10-12T21:00:00Z"
-description: A real model behind the Guide, and not one invented route reached the product model. It still produced a claim that was true about the application and wrong about the feature we asked about.
+description: We finally put a real model behind the Guide, and not one invented route reached the product model. It still produced a claim that was true about the application and wrong about the feature we asked about.
 author: Saber Maram
 built: "2026-08-26"
 repoLabel: "PR #3"
@@ -13,14 +13,13 @@ image: /images/blog/statewave-guide-day-3/og.png
 headerImage: /images/blog/statewave-guide-day-3/header.png
 tags:
   - trust
-  - guidance
 ---
 
 import { Flow } from '../../components/Flow'
 
 Yesterday I asked:
 
-> Can a model add product meaning to the graph without being allowed to invent product truth?
+> Can a model add product meaning to this graph without being allowed to invent product truth?
 
 The answer is:
 
@@ -29,6 +28,8 @@ The answer is:
 But apparently factual truth still isn't enough. 😅
 
 Today we finally put a real model behind Statewave Guide.
+
+One model, one fixture: every number below comes from `anthropic-opus-5` against a single application we wrote ourselves, with patterns we knew to look for. Read it as a measurement of a design change, not of what a model will do on your code.
 
 The good news first.
 
@@ -160,6 +161,8 @@ Verified claim yield went from roughly **20% → 95%**.
 Wrong-feature claims went to **0**.
 
 Model restraint reached **30/30**.
+
+What did not move: **45 of 63** features still end with no verified capability. Safer, not fuller.
 
 At that point we had something very safe.
 
