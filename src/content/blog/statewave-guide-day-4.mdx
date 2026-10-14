@@ -24,6 +24,8 @@ Yesterday I asked:
 
 Not particularly. 😅
 
+One model, one fixture, same as yesterday: every number below comes from `anthropic-opus-5` against a single application we wrote ourselves, with patterns we knew to look for.
+
 <div className="rounded-2xl border border-brand-500/25 bg-brand-500/[0.05] p-6 sm:p-7">
 <ul className="!my-0 !pl-0 space-y-2.5 list-none font-mono text-sm">
 <li className="flex items-baseline justify-between gap-4"><span className="text-theme-secondary">Wrong-feature claims accepted</span><span className="text-success">0</span></li>
@@ -38,6 +40,8 @@ Nice.
 Then we asked:
 
 > Would any of this actually help a human?
+
+The usefulness scores below were not produced by people. A separate model, OpenAI GPT-5.6 Sol, scored the twenty-one features against a fixed rubric. It is not the model under test, so this is not self-scoring, but it is not a human review either, and no amount of it becomes one.
 
 <div className="rounded-2xl border border-brand-500/25 bg-brand-500/[0.05] p-6 sm:p-7">
 <div className="grid grid-cols-2 gap-4 text-center">
@@ -73,9 +77,13 @@ The data disagreed.
 
 Barely a difference.
 
+That was how we read it at the time. A later round, with the language problem below fixed, put the same split at 2.00 against 1.07. The capability signal was real; we were reading it through bad presentation.
+
 Meanwhile:
 
 **14 / 21 outputs were too technical.**
+
+Thirteen of twenty-one were flagged as missing a capability.
 
 Then we found the smoking gun.
 
