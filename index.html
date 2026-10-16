@@ -81,14 +81,14 @@
     <!-- Load Google Fonts asynchronously to avoid render-blocking.
          The document paints immediately with system font fallbacks, then
          `font-display: swap` (provided by the Google Fonts CSS) replaces them
-         with Geist, Inter and JetBrains Mono once the font files are available.
+         with Geist, Inter and Geist Mono once the font files are available.
          <noscript> preserves font loading when JavaScript is disabled. -->
     <link rel="preload" as="style"
-      href="https://fonts.googleapis.com/css2?family=Geist:wght@500;600;700;800&family=Inter:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Fustat:wght@600;700;800&family=Geist:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500&display=swap"
       onload="this.onload=null;this.rel='stylesheet'" />
     <noscript>
       <link rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Geist:wght@500;600;700;800&family=Inter:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500&display=swap" />
+        href="https://fonts.googleapis.com/css2?family=Fustat:wght@600;700;800&family=Geist:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500&display=swap" />
     </noscript>
 
     <!-- Baseline structured data — Organization and WebSite only. These are
@@ -127,12 +127,8 @@
     <script>
       // Resolve theme before paint to prevent FOUC
       (function() {
-        var mode = localStorage.getItem('statewave-theme-mode') || 'auto';
-        var resolved = mode;
-        if (mode === 'auto') {
-          resolved = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-        }
-        document.documentElement.setAttribute('data-theme', resolved);
+        var dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
       })();
     </script>
 

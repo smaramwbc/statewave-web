@@ -155,3 +155,6 @@ export const FAQ_ENTRIES: readonly FaqEntry[] = [
     ],
   },
 ] as const
+
+/** The five questions previewed on the homepage; its FAQPage JSON-LD must match what is visible. */
+export const HOME_FAQ_ENTRIES = FAQ_ENTRIES.slice(0, 5)

@@ -54,23 +54,33 @@ export function ScrollToTop() {
       return () => window.clearInterval(interval)
     }
 
+    let realign = 0
     if (hash) {
       const id = decodeURIComponent(hash.slice(1))
       const tryScroll = () => {
         const el = document.getElementById(id)
         if (el) {
           el.scrollIntoView({ behavior, block: 'start' })
+          // <Section> reveals with a 40px translateY. scrollIntoView aligns the
+          // still-translated box, so once the reveal finishes the target sits 40px
+          // higher than html's scroll-padding-top intends (and under the navbar).
+          // Re-align once the reveal has settled.
+          realign = window.setTimeout(() => {
+            const want = parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 0
+            const off = el.getBoundingClientRect().top - want
+            if (Math.abs(off) > 4) window.scrollBy({ top: off, behavior: 'instant' as ScrollBehavior })
+          }, 900)
           return true
         }
         return false
       }
-      if (tryScroll()) return
+      if (tryScroll()) return () => window.clearTimeout(realign)
       let attempts = 0
       const interval = window.setInterval(() => {
         attempts += 1
         if (tryScroll() || attempts >= 10) window.clearInterval(interval)
       }, 50)
-      return () => window.clearInterval(interval)
+      return () => { window.clearInterval(interval); window.clearTimeout(realign) }
     }
 
     window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior })

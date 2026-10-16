@@ -31,14 +31,13 @@ export function ScrollToTopButton() {
           exit={{ opacity: 0, scale: 0.8 }}
           transition={{ duration: 0.2 }}
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-          // Centered horizontally so it doesn't fight the right-anchored
-          // chat launcher / minimized pill. The 24px floor uses
+          // Bottom-left: centered it sat on top of page content, and the
+          // right edge belongs to the chat launcher / minimized pill. The 24px floor uses
           // env(safe-area-inset-bottom) so the button clears the iOS home
           // indicator on phones with no hardware button.
           style={{
             bottom: 'max(env(safe-area-inset-bottom), 1rem)',
-            left: '50%',
-            x: '-50%',
+            left: 'max(env(safe-area-inset-left), 1.25rem)',
           }}
           // Hidden on phones — the on-page CTAs (hero "Try the Demo" and
           // section CTAs) plus the floating chat launcher already give the

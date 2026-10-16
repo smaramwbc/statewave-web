@@ -30,6 +30,9 @@ export interface ChatMessage {
   /** The original user input that produced this error bubble. Used by the
    *  retry path to re-issue the exchange without making the visitor retype. */
   retryText?: string
+  /** The server answered non-2xx (rate limit, demo cap, 5xx): `content` is
+   *  the server's error text, not a reply. */
+  failed?: boolean
 }
 
 export interface MemoryItem {
@@ -116,6 +119,9 @@ export interface ChatWidgetActions {
    * suppressed by the consumer.
    */
   openWidget: (persona?: string, personaLabel?: string, mode?: 'demo' | 'support') => void
+  /** Pin the docs-grounded support channel without opening the floating
+   *  widget (embedded chats). */
+  enterSupportChannel: () => void
   closeWidget: () => void
   minimizeWidget: () => void
   expandWidget: () => void

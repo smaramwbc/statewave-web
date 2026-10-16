@@ -13,7 +13,7 @@ import {
   softwareApplicationJsonLd,
   websiteJsonLd,
 } from '../src/lib/seo-meta'
-import { FAQ_ENTRIES } from '../src/lib/faq'
+import { FAQ_ENTRIES, HOME_FAQ_ENTRIES } from '../src/lib/faq'
 import { PAGE_FAQS } from '../src/lib/page-faqs'
 
 afterEach(() => {
@@ -186,9 +186,9 @@ describe('Per-page injected JSON-LD', () => {
     const types = readManagedJsonLd().map((n) => n['@type'])
     expect(types).not.toContain('Organization')
     expect(types).not.toContain('WebSite')
-    // The homepage FAQPage carries the full entry list.
+    // The homepage FAQPage carries the five previewed entries, matching what is visible.
     const faq = readManagedJsonLd().find((n) => n['@type'] === 'FAQPage')
-    expect((faq?.mainEntity as unknown[]).length).toBe(FAQ_ENTRIES.length)
+    expect((faq?.mainEntity as unknown[]).length).toBe(HOME_FAQ_ENTRIES.length)
   })
 
   it('the /developers route injects a HowTo', async () => {

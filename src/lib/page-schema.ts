@@ -9,7 +9,7 @@ import {
   type JsonLd,
   type RouteKey,
 } from './seo-meta'
-import { FAQ_ENTRIES } from './faq'
+import { FAQ_ENTRIES, HOME_FAQ_ENTRIES } from './faq'
 import { PAGE_FAQS } from './page-faqs'
 import type { BlogPostSummary } from './seo-meta'
 
@@ -41,7 +41,7 @@ export function routeJsonLd(
   // The homepage is the site's entity home: it carries the app and product
   // nodes plus the full FAQ, and deliberately has no breadcrumb.
   if (pathname === '/') {
-    return [softwareApplicationJsonLd(), productJsonLd(), faqPageJsonLd(FAQ_ENTRIES)]
+    return [softwareApplicationJsonLd(), productJsonLd(), faqPageJsonLd(HOME_FAQ_ENTRIES)]
   }
 
   const nodes: JsonLd[] = []

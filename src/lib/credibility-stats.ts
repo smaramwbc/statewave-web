@@ -13,6 +13,7 @@
  * fetch happens out-of-band when an operator runs the refresh script.
  */
 
+import { useEffect, useState } from 'react'
 import raw from './credibility-stats.json'
 
 export interface CredibilityStats {
@@ -40,4 +41,33 @@ export function formatCompactCount(n: number | null): string | null {
   }
   const m = n / 1_000_000
   return (m >= 100 ? Math.round(m) : m.toFixed(1).replace(/\.0$/, '')) + 'M'
+}
+
+/** Live star count: starts from the committed snapshot (so SSR and first paint
+ *  agree), then swaps in GitHub's current number. Cached for an hour per tab so
+ *  the unauthenticated API limit (60/h per IP) is never a concern. Any failure
+ *  (rate limit, offline, blocked storage) leaves the snapshot in place. */
+export function useGithubStars(): number | null {
+  const [stars, setStars] = useState<number | null>(CREDIBILITY_STATS.github_stars)
+  useEffect(() => {
+    const KEY = 'sw-gh-stars'
+    const ac = new AbortController()
+    let cached: number | null = null
+    try {
+      const c = JSON.parse(sessionStorage.getItem(KEY) || 'null')
+      if (c && Date.now() - c.t < 3_600_000) cached = c.n
+    } catch { /* storage blocked */ }
+    const load: Promise<number | null> = cached !== null
+      ? Promise.resolve(cached)
+      : fetch('https://api.github.com/repos/smaramwbc/statewave', { signal: ac.signal, headers: { accept: 'application/vnd.github+json' } })
+          .then((r) => (r.ok ? r.json() : null))
+          .then((d) => {
+            const n = d && typeof d.stargazers_count === 'number' ? d.stargazers_count : null
+            if (n !== null) { try { sessionStorage.setItem(KEY, JSON.stringify({ n, t: Date.now() })) } catch { /* ignore */ } }
+            return n
+          })
+    load.then((n) => { if (n !== null && !ac.signal.aborted) setStars(n) }).catch(() => { /* keep the snapshot */ })
+    return () => ac.abort()
+  }, [])
+  return stars
 }

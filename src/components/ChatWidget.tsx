@@ -277,15 +277,15 @@ export function ChatWidget() {
           ...(isMobile
             ? { left: '50%', x: '-50%' }
             : { right: 24 }),
-          backgroundColor: isDark ? 'rgba(99, 102, 241, 0.15)' : 'rgba(99, 102, 241, 0.1)',
-          borderColor: isDark ? 'rgba(99, 102, 241, 0.3)' : 'rgba(99, 102, 241, 0.2)',
-          boxShadow: isDark
-            ? '0 8px 32px -8px rgba(99, 102, 241, 0.4), 0 4px 16px -4px rgba(0, 0, 0, 0.3)'
-            : '0 8px 32px -8px rgba(99, 102, 241, 0.25), 0 4px 16px -4px rgba(0, 0, 0, 0.1)',
+          // Solid navy with light text: the old translucent tint made the label
+          // unreadable over the dark sections.
+          backgroundColor: 'var(--sw-navy)',
+          borderColor: 'rgba(255, 255, 255, 0.18)',
+          boxShadow: '0 8px 32px -8px rgba(10, 18, 51, 0.5), 0 4px 16px -4px rgba(0, 0, 0, 0.25)',
         }}
       >
-        <span className="text-accent text-lg">✦</span>
-        <span className="text-sm font-medium text-theme-primary">Ask Support</span>
+        <span className="text-lg" style={{ color: 'var(--sw-sky)' }}>✦</span>
+        <span className="text-sm font-medium" style={{ color: 'var(--sw-bg)' }}>Ask Support</span>
       </motion.button>
     )
   }

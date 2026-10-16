@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./styles/tokens.css";
 
 @theme {
   --color-brand-50: #eff6ff;
@@ -879,3 +880,8 @@ html[data-theme="dark"] .connector-logo-black {
     radial-gradient(farthest-side at 0 50%, rgba(2, 6, 23, .18), transparent) left center / 12px 100% no-repeat scroll,
     radial-gradient(farthest-side at 100% 50%, rgba(2, 6, 23, .18), transparent) right center / 12px 100% no-repeat scroll;
 }
+/* Lenis owns wheel smoothing; native CSS smooth-scroll would fight it */
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+.lenis.lenis-stopped { overflow: clip; }

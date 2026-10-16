@@ -4,7 +4,7 @@ import { MemoryRouter } from 'react-router'
 import { ThemeProvider } from '../src/lib/theme'
 import { ChatWidgetProvider } from '../src/lib/widget-context'
 import App from '../src/App'
-import { FAQ_ENTRIES } from '../src/lib/faq'
+import { FAQ_ENTRIES, HOME_FAQ_ENTRIES } from '../src/lib/faq'
 
 afterEach(() => {
   cleanup()
@@ -70,7 +70,7 @@ describe('FAQ entry data', () => {
 })
 
 describe('FAQ link rendering', () => {
-  it('renders every link from FAQ_ENTRIES at least once', async () => {
+  it('renders every link from HOME_FAQ_ENTRIES at least once', async () => {
     renderHome()
     const faqRegion = await screen.findByRole('heading', {
       name: /frequently asked questions/i,
@@ -83,7 +83,7 @@ describe('FAQ link rendering', () => {
     const details = section.querySelectorAll('details')
     details.forEach((d) => d.setAttribute('open', ''))
 
-    for (const entry of FAQ_ENTRIES) {
+    for (const entry of HOME_FAQ_ENTRIES) {
       for (const link of entry.links ?? []) {
         const matches = within(section).getAllByRole('link', {
           name: new RegExp(escape(link.label), 'i'),
@@ -104,7 +104,7 @@ describe('FAQ link rendering', () => {
     const section = faqHeading.closest('section')!
     section.querySelectorAll('details').forEach((d) => d.setAttribute('open', ''))
 
-    const externalLinks = FAQ_ENTRIES.flatMap((e) => e.links ?? []).filter((l) =>
+    const externalLinks = HOME_FAQ_ENTRIES.flatMap((e) => e.links ?? []).filter((l) =>
       isExternal(l.href),
     )
     expect(externalLinks.length).toBeGreaterThan(0)
@@ -129,7 +129,7 @@ describe('FAQ link rendering', () => {
     const section = faqHeading.closest('section')!
     section.querySelectorAll('details').forEach((d) => d.setAttribute('open', ''))
 
-    const internalLinks = FAQ_ENTRIES.flatMap((e) => e.links ?? []).filter(
+    const internalLinks = HOME_FAQ_ENTRIES.flatMap((e) => e.links ?? []).filter(
       (l) => !isExternal(l.href),
     )
     expect(internalLinks.length).toBeGreaterThan(0)

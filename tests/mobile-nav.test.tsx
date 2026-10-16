@@ -82,7 +82,7 @@ describe('Navbar mobile drawer', () => {
     renderNavbar()
     fireEvent.click(screen.getByRole('button', { name: /open menu/i }))
     const dialog = await screen.findByRole('dialog', { name: /site navigation/i })
-    for (const label of ['How it works', 'Why Statewave', 'Use Cases', 'Developers', 'GitHub']) {
+    for (const label of ['Product', 'Solutions', 'Developers', 'Compare', 'Resources', 'GitHub']) {
       expect(within(dialog).getByText(label)).toBeInTheDocument()
     }
   })

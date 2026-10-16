@@ -35,7 +35,7 @@ describe.runIf(distBuildAvailable)('prerendered dist/index.html', () => {
   })
 
   it('contains the hero <h1> in the initial document', () => {
-    expect(html).toMatch(/<h1[^>]*>[\s\S]*?AI memory[\s\S]*?<\/h1>/i)
+    expect(html).toMatch(/<h1[^>]*>[\s\S]*?memory for AI agents[\s\S]*?<\/h1>/i)
   })
 
   it('renders the navbar shell (Skip-to-content link)', () => {
@@ -48,6 +48,13 @@ describe.runIf(distBuildAvailable)('prerendered dist/index.html', () => {
     // If a future change reverses this, the bundle size + cold LCP win
     // disappear — fail loudly.
     expect(html).not.toContain('<footer')
+  })
+
+  it('keeps homepage sections in order', () => {
+    const labels = ['Statewave', 'How it works', 'Governance', 'Use cases', 'Works with', 'Self-hosted', 'Benchmarks', 'Get started', 'Frequently asked questions']
+    const at = labels.map((l) => html.indexOf(`<section`) < 0 ? -1 : html.search(new RegExp(`<section[^>]*aria-label="${l}"`))).filter((i) => i >= 0)
+    expect(at.length).toBeGreaterThan(0)
+    expect(at).toEqual([...at].sort((x, y) => x - y))
   })
 
   it('did not fall back to client-only rendering', () => {

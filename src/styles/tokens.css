@@ -1,0 +1,60 @@
+/* Statewave design tokens (v8).
+ *
+ * One source for the --sw-* values the homepage and the shared chrome read. They sit on
+ * :root so any page can use them; the legacy --theme-* / @theme tokens in index.css are
+ * untouched and keep working. The @theme block below maps the same values into Tailwind
+ * (bg-sw-navy, text-sw-ink-2, border-sw-line, font-sw-display ...) so new pages can use
+ * utilities or the shared CSS classes interchangeably. Values only: no rules. */
+
+:root {
+  /* colour */
+  --sw-navy: #0a1233;
+  --sw-navy-deep: #070d26;
+  --sw-blue: #2f5bf0;
+  --sw-sky: #4a8cff;
+  --sw-link: #2563eb;
+  --sw-bg: #f4f5f9;
+  --sw-bg-2: #edf0f7;
+  --sw-ink-2: #4a5578;
+  --sw-ink-3: #5b6783;
+  --sw-ink-4: #606c88;
+  --sw-dim: #78839e;
+  --sw-line: #e3e9f5;
+  --sw-line-2: #d5dbe8;
+  --sw-ok: #047857;
+
+  /* section rhythm: eyebrow > title > lede > body */
+  --sw-gap-title: 28px;
+  --sw-gap-lede: 24px;
+  --sw-gap-body: 44px;
+
+  /* page width system: content max width, side gutter, and the rail (viewport edge to content edge) */
+  --sw-max: clamp(1440px, 84vw, 1700px);
+  --sw-gutter: clamp(16px, 2.5vw, 32px);
+  --sw-rail: max(var(--sw-gutter), calc(50% - var(--sw-max) / 2));
+  --sw-pad: calc(var(--sw-gutter) + clamp(16px, 4vw, 32px));
+
+  /* type */
+  --sw-display: Fustat, Geist, system-ui, sans-serif;
+  --sw-font-label: Geist, system-ui, sans-serif; /* tabular small labels and code; not a monospace face, by request */
+  --sw-mono: var(--sw-font-label); /* temporary alias for the old name; remove once nothing reads it */
+}
+
+@theme inline {
+  --color-sw-navy: var(--sw-navy);
+  --color-sw-navy-deep: var(--sw-navy-deep);
+  --color-sw-blue: var(--sw-blue);
+  --color-sw-sky: var(--sw-sky);
+  --color-sw-link: var(--sw-link);
+  --color-sw-bg: var(--sw-bg);
+  --color-sw-bg-2: var(--sw-bg-2);
+  --color-sw-ink-2: var(--sw-ink-2);
+  --color-sw-ink-3: var(--sw-ink-3);
+  --color-sw-ink-4: var(--sw-ink-4);
+  --color-sw-dim: var(--sw-dim);
+  --color-sw-line: var(--sw-line);
+  --color-sw-line-2: var(--sw-line-2);
+  --color-sw-ok: var(--sw-ok);
+  --font-sw-display: var(--sw-display);
+  --font-sw-label: var(--sw-font-label);
+}

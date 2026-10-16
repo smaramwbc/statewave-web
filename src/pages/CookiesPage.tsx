@@ -90,14 +90,6 @@ export function CookiesPage() {
           <ul className="space-y-3 text-sm text-theme-secondary">
             <li className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-3">
               <code className="font-mono text-xs px-2 py-0.5 rounded bg-surface-2 text-theme-primary shrink-0">
-                statewave-theme-mode
-              </code>
-              <span className="text-theme-muted">
-                Your light / dark / system theme preference.
-              </span>
-            </li>
-            <li className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-3">
-              <code className="font-mono text-xs px-2 py-0.5 rounded bg-surface-2 text-theme-primary shrink-0">
                 statewave:manifesto-lang
               </code>
               <span className="text-theme-muted">
