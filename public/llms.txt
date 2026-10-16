@@ -58,6 +58,8 @@ Statewave stores immutable episodes, compiles them into typed memories with prov
 - [6 Best Open-Source Hindsight Alternatives (2026)](https://www.statewave.ai/blog/hindsight-alternatives): Why recall and reflect are different cost shapes, what Hindsight Cloud's reflect pricing implies for workload design, and which of the six alternatives fits when reasoning should stay in the application.
 - [6 Best Open-Source ByteRover Alternatives (2026)](https://www.statewave.ai/blog/byterover-alternatives): Why ByteRover's core is local-first despite its ELv2 license, the 21-vs-6 local-to-cloud command split, and which alternative matches coding, team, or product memory.
 - [6 Best Open-Source LangMem Alternatives (2026)](https://www.statewave.ai/blog/langmem-alternatives): The four production layers a memory library doesn't provide, when to keep LangMem versus move to native LangGraph stores or an independent service, and which of the six alternatives fits each gap.
+- [How to Give Your AI Agent Persistent Memory Across Sessions](https://www.statewave.ai/blog/how-to-give-ai-agent-persistent-memory-across-sessions): What to store, how to rank it, when to evict, what to do when a stored fact goes stale, and the code to wire it into an existing agent.
+- [How to Stop AI Agents Forgetting Between Sessions](https://www.statewave.ai/blog/how-to-stop-ai-agents-forgetting-between-sessions): Why the context window resets at a session boundary, the write and read path that persists state, how conflicting facts resolve, and how to prove a deletion.
 
 ## Documentation
 

@@ -1,0 +1,267 @@
+---
+title: "How to Give Your AI Agent Persistent Memory Across Sessions"
+slug: how-to-give-ai-agent-persistent-memory-across-sessions
+date: "2026-10-16T12:00:00+02:00"
+description: "Build persistent memory for an AI agent across sessions: what to store, how to rank it, when to evict, handling stale facts, plus working code and failure modes."
+author: Saber Maram
+image: /images/blog/how-to-give-ai-agent-persistent-memory-across-sessions/og.png
+headerImage: /images/blog/how-to-give-ai-agent-persistent-memory-across-sessions/header.png
+category: Guides
+tags:
+  - agent-memory
+  - architecture
+  - context
+---
+
+Persistent memory for an AI agent needs three parts: a store that outlives the process, a write step that decides which facts are worth keeping, and a retrieval step that puts a ranked slice of them back into the prompt. The model stays stateless. Everything that feels like memory is something your application wrote down and fetched back.
+
+The build is worth doing because the gain is not marginal. On the deep memory retrieval benchmark in the [MemGPT paper](https://arxiv.org/abs/2310.08560v2), GPT-4 scored 32.1% working from a summarized history and 92.5% with a memory architecture in front of it. Same model, same questions, 60 points of difference from the plumbing alone.
+
+This blog covers what to store, how to rank it, when to evict, what to do when a stored fact goes stale, and the code to wire it into an agent you already have.
+
+We build Statewave, so weigh the recommendations accordingly. Every claim below links to source you can check.
+
+## What do you have to build?
+
+Three moving parts, and a checklist to tell when each one is finished. [A Survey of Agent Memory in the Second Half](https://arxiv.org/abs/2602.06052v4), published in TMLR in 2026, breaks agent memory into five operations. They map cleanly onto the decisions you have to make:
+
+**1. Storage and index:** Where facts live and how you find them.
+
+**2. Loading and retrieval:** What comes back for a given query.
+
+**3. Update and refresh:** What happens when a fact changes.
+
+**4. Compression and summarization:** How you stay inside a token budget.
+
+**5. Forgetting and retention:** What leaves, and what is kept but hidden.
+
+Operations one and two are enough to ship something. Three, four and five are what keep it working past the first month. The order below follows that, so the sections easiest to skip come before the ones you will need later.
+
+<figure className="my-8">
+<img src="/images/blog/how-to-give-ai-agent-persistent-memory-across-sessions/image1.jpg" alt="Table comparing Generative Agents, MemGPT and a production memory runtime across five memory operations: storage and index, loading and retrieval, update and refresh, compression and summarization, and forgetting and retention." width="908" height="531" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+<figcaption className="mt-3 text-[14px] leading-6 text-theme-secondary/70">Two research architectures and one production pattern, read against the same five memory operations.</figcaption>
+</figure>
+
+Two of the three columns above come from papers you can read in an afternoon, and they disagree in a useful way. Generative Agents stores everything and evicts nothing. MemGPT pages data in and out like an operating system. Neither is wrong. They were solving different problems, and knowing which problem you have decides your architecture.
+
+## Which persistence layer does your agent need?
+
+Before writing code, work out how much machinery the problem deserves. A single agent on a single machine with no audit requirement does not need a memory runtime, and installing one is a cost with no return.
+
+<figure className="my-8">
+<img src="/images/blog/how-to-give-ai-agent-persistent-memory-across-sessions/image2.jpg" alt="Decision flowchart for choosing a persistence layer: a flat file or key-value store, an append-only event log, a shared vector store, or a memory runtime with supersession." width="908" height="606" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+<figcaption className="mt-3 text-[14px] leading-6 text-theme-secondary/70">Four persistence layers, and the two questions that decide which one your agent needs.</figcaption>
+</figure>
+
+The honest version of the left-hand branch: a `memory.md` file loaded into every prompt works, and coding agents use it daily. It stops working for specific reasons. The first limits to test are concurrent writes and tenant isolation.
+
+Scale and security are the two thresholds. One process reading one file is fine. Several agents writing the same file concurrently is a data race, and a flat file has no way to keep one tenant's facts away from another's.
+
+## How do you decide what the agent keeps?
+
+Storing every turn recreates the problem you are solving, because an oversized memory store degrades retrieval the same way an oversized prompt degrades attention. The filter belongs at write time.
+
+### Score importance once, when you write
+
+The Stanford team behind Generative Agents, who put 25 agents in a sandbox town, solved this with one cheap trick worth copying. At write time, their system asks the model to rate a memory's importance on a 1 to 10 scale and stores that integer alongside the text. The [paper's own examples](https://arxiv.org/abs/2304.03442): "cleaning up the room" scores 2, "asking your crush out on a date" scores 8.
+
+Because importance is computed once at creation rather than per query, it costs one extra call per write and nothing at read time. That asymmetry is the reason the pattern survives into production systems.
+
+### Separate the raw record from the derived fact
+
+Keep two layers. Raw events go in append-only and are never edited, which is what makes provenance possible later. Derived facts carry a type and a confidence score and can be replaced as newer events arrive.
+
+[Statewave](https://github.com/smaramwbc/statewave) calls these episodes and memories and runs the derivation as an explicit compile step rather than at query time, so the same subject queried twice at the same point in time returns the same bytes. Deciding which facts belong in which layer is its own problem, and Statewave's write-up on [episodic versus semantic memory](/blog/episodic-vs-semantic-memory) covers when an event should graduate into a standing fact.
+
+### Consolidate on a threshold, not a timer
+
+In the Stanford system, consolidation fires when the summed importance of recent events crosses a fixed threshold, 150 in their implementation, which worked out to two or three times per simulated day. A threshold on accumulated importance adapts to how eventful the session was. A timer does not.
+
+## How do you rank what comes back, and when should you evict?
+
+Two numbers decide the quality of everything downstream: what you rank memories by, and how full the context window gets before you do something about it.
+
+<figure className="my-8">
+<img src="/images/blog/how-to-give-ai-agent-persistent-memory-across-sessions/image3.jpg" alt="Two panels: a retrieval score combining recency, importance and relevance, and eviction thresholds on context window usage." width="906" height="528" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+<figcaption className="mt-3 text-[14px] leading-6 text-theme-secondary/70">The retrieval score on the left, the eviction thresholds on the right. Both are yours to set; MemGPT's eviction figures are configurable worked examples.</figcaption>
+</figure>
+
+### The scoring function
+
+Three normalized components, summed and weighted equally in the Stanford implementation: recency, importance and relevance. Relevance is cosine similarity to the query. Importance is the stored integer from the write step. Recency is an exponential decay with a factor of 0.995.
+
+One detail in that decay is easy to miss and changes behaviour a lot: it decays over time since the memory was **last retrieved**, not since it was created. Retrieving a memory refreshes it, so facts the agent keeps needing stay near the top and facts nobody asks for sink on their own. That is a forgetting mechanism you get for free, without deleting anything.
+
+### The eviction thresholds
+
+MemGPT's queue manager gives a clear worked example with three configurable numbers. Warn at 70% of the context window by injecting a system message so the agent can save anything important. Flush at 100%. On flush, evict 50% of the window and fold the evicted messages into a recursive summary that sits at the top of the queue.
+
+Evicted messages are not deleted. They move to a searchable store the agent can query later. Keep eviction and deletion as separate operations.
+
+In practice, you also want a hard ceiling on what retrieval returns. `POST /v1/context` takes an optional [`max_tokens`](https://github.com/smaramwbc/statewave/blob/b05d539/server/schemas/requests.py) between 1 and 128,000. Leave it out and the server uses its [default of 4,000](https://github.com/smaramwbc/statewave/blob/b05d539/server/core/config.py). The reference client sets 800, well under the default, because the rest of the prompt needs room. Assembly adds candidates in rank order until the next one would breach that budget. The mechanics of that selection are covered in [token-bounded context assembly](/blog/token-bounded-context-assembly).
+
+## What happens when a stored fact stops being true?
+
+This is the operation teams skip, and it is the one that produces confidently wrong answers months later.
+
+A user tells your agent in January that they are on the Pro plan. In April they downgrade. If your write path only ever appends, the agent now holds two contradictory facts and the retrieval score decides which one it sees, which means the answer depends on cosine similarity rather than on the calendar.
+
+If several agents write to the same store, test that a newer value supersedes the old one before the next retrieval. Our companion guide, [How to Stop AI Agents Forgetting Between Sessions](/blog/how-to-stop-ai-agents-forgetting-between-sessions), covers the Stripe claim-key example, shared-agent collisions, deletion and receipts in detail.
+
+## How do you wire this into an agent you already have?
+
+The integration is smaller than the design work. The [personal assistant reference implementation](https://github.com/smaramwbc/statewave-personal-assistant/blob/main/statewave_integration.py) fetches context before the model call and records the turn after the reply.
+
+Four steps, and the first three fit in an afternoon.
+
+**1. Run the store.** `npx @statewavedev/statewave` boots the API, the admin console, and Postgres locally, with no account. The API runs on `localhost:8100`. The default boot is demo mode (stub hash-based embeddings and the heuristic compiler), which gives you a working loop but no real semantic search. Set `STATEWAVE_COMPILER_TYPE=llm` and `STATEWAVE_EMBEDDING_PROVIDER=litellm` with a key, then check `GET /readyz`. Docker Compose and a Helm chart are in the repo for the deploy after this one, and there is no managed cloud, so events are stored on infrastructure you control.
+
+**2. Write every turn as an event.** One call after the model replies, keyed to a subject. The Python snippets below assume `client` is an [`AsyncStatewaveClient`](https://github.com/smaramwbc/statewave-py#async-client) inside an async function:
+
+```python
+await client.create_episode(
+    subject_id=user_id,
+    source="chat",
+    type="conversation",
+    payload={"messages": [
+        {"role": "user", "content": user_message},
+        {"role": "assistant", "content": assistant_reply},
+    ]},
+)
+```
+
+**3. Compile, then retrieve.** Compilation turns events into typed facts:
+
+```bash
+curl -X POST http://localhost:8100/v1/memories/compile \
+   -H "Content-Type: application/json" \
+   -d '{"subject_id": "user-1"}'
+```
+
+Then fetch a bounded bundle and prepend it to your system prompt:
+
+```python
+bundle = await client.get_context(user_id, message, max_tokens=800)
+system = f"{base_prompt}\n\n## What you know about this user\n{bundle.assembled_context}"
+```
+
+**4. Make memory failures non-fatal.** This is the step people add after their first outage, and it belongs in the first version.
+
+<figure className="my-8">
+<img src="/images/blog/how-to-give-ai-agent-persistent-memory-across-sessions/image4.jpg" alt="A support chat answering a follow-up question that contains no subject, only the word that, resolved from the previous turn." width="908" height="259" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+<figcaption className="mt-3 text-[14px] leading-6 text-theme-secondary/70">A follow-up question containing no subject, only the word "that", resolved from the previous turn.</figcaption>
+</figure>
+
+### Three things the reference implementation gets right
+
+Reading Statewave's [personal assistant reference implementation](https://github.com/smaramwbc/statewave-personal-assistant), three defensive choices are worth lifting, whatever store you use.
+
+In [`statewave_integration.py`](https://github.com/smaramwbc/statewave-personal-assistant/blob/main/statewave_integration.py), memory retrieval is wrapped so a failure logs a warning and returns an empty string. That wrapper lets the agent degrade to stateless rather than returning an error. The FastAPI app takes the other path: [`app/api/routes.py`](https://github.com/smaramwbc/statewave-personal-assistant/blob/main/app/api/routes.py) returns HTTP 502 when the context call fails. Choose the behaviour your agent needs explicitly.
+
+The prompt is token-counted before the call, and if memory context would push it past the limit, the memory is dropped rather than the request failing. Note the default budget there is 800 tokens, well under the server's own 4,000, because the rest of the prompt needs room.
+
+Transient errors retry with exponential backoff and jitter on 429 and 5xx responses. A memory store sits in the hot path of every turn, so it needs the same treatment as any other synchronous dependency.
+
+## Where does this break in production?
+
+Four failure modes, in the order you are likely to hit them.
+
+**The extraction model invents a fact:** If an LLM does your fact extraction, a hallucination at write time is permanent in a way a hallucination at read time is not. Keep the raw episode so a wrong derived fact can be traced and corrected, and prefer a compiler that emits nothing when it cannot determine what a statement asserts.
+
+**Retrieval returns the right fact at the wrong time:** Recall and usefulness are different measurements. A memory layer can return the correct fact and still produce a bad answer because the fact was stale, out of scope, or outranked by something louder.
+
+**More stored memories stop helping:** This is the counterintuitive one, and the Stanford paper names it as a limitation of its own system: as the memory set grew, retrieval got harder and the agents' behaviour drifted. Growth in a memory store is not free, which is why the forgetting operation exists.
+
+**Nobody can explain an answer:** Once memory drives output, "why did it say that" becomes a support question. Keeping provenance from each fact back to its source event is what makes that answerable, and Statewave's piece on [memory provenance and audit trails](/blog/agent-memory-provenance-audit-trails) covers what the record needs to contain.
+
+## Start with one subject
+
+You now have the five operations to build against, the two numbers to set, and the failure modes to design for. The next step is small enough to do today.
+
+Pick one agent and one subject, write episodes for a day, then compile and read what came out. The gap between what your agent said and what it chose to store is the fastest signal you will get about whether your write policy is right, and it is much cheaper to find now than after a quarter of accumulated facts.
+
+The [core runtime](https://github.com/smaramwbc/statewave) is Apache 2.0 and self-hosted, so you can run that experiment on your own machine with events stored locally. The default heuristic compiler and stub embeddings stay local; an LLM compiler or hosted embeddings send content to the provider you configure.
+
+## FAQ
+
+<div className="my-8 space-y-3">
+
+<details open className="blog-faq group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35">
+<summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none">
+<h3 className="text-[18px] font-semibold leading-snug text-theme-primary !m-0">1. Is persistent memory for an AI agent the same as RAG?</h3>
+<div className="blog-faq-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40">
+<svg className="h-5 w-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" /></svg>
+</div>
+</summary>
+<div className="px-7 pb-7">
+<div className="h-px bg-theme-primary/10 mb-6" />
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">No. RAG augments a single inference from a mostly static corpus, while agent memory accumulates and revises state about a specific subject across many interactions. They share retrieval machinery and solve different problems. Statewave covers the distinction in <a href="/blog/ai-agent-memory-vs-rag" className="text-accent hover:underline">AI agent memory vs RAG</a>.</p>
+</div>
+</details>
+
+<details className="blog-faq group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35">
+<summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none">
+<h3 className="text-[18px] font-semibold leading-snug text-theme-primary !m-0">2. Can I just use a vector database for agent memory?</h3>
+<div className="blog-faq-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40">
+<svg className="h-5 w-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" /></svg>
+</div>
+</summary>
+<div className="px-7 pb-7">
+<div className="h-px bg-theme-primary/10 mb-6" />
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">For stable reference material, yes. A plain vector store has no notion of a fact being superseded, so the January and April versions of the same fact coexist and compete on similarity. Add supersession and a time interval before you depend on it for anything that changes.</p>
+</div>
+</details>
+
+<details className="blog-faq group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35">
+<summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none">
+<h3 className="text-[18px] font-semibold leading-snug text-theme-primary !m-0">3. How many tokens should the memory bundle use?</h3>
+<div className="blog-faq-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40">
+<svg className="h-5 w-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" /></svg>
+</div>
+</summary>
+<div className="px-7 pb-7">
+<div className="h-px bg-theme-primary/10 mb-6" />
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">Start in the 800 to 4,000 token range and tune by what retrieval drops. Statewave's server default is 4,000; <code>POST /v1/context</code> accepts <code>max_tokens</code> from 1 to 128,000. Its reference client sets 800 to leave room for the rest of the prompt. Set it by what you can spare, not by what the store can return.</p>
+</div>
+</details>
+
+<details className="blog-faq group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35">
+<summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none">
+<h3 className="text-[18px] font-semibold leading-snug text-theme-primary !m-0">4. Do I need a separate database for this?</h3>
+<div className="blog-faq-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40">
+<svg className="h-5 w-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" /></svg>
+</div>
+</summary>
+<div className="px-7 pb-7">
+<div className="h-px bg-theme-primary/10 mb-6" />
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">Not necessarily. Statewave runs on Postgres with the pgvector extension and no separate vector store, which keeps memory under the same backup, access control and residency rules as the rest of your data. The reasoning is in <a href="/blog/self-hosted-memory-postgres-pgvector" className="text-accent hover:underline">self-hosted memory with Postgres and pgvector</a>.</p>
+</div>
+</details>
+
+<details className="blog-faq group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35">
+<summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none">
+<h3 className="text-[18px] font-semibold leading-snug text-theme-primary !m-0">5. How do I delete one user's memories?</h3>
+<div className="blog-faq-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40">
+<svg className="h-5 w-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" /></svg>
+</div>
+</summary>
+<div className="px-7 pb-7">
+<div className="h-px bg-theme-primary/10 mb-6" />
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">Delete by subject, and check that the purge reaps derived rows as well as the obvious ones. Events and facts are the visible two. Resolutions, entity rows, health caches and supersession records also carry the subject identifier and will survive a naive delete, since most have no foreign key cascade to ride on.</p>
+</div>
+</details>
+
+<details className="blog-faq group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35">
+<summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none">
+<h3 className="text-[18px] font-semibold leading-snug text-theme-primary !m-0">6. Should the memory write happen before or after the model replies?</h3>
+<div className="blog-faq-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40">
+<svg className="h-5 w-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" /></svg>
+</div>
+</summary>
+<div className="px-7 pb-7">
+<div className="h-px bg-theme-primary/10 mb-6" />
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">After, for the turn you just finished, and before the context is at risk of being lost. Writing after the reply means you capture what the agent said, which is the half that tends to go unstored.</p>
+</div>
+</details>
+
+</div>

@@ -622,6 +622,75 @@ export const POST_FAQ: Readonly<Record<string, readonly FaqEntry[]>> = {
         'Keep it when the application is already based on LangGraph and the team wants small, customizable memory primitives rather than another service.',
     },
   ],
+  'how-to-give-ai-agent-persistent-memory-across-sessions': [
+    {
+      question: "Is persistent memory for an AI agent the same as RAG?",
+      answer:
+        "No. RAG augments a single inference from a mostly static corpus, while agent memory accumulates and revises state about a specific subject across many interactions. They share retrieval machinery and solve different problems. Statewave covers the distinction in AI agent memory vs RAG.",
+    },
+    {
+      question: "Can I just use a vector database for agent memory?",
+      answer:
+        "For stable reference material, yes. A plain vector store has no notion of a fact being superseded, so the January and April versions of the same fact coexist and compete on similarity. Add supersession and a time interval before you depend on it for anything that changes.",
+    },
+    {
+      question: "How many tokens should the memory bundle use?",
+      answer:
+        "Start in the 800 to 4,000 token range and tune by what retrieval drops. Statewave's server default is 4,000; POST /v1/context accepts max_tokens from 1 to 128,000. Its reference client sets 800 to leave room for the rest of the prompt. Set it by what you can spare, not by what the store can return.",
+    },
+    {
+      question: "Do I need a separate database for this?",
+      answer:
+        "Not necessarily. Statewave runs on Postgres with the pgvector extension and no separate vector store, which keeps memory under the same backup, access control and residency rules as the rest of your data. The reasoning is in self-hosted memory with Postgres and pgvector.",
+    },
+    {
+      question: "How do I delete one user's memories?",
+      answer:
+        "Delete by subject, and check that the purge reaps derived rows as well as the obvious ones. Events and facts are the visible two. Resolutions, entity rows, health caches and supersession records also carry the subject identifier and will survive a naive delete, since most have no foreign key cascade to ride on.",
+    },
+    {
+      question: "Should the memory write happen before or after the model replies?",
+      answer:
+        "After, for the turn you just finished, and before the context is at risk of being lost. Writing after the reply means you capture what the agent said, which is the half that tends to go unstored.",
+    },
+  ],
+  'how-to-stop-ai-agents-forgetting-between-sessions': [
+    {
+      question: "Does a bigger context window remove the need for agent memory?",
+      answer:
+        "No. A larger window holds more tokens but does not persist anything past the session, and placement inside the window changes whether the model uses a fact at all. Stanford's Lost in the Middle work found GPT-3.5-Turbo scoring below its own closed-book accuracy when the answer sat mid-context in 20- and 30-document settings.",
+    },
+    {
+      question: "Is AI agent memory the same thing as RAG?",
+      answer:
+        "They overlap and solve different problems. RAG augments a single inference from a mostly static corpus, while agent memory accumulates and updates state across many interactions with the same subject. Statewave covers the distinction in detail in AI agent memory vs RAG.",
+    },
+    {
+      question: "How many tokens should a memory bundle use?",
+      answer:
+        "Start in the 800 to 4,000 token range and tune from there. Statewave's server default is 4,000; POST /v1/context accepts optional max_tokens from 1 to 128,000. The reference client uses 800. The right number depends on how much room the rest of your prompt needs, so set it by what you can spare rather than by what the store can return.",
+    },
+    {
+      question: "What stops an agent from storing a fact that is wrong?",
+      answer:
+        "A confidence threshold at write time and a resolution rule at compile time. Compilers that cannot determine what a statement asserts should emit no structured claim rather than guess, and contradicting claims about the same key should supersede by recency instead of coexisting.",
+    },
+    {
+      question: "Can multiple agents share one memory store without overwriting each other?",
+      answer:
+        "Yes, if conflicts resolve on structured claim keys rather than text similarity, and if cardinality is set server-side rather than taken from model output. Single-valued keys supersede, multi-valued keys accumulate, and the superseded memory stays on the timeline with the interval it was true for.",
+    },
+    {
+      question: "How do you delete one user's memories under GDPR?",
+      answer:
+        "Delete by subject, and make sure the purge reaps derived rows as well as the obvious ones. Episodes and memories are the visible two; resolutions, health caches, entity rows and supersession records also carry the subject ID and will outlive a naive delete, since most of them have no foreign key cascade to ride on.",
+    },
+    {
+      question: "Do you need a vector database for agent memory?",
+      answer:
+        "Not necessarily. Statewave runs on Postgres with the pgvector extension and no separate vector store, which keeps operational surface down and lets memory rows live under the same backup, access control and residency rules as the rest of your data.",
+    },
+  ],
 } as const
 
 export const HOWTO_SLUGS: readonly string[] = ['persistent-memory-for-ai-support-agents']

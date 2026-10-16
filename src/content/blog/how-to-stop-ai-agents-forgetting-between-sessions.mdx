@@ -1,0 +1,254 @@
+---
+title: "How to Stop AI Agents Forgetting Between Sessions"
+slug: how-to-stop-ai-agents-forgetting-between-sessions
+date: "2026-10-16T10:00:00+02:00"
+description: "AI agents' memory context resets every session. The write, retrieve, and govern path that makes agent memory persist, with benchmarks, conflict handling, and GDPR deletion."
+author: Saber Maram
+image: /images/blog/how-to-stop-ai-agents-forgetting-between-sessions/og.png
+headerImage: /images/blog/how-to-stop-ai-agents-forgetting-between-sessions/header.png
+category: Guides
+tags:
+  - agent-memory
+  - architecture
+  - context
+---
+
+Agents forget between sessions because the context window is working memory, not storage. To stop it, write what happened into a durable store outside the model, compile those raw events into typed facts, and retrieve a ranked slice of them into each new prompt. The model stays stateless. The store carries the state.
+
+This blog covers the write path, the read path, what happens when two agents disagree, and what it takes to prove a deletion.
+
+We build Statewave, so weigh the recommendations accordingly. Every claim below links to a source you can check.
+
+<figure className="my-8">
+<img src="/images/blog/how-to-stop-ai-agents-forgetting-between-sessions/image1.jpg" alt="Diagram of a session boundary: the context window clears when session 1 ends and session 2 starts empty, while the memory runtime keeps its ingest, compile, govern and retrieve stages across the boundary." width="908" height="469" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+<figcaption className="mt-3 text-[14px] leading-6 text-theme-secondary/70">The context window clears at the session boundary. The memory pipeline does not.</figcaption>
+</figure>
+
+## Why AI agents forget between sessions
+
+A language model is a pure function. You send tokens in, you get tokens out, and nothing is retained on the other side of the call. Every piece of state your agent appears to have is state your application put into the prompt on that specific request.
+
+The context window is where that state lives for the duration of one session. It is a buffer, and buffers clear. A new session needs your application to load state from a persistent store.
+
+Anthropic's engineering team frames the same constraint from the model side in [their guide to context engineering](https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents): "Context, therefore, must be treated as a finite resource with diminishing marginal returns." Finite and non-persistent are two different problems, and a memory system has to solve both.
+
+### The three things that get lost at a session boundary
+
+Facts about the subject, such as which plan a customer is on or which services a repo owns. Decisions already taken, such as a module your planner deprecated last Tuesday. And the reasoning chain that produced them, which is what a reviewer needs when the output is questioned a month later.
+
+Chat history replay recovers the first, roughly. It recovers the second only if the decision was stated in words the retrieval happens to match. It never recovers the third, because a transcript records what was said and not what was concluded.
+
+## Why a bigger context window does not fix forgetting
+
+Longer context buys room, not recall. The position of a fact inside the window changes whether the model uses it, and the effect is large enough to swamp the gain from adding more room.
+
+### Models lose the middle of their own context
+
+Liu et al. measured this at Stanford, Berkeley, and Samaya AI in the paper that named the problem, [Lost in the Middle](https://arxiv.org/abs/2307.03172). Their finding: "performance is often highest when relevant information occurs at the beginning or end of the input context." Accuracy falls off when the model has to reach into the middle for it.
+
+The sharpest number in that paper is the one most summaries skip. In the 20- and 30-document settings, GPT-3.5-Turbo's accuracy with the answer sitting in the middle of its context falls *below* its own closed-book accuracy of 56.1%. The model did worse holding the answer than it did holding nothing.
+
+A follow-up from CU Boulder, JGU Mainz and the University of Chicago, [Lost in the Middle, and In-Between](https://arxiv.org/abs/2412.10079), extended this to questions needing two facts combined. On MuSiQue, accuracy ran 56.23% when the two supporting documents sat at positions 1 and 2, and 38.18% when the same two documents sat at positions 10 and 15. An 18-point swing from placement alone, with identical content in the window.
+
+### More retrieved documents stop helping early
+
+The same Stanford work tested the obvious workaround. Going from 20 retrieved documents to 50 improved reader accuracy by about 1.5% for GPT-3.5-Turbo and about 1% for Claude-1.3, while multiplying input length, latency and spend. Recall kept climbing. The answers did not.
+
+### What retrieval buys, and what it costs
+
+The [Mem0 paper](https://arxiv.org/abs/2504.19413) published the cleanest tradeoff numbers available on the LOCOMO benchmark. Against stuffing the full conversation into the prompt, their memory layer "attains a 91% lower p95 latency and saves more than 90% token cost."
+
+The honest half of that result is in [Table 2 of the paper](https://arxiv.org/html/2504.19413v1#S4.T2), and it is worth stating because most write-ups drop it: full context still scored highest on their LLM-as-a-judge metric at roughly 73%, against roughly 67% to 68% for the memory variants. Memory buys an order of magnitude in latency and token spend, and gives back a few points of accuracy on a benchmark where the whole history fits. The trade only improves as history grows past what fits.
+
+<figure className="my-8">
+<img src="/images/blog/how-to-stop-ai-agents-forgetting-between-sessions/image2.jpg" alt="Table comparing the context window with compiled memory on lifetime, shape, cost of growth, ordering effect, traceability and deletion." width="906" height="507" loading="lazy" className="w-full rounded-2xl border border-brand-500/20 bg-white" />
+<figcaption className="mt-3 text-[14px] leading-6 text-theme-secondary/70">Six dimensions on which compiled memory behaves differently from the context window.</figcaption>
+</figure>
+
+## What to write to memory, and what to throw away
+
+A memory system that stores everything degrades the same way a long prompt does. Writing is a filtering decision, and it has to be made at write time rather than deferred to retrieval.
+
+Decide which facts are worth keeping, where they belong, and when to write them. Save important state before the context is cleared or compacted, so the next session has a durable checkpoint to load.
+
+### Separate the raw record from the compiled fact
+
+Two layers, with different retention rules. Raw events go in append-only and are never edited, which is what makes an audit trail possible later. Compiled facts are derived from those events, carry a confidence score and a type, and can be superseded as newer events arrive.
+
+[Statewave](https://github.com/smaramwbc/statewave) calls these episodes and memories, and runs the compile step once per subject change rather than at query time. A subject is any entity you track with a prefix you choose: `user:`, `repo:`, `account:`. The architectural consequence is that the same query against the same subject at the same point in time returns the same bytes, because the ranking ran at compile time and not inside a sampling retrieval call.
+
+Which facts belong in which layer is the part teams get wrong first. Statewave's write-up on [episodic versus semantic memory](/blog/episodic-vs-semantic-memory) covers when an event should be promoted into a standing fact and when it should stay an event.
+
+### Prefer omission to a wrong fact
+
+A memory system's error budget is asymmetric. One missing fact costs you a single bad answer. A wrong stored fact costs every answer that touches it, for as long as it sits there unnoticed.
+
+Statewave's compilers are built to that asymmetry. Its [claim resolution documentation](https://github.com/smaramwbc/statewave/blob/main/docs/claim-resolution.md) states the rule directly: compilers "optimize for near-zero wrongful claims, not coverage." A compiler that cannot determine what a sentence asserts emits no structured claim, and the memory falls back to older, weaker handling rather than asserting something false with confidence.
+
+## How to fit agent memory into a fixed token budget
+
+Retrieval has to return a bounded payload, because the prompt has a hard ceiling and the rest of your agent needs room in it. The mechanism is a ranked selection that stops at a token count rather than a document count.
+
+`POST /v1/context` takes an optional [`max_tokens`](https://github.com/smaramwbc/statewave/blob/b05d539/server/schemas/requests.py) between 1 and 128,000. Leave it out and the server uses its [default of 4,000](https://github.com/smaramwbc/statewave/blob/b05d539/server/core/config.py). Those defaults are in the server source at commit b05d539. The reference client sets 800, well under the default, because the rest of the prompt needs room. Assembly adds candidates in rank order while `tokens_used + est_tokens` stays inside the budget. A bundle is therefore sized to your prompt rather than to your corpus, and growing the memory store does not grow the prompt.
+
+That number is the one to tune first. 4,000 tokens of ranked facts is a different artifact from 4,000 tokens of recent transcript: the transcript is chronological and mostly filler, the bundle is ranked and mostly signal. Statewave's walkthrough of [token-bounded context assembly](/blog/token-bounded-context-assembly) covers the ranking inputs in detail, and the companion piece on [idempotent compilation](/blog/idempotent-compilation-and-conflict-resolution) covers why recompiling a subject does not produce duplicates.
+
+## What happens when two agents write conflicting facts
+
+Once multiple agents share memory, you need a rule for two agents asserting different values for the same fact, and for what the next reader sees.
+
+### The collision is a timing problem, not a reasoning problem
+
+The failure has a shape. A planner agent deprecates a module and records the decision in its own context. The coder starts work concurrently, never sees it, and rebuilds the deprecated module. By the time the reviewer catches the contradiction, both agents have finished, and the compute is spent.
+
+Statewave's [shared-context demo](https://github.com/smaramwbc/statewave-multi-agent-shared-context) reproduces that collision with a planner, a coder and a reviewer, then fixes it by giving all three the same subject keyed to the run ID, so the coder reads the deprecation before it starts.
+
+### Resolve on the claim, not on the wording
+
+Word-overlap conflict detection fails on paraphrase, which leaves two usual fallbacks: send everything to the model and hope it reconciles, or hand-write merge logic that is brittle and hard to audit. The third option is to have the compiler emit a structured claim alongside each memory, then resolve on the claim key.
+
+Statewave's [multi-agent memory demo](https://github.com/smaramwbc/statewave-multi-agent-memory) makes this concrete with three analyst agents reading sources of different freshness. One commits Stripe's old processing rate of 3.5% plus 35 cents. Another commits the post-reversal rate of 2.9% plus 30 cents. Both memories carry the same claim key, `pricing.processing_rate` for `organization:stripe`, with different values, so the compiler marks the older one `status: superseded` and sets its `valid_to` to where the newer one begins. The two sentences never had to resemble each other.
+
+Two design decisions in that system are worth copying whatever you build on. Cardinality lives in a versioned server-side registry rather than in model output, so a key like `employment.current_employer` is single-valued and a key like `tools.used` accumulates, and the documentation is blunt that "cardinality is never taken from caller or model input; the registry decides." And the losing memory is not deleted. It stays on the timeline marked superseded with the interval it was true for, which is what lets you answer "what did the agent believe last Tuesday" after the fact.
+
+If your agents already step on each other this way, the two demo repos above run locally against a Postgres instance and show the before and after side by side, which is a faster read than any architecture diagram.
+
+## How to delete a user's memories and prove it is gone?
+
+For anyone selling into an enterprise, it is the question that often stops the deal.
+
+### Deletion has to reap more than the obvious two tables
+
+A memory store accumulates derived rows that no foreign key cascade will clean up for you. Reading Statewave's delete path, a single `DELETE /v1/subjects/{id}` reaps six row types: episodes, memories, resolutions, the subject health cache, subject entities, and supersession records. The source comments explain why each one is explicit, including that `subject_entities` has no foreign key because N entities can point at M memories and neither owns the other.
+
+The failure modes called out in those comments are the useful part for anyone building this themselves. A leftover health-cache row lets a deleted subject's sessions keep looking live and can suppress or forge alerts if the subject ID is later reused. The purge also retries once on a Postgres deadlock, since the multi-row deletes can cross lock order with a still-draining compile batch.
+
+### Proving what the agent was shown
+
+Deletion answers where the data went. Audit answers what was used. Statewave can emit a state-assembly receipt on any context or handoff call. The default tenant mode is `on_request`: pass [`emit_receipt=true`](https://github.com/smaramwbc/statewave/blob/main/docs/state-assembly-receipts.md) for a specific call, or set `receipts: always` in the tenant config to emit one on every call. Each receipt is a ULID-addressable record of which memories and episodes went into the bundle, with a SHA-256 hash of the exact bytes delivered to the agent, retrievable tenant-scoped through `GET /v1/receipts`. Its longer treatment of [memory provenance and audit trails](/blog/agent-memory-provenance-audit-trails) covers what that record needs to contain to be worth anything in a review.
+
+Residency is handled at the request boundary rather than at DNS, on the reasoning that a load balancer can misroute and the application is the only layer that knows for certain whether a request can be served in this region. A mismatch returns a 403, and the detail worth stealing is that the error echoes only the tenant's pinned region and never the server's own, because naming the server region would leak topology to anyone probing the boundary.
+
+The same governance thinking shows up in Statewave's pieces on [enforcing policy on the retrieval path](/blog/ai-data-governance-for-ai-agents) and [where tenant boundaries belong](/blog/multi-tenant-isolation-in-ai-memory).
+
+## Adding persistent memory to an agent: the four-step path
+
+Four steps, and the first three are a single afternoon on a laptop.
+
+1. **Run the store locally.** `npx @statewavedev/statewave` boots the API, the admin console, and Postgres locally, with no account. The default boot is demo mode (stub hash-based embeddings and the heuristic compiler), which gives you a working loop but no real semantic search. Set `STATEWAVE_COMPILER_TYPE=llm` and `STATEWAVE_EMBEDDING_PROVIDER=litellm` with a key, then check `GET /readyz`. Self-hosted is the only mode: there is no managed cloud, and episodes are stored on infrastructure you control. Docker Compose and a Helm chart are both in the repo for the deploy after this one.
+2. **Write events as they happen.** `POST /v1/episodes` on every meaningful turn, keyed to a subject. Append-only, no edit path, which is the property the audit trail depends on later.
+3. **Compile, then retrieve.** `POST /v1/memories/compile` turns episodes into typed memories with confidence scores. `POST /v1/context` returns the ranked, token-bounded bundle you paste into the prompt. Start with `max_tokens=800` to leave room for the rest of the prompt, then tune after you have seen what gets dropped; the server default is 4,000.
+4. **Turn on governance before you have users, not after.** Set `receipts: always` in the tenant config, configure sensitivity labels, and test the delete path on day one, before production data is in the store.
+
+For SDK code, ranking and failure handling, follow our companion guide, [How to Give Your AI Agent Persistent Memory Across Sessions](/blog/how-to-give-ai-agent-persistent-memory-across-sessions). The [personal assistant reference implementation](https://github.com/smaramwbc/statewave-personal-assistant) provides the whole loop in FastAPI, including a seed script and a compare endpoint that runs the same question with and without memory so you can see the difference rather than take it on description. Statewave's own guide to [adding persistent memory to a support agent](/blog/persistent-memory-for-ai-support-agents) walks the same path with a customer-facing example, and the [Postgres and pgvector design notes](/blog/self-hosted-memory-postgres-pgvector) explain why there is no separate vector database in the stack.
+
+### What this does not solve yet
+
+Worth knowing before you commit. Statewave's README lists seven current limitations in v1.5.0, and three of them will decide whether it fits your deployment: rate limiting is per-IP rather than per-tenant or per-key, multi-tenancy is enforced in the application layer with no Postgres row-level security yet, and receipt replay re-runs the original retrieval against today's memories using the original policy bundle rather than reproducing historical bytes exactly.
+
+Cloning the repo at [commit b05d539](https://github.com/smaramwbc/statewave/tree/b05d539/tests) and counting, the test suite stands at 1,404 test functions across 151 test files, which is a reasonable proxy for how much of the behaviour above is pinned down rather than aspirational.
+
+## Where to start
+
+You can now tell the two failures apart: a context window that resets, and a retrieval path that returns the wrong slice. They need different fixes, and the second is the more interesting engineering problem, which is why it tends to get the quarter while the first is the one costing you answers.
+
+Start with a test subject. Compile its episodes, request a context bundle with `emit_receipt=true`, and inspect the receipt. Change one fact and check which version the next bundle returns. Then delete the subject and verify the derived rows are gone. That exercise tests the conflict and audit paths before they carry production data.
+
+If you would rather see it working before you build it, the [multi-agent memory demo](https://github.com/smaramwbc/statewave-multi-agent-memory) shows conflict resolution happening live against a shared subject, and the [core runtime](https://github.com/smaramwbc/statewave) is Apache 2.0 and self-hosted, so episodes and memories are stored on your infrastructure. The default compiler and embeddings run locally; hosted model or embedding providers receive the content you configure them to process.
+
+## FAQ
+
+<div className="my-8 space-y-3">
+
+<details open className="blog-faq group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35">
+<summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none">
+<h3 className="text-[18px] font-semibold leading-snug text-theme-primary !m-0">1. Does a bigger context window remove the need for agent memory?</h3>
+<div className="blog-faq-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40">
+<svg className="h-5 w-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" /></svg>
+</div>
+</summary>
+<div className="px-7 pb-7">
+<div className="h-px bg-theme-primary/10 mb-6" />
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">No. A larger window holds more tokens but does not persist anything past the session, and placement inside the window changes whether the model uses a fact at all. Stanford's Lost in the Middle work found GPT-3.5-Turbo scoring below its own closed-book accuracy when the answer sat mid-context in 20- and 30-document settings.</p>
+</div>
+</details>
+
+<details className="blog-faq group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35">
+<summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none">
+<h3 className="text-[18px] font-semibold leading-snug text-theme-primary !m-0">2. Is AI agent memory the same thing as RAG?</h3>
+<div className="blog-faq-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40">
+<svg className="h-5 w-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" /></svg>
+</div>
+</summary>
+<div className="px-7 pb-7">
+<div className="h-px bg-theme-primary/10 mb-6" />
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">They overlap and solve different problems. RAG augments a single inference from a mostly static corpus, while agent memory accumulates and updates state across many interactions with the same subject. Statewave covers the distinction in detail in <a href="/blog/ai-agent-memory-vs-rag" className="text-accent hover:underline">AI agent memory vs RAG</a>.</p>
+</div>
+</details>
+
+<details className="blog-faq group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35">
+<summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none">
+<h3 className="text-[18px] font-semibold leading-snug text-theme-primary !m-0">3. How many tokens should a memory bundle use?</h3>
+<div className="blog-faq-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40">
+<svg className="h-5 w-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" /></svg>
+</div>
+</summary>
+<div className="px-7 pb-7">
+<div className="h-px bg-theme-primary/10 mb-6" />
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">Start in the 800 to 4,000 token range and tune from there. Statewave's server default is 4,000; <code>POST /v1/context</code> accepts optional <code>max_tokens</code> from 1 to 128,000. The reference client uses 800. The right number depends on how much room the rest of your prompt needs, so set it by what you can spare rather than by what the store can return.</p>
+</div>
+</details>
+
+<details className="blog-faq group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35">
+<summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none">
+<h3 className="text-[18px] font-semibold leading-snug text-theme-primary !m-0">4. What stops an agent from storing a fact that is wrong?</h3>
+<div className="blog-faq-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40">
+<svg className="h-5 w-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" /></svg>
+</div>
+</summary>
+<div className="px-7 pb-7">
+<div className="h-px bg-theme-primary/10 mb-6" />
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">A confidence threshold at write time and a resolution rule at compile time. Compilers that cannot determine what a statement asserts should emit no structured claim rather than guess, and contradicting claims about the same key should supersede by recency instead of coexisting.</p>
+</div>
+</details>
+
+<details className="blog-faq group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35">
+<summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none">
+<h3 className="text-[18px] font-semibold leading-snug text-theme-primary !m-0">5. Can multiple agents share one memory store without overwriting each other?</h3>
+<div className="blog-faq-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40">
+<svg className="h-5 w-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" /></svg>
+</div>
+</summary>
+<div className="px-7 pb-7">
+<div className="h-px bg-theme-primary/10 mb-6" />
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">Yes, if conflicts resolve on structured claim keys rather than text similarity, and if cardinality is set server-side rather than taken from model output. Single-valued keys supersede, multi-valued keys accumulate, and the superseded memory stays on the timeline with the interval it was true for.</p>
+</div>
+</details>
+
+<details className="blog-faq group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35">
+<summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none">
+<h3 className="text-[18px] font-semibold leading-snug text-theme-primary !m-0">6. How do you delete one user's memories under GDPR?</h3>
+<div className="blog-faq-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40">
+<svg className="h-5 w-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" /></svg>
+</div>
+</summary>
+<div className="px-7 pb-7">
+<div className="h-px bg-theme-primary/10 mb-6" />
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">Delete by subject, and make sure the purge reaps derived rows as well as the obvious ones. Episodes and memories are the visible two; resolutions, health caches, entity rows and supersession records also carry the subject ID and will outlive a naive delete, since most of them have no foreign key cascade to ride on.</p>
+</div>
+</details>
+
+<details className="blog-faq group rounded-2xl border border-brand-500/20 bg-surface-1/45 backdrop-blur-sm transition-colors hover:border-brand-500/35">
+<summary className="flex cursor-pointer items-center justify-between gap-6 py-4 px-6 list-none">
+<h3 className="text-[18px] font-semibold leading-snug text-theme-primary !m-0">7. Do you need a vector database for agent memory?</h3>
+<div className="blog-faq-chevron flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-theme-primary/40 bg-surface-2/40">
+<svg className="h-5 w-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" /></svg>
+</div>
+</summary>
+<div className="px-7 pb-7">
+<div className="h-px bg-theme-primary/10 mb-6" />
+<p className="text-[16px] leading-8 text-theme-secondary/80 !m-0">Not necessarily. Statewave runs on Postgres with the pgvector extension and no separate vector store, which keeps operational surface down and lets memory rows live under the same backup, access control and residency rules as the rest of your data.</p>
+</div>
+</details>
+
+</div>
