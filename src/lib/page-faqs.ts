@@ -349,6 +349,53 @@ export const PAGE_FAQS: Partial<Record<RouteKey, readonly FaqEntry[]>> = {
     },
   ],
 
+  // Rendered by CodingAgentsPage in the v8 FAQ markup. Facts follow the
+  // statewave-connectors READMEs, docs/connectors/mcp.md and the published
+  // CLI (`mcp init`, `quickstart`, the subject charset).
+  '/use-cases/coding-agents': [
+    {
+      question: 'How does a coding agent get memory of a repository?',
+      answer:
+        'Through the Statewave MCP server. The GitHub connector turns issues, pull requests, reviews and releases into episodes, and the Markdown connector does the same for ADRs, RFCs and docs, all under one subject per repository. Claude Code, Cursor, Copilot or Codex then call statewave_get_context before answering and get back a compact, ranked context bundle for that subject.',
+      links: [
+        { label: 'GitHub connector', href: '/connectors/github' },
+        { label: 'Markdown connector', href: '/connectors/markdown' },
+        { label: 'MCP server', href: '/connectors/mcp-server' },
+      ],
+    },
+    {
+      question: 'What does the one-command setup do?',
+      answer:
+        'npx @statewavedev/connectors-cli quickstart reuses a Statewave server that is already running, or starts one with Docker Compose. It writes the MCP config and memory instructions for the assistants you pick, seeds the repositories you choose with their recent commits and README, and checks that the episodes landed. It is safe to re-run, and quickstart --down stops the stack.',
+      links: [{ label: 'MCP setup docs', href: `${DOCS}/connectors/mcp.md` }],
+    },
+    {
+      question: 'Which coding assistants does it work with?',
+      answer:
+        'mcp init configures Claude Code, Claude Desktop, Cursor, VS Code with GitHub Copilot and Codex CLI, each over local stdio, so nothing listens on a port. Any other MCP client can launch the same server, and remote clients such as Claude.ai custom connectors or ChatGPT can reach it over its HTTP transport.',
+      links: [{ label: 'MCP server', href: '/connectors/mcp-server' }],
+    },
+    {
+      question: 'Which subject should a repository use?',
+      answer:
+        'One per repository, and the same one everywhere: the GitHub sync, the Markdown sync and the assistant should all name it. Subject ids can’t contain a slash, so the CLI turns the git remote acme/widgets into repo:acme.widgets. Pass that value as --subject when you sync.',
+    },
+    {
+      question: 'Does Statewave read my conversations with the assistant?',
+      answer:
+        'No. The MCP server only sees the tool calls the assistant makes. The instructions mcp init writes tell the assistant to save durable facts and decisions you state by calling statewave_ingest_episode and then statewave_compile_subject, so every write is a visible tool call, not a transcript capture.',
+    },
+    {
+      question: 'Can I see what the agent was given?',
+      answer:
+        'Yes, with receipts. A receipt belongs to one context assembly: it lists the memories and episodes that shaped the bundle and a hash of the exact bytes delivered. For assistants reading over MCP, set receipts to always in the tenant config. Sensitivity-label policies are recorded on the receipt; they run in log_only mode by default and drop or redact memories only in enforce mode.',
+      links: [
+        { label: 'Receipts', href: `${DOCS}/receipts.md` },
+        { label: 'Sensitivity labels', href: `${DOCS}/sensitivity-labels.md` },
+      ],
+    },
+  ],
+
   '/use-cases/multi-agent-memory': [
     {
       question: 'How do several agents share memory without passing messages?',

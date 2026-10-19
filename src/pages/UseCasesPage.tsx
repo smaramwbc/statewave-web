@@ -162,6 +162,7 @@ const USE_CASES: UseCase[] = [
     title: 'Repo-aware coding assistant',
     description: 'Persist architecture, conventions, and prior reviews per repo. Coding agents stop re-learning the same codebase.',
     category: 'coding', status: 'good-fit', tags: ['coding'],
+    pageHref: '/use-cases/coding-agents',
   },
   {
     title: 'Issue & PR memory',

@@ -6,6 +6,7 @@ import { HomePage } from './pages/HomePage'
 const ProductPage = lazy(() => import('./pages/ProductPage').then(m => ({ default: m.ProductPage })))
 const WhyPage = lazy(() => import('./pages/WhyPage').then(m => ({ default: m.WhyPage })))
 const UseCasesPage = lazy(() => import('./pages/UseCasesPage').then(m => ({ default: m.UseCasesPage })))
+const CodingAgentsPage = lazy(() => import('./pages/CodingAgentsPage').then(m => ({ default: m.CodingAgentsPage })))
 const MultiAgentMemoryPage = lazy(() => import('./pages/MultiAgentMemoryPage').then(m => ({ default: m.MultiAgentMemoryPage })))
 const PersonalAssistantMemoryPage = lazy(() => import('./pages/PersonalAssistantMemoryPage').then(m => ({ default: m.PersonalAssistantMemoryPage })))
 const MultiAgentSharedContextPage = lazy(() => import('./pages/MultiAgentSharedContextPage').then(m => ({ default: m.MultiAgentSharedContextPage })))
@@ -43,6 +44,7 @@ export default function App() {
           <Route path="/product" element={<ProductPage />} />
           <Route path="/why" element={<WhyPage />} />
           <Route path="/use-cases" element={<UseCasesPage />} />
+          <Route path="/use-cases/coding-agents" element={<CodingAgentsPage />} />
           <Route path="/use-cases/multi-agent-memory" element={<MultiAgentMemoryPage />} />
           <Route path="/use-cases/personal-assistant-memory" element={<PersonalAssistantMemoryPage />} />
           <Route path="/use-cases/multi-agent-shared-context" element={<MultiAgentSharedContextPage />} />
