@@ -366,7 +366,7 @@ function Package({ p }: { p: (typeof PACKAGES)[number] }) {
 
 function Packages() {
   return (
-    <section className="ca-section ca-section--white" aria-label="What you install">
+    <section className="ca-section ca-section--tint" aria-label="What you install">
       <div className="ca-wrap">
         <div className="ca-head">
           <Eyebrow>What you install</Eyebrow>
@@ -525,7 +525,7 @@ function Files() {
   const [i, setI] = useState(0)
   const c = CLIENTS[i]
   return (
-    <section className="ca-section ca-section--white" aria-label="What it writes">
+    <section className="ca-section ca-section--tint" aria-label="What it writes">
       <div className="ca-wrap">
         <div className="ca-head">
           <Eyebrow>What it writes</Eyebrow>
@@ -610,7 +610,7 @@ const FAQ = PAGE_FAQS['/use-cases/coding-agents'] ?? []
 
 function Faq() {
   return (
-    <section className="ca-section ca-section--white" aria-label="Frequently asked questions">
+    <section className="ca-section ca-section--tint" aria-label="Frequently asked questions">
       <div className="ca-wrap">
         <div className="ca-head ca-head--center">
           <Eyebrow>FAQ</Eyebrow>

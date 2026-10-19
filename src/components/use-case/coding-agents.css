@@ -6,8 +6,8 @@
 .ca .sw-h2 { white-space: normal; }
 .ca-wrap { position: relative; z-index: 2; max-width: calc(var(--sw-max) + 2 * (var(--sw-pad) - var(--sw-gutter))); margin: 0 auto; padding: 0 var(--sw-pad); }
 .ca-section { position: relative; z-index: 2; padding: var(--ca-pad) 0; }
-.ca-section--white { background: #fff; margin: 0 var(--sw-rail); }
-.ca-section--white .ca-wrap { padding: 0 clamp(16px, 4vw, 48px); }
+/* full-width tint bands, like the home's sw-section--tint (no white sheet between the rails) */
+.ca-section--tint { background: var(--sw-bg-2); }
 .ca-head { max-width: 780px; }
 .ca-head--center { margin: 0 auto; text-align: center; }
 .ca-head--center .sw-lede { margin-left: auto; margin-right: auto; }
@@ -46,7 +46,7 @@
 /* ── packages: the art and the sample card drift against each other under the pointer ── */
 .ca-pkgs { margin-top: var(--sw-gap-body); display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
 @media (min-width: 1000px) { .ca-pkgs { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; } }
-.ca-pkg { position: relative; min-width: 0; display: flex; flex-direction: column; padding: 16px 16px 28px; border-radius: 16px; background: #f8f9fc; box-shadow: inset 0 0 0 1px var(--sw-line); color: var(--sw-navy) !important; transition: transform 0.35s var(--ca-ease), box-shadow 0.35s; }
+.ca-pkg { position: relative; min-width: 0; display: flex; flex-direction: column; padding: 16px 16px 28px; border-radius: 16px; background: #fff; box-shadow: inset 0 0 0 1px var(--sw-line); color: var(--sw-navy) !important; transition: transform 0.35s var(--ca-ease), box-shadow 0.35s; }
 .ca-pkg:hover { transform: translateY(-4px); box-shadow: inset 0 0 0 1px var(--sw-line-2), 0 24px 48px -20px rgba(10, 18, 51, 0.24); }
 .ca-vis { position: relative; display: flex; align-items: center; justify-content: center; height: 210px; padding: 20px; border-radius: 10px; overflow: hidden; background-color: #f4f7fd; }
 .ca-vis__bg { position: absolute; inset: -28px; background-repeat: no-repeat; background-size: 170%; transform: translate3d(calc(var(--mx, 0) * -14px), calc(var(--my, 0) * -14px), 0); will-change: transform; pointer-events: none; }
