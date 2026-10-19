@@ -36,7 +36,16 @@ function youtubeId(url: string): string | null {
 }
 const VIDEO_ID = youtubeId(VIDEO_URL)
 
-/* ── hero: text only, with a straight edge (the arc is the home's own, under its chat) ── */
+/* ── hero: a detail page's hero. Above the title, a small identity graphic: for use cases, the
+ *    tools involved (connector pages use source → Statewave). Straight edge, no arc: the arc is the
+ *    home's own, under its chat. ── */
+
+const TOOLS = [
+  { icon: 'claude', name: 'Claude Code' },
+  { icon: 'cursor', name: 'Cursor' },
+  { icon: 'githubcopilot', name: 'Copilot' },
+  { icon: 'openai', name: 'Codex' },
+]
 
 function Hero() {
   return (
@@ -51,6 +60,14 @@ function Hero() {
           <Ln to="/use-cases">Use cases</Ln><span aria-hidden="true">/</span>
           <span aria-current="page">Coding agents</span>
         </nav>
+        <ul className="ca-tools" aria-label="Works with">
+          {TOOLS.map(t => (
+            <li key={t.name}>
+              <span className="ca-tools__box"><Icon name={t.icon} size={24} /></span>
+              <span className="ca-tools__name">{t.name}</span>
+            </li>
+          ))}
+        </ul>
         <h1 className="sw-hero__title ca-title">
           Stop re-explaining your repo<br /> <span className="sw-hero__grad">to your coding agent.</span>
         </h1>

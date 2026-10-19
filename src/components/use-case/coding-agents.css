@@ -19,7 +19,13 @@
 .ca .ca-crumbs a { color: #b4bcd3; }
 .ca .ca-crumbs a:hover { color: #fff; }
 .ca .ca-crumbs [aria-current] { color: #fff; }
-.ca .ca-title { margin-top: 28px; }
+.ca .ca-title { margin-top: 36px; }
+/* the identity graphic: the tools this page is for, as small tiles (static, no wire) */
+.ca .ca-tools { margin: 32px 0 0; padding: 0; list-style: none; display: flex; justify-content: center; gap: clamp(12px, 3vw, 28px); }
+.ca .ca-tools li { width: 88px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.ca .ca-tools__box { width: 56px; height: 56px; border-radius: 16px; display: grid; place-items: center; background: #fff; color: var(--sw-navy); box-shadow: inset 0 1.5px 0 #fff, 0 18px 36px -16px rgba(47, 91, 240, 0.7), 0 0 0 5px rgba(255, 255, 255, 0.06); }
+.ca .ca-tools__name { font-size: 13px; line-height: 16px; font-weight: 500; color: #c9d0e2; text-align: center; }
+@media (max-width: 480px) { .ca .ca-tools li { width: 68px; } .ca .ca-tools__box { width: 48px; height: 48px; border-radius: 14px; } .ca .ca-tools__name { font-size: 12px; } }
 .ca .ca-hero-cmd { margin-left: auto; margin-right: auto; }
 
 /* ── closing terminal: three sources wired into a Claude Code session (AgentTerminal) ── */
