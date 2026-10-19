@@ -20,11 +20,6 @@
 .ca .ca-crumbs a:hover { color: #fff; }
 .ca .ca-crumbs [aria-current] { color: #fff; }
 .ca .ca-title { margin-top: 28px; }
-/* the interior pages' arc (as on the connector pages): the band below rises into the hero, so the dome
- * takes that band's colour */
-.ca .ca-hero { padding-bottom: calc(clamp(72px, 8vw, 112px) + 72px); }
-.ca .ca-hero .sw-hero__in { position: relative; z-index: 2; }
-.ca .ca-hero::after { content: ''; position: absolute; z-index: 1; left: 50%; bottom: -1px; width: 3200px; height: 160px; margin-left: -1600px; background: radial-gradient(circle 2440px at 50% 2440px, var(--sw-bg-2) 2398px, var(--sw-blue) 2398.5px 2400px, rgba(47, 91, 240, 0.45) 2400px, transparent 2440px); pointer-events: none; }
 .ca .ca-hero-cmd { margin-left: auto; margin-right: auto; }
 
 /* ── closing terminal: three sources wired into a Claude Code session (AgentTerminal) ── */

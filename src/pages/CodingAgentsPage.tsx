@@ -36,7 +36,7 @@ function youtubeId(url: string): string | null {
 }
 const VIDEO_ID = youtubeId(VIDEO_URL)
 
-/* ── hero: text only, closed by the interior pages' arc (the band below rises into it) ── */
+/* ── hero: text only, with a straight edge (the arc is the home's own, under its chat) ── */
 
 function Hero() {
   return (
