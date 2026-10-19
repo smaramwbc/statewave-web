@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { ArrowRight, KeyRound, Play, Plug, Receipt, SquareTerminal } from 'lucide-react'
-import { Eyebrow, H2, Icon, Ln } from '../components/home/ui'
+import { Divider, Eyebrow, H2, Icon, Ln } from '../components/home/ui'
 import { usePrefersReducedMotion } from '../components/home/hooks'
 import { logo } from '../components/home/links'
 import { AgentTerminal } from '../components/use-case/AgentTerminal'
@@ -36,7 +36,7 @@ function youtubeId(url: string): string | null {
 }
 const VIDEO_ID = youtubeId(VIDEO_URL)
 
-/* ── hero: the home's hero layout, with a Claude Code session wired to the repo's sources below it ── */
+/* ── hero: text only, closed by the interior pages' arc (the band below rises into it) ── */
 
 function Hero() {
   return (
@@ -68,7 +68,6 @@ function Hero() {
             : <Ln to="#how" className="sw-btn sw-btn--ghost">How it works</Ln>}
         </div>
       </div>
-      <AgentTerminal />
     </section>
   )
 }
@@ -641,6 +640,7 @@ function Close() {
       <div className="ca-wrap ca-close__in">
         <span className="ca-close__logo"><img src="/brand/icon.svg" alt="" width={36} height={36} /></span>
         <h2 className="ca-close__title">Give your coding agent<br /><span className="sw-hero__grad">the memory of the repo.</span></h2>
+        <AgentTerminal />
         <CopyCmd cmd={QUICKSTART} />
         <div className="ca-close__more">
           <span>Built from</span>
@@ -670,11 +670,17 @@ export function CodingAgentsPage() {
   return (
     <div ref={root} className="sw-home ca">
       <Hero />
+      <Divider />
       <Packages />
+      <Divider />
       <Layers />
+      <Divider />
       <Setup />
+      <Divider />
       <Demo />
+      {VIDEO_ID && <Divider />}
       <Files />
+      <Divider />
       <Trust />
       <Faq />
       <Close />
