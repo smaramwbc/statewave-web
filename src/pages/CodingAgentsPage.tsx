@@ -4,6 +4,7 @@ import { ArrowRight, KeyRound, Play, Plug, Receipt, SquareTerminal } from 'lucid
 import { Eyebrow, H2, Icon, Ln } from '../components/home/ui'
 import { usePrefersReducedMotion } from '../components/home/hooks'
 import { logo } from '../components/home/links'
+import { AgentTerminal } from '../components/use-case/AgentTerminal'
 import { CopyCmd, Terminal } from '../components/use-case/Terminal'
 import type { TerminalTab } from '../components/use-case/Terminal'
 import { PAGE_FAQS } from '../lib/page-faqs'
@@ -35,7 +36,7 @@ function youtubeId(url: string): string | null {
 }
 const VIDEO_ID = youtubeId(VIDEO_URL)
 
-/* ── hero: the home's hero, without the connector pages' tiles and curve ── */
+/* ── hero: the home's hero layout, with a Claude Code session wired to the repo's sources below it ── */
 
 function Hero() {
   return (
@@ -68,6 +69,7 @@ function Hero() {
             : <Ln to="#how" className="sw-btn sw-btn--ghost">How it works</Ln>}
         </div>
       </div>
+      <AgentTerminal />
     </section>
   )
 }
