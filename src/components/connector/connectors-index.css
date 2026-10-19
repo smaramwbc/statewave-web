@@ -26,7 +26,9 @@
 .cxi-tile { position: relative; aspect-ratio: 1; min-height: 0; display: grid; place-items: center; border-radius: clamp(10px, 1.2vw, 16px); background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(6px); transition: transform 0.25s var(--cxi-ease), border-color 0.25s, background-color 0.25s, box-shadow 0.25s; }
 .cxi-tile img { width: 46%; height: auto; aspect-ratio: 1; object-fit: contain; transition: transform 0.3s var(--cxi-ease); }
 .cxi-tile img.is-invert { filter: invert(1); }
-.cxi-tile:hover, .cxi-tile:focus-visible { transform: translateY(-3px) scale(1.06); border-color: rgba(74, 140, 255, 0.7); background: rgba(74, 140, 255, 0.1); box-shadow: 0 16px 36px -14px rgba(47, 91, 240, 0.8); }
+/* Each tile is its own stacking context (backdrop-filter), so the label's z-index can't beat the
+ * next row's tiles on its own; lifting the hovered tile keeps its label on top. */
+.cxi-tile:hover, .cxi-tile:focus-visible { z-index: 2; transform: translateY(-3px) scale(1.06); border-color: rgba(74, 140, 255, 0.7); background: rgba(74, 140, 255, 0.1); box-shadow: 0 16px 36px -14px rgba(47, 91, 240, 0.8); }
 .cxi-tile:hover img { transform: scale(1.08); }
 .cxi-tile::after { content: attr(aria-label); position: absolute; top: calc(100% + 8px); left: 50%; z-index: 5; transform: translate(-50%, -4px); padding: 4px 10px; border-radius: 8px; background: #fff; color: var(--sw-navy); font-size: 13px; line-height: 18px; font-weight: 500; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity 0.2s, transform 0.25s var(--cxi-ease); }
 .cxi-tile:hover::after, .cxi-tile:focus-visible::after { opacity: 1; transform: translate(-50%, 0); }

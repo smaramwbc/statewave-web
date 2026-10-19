@@ -5,6 +5,8 @@ import { useCopy, useSeen } from '../components/home/hooks'
 import { logo } from '../components/home/links'
 import { CONNECTORS, GROUPS } from '../content/connectors'
 import type { Connector, Group } from '../content/connectors/types'
+import { PAGE_FAQS } from '../lib/page-faqs'
+import { usePageSEO } from '../lib/seo'
 import '../components/home/home-b.css'
 import '../components/connector/connectors-index.css'
 
@@ -310,28 +312,9 @@ function QuickStart() {
 
 /* ── faq and close ── */
 
-const FAQ = [
-  {
-    q: 'What does a connector actually do?',
-    a: 'It turns one tool’s events into Statewave episodes with the same shape, filed under a stable subject: repo: for code, customer: for support, community: for Discord, relationship: for email. Agents ask for memory by subject, so a Jira issue and a Slack thread are recalled the same way.',
-    links: [{ label: 'How it works', href: '/product' }],
-  },
-  {
-    q: 'Which sources can I connect today?',
-    a: 'GitHub, GitLab, Bitbucket, Gitea and Forgejo, Azure DevOps, Slack, Discord, Gmail, Zendesk, Intercom, Freshdesk, Markdown docs, Notion, Jira, n8n, Zapier and SQL databases. The MCP server works the other way round: it gives Claude Code, Cursor, Copilot and any MCP client access to that memory.',
-    links: [{ label: 'MCP server', href: '/connectors/mcp-server' }],
-  },
-  {
-    q: 'Do I have to install all of them?',
-    a: 'No. Each connector is its own package, and the runner container only runs the ones in your config. Add a source later and it simply adds episodes under its own subjects. Nothing already in memory changes.',
-    links: [{ label: 'Developer hub', href: '/developers' }],
-  },
-  {
-    q: 'How much of my Slack does it read?',
-    a: 'Only what you allow. It uses a bot token, and you name the channels with --channels. Direct messages and group DMs stay off unless you pass --include-dms or --include-mpim, and a bot only sees DMs it’s part of.',
-    links: [{ label: 'Slack connector', href: '/connectors/slack' }],
-  },
-]
+/** The /connectors entries in lib/page-faqs, the same data usePageSEO emits as FAQPage JSON-LD,
+ *  so the visible questions and the structured data can't drift. */
+const FAQ = PAGE_FAQS['/connectors'] ?? []
 
 function Faq() {
   return (
@@ -343,11 +326,13 @@ function Faq() {
         </div>
         <div className="sw-faq">
           {FAQ.map((e, i) => (
-            <details key={e.q} {...(i === 0 ? { open: true } : {})}>
-              <summary><span aria-hidden="true" className="sw-plus">+</span><h3>{e.q}</h3></summary>
+            <details key={e.question} {...(i === 0 ? { open: true } : {})}>
+              <summary><span aria-hidden="true" className="sw-plus">+</span><h3>{e.question}</h3></summary>
               <div>
-                <p>{e.a}</p>
-                <ul>{e.links.map(l => <li key={l.href}><Ln to={l.href}>{l.label}</Ln></li>)}</ul>
+                <p>{e.answer}</p>
+                {e.links && e.links.length > 0 && (
+                  <ul>{e.links.map(l => <li key={l.href}><Ln to={l.href}>{l.label}</Ln></li>)}</ul>
+                )}
               </div>
             </details>
           ))}
@@ -383,11 +368,11 @@ function Close() {
 }
 
 export function ConnectorsIndexPage() {
+  usePageSEO()
   const root = useRef<HTMLDivElement>(null)
   useEffect(() => {
     root.current?.setAttribute('data-armed', '')
     if (new URLSearchParams(window.location.search).has('capture')) root.current?.setAttribute('data-capture', '')
-    document.title = 'Connectors · Statewave'
   }, [])
   return (
     <div ref={root} className="sw-home cxi">

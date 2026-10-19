@@ -5,6 +5,7 @@ import { useCopy, usePrefersReducedMotion, useSeen } from '../home/hooks'
 import { logo } from '../home/links'
 import { CONNECTORS } from '../../content/connectors'
 import type { Connector } from '../../content/connectors/types'
+import { usePageSEO } from '../../lib/seo'
 import '../home/home-b.css'
 import './connector.css'
 
@@ -396,6 +397,35 @@ function Trust({ c }: { c: C }) {
   )
 }
 
+/* ── faq: three questions answered from the facts above, as question headings an answer engine can cite ── */
+
+function Faq({ c }: { c: C }) {
+  const it = c.group === 'MCP' ? `the ${c.name}` : `the ${c.name} connector`
+  const entries = [
+    { q: `What does ${it} do?`, a: c.hero.sub },
+    { q: `Is ${it} safe to run?`, a: c.safety.join(' ') },
+    { q: `What are ${it}’s limits?`, a: c.limits.join(' ') },
+  ]
+  return (
+    <section className="cx2-section cx2-section--white" aria-label="Frequently asked questions">
+      <div className="cx2-wrap">
+        <div className="cx2-head cx2-head--center">
+          <Eyebrow>FAQ</Eyebrow>
+          <H2 a={`Questions about ${it}`} />
+        </div>
+        <div className="sw-faq">
+          {entries.map((e, i) => (
+            <details key={e.q} {...(i === 0 ? { open: true } : {})}>
+              <summary><span aria-hidden="true" className="sw-plus">+</span><h3>{e.q}</h3></summary>
+              <div><p>{e.a}</p></div>
+            </details>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
 function Close({ c }: { c: C }) {
   const related = c.related.map(s => CONNECTORS[s]).filter(Boolean)
   return (
@@ -422,12 +452,13 @@ function Close({ c }: { c: C }) {
 }
 
 export function ConnectorPage({ c }: { c: C }) {
+  // Title, description and canonical come from the /connectors/<slug> entry in lib/seo-meta.
+  usePageSEO()
   const root = useRef<HTMLDivElement>(null)
   useEffect(() => {
     root.current?.setAttribute('data-armed', '')
     if (new URLSearchParams(window.location.search).has('capture')) root.current?.setAttribute('data-capture', '')
   }, [])
-  useEffect(() => { document.title = `${c.name} connector · Statewave` }, [c.name])
   return (
     <div ref={root} className="sw-home cx2" key={c.slug}>
       <Hero c={c} />
@@ -436,6 +467,7 @@ export function ConnectorPage({ c }: { c: C }) {
       <Routing c={c} />
       <Setup c={c} />
       <Trust c={c} />
+      <Faq c={c} />
       <Close c={c} />
     </div>
   )
