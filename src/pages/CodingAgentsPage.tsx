@@ -55,8 +55,7 @@ function Hero() {
           Stop re-explaining your repo<br /> <span className="sw-hero__grad">to your coding agent.</span>
         </h1>
         <p className="sw-hero__sub">
-          Statewave keeps one memory per repository, built from its issues, pull requests, reviews, ADRs and commits.
-          Claude Code, Cursor, Copilot and Codex read it over MCP, with a source for every answer.
+          Issues, reviews, ADRs and commits become a memory that Claude Code, Cursor, Copilot and Codex read over MCP.
         </p>
         <CopyCmd cmd={QUICKSTART} hero />
         <div className="sw-hero__ctas">

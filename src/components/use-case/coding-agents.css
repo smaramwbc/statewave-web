@@ -23,8 +23,9 @@
 .ca .ca-hero-cmd { margin-left: auto; margin-right: auto; }
 
 /* ── hero terminal: three sources wired into a Claude Code session (AgentTerminal) ── */
-.ca-agent { position: relative; z-index: 3; width: 1000px; max-width: 100%; margin: clamp(56px, 6vw, 80px) auto 0; text-align: left; }
-.ca-agent__stage { display: grid; grid-template-columns: 240px 120px minmax(0, 1fr); align-items: center; }
+/* width, margin and the curve come from the home's .sw-console-wrap; the stage sits above the curve */
+.ca-agent { text-align: left; }
+.ca-agent__stage { position: relative; z-index: 1; display: grid; grid-template-columns: 240px 120px minmax(0, 1fr); align-items: center; }
 .ca-agent__sources { margin: 0; padding: 8px 0; list-style: none; display: grid; grid-template-rows: repeat(3, 64px); row-gap: 56px; }
 .ca-agent__sources li { min-width: 0; display: flex; align-items: center; gap: 12px; padding: 0 14px; border-radius: 14px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.12); color: #8f99b5; opacity: 0.55; transition: opacity 0.5s, color 0.5s, border-color 0.5s, box-shadow 0.5s; }
 .ca-agent__sources li[data-on] { opacity: 1; color: #fff; border-color: rgba(143, 184, 255, 0.6); box-shadow: 0 0 0 4px rgba(74, 140, 255, 0.08), 0 12px 32px -12px rgba(74, 140, 255, 0.6); }
@@ -36,12 +37,12 @@
 .ca-agent__wires svg { display: block; overflow: visible; }
 .ca-agent__wires path { fill: none; stroke: rgba(143, 184, 255, 0.22); stroke-width: 1.5; stroke-dasharray: 5 6; transition: stroke 0.5s; }
 .ca-agent__wires path[data-on] { stroke: rgba(143, 184, 255, 0.6); }
-.ca-agent__wires i { position: absolute; left: 0; top: 0; width: 8px; height: 8px; border-radius: 50%; background: var(--sw-sky); box-shadow: 0 0 12px rgba(74, 140, 255, 0.9); offset-anchor: center; offset-rotate: 0deg; animation: ca-flow 2.4s linear infinite both; }
+.ca-agent__wires i { position: absolute; left: 0; top: 0; width: 8px; height: 8px; border-radius: 50%; background: var(--sw-sky); box-shadow: 0 0 12px rgba(74, 140, 255, 0.9); offset-anchor: center; offset-rotate: 0deg; animation: ca-flow 0.8s ease-in both; }
 .ca-agent__term { min-width: 0; border-radius: 16px; overflow: hidden; background: var(--sw-navy-deep); border: 1px solid rgba(143, 184, 255, 0.22); box-shadow: 0 0 0 6px rgba(255, 255, 255, 0.03), 0 40px 80px -36px rgba(3, 8, 30, 0.9); }
 .ca-agent__bar { display: flex; align-items: center; gap: 8px; padding: 12px 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); font-size: 13px; color: #8f99b5; }
 .ca-agent__bar i { width: 10px; height: 10px; border-radius: 50%; background: rgba(255, 255, 255, 0.14); }
 .ca-agent__bar span { margin-left: 8px; }
-.ca-agent__body { min-height: 300px; padding: 20px 22px 22px; font-family: var(--sw-font-label); font-size: 14.5px; line-height: 1.6; color: #e4e9f5; }
+.ca-agent__body { min-height: 206px; padding: 20px 22px 22px; font-family: var(--sw-font-label); font-size: 14.5px; line-height: 1.6; color: #e4e9f5; }
 .ca .ca-agent__q { color: #fff; }
 .ca-agent__q > span:first-child { margin-right: 4px; color: var(--sw-sky); }
 .ca-agent__caret { display: inline-block; width: 8px; height: 17px; margin-left: 2px; vertical-align: -3px; background: var(--sw-sky); animation: sw-blink 1s steps(1) infinite; }
@@ -49,7 +50,6 @@
 .ca-agent__tool b { margin-right: 6px; font-weight: 400; color: #6ee7b7; }
 .ca-agent__tool em { font-style: normal; color: #8fb8ff; }
 .ca-agent__wait::after { content: ' …'; animation: sw-blink 1s steps(1) infinite; }
-.ca .ca-agent__result { margin-top: 2px; padding-left: 20px; color: #8f99b5; animation: ca-in 0.35s var(--ca-ease) both; }
 .ca-agent__answer { margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(255, 255, 255, 0.08); animation: ca-in 0.5s var(--ca-ease) both; }
 .ca .ca-agent__answer p { color: #fff; text-wrap: pretty; }
 .ca-agent__cites { margin-top: 12px; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
