@@ -7,8 +7,7 @@
 .cxi-anchor { scroll-margin-top: 64px; }
 
 /* ── hero ─────────────────────────────────────────────── */
-.cxi-hero { position: relative; z-index: 3; overflow: hidden; color: #fff; background: radial-gradient(circle at 76% 48%, rgba(47, 91, 240, 0.26), transparent 44%), var(--sw-navy); padding: calc(84px + clamp(40px, 6vw, 88px)) 0 calc(clamp(72px, 8vw, 112px) + 72px); }
-.cxi-hero::after { content: ''; position: absolute; z-index: 1; left: 50%; bottom: -1px; width: 3200px; height: 160px; margin-left: -1600px; background: radial-gradient(circle 2440px at 50% 2440px, var(--sw-bg) 2398px, var(--sw-blue) 2398.5px 2400px, rgba(47, 91, 240, 0.45) 2400px, transparent 2440px); pointer-events: none; }
+.cxi-hero { position: relative; z-index: 3; overflow: hidden; color: #fff; background: radial-gradient(circle at 76% 48%, rgba(47, 91, 240, 0.26), transparent 44%), var(--sw-navy); padding: calc(84px + clamp(40px, 6vw, 88px)) 0 clamp(88px, 9vw, 128px); }
 .cxi-hero a { color: inherit; }
 .cxi-hero__in { position: relative; z-index: 2; max-width: calc(var(--sw-max) + 2 * (var(--sw-pad) - var(--sw-gutter))); margin: 0 auto; padding: 0 var(--sw-pad); display: grid; grid-template-columns: minmax(0, 1fr); gap: 56px; align-items: center; }
 @media (min-width: 1000px) { .cxi-hero__in { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 64px; } }

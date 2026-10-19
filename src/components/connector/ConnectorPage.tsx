@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { ArrowRight, Check, Copy, Database, EyeOff, Filter, Lock, ShieldCheck } from 'lucide-react'
-import { Eyebrow, H2, Ln } from '../home/ui'
+import { Divider, Eyebrow, H2, Ln } from '../home/ui'
 import { useCopy, usePrefersReducedMotion, useSeen } from '../home/hooks'
 import { logo } from '../home/links'
 import { CONNECTORS } from '../../content/connectors'
@@ -191,7 +191,7 @@ function Reads({ c }: { c: C }) {
   const [all, setAll] = useState(true)
   const n = r.events.filter(e => all || !e.optIn).length
   return (
-    <section className="cx2-section cx2-section--white" aria-label={r.eyebrow ?? 'What it reads'}>
+    <section className="cx2-section cx2-section--tint" aria-label={r.eyebrow ?? 'What it reads'}>
       <div className="cx2-wrap cx2-split">
         <div className="cx2-head">
           <Eyebrow>{r.eyebrow ?? 'What it reads'}</Eyebrow>
@@ -339,7 +339,7 @@ function Terminal({ c }: { c: C }) {
 
 function Setup({ c }: { c: C }) {
   return (
-    <section id="setup" className="cx2-section cx2-section--white cx2-anchor" aria-label="Set up">
+    <section id="setup" className="cx2-section cx2-section--tint cx2-anchor" aria-label="Set up">
       <div className="cx2-wrap">
         <div className="cx2-head">
           <Eyebrow>Set up</Eyebrow>
@@ -407,7 +407,7 @@ function Faq({ c }: { c: C }) {
     { q: `What are ${it}’s limits?`, a: c.limits.join(' ') },
   ]
   return (
-    <section className="cx2-section cx2-section--white" aria-label="Frequently asked questions">
+    <section className="cx2-section cx2-section--tint" aria-label="Frequently asked questions">
       <div className="cx2-wrap">
         <div className="cx2-head cx2-head--center">
           <Eyebrow>FAQ</Eyebrow>
@@ -462,10 +462,15 @@ export function ConnectorPage({ c }: { c: C }) {
   return (
     <div ref={root} className="sw-home cx2" key={c.slug}>
       <Hero c={c} />
+      <Divider />
       <Story c={c} />
+      <Divider />
       <Reads c={c} />
+      <Divider />
       <Routing c={c} />
+      <Divider />
       <Setup c={c} />
+      <Divider />
       <Trust c={c} />
       <Faq c={c} />
       <Close c={c} />
