@@ -16,6 +16,11 @@ export interface UseCaseDetailPage {
 
 export const USE_CASE_DETAIL_PAGES: readonly UseCaseDetailPage[] = [
   {
+    slug: 'coding-agents',
+    label: 'Coding Agents',
+    path: '/use-cases/coding-agents',
+  },
+  {
     slug: 'multi-agent-memory',
     label: 'Multi-Agent Memory',
     path: '/use-cases/multi-agent-memory',
