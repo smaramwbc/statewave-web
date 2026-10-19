@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
-import { ArrowRight, KeyRound, Play, Plug, Receipt, SquareTerminal } from 'lucide-react'
+import { ArrowRight, GitCommitHorizontal, KeyRound, Play, Plug, Receipt, SquareTerminal } from 'lucide-react'
 import { Divider, Eyebrow, H2, Icon, Ln } from '../components/home/ui'
-import { usePrefersReducedMotion } from '../components/home/hooks'
+import { usePrefersReducedMotion, useSeen } from '../components/home/hooks'
 import { logo } from '../components/home/links'
 import { AgentTerminal } from '../components/use-case/AgentTerminal'
 import { CopyCmd, Terminal } from '../components/use-case/Terminal'
@@ -10,7 +10,6 @@ import type { TerminalTab } from '../components/use-case/Terminal'
 import { PAGE_FAQS } from '../lib/page-faqs'
 import { usePageSEO } from '../lib/seo'
 import '../components/home/home-b.css'
-import '../components/home/home-c.css'
 import '../components/use-case/coding-agents.css'
 
 /* /use-cases/coding-agents in the v8 style. It borrows from the home rather than the connector pages:
@@ -89,180 +88,114 @@ function Hero() {
   )
 }
 
-/* ── how it works: the repo's memory as a stack of layers, in the home's How it works pattern.
- *    The sw-how / sw-hw-* styles are the home's own (home.css, home-b.css, home-c.css). ── */
+/* ── how it works: the code shows what, memory knows why. An editor where each source adds its reason
+ *    above the line it explains, in the order the memory is built, like a blame that shows the why
+ *    instead of the author. Plays once when it scrolls into view, then holds still. Server HTML and
+ *    reduced motion get the finished file. Not pinned: the home's How it works is. ── */
 
-const LAYER_STEPS = [
-  { n: '01', t: 'Commits', ep: 'mcp seed --write', d: 'The quickstart turns recent commits and the README into the repo’s first memories.' },
-  { n: '02', t: 'Issues & PRs', ep: 'sync github', d: 'Issues, pull requests, reviews and releases join the same subject.' },
-  { n: '03', t: 'ADRs & docs', ep: 'sync markdown', d: 'Decision records and docs go on top, read on your machine.' },
-  { n: '04', t: 'Recall', ep: 'statewave_get_context', d: 'Claude Code asks before it answers, and the answer traces back to the ADR and the review it came from.' },
-] as const
-const ARIA = [
-  `Layer stack for ${SUBJECT}: the commits layer is active`,
-  `Layer stack for ${SUBJECT}: the GitHub layer is active, with the PR #212 review and issue #42`,
-  `Layer stack for ${SUBJECT}: the docs layer is active, with ADR 007 and the setup guide`,
-  'Recall: get_context reads every layer, and lines trace the answer to ADR 007 and the PR #212 review',
+const WHY_STEPS = [
+  { n: '01', t: 'Commits', ep: 'mcp seed --write', d: 'Recent commits and the README become the repo’s first memories.' },
+  { n: '02', t: 'Issues & PRs', ep: 'sync github', d: 'Reviews and decisions from pull requests join the same subject.' },
+  { n: '03', t: 'ADRs & docs', ep: 'sync markdown', d: 'Decision records sit next to the code they govern.' },
+  { n: '04', t: 'Recall', ep: 'statewave_get_context', d: 'Before it edits, your agent asks, and gets the why with its source.' },
 ]
 
-/** Appends the `is-on` state class that home-b.css keys off. */
-const k = (c: string, on: boolean) => (on ? `${c} is-on` : c)
+const kw = (s: string) => <span className="ca-k">{s}</span>
+const str = (s: string) => <span className="ca-s">{s}</span>
+const prop = (s: string) => <span className="ca-p">{s}</span>
 
-/** One isometric slab at depth `y`, with its tile grid: the same geometry as the home's stack. */
-function Slab({ y, on, onPick, label, children }: { y: number; on: boolean; onPick: () => void; label: string; children: ReactNode }) {
-  return (
-    <g onClick={onPick} role="button" aria-label={label} className={k('sw-hw-layer', on)}>
-      <g className="sw-hw-faces">
-        <polygon points={`150,${y} 150,${y + 12} 400,${y + 112} 400,${y + 100}`} className="sw-hw-face sw-hw-face--l" />
-        <polygon points={`400,${y + 100} 400,${y + 112} 650,${y + 12} 650,${y}`} className="sw-hw-face sw-hw-face--r" />
-        <polygon points={`400,${y - 100} 650,${y} 400,${y + 100} 150,${y}`} className="sw-hw-face sw-hw-face--top" />
-      </g>
-      <g transform={`matrix(1 -0.4 1 0.4 150 ${y})`}>
-        <path d="M62.5 0V250M125 0V250M187.5 0V250M0 62.5H250M0 125H250M0 187.5H250" className="sw-hw-grid" />
-        {children}
-      </g>
-    </g>
-  )
-}
+/** The file in the editor. `why` is the step whose source explains the line. */
+const CODE: Array<{ code: ReactNode; why?: { step: number; mark: ReactNode; ref: string; text: string } }> = [
+  { code: <>{kw('import')} {'{ queue }'} {kw('from')} {str("'../queue'")}</> },
+  { code: <>{kw('import')} {'{ exportRows }'} {kw('from')} {str("'./export'")}</> },
+  { code: ' ' },
+  {
+    code: <>{kw('export const')} exportJob = queue.define({str("'export'")}, {'{'}</>,
+    why: { step: 1, mark: <Icon name="github" size={14} />, ref: 'PR #212 review', text: 'named exports, tests in Vitest' },
+  },
+  {
+    code: <>{'  '}{prop('lock')}: {str("'advisory'")},</>,
+    why: { step: 2, mark: <Icon name="markdown" size={14} />, ref: 'ADR 007', text: 'Postgres advisory locks, not Redis' },
+  },
+  {
+    code: <>{'  '}{prop('retry')}: {'{ '}{prop('backoff')}: {str("'exponential'")}{' }'},</>,
+    why: { step: 0, mark: <GitCommitHorizontal size={14} aria-hidden="true" />, ref: 'a41c9e2', text: 'failed jobs retry with backoff' },
+  },
+  { code: <>{'  '}{prop('run')}: exportRows,</> },
+  { code: '})' },
+]
 
-/** A tile on a slab: an optional source mark, then one line of text. */
-function Item({ y, w = 200, icon, text, on }: { y: number; w?: number; icon?: string; text: string; on: boolean }) {
-  return (
-    <>
-      <rect x={25} y={y} width={w} height={36} rx={8} className={k('sw-hw-tile', on)} />
-      {icon && (
-        <foreignObject x={37} y={y + 11} width={14} height={14}>
-          <span className={k('sw-hw-mask', on)} style={{ ['--m' as string]: `url(${logo(icon)})` }} />
-        </foreignObject>
-      )}
-      <text x={icon ? 59 : 39} y={y + 23} fontSize={14} className={k('sw-hw-mono sw-hw-txt', on)}>{text}</text>
-    </>
-  )
-}
+function Why() {
+  const rm = usePrefersReducedMotion()
+  const [ref, seen] = useSeen<HTMLDivElement>()
+  const [shown, setShown] = useState(WHY_STEPS.length)
 
-function RepoStack({ step, pick }: { step: number; pick: (i: number) => void }) {
-  const all = step === 3
-  const C = step === 0 || all, G = step === 1 || all, D = step === 2 || all
-  // ADR 007 and the PR #212 review sit at the same spot on their slabs, so one vertical trace reaches
-  // both; -8 because every slab is lifted while it is on.
-  const trace = (y1: number, y2: number, d: number) => (
-    <>
-      <line x1={353} y1={y1} x2={353} y2={y2} className={k('sw-hw-trace', all)} style={{ transitionDelay: `${d}ms` }} />
-      <circle cx={353} cy={y2} r={2.5} className={k('sw-hw-trace', all)} style={{ transitionDelay: `${d}ms` }} />
-    </>
-  )
-  return (
-    <svg viewBox="0 20 720 620" width="100%" role="img" aria-label={ARIA[step]} className="sw-hw-svg">
-      <Slab y={520} on={C} onPick={() => pick(0)} label="Show step 01">
-        <Item y={60} text="a41c9e2 · retry jobs" on={C} />
-        <Item y={110} text="README.md" on={C} />
-        <Item y={160} w={170} text="7f02b1d · exports" on={C} />
-      </Slab>
-      <Slab y={350} on={G} onPick={() => pick(1)} label="Show step 02">
-        <Item y={60} icon="github" text="PR #212 review" on={G} />
-        <Item y={110} icon="github" text="#42 · CI is flaky" on={G} />
-      </Slab>
-      <Slab y={180} on={D} onPick={() => pick(2)} label="Show step 03">
-        <Item y={60} icon="markdown" text="ADR 007 · job queue" on={D} />
-        <Item y={110} icon="markdown" text="docs/setup.md" on={D} />
-      </Slab>
-
-      <g>{trace(56, 153.2, 200)}{trace(153.2, 323.2, 360)}</g>
-      <g onClick={() => pick(3)} className={k('sw-hw-receipt', all)}>
-        <rect x={291} y={30} width={124} height={26} rx={6} />
-        <text x={303} y={47} fontSize={12} className="sw-hw-mono sw-hw-white">get_context ✓</text>
-      </g>
-
-      {([[520, 'COMMITS', C], [350, 'GITHUB', G], [180, 'DOCS', D]] as const).map(([y, name, on]) => (
-        <g key={name}>
-          <line x1={140} y1={y} x2={150} y2={y} className={k('sw-hw-tick', on)} />
-          <text x={134} y={y + 4} textAnchor="end" className={k('sw-hw-mono sw-hw-name', on)}>{name}</text>
-        </g>
-      ))}
-      {/* one subject holds all three */}
-      <g>
-        <line x1={676} y1={180} x2={676} y2={520} className="sw-hw-tick" />
-        {[180, 350, 520].map(y => <line key={y} x1={662} y1={y} x2={676} y2={y} className="sw-hw-tick" />)}
-        <text transform="translate(692 350) rotate(90)" textAnchor="middle" className="sw-hw-mono sw-hw-name is-on">{SUBJECT}</text>
-      </g>
-    </svg>
-  )
-}
-
-function Layers() {
-  const [step, setStep] = useState(0)
-  const [pinned, setPinned] = useState(false)
-  const pin = useRef<HTMLDivElement>(null)
-
-  // From 1000px wide the section pins and scroll position picks the step, as on the home.
+  // The server renders the finished file; on the client it resets, then plays once when seen.
   useEffect(() => {
-    const mq = window.matchMedia('(min-width: 1000px)')
-    const sync = () => setPinned(mq.matches)
-    sync()
-    mq.addEventListener('change', sync)
-    return () => mq.removeEventListener('change', sync)
-  }, [])
+    if (rm) return
+    const id = setTimeout(() => setShown(0), 0)
+    return () => clearTimeout(id)
+  }, [rm])
 
   useEffect(() => {
-    if (!pinned) return
-    const onScroll = () => {
-      const el = pin.current
-      if (!el) return
-      const r = el.getBoundingClientRect()
-      const total = r.height - window.innerHeight
-      if (total <= 0) return
-      const p = Math.min(0.999, Math.max(0, -r.top / total)) * LAYER_STEPS.length
-      el.style.setProperty('--p', p.toFixed(3))
-      setStep(Math.floor(p))
-    }
-    onScroll()
-    window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
-  }, [pinned])
-
-  const pick = useCallback((i: number) => {
-    const el = pin.current
-    if (el && pinned) {
-      const r = el.getBoundingClientRect()
-      const total = r.height - window.innerHeight
-      window.scrollTo({ top: window.scrollY + r.top + (total * (i + 0.5)) / LAYER_STEPS.length, behavior: 'smooth' })
-    } else setStep(i)
-  }, [pinned])
+    if (!seen || shown >= WHY_STEPS.length) return
+    const id = setTimeout(() => setShown(shown + 1), shown === 0 ? 300 : 1000)
+    return () => clearTimeout(id)
+  }, [seen, shown])
 
   return (
-    <section id="how" className="sw-section sw-how-sec ca-anchor" aria-label="How it works">
-      <div className="sw-dark-panel">
-        <div aria-hidden="true" className="sw-how__glow" />
-        <div className="sw-how__in">
+    <section id="how" className="ca-section ca-why ca-anchor" aria-label="How it works" data-nav-tone="dark">
+      <div className="ca-wrap">
+        <div className="ca-head">
           <Eyebrow dark>How it works</Eyebrow>
           <H2 a="The code shows what." b="Memory knows why." />
           <p className="sw-lede">
-            A coding agent can read every file and still not know why the job queue avoids Redis. Statewave stacks the
-            history behind the code into one memory per repository.
+            A coding agent can read every file and still not know why the job queue avoids Redis. Statewave keeps the
+            history behind the code in one memory per repository, and hands your agent the why with its source.
           </p>
-
-          <div ref={pin} className={`sw-how${pinned ? ' sw-how--pinned' : ''}`}>
-            <div className="sw-how__grid">
-              <div className="sw-how__list">
-                {LAYER_STEPS.map((s, i) => {
-                  const on = step === i
-                  return (
-                    <button key={s.n} type="button" className={k('sw-how__row', on)} style={{ ['--i' as string]: i }} aria-pressed={on} onClick={() => pick(i)}>
-                      <span className={k('sw-mono sw-how__n', on)}>{s.n}</span>
-                      <span className="sw-how__body">
-                        <span className={k('sw-how__t', on)}>{s.t}</span>
-                        <span className="sw-mono sw-how__ep">{s.ep}</span>
-                        <span className="sw-how__dwrap"><span className="sw-how__d">{s.d}</span></span>
-                      </span>
-                      <span aria-hidden="true" className="sw-how__bar" />
-                    </button>
-                  )
-                })}
-              </div>
-              <div className="sw-how__visual">
-                <RepoStack step={step} pick={pick} />
-              </div>
-            </div>
+        </div>
+        <div className="ca-why__grid">
+          <ol className="ca-why__steps">
+            {WHY_STEPS.map((s, i) => (
+              <li key={s.n} data-on={i < shown || undefined}>
+                <span className="sw-mono ca-why__n">{s.n}</span>
+                <div>
+                  <b className="ca-why__t">{s.t}</b>
+                  <code className="sw-mono ca-why__ep">{s.ep}</code>
+                  <p className="ca-why__d">{s.d}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+          {/* the editor starts the sequence: on a phone it sits below the steps */}
+          <div ref={ref} className="ca-editor">
+            <div className="ca-editor__bar"><i /><i /><i /><span className="sw-mono">src/jobs/export-job.ts</span></div>
+            <ol className="ca-editor__code">
+              {CODE.map((l, i) => {
+                const on = !!l.why && shown > l.why.step
+                return (
+                  <li key={i} data-why={on || undefined}>
+                    {l.why && (
+                      <div className="ca-lens" data-on={on || undefined}>
+                        <div>
+                          <span className="ca-lens__in">
+                            <span className="ca-lens__mark">{l.why.mark}</span>
+                            <b>{l.why.ref}</b><span>{l.why.text}</span>
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                    <div className="ca-editor__line">
+                      <span className="ca-editor__n">{i + 1}</span>
+                      <code className="sw-mono">{l.code}</code>
+                    </div>
+                  </li>
+                )
+              })}
+            </ol>
+            <p className="ca-editor__recall" data-on={shown >= WHY_STEPS.length || undefined}>
+              <b>●</b> statewave · get_context(<em>repo:acme.widgets</em>) <span>→ 3 memories, each with its source</span>
+            </p>
           </div>
         </div>
       </div>
@@ -306,82 +239,65 @@ function Demo() {
   )
 }
 
-/* ── the three packages: a dithered backdrop and a sample card drift against each other under the
- *    pointer, as on the home's use-case cards. Each card shows a different slab of the same art. ── */
-
-const ART = '/images/home/v8/illus/coding-planes.png'
+/* ── the three packages: each card plays its own small scene once when the row scrolls into view,
+ *    an event arriving, a file being picked up, a call being answered. Server HTML shows the end. ── */
 
 const PACKAGES = [
   {
-    slug: 'github', icon: 'github', role: 'Feeds it', name: 'GitHub connector', art: '50% 92%',
+    slug: 'github', icon: 'github', role: 'Feeds it', name: 'GitHub connector',
     text: 'Issues, pull requests, comments, reviews and releases. A merged pull request gets its own episode, so “what landed last week?” has an answer.',
-    sample: { kind: 'github.pr.review', title: 'PR #212 review', text: 'Stick to pnpm workspaces, Vitest and named exports.' },
   },
   {
-    slug: 'markdown', icon: 'markdown', role: 'Feeds it', name: 'Markdown & docs', art: '50% 58%',
+    slug: 'markdown', icon: 'markdown', role: 'Feeds it', name: 'Markdown & docs',
     text: 'ADRs, RFCs, decision docs and pages from the folder you point it at. It runs on your machine, needs no credentials and calls nothing but the ingest.',
-    sample: { kind: 'docs.adr', title: 'docs/adr/007.md', text: 'Job queue runs on Postgres advisory locks, not Redis.' },
   },
   {
-    slug: 'mcp-server', icon: 'modelcontextprotocol', role: 'Reads it', name: 'MCP server', art: '50% 26%',
+    slug: 'mcp-server', icon: 'modelcontextprotocol', role: 'Reads it', name: 'MCP server',
     text: 'Gives Claude Code, Cursor, Copilot and Codex tools to read that memory and save new decisions to it. statewave_get_context is the one they call first.',
-    sample: { kind: 'statewave_get_context', title: SUBJECT, text: 'A ranked bundle, every memory with its source.' },
   },
 ]
 
-/** Eases --mx/--my toward the pointer's offset from the element's centre (-1…1), in rAF so it never
- *  snaps. Off under reduced motion. The same motion as the home's use-case cards. */
-function useDrift<T extends HTMLElement>() {
-  const ref = useRef<T>(null)
-  const rm = usePrefersReducedMotion()
-  useEffect(() => {
-    const el = ref.current
-    if (!el || rm) return
-    let x = 0, y = 0, tx = 0, ty = 0, raf = 0
-    const frame = () => {
-      x += (tx - x) * 0.08; y += (ty - y) * 0.08
-      el.style.setProperty('--mx', x.toFixed(3)); el.style.setProperty('--my', y.toFixed(3))
-      raf = Math.abs(tx - x) + Math.abs(ty - y) > 0.002 ? requestAnimationFrame(frame) : 0
-    }
-    const kick = () => { if (!raf) raf = requestAnimationFrame(frame) }
-    const move = (e: PointerEvent) => {
-      const r = el.getBoundingClientRect()
-      tx = ((e.clientX - r.left) / r.width - 0.5) * 2
-      ty = ((e.clientY - r.top) / r.height - 0.5) * 2
-      kick()
-    }
-    const leave = () => { tx = 0; ty = 0; kick() }
-    el.addEventListener('pointermove', move)
-    el.addEventListener('pointerleave', leave)
-    return () => { el.removeEventListener('pointermove', move); el.removeEventListener('pointerleave', leave); cancelAnimationFrame(raf) }
-  }, [rm])
-  return ref
-}
+const FEED = [
+  ['github.issue.opened', '#42 · CI is flaky'],
+  ['github.pr.review', 'PR #212 review · use Vitest'],
+  ['github.pr.merged', 'PR #212 merged'],
+]
+const TREE: Array<[string, number, boolean?]> = [
+  ['docs/', 0], ['adr/', 1], ['006-cache.md', 2], ['007-job-queue.md', 2, true], ['setup.md', 1],
+]
 
-function Package({ p }: { p: (typeof PACKAGES)[number] }) {
-  const vis = useDrift<HTMLSpanElement>()
+function Scene({ slug }: { slug: string }) {
+  if (slug === 'github') {
+    return (
+      <ol className="ca-scene ca-scene--feed">
+        {FEED.map(([kind, text], i) => (
+          <li key={kind} style={{ ['--d' as string]: i }}><code className="sw-mono">{kind}</code><span>{text}</span></li>
+        ))}
+      </ol>
+    )
+  }
+  if (slug === 'markdown') {
+    return (
+      <ul className="ca-scene ca-scene--tree">
+        {TREE.map(([name, depth, hit], i) => (
+          <li key={name} data-hit={hit || undefined} style={{ ['--d' as string]: i, ['--depth' as string]: depth }}>
+            <span className="sw-mono">{name}</span>{hit && <code className="sw-mono">docs.adr</code>}
+          </li>
+        ))}
+      </ul>
+    )
+  }
   return (
-    <Ln to={`/connectors/${p.slug}`} className="ca-pkg">
-      <span ref={vis} className="ca-vis">
-        <span aria-hidden="true" className="ca-vis__bg" style={{ backgroundImage: `url(${ART})`, backgroundPosition: p.art }} />
-        <span className="ca-vis__card">
-          <code className="sw-mono ca-vis__kind">{p.sample.kind}</code>
-          <b className="sw-mono">{p.sample.title}</b>
-          <span>{p.sample.text}</span>
-        </span>
-      </span>
-      <span className="ca-pkg__head">
-        <span className="ca-pkg__logo"><Icon name={p.icon} size={22} /></span>
-        <span className="ca-pkg__role">{p.role}</span>
-      </span>
-      <b className="ca-pkg__name">{p.name}</b>
-      <p>{p.text}</p>
-      <span className="ca-pkg__more">See the {p.name} page <ArrowRight size={16} aria-hidden="true" /></span>
-    </Ln>
+    <div className="ca-scene ca-scene--call">
+      <p style={{ ['--d' as string]: 0 }}><b>→</b> <span className="sw-mono">get_context(</span></p>
+      <p className="ca-scene__arg" style={{ ['--d' as string]: 1 }}><span className="sw-mono">repo:acme.widgets,</span> “export job queue”)</p>
+      <p className="ca-scene__back" style={{ ['--d' as string]: 3 }}><b>←</b> 3 memories · ADR 007 · a41c9e2 · PR #212</p>
+    </div>
   )
 }
 
 function Packages() {
+  const [ref, seen] = useSeen<HTMLDivElement>()
   return (
     <section className="ca-section ca-section--tint" aria-label="What you install">
       <div className="ca-wrap">
@@ -390,8 +306,19 @@ function Packages() {
           <H2 a="Two connectors feed it." b="One MCP server reads it." />
           <p className="sw-lede">Each ships as its own npm package under Apache-2.0. Install only what you use.</p>
         </div>
-        <div className="ca-pkgs">
-          {PACKAGES.map(p => <Package key={p.slug} p={p} />)}
+        <div ref={ref} className="ca-pkgs" data-seen={seen || undefined}>
+          {PACKAGES.map(p => (
+            <Ln key={p.slug} to={`/connectors/${p.slug}`} className="ca-pkg">
+              <span className="ca-pkg__stage"><Scene slug={p.slug} /></span>
+              <span className="ca-pkg__head">
+                <span className="ca-pkg__logo"><Icon name={p.icon} size={22} /></span>
+                <span className="ca-pkg__role">{p.role}</span>
+              </span>
+              <b className="ca-pkg__name">{p.name}</b>
+              <p>{p.text}</p>
+              <span className="ca-pkg__more">See the {p.name} page <ArrowRight size={16} aria-hidden="true" /></span>
+            </Ln>
+          ))}
         </div>
         <p className="ca-note">
           The quickstart also seeds the repo’s recent commits and README, so the first question has an answer before you
@@ -690,7 +617,7 @@ export function CodingAgentsPage() {
       <Divider />
       <Packages />
       <Divider />
-      <Layers />
+      <Why />
       <Divider />
       <Setup />
       <Divider />
