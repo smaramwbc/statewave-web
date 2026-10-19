@@ -2,13 +2,13 @@ import { useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import { GitCommitHorizontal } from 'lucide-react'
 import { Icon } from '../home/ui'
-import { usePrefersReducedMotion } from '../home/hooks'
+import { usePrefersReducedMotion, useSeen } from '../home/hooks'
 
-/* The coding-agents hero: three things the team wrote down, wired into a Claude Code session.
- * The question types itself, get_context runs, each source lights up and sends one signal down its
- * wire, and a one-line answer arrives with its sources. It plays once and then holds still. Server
- * HTML and reduced motion get the finished exchange. It sits on the home's curve (sw-console-wrap);
- * styles in coding-agents.css. */
+/* The coding-agents payoff, in the closing section: three things the team wrote down, wired into a
+ * Claude Code session. When it scrolls into view the question types itself, get_context runs, each
+ * source lights up and sends one signal down its wire, and a one-line answer arrives with its
+ * sources. It plays once and then holds still. Server HTML and reduced motion get the finished
+ * exchange. Styles in coding-agents.css. */
 
 const SUBJECT = 'repo:acme.widgets'
 const QUESTION = 'Where should the new export job run?'
@@ -25,10 +25,11 @@ const WAIT = [500, 0, 300, 260, 260, 700, 450]
 
 export function AgentTerminal() {
   const rm = usePrefersReducedMotion()
+  const [ref, seen] = useSeen<HTMLElement>()
   const [phase, setPhase] = useState(FINAL)
   const [typed, setTyped] = useState(QUESTION.length)
 
-  // The server renders the finished exchange; on the client the sequence starts over and plays once.
+  // The server renders the finished exchange; on the client it resets, then plays once when seen.
   useEffect(() => {
     if (rm) return
     const id = setTimeout(() => { setPhase(0); setTyped(0) }, 0)
@@ -36,7 +37,7 @@ export function AgentTerminal() {
   }, [rm])
 
   useEffect(() => {
-    if (phase >= FINAL) return
+    if (phase >= FINAL || (phase === 0 && !seen)) return
     if (phase === 1) {
       const id = typed < QUESTION.length
         ? setTimeout(() => setTyped(typed + 1), 28)
@@ -45,12 +46,12 @@ export function AgentTerminal() {
     }
     const id = setTimeout(() => setPhase(phase + 1), WAIT[phase])
     return () => clearTimeout(id)
-  }, [phase, typed])
+  }, [phase, typed, seen])
 
   const lit = (i: number) => phase >= 3 + i
 
   return (
-    <figure className="sw-console-wrap ca-agent" data-phase={phase}>
+    <figure ref={ref} className="ca-agent" data-phase={phase}>
       <figcaption className="sr-only">
         In Claude Code, a developer asks: {QUESTION} The agent calls statewave get_context for {SUBJECT}, which
         returns memories from commit a41c9e2, the PR #212 review and ADR 007, and answers: on the existing job
