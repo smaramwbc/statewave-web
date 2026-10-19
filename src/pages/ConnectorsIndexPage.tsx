@@ -377,9 +377,11 @@ export function ConnectorsIndexPage() {
   return (
     <div ref={root} className="sw-home cxi">
       <Hero />
+      <Divider />
       <Contract />
       <Divider />
       <Modular />
+      <Divider />
       <QuickStart />
       <Faq />
       <Close />
