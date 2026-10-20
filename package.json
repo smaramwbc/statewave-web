@@ -17,7 +17,8 @@
     "lint": "eslint .",
     "test": "vitest run",
     "test:watch": "vitest",
-    "refresh:credibility": "node scripts/refresh-credibility-stats.mjs"
+    "refresh:credibility": "node scripts/refresh-credibility-stats.mjs",
+    "refresh:changelog": "node scripts/refresh-changelog.mjs"
   },
   "dependencies": {
     "@mdx-js/react": "^3.1.1",
