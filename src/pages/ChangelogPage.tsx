@@ -94,8 +94,8 @@ function Hero({ onPick }: { onPick: (p: Filter) => void }) {
           releases.
         </p>
         <ul className="cl-latest" aria-label="Latest releases">
-          {LATEST.map(r => (
-            <li key={r.product}>
+          {LATEST.map((r, i) => (
+            <li key={r.product} style={{ ['--i' as string]: i }}>
               <a href="#releases" onClick={() => onPick(r.product)}>
                 <span className="cl-latest__box"><Mark id={r.product} size={24} /></span>
                 <span className="cl-latest__name">{PRODUCT[r.product].name}</span>
@@ -192,7 +192,42 @@ function Entry({ r }: { r: Release }) {
 
 const COUNTS = Object.fromEntries(PRODUCTS.map(p => [p.id, RELEASES.filter(r => r.product === p.id).length]))
 
+/** Months and entries rise in as they scroll into view, staggered within each batch that enters
+ *  together. The CSS only hides what lacks data-in once the page is armed (after hydration), so the
+ *  server HTML is always visible, and prefers-reduced-motion shows everything still. Whatever is
+ *  already on screen when the page arms stays put. `key` changes with the filter, which remounts the
+ *  list, so a new filter plays the reveal again on the entries it brings in. */
+function useReveal(key: string) {
+  const ref = useRef<HTMLDivElement>(null)
+  const armed = useRef(false)
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const items = Array.from(el.querySelectorAll<HTMLElement>('.cl-month__label, .cl-rel'))
+    const show = (t: HTMLElement) => t.setAttribute('data-in', '')
+    if (typeof IntersectionObserver === 'undefined') { items.forEach(show); return }
+    if (!armed.current) {
+      armed.current = true
+      for (const t of items) if (t.getBoundingClientRect().top < window.innerHeight) show(t)
+    }
+    const io = new IntersectionObserver((entries) => {
+      let n = 0
+      for (const e of entries) {
+        if (!e.isIntersecting) continue
+        const t = e.target as HTMLElement
+        t.style.setProperty('--d', `${Math.min(n++, 5) * 70}ms`)
+        show(t)
+        io.unobserve(t)
+      }
+    }, { rootMargin: '0px 0px -8% 0px' })
+    for (const t of items) if (!t.hasAttribute('data-in')) io.observe(t)
+    return () => io.disconnect()
+  }, [key])
+  return ref
+}
+
 function Releases({ product, onPick }: { product: Filter; onPick: (p: Filter) => void }) {
+  const list = useReveal(product)
   const visible = product === 'all' ? RELEASES : RELEASES.filter(r => r.product === product)
   const months: { key: string; label: string; items: Release[] }[] = []
   for (const r of visible) {
@@ -228,14 +263,16 @@ function Releases({ product, onPick }: { product: Filter; onPick: (p: Filter) =>
         <p className="cl-count" aria-live="polite">
           {plural(visible.length, 'release')}{oldest && ` since ${MONTH.format(new Date(oldest.date))}`}
         </p>
-        {months.map(m => (
-          <section key={m.key} className="cl-month" aria-labelledby={`cl-${m.key}`}>
-            <h3 id={`cl-${m.key}`} className="cl-month__label">{m.label}</h3>
-            <div className="cl-rels">
-              {m.items.map(r => <Entry key={`${r.product}-${r.tag}`} r={r} />)}
-            </div>
-          </section>
-        ))}
+        <div ref={list} key={product}>
+          {months.map(m => (
+            <section key={m.key} className="cl-month" aria-labelledby={`cl-${m.key}`}>
+              <h3 id={`cl-${m.key}`} className="cl-month__label">{m.label}</h3>
+              <div className="cl-rels">
+                {m.items.map(r => <Entry key={`${r.product}-${r.tag}`} r={r} />)}
+              </div>
+            </section>
+          ))}
+        </div>
       </div>
     </section>
   )
