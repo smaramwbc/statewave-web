@@ -51,6 +51,30 @@ describe('Route rendering', () => {
     })
   })
 
+  it('renders the contact page at /contact, with a way in for every kind of request', async () => {
+    renderApp('/contact')
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { level: 1, name: /every way to reach/i })).toBeInTheDocument()
+    })
+    const main = screen.getByRole('main')
+    const hrefs = Array.from(main.querySelectorAll('a[href]')).map((a) => a.getAttribute('href'))
+    for (const want of [
+      'https://github.com/smaramwbc/statewave/issues/new?template=bug_report.yml',
+      'https://github.com/smaramwbc/statewave/issues/new?template=feature_request.yml',
+      'https://github.com/smaramwbc/statewave/discussions',
+      'mailto:security@statewave.ai',
+      'mailto:licensing@statewave.ai',
+      '/press',
+    ]) {
+      expect(hrefs, `/contact has no link to ${want}`).toContain(want)
+    }
+    // Every hero tile jumps to a card that exists.
+    for (const tile of main.querySelectorAll('.ct-tiles a')) {
+      const id = tile.getAttribute('href')!.slice(1)
+      expect(document.getElementById(id), `tile ${id} points at nothing`).not.toBeNull()
+    }
+  })
+
   it('renders connectors page at /connectors', async () => {
     renderApp('/connectors')
     await waitFor(() => {

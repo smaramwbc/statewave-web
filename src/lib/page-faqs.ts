@@ -180,6 +180,47 @@ export const PAGE_FAQS: Partial<Record<RouteKey, readonly FaqEntry[]>> = {
     },
   ],
 
+  // Rendered by ContactPage in the v8 FAQ markup. Every address and link is
+  // one the site already publishes (About, Impressum, Press, the footer);
+  // the security answer follows SECURITY.md and the repository answer
+  // follows SUPPORT.md. No response times: none is promised site-wide.
+  '/contact': [
+    {
+      question: 'How do I report a security vulnerability in Statewave?',
+      answer:
+        'Email security@statewave.ai rather than opening a public GitHub issue or discussion, and keep the details private until a fix ships. Include a description of the vulnerability, the steps to reproduce it, the affected repository and version, and your assessment of the impact. The same address covers every Statewave repository: the server, the Python and TypeScript SDKs, the docs, the examples, the admin dashboard and this website.',
+      links: [
+        { label: 'security@statewave.ai', href: 'mailto:security@statewave.ai' },
+        { label: 'Security policy', href: 'https://github.com/smaramwbc/statewave/security/policy' },
+      ],
+    },
+    {
+      question: 'Where do I ask a question about using Statewave?',
+      answer:
+        'In GitHub Discussions on the statewave repository, where the answer stays public and searchable for the next person who has the same question. The FAQ and the docs already cover self-hosting, memory compilation, retrieval and governance, so they are worth a look first. If what you found is a bug rather than a question, open an issue with the bug report form instead.',
+      links: [
+        { label: 'GitHub Discussions', href: 'https://github.com/smaramwbc/statewave/discussions' },
+        { label: 'FAQ', href: '/faq' },
+        { label: 'Docs', href: 'https://github.com/smaramwbc/statewave-docs' },
+      ],
+    },
+    {
+      question: 'Which repository should I open an issue in?',
+      answer:
+        'The one that ships the code: statewave for the server and the REST API, statewave-py and statewave-ts for the Python and TypeScript SDKs, statewave-connectors for the connectors, statewave-docs for the documentation, statewave-examples for the examples, statewave-admin for the admin dashboard and statewave-web for this website. If you are not sure, open it in the main statewave repository and it will be routed from there.',
+      links: [{ label: 'statewave issues', href: 'https://github.com/smaramwbc/statewave/issues' }],
+    },
+    {
+      question: 'Who do I contact about enterprise support or managed hosting?',
+      answer:
+        'Write to licensing@statewave.ai. Statewave is open source under Apache-2.0, so running it in production or inside a commercial product needs no agreement with us. Enterprise support is optional and offered as a services contract: an SLA, indemnity, help with procurement, managed hosting and architecture review.',
+      links: [
+        { label: 'licensing@statewave.ai', href: 'mailto:licensing@statewave.ai' },
+        { label: 'Licensing overview', href: 'https://github.com/smaramwbc/statewave/blob/main/LICENSING.md' },
+      ],
+    },
+  ],
+
   '/developers': [
     {
       question: 'How long does it take to get Statewave running locally?',

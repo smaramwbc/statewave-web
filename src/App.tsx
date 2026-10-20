@@ -28,6 +28,7 @@ const PrivacyPage = lazy(() => import('./pages/PrivacyPage').then(m => ({ defaul
 const TermsPage = lazy(() => import('./pages/TermsPage').then(m => ({ default: m.TermsPage })))
 const ImpressumPage = lazy(() => import('./pages/ImpressumPage').then(m => ({ default: m.ImpressumPage })))
 const AboutPage = lazy(() => import('./pages/AboutPage').then(m => ({ default: m.AboutPage })))
+const ContactPage = lazy(() => import('./pages/ContactPage').then(m => ({ default: m.ContactPage })))
 const BlogIndexPage = lazy(() => import('./pages/BlogIndexPage').then(m => ({ default: m.BlogIndexPage })))
 const BlogPostPage = lazy(() => import('./pages/BlogPostPage').then(m => ({ default: m.BlogPostPage })))
 const GuideJourneyPage = lazy(() => import('./pages/GuideJourneyPage').then(m => ({ default: m.GuideJourneyPage })))
@@ -65,6 +66,7 @@ export default function App() {
           <Route path="/impressum" element={<ImpressumPage />} />
           <Route path="/cookies" element={<CookiesPage />} />
           <Route path="/about" element={<AboutPage />} />
+          <Route path="/contact" element={<ContactPage />} />
           <Route path="/blog" element={<BlogIndexPage />} />
           {/* Static series index — declared before /blog/:slug so the
               Journey Index owns the URL rather than falling through to
