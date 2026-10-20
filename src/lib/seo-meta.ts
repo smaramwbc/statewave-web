@@ -61,6 +61,7 @@ export type RouteKey =
   | '/connectors'
   | '/developers'
   | '/openrouter'
+  | '/changelog'
   | '/about'
   | '/blog'
   | '/blog/statewave-guide'
@@ -88,6 +89,7 @@ export const PUBLIC_ROUTES: readonly RouteKey[] = [
   '/connectors',
   '/developers',
   '/openrouter',
+  '/changelog',
   '/about',
   '/blog',
   '/blog/statewave-guide',
@@ -279,6 +281,15 @@ export const PAGE_META: Record<RouteKey, PageMeta> = {
     ogType: 'article',
     priority: 0.8,
     changefreq: 'monthly',
+  },
+  '/changelog': {
+    title: 'Changelog — Statewave Server, SDK and Connector Release Notes',
+    description:
+      'Every Statewave release in one place: the server, the Python and TypeScript SDKs and the connectors, with the new features, fixes and npm package versions from each GitHub release.',
+    breadcrumbLabel: 'Changelog',
+    ogType: 'website',
+    priority: 0.5,
+    changefreq: 'weekly',
   },
   '/about': {
     title: 'About Statewave — Open-Source Memory Runtime for AI Agents',
