@@ -1,0 +1,2246 @@
+{
+  "fetched_at": "2026-10-20T07:26:32.819Z",
+  "releases": [
+    {
+      "product": "server",
+      "tag": "v1.5.0",
+      "version": "1.5.0",
+      "title": null,
+      "date": "2026-08-30T13:45:19Z",
+      "url": "https://github.com/smaramwbc/statewave/releases/tag/v1.5.0",
+      "prerelease": false,
+      "summary": null,
+      "notice": null,
+      "changes": [
+        {
+          "kind": "fix",
+          "text": "Parse closing ATX heading hashes",
+          "scope": "docs",
+          "pr": 311,
+          "url": "https://github.com/smaramwbc/statewave/pull/311"
+        },
+        {
+          "kind": "fix",
+          "text": "Add plain status output",
+          "scope": "preflight",
+          "pr": 312,
+          "url": "https://github.com/smaramwbc/statewave/pull/312"
+        },
+        {
+          "kind": "fix",
+          "text": "Show complete version help",
+          "scope": "scripts",
+          "pr": 319,
+          "url": "https://github.com/smaramwbc/statewave/pull/319"
+        },
+        {
+          "kind": "fix",
+          "text": "Remove unused structlog logger in backfill_subject_entities.py",
+          "pr": 320,
+          "url": "https://github.com/smaramwbc/statewave/pull/320"
+        },
+        {
+          "kind": "fix",
+          "text": "Move JSONResponse import to module top-level in errors.py",
+          "pr": 325,
+          "url": "https://github.com/smaramwbc/statewave/pull/325"
+        },
+        {
+          "kind": "fix",
+          "text": "Declare numpy and httpx as runtime dependencies",
+          "pr": 327,
+          "url": "https://github.com/smaramwbc/statewave/pull/327"
+        },
+        {
+          "kind": "fix",
+          "text": "Fix/seed banner alignment 302",
+          "pr": 333,
+          "url": "https://github.com/smaramwbc/statewave/pull/333"
+        },
+        {
+          "kind": "other",
+          "text": "Extract shared fake DB-session test doubles to tests/_fakes.py (#299)",
+          "pr": 339,
+          "url": "https://github.com/smaramwbc/statewave/pull/339"
+        },
+        {
+          "kind": "fix",
+          "text": "Fix/295 response mapping",
+          "pr": 356,
+          "url": "https://github.com/smaramwbc/statewave/pull/356"
+        },
+        {
+          "kind": "feature",
+          "text": "Expose limit/offset pagination on GET /v1/resolutions (#332)",
+          "pr": 361,
+          "url": "https://github.com/smaramwbc/statewave/pull/361"
+        },
+        {
+          "kind": "feature",
+          "text": "Expose limit/offset pagination on GET /v1/timeline (#331)",
+          "pr": 362,
+          "url": "https://github.com/smaramwbc/statewave/pull/362"
+        },
+        {
+          "kind": "feature",
+          "text": "Let GET /v1/timeline return the most recent records",
+          "scope": "timeline",
+          "pr": 363,
+          "url": "https://github.com/smaramwbc/statewave/pull/363"
+        }
+      ],
+      "maintenance": 36,
+      "packages": [],
+      "newContributors": [
+        "Vignesh-P-C",
+        "jhuynh-devcups",
+        "RestuSec"
+      ]
+    },
+    {
+      "product": "python",
+      "tag": "v1.5.0",
+      "version": "1.5.0",
+      "title": null,
+      "date": "2026-08-30T13:42:08Z",
+      "url": "https://github.com/smaramwbc/statewave-py/releases/tag/v1.5.0",
+      "prerelease": false,
+      "summary": null,
+      "notice": null,
+      "changes": [
+        {
+          "kind": "feature",
+          "text": "Page get_timeline and list_resolutions",
+          "scope": "client",
+          "pr": 33,
+          "url": "https://github.com/smaramwbc/statewave-py/pull/33"
+        },
+        {
+          "kind": "feature",
+          "text": "Page get_timeline, and page from the recent end",
+          "scope": "client",
+          "pr": 32,
+          "url": "https://github.com/smaramwbc/statewave-py/pull/32"
+        }
+      ],
+      "maintenance": 4,
+      "packages": [],
+      "newContributors": []
+    },
+    {
+      "product": "typescript",
+      "tag": "v1.5.0",
+      "version": "1.5.0",
+      "title": null,
+      "date": "2026-08-30T16:26:05Z",
+      "url": "https://github.com/smaramwbc/statewave-ts/releases/tag/v1.5.0",
+      "prerelease": false,
+      "summary": null,
+      "notice": null,
+      "changes": [
+        {
+          "kind": "feature",
+          "text": "Page getTimeline, and page from the recent end",
+          "scope": "client",
+          "pr": 31,
+          "url": "https://github.com/smaramwbc/statewave-ts/pull/31"
+        }
+      ],
+      "maintenance": 4,
+      "packages": [],
+      "newContributors": []
+    },
+    {
+      "product": "connectors",
+      "tag": "v0.24.4",
+      "version": "0.24.4",
+      "title": "MCP tool-definition enrichment",
+      "date": "2026-07-17T12:26:25Z",
+      "url": "https://github.com/smaramwbc/statewave-connectors/releases/tag/v0.24.4",
+      "prerelease": false,
+      "summary": null,
+      "notice": null,
+      "changes": [
+        {
+          "kind": "other",
+          "text": "every MCP tool now documents its parameters and behavior in the tool description + JSON-schema annotations (e.g. the `repo:owner/name` → `repo:owner.name` subject-shape note; the server rejects slashes in subjects). LLM clients calling the server see richer, self-describing tool schemas. Descriptions / schema annotations only — no behavior change.",
+          "package": "@statewavedev/mcp-server",
+          "version": "0.4.8"
+        }
+      ],
+      "maintenance": 0,
+      "packages": [
+        {
+          "name": "@statewavedev/mcp-server",
+          "version": "0.4.8"
+        }
+      ],
+      "newContributors": []
+    },
+    {
+      "product": "connectors",
+      "tag": "v0.24.3",
+      "version": "0.24.3",
+      "title": "Jira Cloud status-transition fix",
+      "date": "2026-07-17T11:35:36Z",
+      "url": "https://github.com/smaramwbc/statewave-connectors/releases/tag/v0.24.3",
+      "prerelease": false,
+      "summary": null,
+      "notice": "The MCP tool-definition enrichment (`@statewavedev/mcp-server`, descriptions/JSON-schema only) is merged on `main` but ships in a later release — it has no version bump in this train.",
+      "changes": [
+        {
+          "kind": "other",
+          "text": "send the Jira Cloud `/search/jql` `expand` parameter as a comma-separated string so status-transition syncs no longer fail with `HTTP 400`.",
+          "package": "@statewavedev/connectors-jira",
+          "version": "0.4.2"
+        },
+        {
+          "kind": "security",
+          "text": "pin `undici` to `^7.28.0` via pnpm overrides, clearing 7 Dependabot alerts (transitive; no published-package dependency ranges change)."
+        }
+      ],
+      "maintenance": 1,
+      "packages": [
+        {
+          "name": "@statewavedev/connectors-jira",
+          "version": "0.4.2"
+        }
+      ],
+      "newContributors": []
+    },
+    {
+      "product": "server",
+      "tag": "v1.4.0",
+      "version": "1.4.0",
+      "title": null,
+      "date": "2026-07-14T06:46:45Z",
+      "url": "https://github.com/smaramwbc/statewave/releases/tag/v1.4.0",
+      "prerelease": false,
+      "summary": null,
+      "notice": null,
+      "changes": [
+        {
+          "kind": "fix",
+          "text": "Harden bulk delete matching",
+          "scope": "admin",
+          "pr": 268,
+          "url": "https://github.com/smaramwbc/statewave/pull/268"
+        },
+        {
+          "kind": "feature",
+          "text": "POST /admin/jobs/reset-stuck",
+          "scope": "admin",
+          "pr": 269,
+          "url": "https://github.com/smaramwbc/statewave/pull/269"
+        },
+        {
+          "kind": "feature",
+          "text": "Job ops — reset stuck, delete individual, fix empty subject 404",
+          "scope": "admin",
+          "pr": 270,
+          "url": "https://github.com/smaramwbc/statewave/pull/270"
+        },
+        {
+          "kind": "fix",
+          "text": "Allow deleting subjects that have only compile jobs (no episodes/memories)",
+          "scope": "admin",
+          "pr": 271,
+          "url": "https://github.com/smaramwbc/statewave/pull/271"
+        },
+        {
+          "kind": "fix",
+          "text": "Scope source episode lookups by tenant",
+          "scope": "context",
+          "pr": 276,
+          "url": "https://github.com/smaramwbc/statewave/pull/276"
+        },
+        {
+          "kind": "fix",
+          "text": "Scope memory provenance by tenant",
+          "scope": "admin",
+          "pr": 277,
+          "url": "https://github.com/smaramwbc/statewave/pull/277"
+        },
+        {
+          "kind": "other",
+          "text": "Guard no-op subject.deleted webhook, add search_mode, cover purge_events (#282, #281, #279)",
+          "pr": 283,
+          "url": "https://github.com/smaramwbc/statewave/pull/283"
+        }
+      ],
+      "maintenance": 16,
+      "packages": [],
+      "newContributors": []
+    },
+    {
+      "product": "python",
+      "tag": "v1.4.0",
+      "version": "1.4.0",
+      "title": null,
+      "date": "2026-07-14T06:53:15Z",
+      "url": "https://github.com/smaramwbc/statewave-py/releases/tag/v1.4.0",
+      "prerelease": false,
+      "summary": null,
+      "notice": null,
+      "changes": [],
+      "maintenance": 2,
+      "packages": [],
+      "newContributors": []
+    },
+    {
+      "product": "typescript",
+      "tag": "v1.4.0",
+      "version": "1.4.0",
+      "title": null,
+      "date": "2026-07-14T06:53:43Z",
+      "url": "https://github.com/smaramwbc/statewave-ts/releases/tag/v1.4.0",
+      "prerelease": false,
+      "summary": null,
+      "notice": null,
+      "changes": [],
+      "maintenance": 3,
+      "packages": [],
+      "newContributors": []
+    },
+    {
+      "product": "server",
+      "tag": "v1.3.0",
+      "version": "1.3.0",
+      "title": null,
+      "date": "2026-06-25T00:06:52Z",
+      "url": "https://github.com/smaramwbc/statewave/releases/tag/v1.3.0",
+      "prerelease": false,
+      "summary": null,
+      "notice": null,
+      "changes": [
+        {
+          "kind": "fix",
+          "text": "Isolate test runs from the repo .env",
+          "scope": "tests",
+          "pr": 250,
+          "url": "https://github.com/smaramwbc/statewave/pull/250"
+        },
+        {
+          "kind": "feature",
+          "text": "Return token usage + model from /v1/llm/complete",
+          "scope": "llm",
+          "pr": 251,
+          "url": "https://github.com/smaramwbc/statewave/pull/251"
+        },
+        {
+          "kind": "feature",
+          "text": "Hybrid retrieval + compile pipeline (1.3.0)",
+          "scope": "retrieval+compile",
+          "pr": 259,
+          "url": "https://github.com/smaramwbc/statewave/pull/259"
+        }
+      ],
+      "maintenance": 8,
+      "packages": [],
+      "newContributors": []
+    },
+    {
+      "product": "server",
+      "tag": "v1.2.0",
+      "version": "1.2.0",
+      "title": null,
+      "date": "2026-06-17T10:48:29Z",
+      "url": "https://github.com/smaramwbc/statewave/releases/tag/v1.2.0",
+      "prerelease": false,
+      "summary": null,
+      "notice": null,
+      "changes": [
+        {
+          "kind": "feature",
+          "text": "Admin API, dynamic settings, production readiness endpoint",
+          "scope": "admin",
+          "pr": 243,
+          "url": "https://github.com/smaramwbc/statewave/pull/243"
+        },
+        {
+          "kind": "fix",
+          "text": "Add min_value=1 to import count cap catalogue entries",
+          "scope": "settings",
+          "pr": 244,
+          "url": "https://github.com/smaramwbc/statewave/pull/244"
+        },
+        {
+          "kind": "fix",
+          "text": "Escape LIKE metacharacters in admin search and prefix filters",
+          "scope": "admin",
+          "pr": 245,
+          "url": "https://github.com/smaramwbc/statewave/pull/245"
+        },
+        {
+          "kind": "feature",
+          "text": "6 new inspection API endpoints (compiler trace, conflicts, timeline, policy, clusters, receipts)",
+          "scope": "admin",
+          "pr": 247,
+          "url": "https://github.com/smaramwbc/statewave/pull/247"
+        },
+        {
+          "kind": "fix",
+          "text": "Compile episode payload search as text",
+          "scope": "admin",
+          "pr": 246,
+          "url": "https://github.com/smaramwbc/statewave/pull/246"
+        }
+      ],
+      "maintenance": 0,
+      "packages": [],
+      "newContributors": []
+    },
+    {
+      "product": "python",
+      "tag": "v1.2.0",
+      "version": "1.2.0",
+      "title": null,
+      "date": "2026-06-17T10:49:14Z",
+      "url": "https://github.com/smaramwbc/statewave-py/releases/tag/v1.2.0",
+      "prerelease": false,
+      "summary": null,
+      "notice": null,
+      "changes": [
+        {
+          "kind": "feature",
+          "text": "Per-call timeout override and CancelledError propagation",
+          "pr": 25,
+          "url": "https://github.com/smaramwbc/statewave-py/pull/25"
+        }
+      ],
+      "maintenance": 1,
+      "packages": [],
+      "newContributors": []
+    },
+    {
+      "product": "typescript",
+      "tag": "v1.2.0",
+      "version": "1.2.0",
+      "title": null,
+      "date": "2026-06-17T10:48:40Z",
+      "url": "https://github.com/smaramwbc/statewave-ts/releases/tag/v1.2.0",
+      "prerelease": false,
+      "summary": null,
+      "notice": null,
+      "changes": [
+        {
+          "kind": "feature",
+          "text": "Add optional AbortSignal support to all HTTP methods",
+          "pr": 24,
+          "url": "https://github.com/smaramwbc/statewave-ts/pull/24"
+        }
+      ],
+      "maintenance": 0,
+      "packages": [],
+      "newContributors": []
+    },
+    {
+      "product": "connectors",
+      "tag": "v0.24.2",
+      "version": "0.24.2",
+      "title": "dependency maintenance",
+      "date": "2026-06-17T14:36:52Z",
+      "url": "https://github.com/smaramwbc/statewave-connectors/releases/tag/v0.24.2",
+      "prerelease": false,
+      "summary": null,
+      "notice": null,
+      "changes": [],
+      "maintenance": 1,
+      "packages": [],
+      "newContributors": []
+    },
+    {
+      "product": "connectors",
+      "tag": "v0.24.1",
+      "version": "0.24.1",
+      "title": "@statewavedev/statewave README",
+      "date": "2026-06-15T07:59:49Z",
+      "url": "https://github.com/smaramwbc/statewave-connectors/releases/tag/v0.24.1",
+      "prerelease": false,
+      "summary": null,
+      "notice": null,
+      "changes": [
+        {
+          "kind": "other",
+          "text": "adds README for the npm package page.",
+          "package": "@statewavedev/statewave",
+          "version": "0.4.8"
+        }
+      ],
+      "maintenance": 0,
+      "packages": [
+        {
+          "name": "@statewavedev/statewave",
+          "version": "0.4.8"
+        }
+      ],
+      "newContributors": []
+    },
+    {
+      "product": "connectors",
+      "tag": "v0.24.0",
+      "version": "0.24.0",
+      "title": "npx @statewavedev/statewave",
+      "date": "2026-06-14T23:11:32Z",
+      "url": "https://github.com/smaramwbc/statewave-connectors/releases/tag/v0.24.0",
+      "prerelease": false,
+      "summary": null,
+      "notice": null,
+      "changes": [
+        {
+          "kind": "other",
+          "text": "thin `npx`-friendly wrapper; `npx @statewavedev/statewave` runs quickstart by default. Any extra flags (`--down`, `--statewave-url`, etc.) are forwarded to the CLI.",
+          "package": "@statewavedev/statewave",
+          "version": "0.4.7"
+        },
+        {
+          "kind": "other",
+          "text": "quickstart now checks for Docker image updates before prompting; restarts the stack automatically and shows the version delta. LLM/heuristic prompt copy rewritten for first-time clarity.",
+          "package": "@statewavedev/connectors-cli",
+          "version": "0.4.7"
+        }
+      ],
+      "maintenance": 0,
+      "packages": [
+        {
+          "name": "@statewavedev/statewave",
+          "version": "0.4.7"
+        },
+        {
+          "name": "@statewavedev/connectors-cli",
+          "version": "0.4.7"
+        }
+      ],
+      "newContributors": []
+    },
+    {
+      "product": "server",
+      "tag": "v1.1.0",
+      "version": "1.1.0",
+      "title": null,
+      "date": "2026-06-12T19:54:31Z",
+      "url": "https://github.com/smaramwbc/statewave/releases/tag/v1.1.0",
+      "prerelease": false,
+      "summary": null,
+      "notice": null,
+      "changes": [
+        {
+          "kind": "feature",
+          "text": "Generic claim-keyed conflict resolution and atomic structured memories",
+          "pr": 235,
+          "url": "https://github.com/smaramwbc/statewave/pull/235"
+        },
+        {
+          "kind": "fix",
+          "text": "Reasoning-model compile budget, NUL-byte strip, idempotent ingest",
+          "pr": 240,
+          "url": "https://github.com/smaramwbc/statewave/pull/240"
+        }
+      ],
+      "maintenance": 5,
+      "packages": [],
+      "newContributors": []
+    },
+    {
+      "product": "python",
+      "tag": "v1.1.0",
+      "version": "1.1.0",
+      "title": null,
+      "date": "2026-06-12T18:25:44Z",
+      "url": "https://github.com/smaramwbc/statewave-py/releases/tag/v1.1.0",
+      "prerelease": false,
+      "summary": null,
+      "notice": null,
+      "changes": [
+        {
+          "kind": "feature",
+          "text": "Optional idempotency_key on create_episode",
+          "pr": 23,
+          "url": "https://github.com/smaramwbc/statewave-py/pull/23"
+        }
+      ],
+      "maintenance": 0,
+      "packages": [],
+      "newContributors": []
+    },
+    {
+      "product": "typescript",
+      "tag": "v1.1.0",
+      "version": "1.1.0",
+      "title": null,
+      "date": "2026-06-12T18:27:29Z",
+      "url": "https://github.com/smaramwbc/statewave-ts/releases/tag/v1.1.0",
+      "prerelease": false,
+      "summary": null,
+      "notice": null,
+      "changes": [
+        {
+          "kind": "feature",
+          "text": "Optional idempotencyKey on createEpisode",
+          "pr": 23,
+          "url": "https://github.com/smaramwbc/statewave-ts/pull/23"
+        }
+      ],
+      "maintenance": 0,
+      "packages": [],
+      "newContributors": []
+    },
+    {
+      "product": "connectors",
+      "tag": "v0.23.0",
+      "version": "0.23.0",
+      "title": "Premium quickstart onboarding",
+      "date": "2026-06-12T20:11:31Z",
+      "url": "https://github.com/smaramwbc/statewave-connectors/releases/tag/v0.23.0",
+      "prerelease": false,
+      "summary": "A redesigned `quickstart` that wires Statewave into your MCP clients in one command, verifying every step rather than claiming success.",
+      "notice": null,
+      "changes": [
+        {
+          "kind": "other",
+          "text": "`quickstart` derives subjects from real git identity (`repo:owner.name`), preflights Docker/Node/Git, discovers + seeds multiple repos, configures each detected MCP client per-repo, installs + verifies the IDE Companion cross-platform, and reports honest server-verified results. Live LiteLLM model discovery validates the API key and lists the models the provider currently serves (never a deprecated default). Adds no-Node bootstrap scripts (`sh`/`ps1` — official source, checksum-verified, consent-gated), a two-tier outcome + exit code, and prompts legible on light and dark terminals.",
+          "package": "@statewavedev/connectors-cli",
+          "version": "0.4.0"
+        },
+        {
+          "kind": "other",
+          "text": "adds the `statewave_list_subjects` tool for subject discovery, and drains compilation fully (surfacing `has_more`) so a large subject finishes compiling in one seed.",
+          "package": "@statewavedev/mcp-server",
+          "version": "0.4.0"
+        }
+      ],
+      "maintenance": 0,
+      "packages": [
+        {
+          "name": "@statewavedev/connectors-cli",
+          "version": "0.4.0"
+        },
+        {
+          "name": "@statewavedev/mcp-server",
+          "version": "0.4.0"
+        }
+      ],
+      "newContributors": []
+    },
+    {
+      "product": "python",
+      "tag": "v1.0.1",
+      "version": "1.0.1",
+      "title": null,
+      "date": "2026-06-11T18:03:47Z",
+      "url": "https://github.com/smaramwbc/statewave-py/releases/tag/v1.0.1",
+      "prerelease": false,
+      "summary": null,
+      "notice": null,
+      "changes": [],
+      "maintenance": 1,
+      "packages": [],
+      "newContributors": []
+    },
+    {
+      "product": "typescript",
+      "tag": "v1.0.1",
+      "version": "1.0.1",
+      "title": null,
+      "date": "2026-06-11T18:07:26Z",
+      "url": "https://github.com/smaramwbc/statewave-ts/releases/tag/v1.0.1",
+      "prerelease": false,
+      "summary": null,
+      "notice": null,
+      "changes": [],
+      "maintenance": 1,
+      "packages": [],
+      "newContributors": []
+    },
+    {
+      "product": "server",
+      "tag": "v1.0.0",
+      "version": "1.0.0",
+      "title": "first stable public developer release",
+      "date": "2026-06-09T19:28:30Z",
+      "url": "https://github.com/smaramwbc/statewave/releases/tag/v1.0.0",
+      "prerelease": false,
+      "summary": "Statewave v1.0 is the first stable public developer release of the open-source memory runtime that gives AI agents reproducible, provenance-tagged context. The v1 API contract (`/v1/*`) and the v0.9 governance surfaces (HMAC-signed receipts, replay, sensitivity labels with declarative policy, opt-in detector-suggested labels, per-region residency pinning) are now considered stable for developer use under a self-hosted deployment model. Limitations are documented in [`why-statewave.md`](https://github.com/smaramwbc/statewave-docs/blob/main/why-statewave.md); see [`v1.0-readiness-checklist.md`](https://github.com/smaramwbc/statewave-docs/blob/main/release-notes/v1.0-readiness-checklist.md) for the full sign-off artefact.",
+      "notice": null,
+      "changes": [
+        {
+          "kind": "other",
+          "text": "Public `GET /v1/version` ([#178](https://github.com/smaramwbc/statewave/issues/178))."
+        },
+        {
+          "kind": "other",
+          "text": "Python SDK governance helpers — `list_suggested_labels()` / `promote_suggested_labels()` ([#176](https://github.com/smaramwbc/statewave/issues/176))."
+        },
+        {
+          "kind": "other",
+          "text": "`session_id` on `create_episode` in both SDKs ([#174](https://github.com/smaramwbc/statewave/issues/174))."
+        },
+        {
+          "kind": "other",
+          "text": "Webhook delivery stats + tenant scoping; a correctness lap across admin / receipts / conflicts / backup / embeddings / snapshots surfaces."
+        }
+      ],
+      "maintenance": 0,
+      "packages": [],
+      "newContributors": []
+    },
+    {
+      "product": "python",
+      "tag": "v1.0.0",
+      "version": "1.0.0",
+      "title": null,
+      "date": "2026-06-09T19:34:39Z",
+      "url": "https://github.com/smaramwbc/statewave-py/releases/tag/v1.0.0",
+      "prerelease": false,
+      "summary": null,
+      "notice": null,
+      "changes": [
+        {
+          "kind": "feature",
+          "text": "Accept session_id on create_episode (statewave-py v0.10.2 — closes statewave#174)",
+          "scope": "client",
+          "pr": 18,
+          "url": "https://github.com/smaramwbc/statewave-py/pull/18"
+        },
+        {
+          "kind": "feature",
+          "text": "Governance helpers — list/promote suggested labels (#176)",
+          "scope": "sdk",
+          "pr": 20,
+          "url": "https://github.com/smaramwbc/statewave-py/pull/20"
+        }
+      ],
+      "maintenance": 2,
+      "packages": [],
+      "newContributors": []
+    },
+    {
+      "product": "typescript",
+      "tag": "v1.0.0",
+      "version": "1.0.0",
+      "title": null,
+      "date": "2026-06-09T19:32:20Z",
+      "url": "https://github.com/smaramwbc/statewave-ts/releases/tag/v1.0.0",
+      "prerelease": false,
+      "summary": null,
+      "notice": null,
+      "changes": [
+        {
+          "kind": "fix",
+          "text": "Forward sessionId on createEpisode (@statewavedev/sdk v0.10.2 — closes statewave#174)",
+          "scope": "client",
+          "pr": 19,
+          "url": "https://github.com/smaramwbc/statewave-ts/pull/19"
+        }
+      ],
+      "maintenance": 2,
+      "packages": [],
+      "newContributors": []
+    },
+    {
+      "product": "connectors",
+      "tag": "v0.22.0",
+      "version": "0.22.0",
+      "title": "Jira Server / Data Center support (preview, live-unverified)",
+      "date": "2026-05-28T21:25:16Z",
+      "url": "https://github.com/smaramwbc/statewave-connectors/releases/tag/v0.22.0",
+      "prerelease": false,
+      "summary": "This release publishes three connector packages to npm, bundling the four connector waves landed since the last npm release (v0.18.0).",
+      "notice": null,
+      "changes": [
+        {
+          "kind": "other",
+          "text": "**v0.19.0 — database schema-metadata mode (preview).** Opt-in `--mode schema --tables <allowlist>`: ingests catalog metadata (columns, primary key, indexes) for an explicit table allowlist; never reads data rows, never crawls the instance (`database.schema`). Live-verified against PostgreSQL, MySQL, and SQL Server 2022; MariaDB shares MySQL's `information_schema.statistics` path (unit-tested). Resolves statewave#191."
+        },
+        {
+          "kind": "other",
+          "text": "**v0.20.0 — Jira webhook receiver (preview).** `createJiraWebhookHandler` + `statewave-connectors listen jira`. Verifies Jira admin webhooks' `X-Hub-Signature: sha256=<hmac>` (HMAC-SHA256 over the raw body, constant-time) before parsing/ingesting; dedups retries; optional project allowlist; same `jira.*` kinds as pull. Resolves statewave#192."
+        },
+        {
+          "kind": "other",
+          "text": "**v0.21.0 — Jira transitions + sprint context (preview).** Opt-in `--include transitions` (`jira.issue.transition`, also emitted by the webhook) and `--sprint-field` (sprint metadata + `sprint:<name>` subject). No extra API calls, no board crawl. Resolves statewave#194."
+        },
+        {
+          "kind": "other",
+          "text": "**v0.22.0 — Jira Server / Data Center support (preview, live-unverified).** See below."
+        },
+        {
+          "kind": "other",
+          "text": "`--deployment server` switches to the Jira Server / Data Center shape: REST `/rest/api/2` (vs Cloud `/rest/api/3`), **plain-text/wiki bodies** (vs ADF — a shared `flattenBody` handles both), and **PAT Bearer auth** (`Authorization: Bearer <PAT>`) or username:password Basic (vs Cloud email:token Basic). Server users resolve by displayName → username. Everything else is shared (subjects, no-email fields, redaction, project allowlist, issue/comment/transition kinds).",
+          "package": "@statewavedev/connectors-jira",
+          "version": "0.4.0"
+        },
+        {
+          "kind": "other",
+          "text": "`sync jira --deployment server` + `--personal-access-token` (env `JIRA_PAT`).",
+          "package": "@statewavedev/connectors-cli",
+          "version": "0.2.5"
+        }
+      ],
+      "maintenance": 0,
+      "packages": [
+        {
+          "name": "@statewavedev/connectors-database",
+          "version": "0.2.0"
+        },
+        {
+          "name": "@statewavedev/connectors-jira",
+          "version": "0.4.0"
+        },
+        {
+          "name": "@statewavedev/connectors-cli",
+          "version": "0.2.5"
+        }
+      ],
+      "newContributors": []
+    },
+    {
+      "product": "connectors",
+      "tag": "v0.18.0",
+      "version": "0.18.0",
+      "title": "Jira + database source connectors (preview)",
+      "date": "2026-05-28T17:06:51Z",
+      "url": "https://github.com/smaramwbc/statewave-connectors/releases/tag/v0.18.0",
+      "prerelease": false,
+      "summary": "Two new **preview** source connectors. Both ingest external records **into** Statewave memory; Statewave's own storage remains PostgreSQL + pgvector, and neither writes to the source system.",
+      "notice": null,
+      "changes": [
+        {
+          "kind": "other",
+          "text": "Jira Cloud REST v3, API-token auth, pull-mode. Issues + optional comments → `project:<KEY>` memory. No-email user fields (displayName/accountId), ADF→plain-text, redaction, project allowlist, JQL-injection-validated keys. CLI: `statewave-connectors sync jira`.",
+          "package": "@statewavedev/connectors-jira",
+          "version": "0.1.0"
+        },
+        {
+          "kind": "other",
+          "text": "one package, four dialects (`postgres | mysql | mariadb | mssql`). Selected external rows → Statewave memory. Read-only (session read-only on PG/MySQL/MariaDB; SELECT-only guard everywhere), allowlisted table or operator SELECT, selected columns, required `--max-rows`, `${ENV}`-only secrets, no schema-wide dump, no mutation queries, no binary ingestion. Drivers are optional peer deps (`pg`/`mysql2`/`mssql`). PostgreSQL live-verified; MSSQL live validation tracked in [statewave#190](https://github.com/smaramwbc/statewave/issues/190). CLI: `statewave-connectors sync database`.",
+          "package": "@statewavedev/connectors-database",
+          "version": "0.1.0"
+        },
+        {
+          "kind": "other",
+          "text": "wires `sync jira` and `sync database`.",
+          "package": "@statewavedev/connectors-cli",
+          "version": "0.2.1"
+        }
+      ],
+      "maintenance": 0,
+      "packages": [
+        {
+          "name": "@statewavedev/connectors-jira",
+          "version": "0.1.0"
+        },
+        {
+          "name": "@statewavedev/connectors-database",
+          "version": "0.1.0"
+        },
+        {
+          "name": "@statewavedev/connectors-cli",
+          "version": "0.2.1"
+        }
+      ],
+      "newContributors": []
+    },
+    {
+      "product": "server",
+      "tag": "v0.9.2",
+      "version": "0.9.2",
+      "title": "version-consistency & SDK-readiness patch",
+      "date": "2026-05-26T21:58:13Z",
+      "url": "https://github.com/smaramwbc/statewave/releases/tag/v0.9.2",
+      "prerelease": false,
+      "summary": "Small stabilization patch on top of the canonical v0.9 governance release ([v0.9.1](https://github.com/smaramwbc/statewave/releases/tag/v0.9.1)). **No new backend features, no API changes, no schema migrations.** Operators upgrading v0.9.1 → v0.9.2 should expect zero functional difference.",
+      "notice": null,
+      "changes": [
+        {
+          "kind": "other",
+          "text": "**`pyproject.toml` bumped from `0.9.0` to `0.9.2`** ([#171](https://github.com/smaramwbc/statewave/pull/171)) — closes the pyproject/tag drift introduced when `0.9.0` was bumped ahead of the actual v0.9 work. Both the v0.9.0 (stub, superseded) and v0.9.1 (canonical) tags reported `0.9.0` from `pip show statewave`; v0.9.2 closes that drift so `pip show statewave` reports a version matching the published tag."
+        }
+      ],
+      "maintenance": 0,
+      "packages": [],
+      "newContributors": []
+    },
+    {
+      "product": "server",
+      "tag": "v0.9.1",
+      "version": "0.9.1",
+      "title": "v0.9 governance release correction",
+      "date": "2026-05-26T18:53:23Z",
+      "url": "https://github.com/smaramwbc/statewave/releases/tag/v0.9.1",
+      "prerelease": false,
+      "summary": "**`v0.9.0` was cut too early and does not contain the full v0.9 governance stack.** `v0.9.1` is the canonical v0.9 governance release.",
+      "notice": null,
+      "changes": [
+        {
+          "kind": "other",
+          "text": "**Scheduled retention-purge worker** ([#162](https://github.com/smaramwbc/statewave/pull/162), closes [#156](https://github.com/smaramwbc/statewave/issues/156)) — hourly worker reads `tenant_configs.config.receipt_retention_days` and tombstones expired receipts. Soft-delete only; partial index keeps it cheap. Migration 0020."
+        },
+        {
+          "kind": "other",
+          "text": "**HMAC-signed receipts** ([#163](https://github.com/smaramwbc/statewave/pull/163), closes [#157](https://github.com/smaramwbc/statewave/issues/157)) — `hmac-sha256-canonical-v1` over the canonical receipt body. Operator-provided keys via `STATEWAVE_RECEIPT_SIGNING_KEYS` (never persisted to DB). `GET /v1/receipts/{id}/verify` returns `{valid: true | false | null, key_id, algorithm, reason}` with constant-time compare. Pre-v0.9 receipts verify cleanly as `no_signature`. Migration 0021."
+        },
+        {
+          "kind": "other",
+          "text": "**Heuristic auto-labeling pipeline** ([#164](https://github.com/smaramwbc/statewave/pull/164), closes [#158](https://github.com/smaramwbc/statewave/issues/158)) — opt-in `STATEWAVE_AUTO_LABELING_ENABLED` stamps advisory `suggested_labels` (strictly separate from authoritative `sensitivity_labels`). v0.9 first wave: `pii.email`, `pii.phone`, `financial.card` (Luhn), `secret.token`. Migration 0022 (GIN-indexed)."
+        },
+        {
+          "kind": "other",
+          "text": "**Receipt replay** ([#165](https://github.com/smaramwbc/statewave/pull/165), closes [#159](https://github.com/smaramwbc/statewave/issues/159)) — every v0.9+ receipt embeds the active policy bundle's YAML in `policy_snapshot`. `POST /v1/receipts/{id}/replay` re-runs the original retrieval against current memories with the original policy, returning a structural diff envelope. Mode `\"as_of_replay\"`, child receipts link to the parent. Semantic: *current code + original policy*. Migration 0023."
+        },
+        {
+          "kind": "other",
+          "text": "**Admin review/promote/replay UI** ([#166](https://github.com/smaramwbc/statewave/pull/166) + [statewave-admin#89](https://github.com/smaramwbc/statewave-admin/pull/89), closes [#160](https://github.com/smaramwbc/statewave/issues/160)) — `POST /admin/memories/{id}/promote-labels` is review-only with audit-trail entries on `memory.metadata.label_promotions`. Admin app gains a `/suggested-labels` page and a Replay button on receipt detail that renders the diff envelope inline."
+        },
+        {
+          "kind": "other",
+          "text": "**Per-tenant residency** ([#167](https://github.com/smaramwbc/statewave/pull/167), closes [#161](https://github.com/smaramwbc/statewave/issues/161)) — `STATEWAVE_REGION` + `tenant_configs.config.region`. Hard application-layer enforcement on `/v1/` AND `/admin/` (total isolation). HTTP 403 `residency.mismatch` on conflict. Receipts stamp `region` for end-to-end audit. Code + config + tests + ops runbook shipped."
+        },
+        {
+          "kind": "other",
+          "text": "**Handoff replay symmetry** ([#168](https://github.com/smaramwbc/statewave/pull/168)) — `/v1/handoff` receipts now stamp the same `policy_snapshot` as retrieval receipts; both paths are replayable through the same endpoint. Pre-fix handoff receipts remain backwards-compatible and return `unreplayable.missing_policy_snapshot`."
+        },
+        {
+          "kind": "other",
+          "text": "**Release-hardening docs sweep** — [#168](https://github.com/smaramwbc/statewave/pull/168) (server README + receipt/replay docs) + [statewave-docs#45](https://github.com/smaramwbc/statewave-docs/pull/45) (changelog, roadmap, receipts, sensitivity-labels, api/v1-contract, ADR-001 Postgres positioning) + [statewave-admin#90](https://github.com/smaramwbc/statewave-admin/pull/90) (admin app README + sidebar v0.9 footer)."
+        }
+      ],
+      "maintenance": 0,
+      "packages": [],
+      "newContributors": []
+    },
+    {
+      "product": "python",
+      "tag": "v0.10.1",
+      "version": "0.10.1",
+      "title": null,
+      "date": "2026-05-26T22:55:38Z",
+      "url": "https://github.com/smaramwbc/statewave-py/releases/tag/v0.10.1",
+      "prerelease": false,
+      "summary": null,
+      "notice": null,
+      "changes": [
+        {
+          "kind": "feature",
+          "text": "Receipt verify + replay convenience methods (closes #169)",
+          "scope": "sdk",
+          "pr": 17,
+          "url": "https://github.com/smaramwbc/statewave-py/pull/17"
+        }
+      ],
+      "maintenance": 0,
+      "packages": [],
+      "newContributors": []
+    },
+    {
+      "product": "typescript",
+      "tag": "v0.10.1",
+      "version": "0.10.1",
+      "title": null,
+      "date": "2026-05-26T23:07:01Z",
+      "url": "https://github.com/smaramwbc/statewave-ts/releases/tag/v0.10.1",
+      "prerelease": false,
+      "summary": null,
+      "notice": null,
+      "changes": [
+        {
+          "kind": "feature",
+          "text": "Receipt verify + replay methods + Receipt type completion (closes #170)",
+          "scope": "sdk",
+          "pr": 18,
+          "url": "https://github.com/smaramwbc/statewave-ts/pull/18"
+        }
+      ],
+      "maintenance": 0,
+      "packages": [],
+      "newContributors": []
+    },
+    {
+      "product": "server",
+      "tag": "v0.9.0",
+      "version": "0.9.0",
+      "title": null,
+      "date": "2026-05-25T15:39:01Z",
+      "url": "https://github.com/smaramwbc/statewave/releases/tag/v0.9.0",
+      "prerelease": false,
+      "summary": null,
+      "notice": "⚠️ **Superseded by [v0.9.1](https://github.com/smaramwbc/statewave/releases/tag/v0.9.1).** This tag was cut before the final v0.9 governance PRs landed; use [v0.9.1](https://github.com/smaramwbc/statewave/releases/tag/v0.9.1) for the complete v0.9 release. The notes below reflect the original commit at `e51a553`, which predates the actual v0.9 governance stack (retention purge, HMAC-signed receipts, suggested labels, receipt replay, admin review/promote/replay UI, residency tenant pinning, and handoff replay symmetry — all of which land in v0.9.1).",
+      "changes": [
+        {
+          "kind": "fix",
+          "text": "Fix schema check ignoring STATEWAVE_DATABASE_URL from .env",
+          "pr": 108,
+          "url": "https://github.com/smaramwbc/statewave/pull/108"
+        },
+        {
+          "kind": "other",
+          "text": "Adjust STATEWAVE_API_KEY placeholder in docker-compose.yml",
+          "pr": 113,
+          "url": "https://github.com/smaramwbc/statewave/pull/113"
+        },
+        {
+          "kind": "fix",
+          "text": "Anchor relative dates to the episode's real timestamp (#115)",
+          "scope": "compiler",
+          "pr": 118,
+          "url": "https://github.com/smaramwbc/statewave/pull/118"
+        },
+        {
+          "kind": "fix",
+          "text": "Flag when no stored context is relevant to the task (#116)",
+          "scope": "context",
+          "pr": 119,
+          "url": "https://github.com/smaramwbc/statewave/pull/119"
+        },
+        {
+          "kind": "feature",
+          "text": "Add support for host port overrides in local development",
+          "scope": "docker",
+          "pr": 120,
+          "url": "https://github.com/smaramwbc/statewave/pull/120"
+        },
+        {
+          "kind": "fix",
+          "text": "Enforce one canonical subject_id contract at every ingress (#121)",
+          "scope": "api",
+          "pr": 123,
+          "url": "https://github.com/smaramwbc/statewave/pull/123"
+        },
+        {
+          "kind": "fix",
+          "text": "Warn on startup and clarify /readyz when LITELLM API key is…",
+          "scope": "llm",
+          "pr": 107,
+          "url": "https://github.com/smaramwbc/statewave/pull/107"
+        },
+        {
+          "kind": "fix",
+          "text": "Don't flag missing API key for local Ollama models (#62 follow-up)",
+          "scope": "llm",
+          "pr": 125,
+          "url": "https://github.com/smaramwbc/statewave/pull/125"
+        },
+        {
+          "kind": "fix",
+          "text": "Apply the canonical id contract to session_id (#124)",
+          "scope": "api",
+          "pr": 126,
+          "url": "https://github.com/smaramwbc/statewave/pull/126"
+        },
+        {
+          "kind": "feature",
+          "text": "/readyz distinguishes DB not-set / unparseable / unreachable (#66)",
+          "scope": "server",
+          "pr": 127,
+          "url": "https://github.com/smaramwbc/statewave/pull/127"
+        },
+        {
+          "kind": "feature",
+          "text": "Auto-import demo-agent packs on fresh server start",
+          "scope": "bootstrap",
+          "pr": 129,
+          "url": "https://github.com/smaramwbc/statewave/pull/129"
+        },
+        {
+          "kind": "fix",
+          "text": "Drain async jobs to completion; sync returns has_more (#134)",
+          "scope": "compile",
+          "pr": 135,
+          "url": "https://github.com/smaramwbc/statewave/pull/135"
+        },
+        {
+          "kind": "feature",
+          "text": "Add event-type allowlist for webhook delivery",
+          "scope": "webhooks",
+          "pr": 150,
+          "url": "https://github.com/smaramwbc/statewave/pull/150"
+        },
+        {
+          "kind": "feature",
+          "text": "Add memory templates for common patterns",
+          "scope": "templates",
+          "pr": 152,
+          "url": "https://github.com/smaramwbc/statewave/pull/152"
+        }
+      ],
+      "maintenance": 21,
+      "packages": [],
+      "newContributors": [
+        "cowboy823",
+        "Wangbocheng75",
+        "MiriamDiazH",
+        "VLK-123"
+      ]
+    },
+    {
+      "product": "python",
+      "tag": "v0.10.0",
+      "version": "0.10.0",
+      "title": null,
+      "date": "2026-05-25T15:24:17Z",
+      "url": "https://github.com/smaramwbc/statewave-py/releases/tag/v0.10.0",
+      "prerelease": false,
+      "summary": null,
+      "notice": null,
+      "changes": [
+        {
+          "kind": "feature",
+          "text": "Add support-agent SDK methods (health, SLA, handoff, resolutions)",
+          "scope": "client",
+          "pr": 15,
+          "url": "https://github.com/smaramwbc/statewave-py/pull/15"
+        }
+      ],
+      "maintenance": 2,
+      "packages": [],
+      "newContributors": []
+    },
+    {
+      "product": "typescript",
+      "tag": "v0.10.0",
+      "version": "0.10.0",
+      "title": null,
+      "date": "2026-05-25T15:42:18Z",
+      "url": "https://github.com/smaramwbc/statewave-ts/releases/tag/v0.10.0",
+      "prerelease": false,
+      "summary": null,
+      "notice": null,
+      "changes": [
+        {
+          "kind": "feature",
+          "text": "Add support-agent SDK methods (health, SLA, handoff, resolutions)",
+          "scope": "client",
+          "pr": 16,
+          "url": "https://github.com/smaramwbc/statewave-ts/pull/16"
+        }
+      ],
+      "maintenance": 1,
+      "packages": [],
+      "newContributors": []
+    },
+    {
+      "product": "typescript",
+      "tag": "v0.9.0",
+      "version": "0.9.0",
+      "title": null,
+      "date": "2026-05-16T11:43:38Z",
+      "url": "https://github.com/smaramwbc/statewave-ts/releases/tag/v0.9.0",
+      "prerelease": false,
+      "summary": null,
+      "notice": null,
+      "changes": [],
+      "maintenance": 0,
+      "packages": [],
+      "newContributors": []
+    },
+    {
+      "product": "server",
+      "tag": "v0.8.0",
+      "version": "0.8.0",
+      "title": null,
+      "date": "2026-05-14T11:29:36Z",
+      "url": "https://github.com/smaramwbc/statewave/releases/tag/v0.8.0",
+      "prerelease": false,
+      "summary": null,
+      "notice": null,
+      "changes": [
+        {
+          "kind": "feature",
+          "text": "Kill redundant LLM recompile on starter-pack import",
+          "scope": "memory-packs",
+          "pr": 69,
+          "url": "https://github.com/smaramwbc/statewave/pull/69"
+        },
+        {
+          "kind": "feature",
+          "text": "Bi-temporal anchor + temporal-grounded compile + granular detail extraction + async-compile embedding backfill",
+          "pr": 71,
+          "url": "https://github.com/smaramwbc/statewave/pull/71"
+        },
+        {
+          "kind": "feature",
+          "text": "State-assembly receipts (#49)",
+          "pr": 72,
+          "url": "https://github.com/smaramwbc/statewave/pull/72"
+        },
+        {
+          "kind": "feature",
+          "text": "Sensitivity labels & per-memory policy bindings (#50)",
+          "pr": 76,
+          "url": "https://github.com/smaramwbc/statewave/pull/76"
+        },
+        {
+          "kind": "fix",
+          "text": "Drop in-process bundle cache — multi-replica staleness",
+          "scope": "policy",
+          "pr": 77,
+          "url": "https://github.com/smaramwbc/statewave/pull/77"
+        },
+        {
+          "kind": "fix",
+          "text": "/admin/policy/active returns 200 + null when no bundle active",
+          "scope": "admin",
+          "pr": 78,
+          "url": "https://github.com/smaramwbc/statewave/pull/78"
+        },
+        {
+          "kind": "feature",
+          "text": "Tenant-config write endpoint — closes the #50 enforce-mode API gap",
+          "scope": "admin",
+          "pr": 80,
+          "url": "https://github.com/smaramwbc/statewave/pull/80"
+        },
+        {
+          "kind": "feature",
+          "text": "Composite (tenant_id, bundle_hash) uniqueness — closes #79",
+          "scope": "policy",
+          "pr": 81,
+          "url": "https://github.com/smaramwbc/statewave/pull/81"
+        },
+        {
+          "kind": "fix",
+          "text": "V0.8 README limitations — version + multi-node + retention",
+          "scope": "docs",
+          "pr": 83,
+          "url": "https://github.com/smaramwbc/statewave/pull/83"
+        }
+      ],
+      "maintenance": 3,
+      "packages": [],
+      "newContributors": []
+    },
+    {
+      "product": "python",
+      "tag": "v0.8.0",
+      "version": "0.8.0",
+      "title": null,
+      "date": "2026-05-14T10:58:46Z",
+      "url": "https://github.com/smaramwbc/statewave-py/releases/tag/v0.8.0",
+      "prerelease": false,
+      "summary": null,
+      "notice": null,
+      "changes": [
+        {
+          "kind": "feature",
+          "text": "State-assembly receipts (#49)",
+          "pr": 7,
+          "url": "https://github.com/smaramwbc/statewave-py/pull/7"
+        },
+        {
+          "kind": "feature",
+          "text": "Sensitivity labels & caller identity (#50)",
+          "pr": 10,
+          "url": "https://github.com/smaramwbc/statewave-py/pull/10"
+        }
+      ],
+      "maintenance": 2,
+      "packages": [],
+      "newContributors": [
+        "smaramwbc"
+      ]
+    },
+    {
+      "product": "typescript",
+      "tag": "v0.8.0",
+      "version": "0.8.0",
+      "title": null,
+      "date": "2026-05-14T10:58:44Z",
+      "url": "https://github.com/smaramwbc/statewave-ts/releases/tag/v0.8.0",
+      "prerelease": false,
+      "summary": null,
+      "notice": null,
+      "changes": [
+        {
+          "kind": "feature",
+          "text": "State-assembly receipts (#49)",
+          "pr": 9,
+          "url": "https://github.com/smaramwbc/statewave-ts/pull/9"
+        },
+        {
+          "kind": "feature",
+          "text": "Sensitivity labels & caller identity (#50)",
+          "pr": 12,
+          "url": "https://github.com/smaramwbc/statewave-ts/pull/12"
+        }
+      ],
+      "maintenance": 2,
+      "packages": [],
+      "newContributors": []
+    },
+    {
+      "product": "server",
+      "tag": "v0.7.2",
+      "version": "0.7.2",
+      "title": null,
+      "date": "2026-05-10T12:03:44Z",
+      "url": "https://github.com/smaramwbc/statewave/releases/tag/v0.7.2",
+      "prerelease": false,
+      "summary": null,
+      "notice": null,
+      "changes": [
+        {
+          "kind": "other",
+          "text": "Dual licensing model + auto-bootstrap support docs pack",
+          "pr": 10,
+          "url": "https://github.com/smaramwbc/statewave/pull/10"
+        },
+        {
+          "kind": "fix",
+          "text": "Idempotent docs-pack bootstrap logs the skip outcome",
+          "scope": "quickstart",
+          "pr": 11,
+          "url": "https://github.com/smaramwbc/statewave/pull/11"
+        },
+        {
+          "kind": "feature",
+          "text": "Expand 5 demo packs into multi-session story arcs",
+          "scope": "starter-packs",
+          "pr": 17,
+          "url": "https://github.com/smaramwbc/statewave/pull/17"
+        },
+        {
+          "kind": "feature",
+          "text": "Add subject-design.md to support-pack allowlist",
+          "scope": "docs-pack",
+          "pr": 18,
+          "url": "https://github.com/smaramwbc/statewave/pull/18"
+        },
+        {
+          "kind": "fix",
+          "text": "Raise compile-step client timeout for full LLM rebuilds",
+          "scope": "docs-pack",
+          "pr": 19,
+          "url": "https://github.com/smaramwbc/statewave/pull/19"
+        },
+        {
+          "kind": "feature",
+          "text": "Build the bundled pack from the docs corpus",
+          "scope": "support-pack",
+          "pr": 20,
+          "url": "https://github.com/smaramwbc/statewave/pull/20"
+        },
+        {
+          "kind": "feature",
+          "text": "Version-aware auto-update with selective purge",
+          "scope": "support-pack",
+          "pr": 21,
+          "url": "https://github.com/smaramwbc/statewave/pull/21"
+        },
+        {
+          "kind": "feature",
+          "text": "Add comparisons/* to support-pack allowlist",
+          "scope": "docs-pack",
+          "pr": 22,
+          "url": "https://github.com/smaramwbc/statewave/pull/22"
+        },
+        {
+          "kind": "fix",
+          "text": "Backfill embeddings for imported memories",
+          "pr": 23,
+          "url": "https://github.com/smaramwbc/statewave/pull/23"
+        },
+        {
+          "kind": "feature",
+          "text": "Rebuild bundled pack with current LLM compiler",
+          "scope": "support-pack",
+          "pr": 25,
+          "url": "https://github.com/smaramwbc/statewave/pull/25"
+        },
+        {
+          "kind": "feature",
+          "text": "Purge endpoints for terminal compile jobs + webhook events",
+          "scope": "admin",
+          "pr": 26,
+          "url": "https://github.com/smaramwbc/statewave/pull/26"
+        },
+        {
+          "kind": "feature",
+          "text": "Split combined SDK install memory into focused pip + npm",
+          "scope": "support-pack",
+          "pr": 28,
+          "url": "https://github.com/smaramwbc/statewave/pull/28"
+        },
+        {
+          "kind": "feature",
+          "text": "Expand demo personas with denser narrative content",
+          "scope": "starter-packs",
+          "pr": 29,
+          "url": "https://github.com/smaramwbc/statewave/pull/29"
+        },
+        {
+          "kind": "fix",
+          "text": "Single-source the project version + bump-version script",
+          "pr": 32,
+          "url": "https://github.com/smaramwbc/statewave/pull/32"
+        },
+        {
+          "kind": "fix",
+          "text": "Detect recurring issues against per-resolved-session text",
+          "scope": "health",
+          "pr": 35,
+          "url": "https://github.com/smaramwbc/statewave/pull/35"
+        },
+        {
+          "kind": "feature",
+          "text": "Include connectors/*.md in support-pack manifest",
+          "scope": "docs-pack",
+          "pr": 44,
+          "url": "https://github.com/smaramwbc/statewave/pull/44"
+        },
+        {
+          "kind": "feature",
+          "text": "Add admin service to default compose stack",
+          "scope": "compose",
+          "pr": 45,
+          "url": "https://github.com/smaramwbc/statewave/pull/45"
+        },
+        {
+          "kind": "fix",
+          "text": "Ship ADMIN_AUTH_DISABLED=true as a dev default",
+          "scope": "compose",
+          "pr": 46,
+          "url": "https://github.com/smaramwbc/statewave/pull/46"
+        },
+        {
+          "kind": "feature",
+          "text": "Add first-class occurred_at column for source-event time",
+          "scope": "episodes",
+          "pr": 48,
+          "url": "https://github.com/smaramwbc/statewave/pull/48"
+        },
+        {
+          "kind": "fix",
+          "text": "Lexical-overlap bonus so semantic+keyword matches clear kind/recency floor",
+          "scope": "context",
+          "pr": 51,
+          "url": "https://github.com/smaramwbc/statewave/pull/51"
+        },
+        {
+          "kind": "fix",
+          "text": "Retry purge/ingest/compile on transient API failures",
+          "scope": "bootstrap-docs",
+          "pr": 53,
+          "url": "https://github.com/smaramwbc/statewave/pull/53"
+        },
+        {
+          "kind": "fix",
+          "text": "Preserve non-ASCII tokens in keyword overlap detection",
+          "scope": "health",
+          "pr": 54,
+          "url": "https://github.com/smaramwbc/statewave/pull/54"
+        },
+        {
+          "kind": "fix",
+          "text": "Sanitize starter-pack manifest errors before returning to API caller",
+          "scope": "security",
+          "pr": 55,
+          "url": "https://github.com/smaramwbc/statewave/pull/55"
+        },
+        {
+          "kind": "feature",
+          "text": "Add API-only Helm chart at helm/statewave (v0.7)",
+          "scope": "helm",
+          "pr": 58,
+          "url": "https://github.com/smaramwbc/statewave/pull/58"
+        },
+        {
+          "kind": "feature",
+          "text": "Per-kind TTL with retrieval filter + cleanup tombstoning (v0.7)",
+          "scope": "memory",
+          "pr": 59,
+          "url": "https://github.com/smaramwbc/statewave/pull/59"
+        }
+      ],
+      "maintenance": 11,
+      "packages": [],
+      "newContributors": [
+        "smaramwbc"
+      ]
+    },
+    {
+      "product": "python",
+      "tag": "v0.7.1",
+      "version": "0.7.1",
+      "title": null,
+      "date": "2026-05-10T10:34:36Z",
+      "url": "https://github.com/smaramwbc/statewave-py/releases/tag/v0.7.1",
+      "prerelease": false,
+      "summary": null,
+      "notice": null,
+      "changes": [],
+      "maintenance": 0,
+      "packages": [],
+      "newContributors": []
+    },
+    {
+      "product": "typescript",
+      "tag": "v0.7.1",
+      "version": "0.7.1",
+      "title": null,
+      "date": "2026-05-10T10:30:02Z",
+      "url": "https://github.com/smaramwbc/statewave-ts/releases/tag/v0.7.1",
+      "prerelease": false,
+      "summary": null,
+      "notice": null,
+      "changes": [],
+      "maintenance": 0,
+      "packages": [],
+      "newContributors": []
+    },
+    {
+      "product": "connectors",
+      "tag": "v0.17.0",
+      "version": "0.17.0",
+      "title": "Operator/cloud productization Wave 6: deployment recipes (Docker / Compose / Helm / Fly / Railway)",
+      "date": "2026-05-10T18:07:41Z",
+      "url": "https://github.com/smaramwbc/statewave-connectors/releases/tag/v0.17.0",
+      "prerelease": false,
+      "summary": "The runner is now production-shaped (multi-instance config, persistent state, OIDC, auth-gated metrics, graceful shutdown). Wave 6 makes it **deployable in two minutes** — five end-to-end recipes, one Dockerfile, one Helm chart, a deployment guide that lays out which to pick.",
+      "notice": null,
+      "changes": [
+        {
+          "kind": "other",
+          "text": "first publish since `validate-config` (Wave 1), `run` (Wave 2), and the help-text refreshes through Wave 5",
+          "package": "@statewavedev/connectors-cli",
+          "version": "0.2.0"
+        }
+      ],
+      "maintenance": 0,
+      "packages": [
+        {
+          "name": "@statewavedev/connectors-cli",
+          "version": "0.2.0"
+        }
+      ],
+      "newContributors": []
+    },
+    {
+      "product": "connectors",
+      "tag": "v0.16.0",
+      "version": "0.16.0",
+      "title": "Operator/cloud productization Wave 5: Prometheus metrics + auth-gated `/metrics`",
+      "date": "2026-05-10T16:44:23Z",
+      "url": "https://github.com/smaramwbc/statewave-connectors/releases/tag/v0.16.0",
+      "prerelease": false,
+      "summary": "The runner shipped with `/healthz` and `/readyz` from Wave 2 but no observability beyond logs. Wave 5 adds a full Prometheus scrape endpoint with per-source pull counters, per-receiver push counters, runtime gauges, and the prom-client default Node process metrics. Plus operator-configurable auth on `/metrics` since the labels can leak source names + ingest volumes in a public deployment.",
+      "notice": null,
+      "changes": [
+        {
+          "kind": "other",
+          "text": "adds metrics surface, auth, instrumentation; +`prom-client` dep",
+          "package": "@statewavedev/connectors-runner",
+          "version": "0.3.0"
+        },
+        {
+          "kind": "other",
+          "text": "adds `RunnerMetricsConfig` + `RunnerMetricsAuth` schema",
+          "package": "@statewavedev/connectors-config",
+          "version": "0.4.0"
+        }
+      ],
+      "maintenance": 0,
+      "packages": [
+        {
+          "name": "@statewavedev/connectors-runner",
+          "version": "0.3.0"
+        },
+        {
+          "name": "@statewavedev/connectors-config",
+          "version": "0.4.0"
+        }
+      ],
+      "newContributors": []
+    },
+    {
+      "product": "connectors",
+      "tag": "v0.15.0",
+      "version": "0.15.0",
+      "title": "Operator/cloud productization Wave 4: built-in OIDC verification for Gmail Pub/Sub",
+      "date": "2026-05-10T15:54:31Z",
+      "url": "https://github.com/smaramwbc/statewave-connectors/releases/tag/v0.15.0",
+      "prerelease": false,
+      "summary": "The Wave 2 Gmail Pub/Sub receiver shipped with two auth options: a path-token (shared secret in the URL) or a custom `verifyAuth` callback. The latter was the only way to do real OIDC — operators had to write JWKs fetching, RS256 verification, claim validation themselves. Wave 4 ships that cryptography built-in.",
+      "notice": null,
+      "changes": [
+        {
+          "kind": "other",
+          "text": "adds `oidc` config + `createGoogleOidcVerifier` export. Adds `jose` (~80KB, zero deps, audited) as a regular dependency.",
+          "package": "@statewavedev/connectors-gmail",
+          "version": "0.3.0"
+        },
+        {
+          "kind": "other",
+          "text": "adds `[[push.gmail]] oidc` schema + `GmailPushOidcConfig` export.",
+          "package": "@statewavedev/connectors-config",
+          "version": "0.3.0"
+        }
+      ],
+      "maintenance": 0,
+      "packages": [
+        {
+          "name": "@statewavedev/connectors-gmail",
+          "version": "0.3.0"
+        },
+        {
+          "name": "@statewavedev/connectors-config",
+          "version": "0.3.0"
+        }
+      ],
+      "newContributors": []
+    },
+    {
+      "product": "connectors",
+      "tag": "v0.14.0",
+      "version": "0.14.0",
+      "title": "Operator/cloud productization Wave 3: persistent state adapters (file / Postgres / Redis)",
+      "date": "2026-05-10T15:22:36Z",
+      "url": "https://github.com/smaramwbc/statewave-connectors/releases/tag/v0.14.0",
+      "prerelease": false,
+      "summary": "The Wave 2 runner kept all per-source cursors in memory — restart and you'd lose progress. Wave 3 plugs that hole with three persistent adapters using the same `PullCursorStore` interface so the swap is a single `[runner.state]` block in the config. Operators pick the adapter that matches their deployment shape; `pg` and `ioredis` are **optional peer dependencies** so installs stay light for users who don't need them.",
+      "notice": null,
+      "changes": [
+        {
+          "kind": "other",
+          "text": "adds `[runner.state]` schema + `RunnerStateConfig` export",
+          "package": "@statewavedev/connectors-config",
+          "version": "0.2.0"
+        },
+        {
+          "kind": "other",
+          "text": "adds the four state adapters + `selectPullCursorStore` + `ClosablePullCursorStore`",
+          "package": "@statewavedev/connectors-runner",
+          "version": "0.2.0"
+        }
+      ],
+      "maintenance": 0,
+      "packages": [
+        {
+          "name": "@statewavedev/connectors-config",
+          "version": "0.2.0"
+        },
+        {
+          "name": "@statewavedev/connectors-runner",
+          "version": "0.2.0"
+        }
+      ],
+      "newContributors": []
+    },
+    {
+      "product": "connectors",
+      "tag": "v0.13.0",
+      "version": "0.13.0",
+      "title": "Operator/cloud productization Wave 2: hosted runner (`statewave-connectors run`)",
+      "date": "2026-05-10T12:37:44Z",
+      "url": "https://github.com/smaramwbc/statewave-connectors/releases/tag/v0.13.0",
+      "prerelease": false,
+      "summary": "The companion to Wave 1's config file. Wave 1 made the config; Wave 2 makes the **daemon that consumes it**. One Node process, one config file, every connector in your config running on schedule + every push receiver mounted under one HTTP server with `/healthz` + `/readyz` + graceful shutdown. Replaces the previous \"spin up N separate `listen` / `sync` invocations from cron / systemd / Kubernetes CronJobs\" approach with a single deployable.",
+      "notice": null,
+      "changes": [],
+      "maintenance": 0,
+      "packages": [
+        {
+          "name": "@statewavedev/connectors-runner",
+          "version": "0.1.0"
+        }
+      ],
+      "newContributors": []
+    },
+    {
+      "product": "connectors",
+      "tag": "v0.12.0",
+      "version": "0.12.0",
+      "title": "Operator/cloud productization Wave 1: config file (TOML, multi-instance)",
+      "date": "2026-05-10T12:11:11Z",
+      "url": "https://github.com/smaramwbc/statewave-connectors/releases/tag/v0.12.0",
+      "prerelease": false,
+      "summary": "First entry in the **operator/cloud productization** track that follows Tier 2. Today every connector daemon is a single-process Node process started by hand with env vars + flags; this wave lays the foundation for a `statewave-connectors run --config <path>` daemon (Wave 2) by shipping the config schema, loader, validator, and a `validate-config` CLI subcommand that runs as a static check (no network calls, no daemon).",
+      "notice": null,
+      "changes": [],
+      "maintenance": 0,
+      "packages": [
+        {
+          "name": "@statewavedev/connectors-config",
+          "version": "0.1.0"
+        }
+      ],
+      "newContributors": []
+    },
+    {
+      "product": "connectors",
+      "tag": "v0.11.0",
+      "version": "0.11.0",
+      "title": "Gmail Pub/Sub push receiver (Tier 2 push receivers complete)",
+      "date": "2026-05-10T10:33:29Z",
+      "url": "https://github.com/smaramwbc/statewave-connectors/releases/tag/v0.11.0",
+      "prerelease": false,
+      "summary": "`@statewavedev/connectors-gmail` bumps to `0.2.0`. **Final entry in the Tier 2 push-receiver wave** — closes the loop with the only push surface that doesn't fit the synchronous-HTTP-webhook mould. Gmail's \"watch\" API publishes a `{ emailAddress, historyId }` pointer to a Cloud Pub/Sub topic; Pub/Sub's push subscription POSTs that pointer to the daemon, which then walks Gmail's History API to fetch the actually-changed messages and emit each as an episode in real time.",
+      "notice": null,
+      "changes": [],
+      "maintenance": 0,
+      "packages": [],
+      "newContributors": []
+    },
+    {
+      "product": "connectors",
+      "tag": "v0.10.0",
+      "version": "0.10.0",
+      "title": "Intercom webhook receiver (Tier 2 push receivers, cont.)",
+      "date": "2026-05-10T09:49:55Z",
+      "url": "https://github.com/smaramwbc/statewave-connectors/releases/tag/v0.10.0",
+      "prerelease": false,
+      "summary": "`@statewavedev/connectors-intercom` bumps to `0.2.0`. Fourth entry in the **Tier 2 push receivers** wave (after Slack v0.4.0, Freshdesk v0.2.0, and Zendesk v0.2.0). Adds a real-time webhook receiver alongside the existing pull-mode connector — same pure `(Request) => Promise<Response>` shape as the other three, mountable on the built-in `statewave-connectors listen intercom` daemon, Vercel, Cloudflare Workers, or any framework that hands you a fetch-style request.",
+      "notice": null,
+      "changes": [],
+      "maintenance": 0,
+      "packages": [],
+      "newContributors": []
+    },
+    {
+      "product": "connectors",
+      "tag": "v0.9.0",
+      "version": "0.9.0",
+      "title": "Zendesk webhook receiver (Tier 2 push receivers, cont.)",
+      "date": "2026-05-10T09:38:06Z",
+      "url": "https://github.com/smaramwbc/statewave-connectors/releases/tag/v0.9.0",
+      "prerelease": false,
+      "summary": "`@statewavedev/connectors-zendesk` bumps to `0.2.0`. Third entry in the **Tier 2 push receivers** wave (after Slack v0.4.0 and Freshdesk v0.2.0). Adds a real-time webhook receiver alongside the existing pull-mode connector — same pure `(Request) => Promise<Response>` shape as the other two, mountable on the built-in `statewave-connectors listen zendesk` daemon, Vercel, Cloudflare Workers, or any framework that hands you a fetch-style request.",
+      "notice": null,
+      "changes": [],
+      "maintenance": 0,
+      "packages": [],
+      "newContributors": []
+    },
+    {
+      "product": "connectors",
+      "tag": "v0.8.0",
+      "version": "0.8.0",
+      "title": "Freshdesk webhook receiver (Tier 2 push receivers, cont.)",
+      "date": "2026-05-10T09:21:13Z",
+      "url": "https://github.com/smaramwbc/statewave-connectors/releases/tag/v0.8.0",
+      "prerelease": false,
+      "summary": "`@statewavedev/connectors-freshdesk` bumps to `0.2.0`. Adds a real-time webhook receiver alongside the existing pull-mode connector — the same pure `(Request) => Promise<Response>` shape as the Slack handler, mountable on the built-in `statewave-connectors listen freshdesk` daemon, Vercel, Cloudflare Workers, or any framework that hands you a fetch-style request.",
+      "notice": null,
+      "changes": [],
+      "maintenance": 0,
+      "packages": [],
+      "newContributors": []
+    },
+    {
+      "product": "connectors",
+      "tag": "v0.7.0",
+      "version": "0.7.0",
+      "title": "Slack DM + MPIM webhook dispatch (Tier 2 push receivers begin)",
+      "date": "2026-05-09T23:44:17Z",
+      "url": "https://github.com/smaramwbc/statewave-connectors/releases/tag/v0.7.0",
+      "prerelease": false,
+      "summary": "`@statewavedev/connectors-slack` bumps to `0.4.0`. First entry in the **Tier 2 push receivers** wave — extending the existing Events-API webhook handler to dispatch DM (`message.im`) and group-DM (`message.mpim`) events through the same kinds the pull connector already uses.",
+      "notice": null,
+      "changes": [],
+      "maintenance": 0,
+      "packages": [],
+      "newContributors": []
+    },
+    {
+      "product": "connectors",
+      "tag": "v0.6.0",
+      "version": "0.6.0",
+      "title": "Connector polish: delta sync + database scoping",
+      "date": "2026-05-09T22:53:23Z",
+      "url": "https://github.com/smaramwbc/statewave-connectors/releases/tag/v0.6.0",
+      "prerelease": false,
+      "summary": "Three high-leverage features across the v0.4 connectors. Each bumps to `0.1.2`; bundled under one merge so reviewers can see the related changes together. The big-deal pattern is **cursor-based delta sync** — Zendesk and Gmail can now both run \"only what changed since\" pulls, dropping API budget for high-volume operators.",
+      "notice": null,
+      "changes": [],
+      "maintenance": 0,
+      "packages": [],
+      "newContributors": []
+    },
+    {
+      "product": "connectors",
+      "tag": "v0.5.1",
+      "version": "0.5.1",
+      "title": "Tier 1 connector polish",
+      "date": "2026-05-09T21:33:22Z",
+      "url": "https://github.com/smaramwbc/statewave-connectors/releases/tag/v0.5.1",
+      "prerelease": false,
+      "summary": "Filter and allowlist additions across the v0.4 connectors. Each connector is bumped to v0.1.1 (matching the Tier 1 cohort number); the polish landed under one merge so the related changes can be reviewed together.",
+      "notice": null,
+      "changes": [],
+      "maintenance": 0,
+      "packages": [],
+      "newContributors": []
+    },
+    {
+      "product": "connectors",
+      "tag": "v0.5.0",
+      "version": "0.5.0",
+      "title": "Slack MPIM (group DM) support",
+      "date": "2026-05-09T21:18:26Z",
+      "url": "https://github.com/smaramwbc/statewave-connectors/releases/tag/v0.5.0",
+      "prerelease": false,
+      "summary": "`@statewavedev/connectors-slack` bumps to `0.3.2`. Adds opt-in multi-party DM (group DM) ingestion via a new `--include-mpim` flag — completes the DM coverage that v0.3.1 started for 1:1 DMs.",
+      "notice": null,
+      "changes": [],
+      "maintenance": 0,
+      "packages": [],
+      "newContributors": []
+    },
+    {
+      "product": "connectors",
+      "tag": "v0.4.4",
+      "version": "0.4.4",
+      "title": "Gmail connector (pull-mode)",
+      "date": "2026-05-09T21:04:58Z",
+      "url": "https://github.com/smaramwbc/statewave-connectors/releases/tag/v0.4.4",
+      "prerelease": false,
+      "summary": "`@statewavedev/connectors-gmail` ships at `0.1.0`. **Last connector in the v0.1 line — every placeholder is now real code.** Turns Gmail messages matching an operator-supplied search query into normalized relationship-memory episodes, scoped per counterparty.",
+      "notice": null,
+      "changes": [],
+      "maintenance": 0,
+      "packages": [],
+      "newContributors": []
+    },
+    {
+      "product": "connectors",
+      "tag": "v0.4.3",
+      "version": "0.4.3",
+      "title": "Notion connector (pull-mode)",
+      "date": "2026-05-09T21:04:59Z",
+      "url": "https://github.com/smaramwbc/statewave-connectors/releases/tag/v0.4.3",
+      "prerelease": false,
+      "summary": "`@statewavedev/connectors-notion` ships at `0.1.0`. First connector in the docs/decision-memory class — turns Notion pages (and optionally their body content) into normalized episodes scoped to whatever organizational unit the operator cares about (a repo, project, team, or the default `workspace:notion`).",
+      "notice": null,
+      "changes": [],
+      "maintenance": 0,
+      "packages": [],
+      "newContributors": []
+    },
+    {
+      "product": "connectors",
+      "tag": "v0.4.2",
+      "version": "0.4.2",
+      "title": "Freshdesk connector (pull-mode)",
+      "date": "2026-05-09T21:04:59Z",
+      "url": "https://github.com/smaramwbc/statewave-connectors/releases/tag/v0.4.2",
+      "prerelease": false,
+      "summary": "`@statewavedev/connectors-freshdesk` ships at `0.1.0`. Third connector in the support-tools class — turns Freshdesk tickets and conversation entries into normalized episodes scoped to the customer (company or requester). Fully clears the public \"Customer memory\" promise on `/connectors`.",
+      "notice": null,
+      "changes": [],
+      "maintenance": 0,
+      "packages": [],
+      "newContributors": []
+    },
+    {
+      "product": "connectors",
+      "tag": "v0.4.1",
+      "version": "0.4.1",
+      "title": "Intercom connector (pull-mode)",
+      "date": "2026-05-09T21:05:00Z",
+      "url": "https://github.com/smaramwbc/statewave-connectors/releases/tag/v0.4.1",
+      "prerelease": false,
+      "summary": "`@statewavedev/connectors-intercom` ships at `0.1.0`. Second connector in the support-tools class — turns Intercom conversations and conversation-parts into normalized episodes scoped to the customer (primary company or contact). Closes the second half of the public \"Customer memory\" promise on `/connectors`.",
+      "notice": null,
+      "changes": [],
+      "maintenance": 0,
+      "packages": [],
+      "newContributors": []
+    },
+    {
+      "product": "connectors",
+      "tag": "v0.4.0",
+      "version": "0.4.0",
+      "title": "Zendesk connector (pull-mode)",
+      "date": "2026-05-09T21:05:01Z",
+      "url": "https://github.com/smaramwbc/statewave-connectors/releases/tag/v0.4.0",
+      "prerelease": false,
+      "summary": "`@statewavedev/connectors-zendesk` ships at `0.1.0`. First connector in the support-tools class — turns Zendesk tickets and comments into normalized episodes scoped to the customer (organization or requester) so support-agent workflows have per-account memory of what's broken, what's already been said, and what's still open.",
+      "notice": null,
+      "changes": [],
+      "maintenance": 0,
+      "packages": [],
+      "newContributors": []
+    },
+    {
+      "product": "connectors",
+      "tag": "v0.3.1",
+      "version": "0.3.1",
+      "title": "Slack DM ingestion (pull)",
+      "date": "2026-05-09T21:05:02Z",
+      "url": "https://github.com/smaramwbc/statewave-connectors/releases/tag/v0.3.1",
+      "prerelease": false,
+      "summary": "`@statewavedev/connectors-slack` bumps to `0.3.1`. Adds opt-in DM ingestion to the pull-mode connector — the bot's DM history with each human counterparty becomes its own per-user subject so DM and channel signals can flow through a single sync without colliding.",
+      "notice": null,
+      "changes": [],
+      "maintenance": 0,
+      "packages": [],
+      "newContributors": []
+    },
+    {
+      "product": "connectors",
+      "tag": "v0.3.0",
+      "version": "0.3.0",
+      "title": "Slack reactions + pins (webhook)",
+      "date": "2026-05-09T21:05:02Z",
+      "url": "https://github.com/smaramwbc/statewave-connectors/releases/tag/v0.3.0",
+      "prerelease": false,
+      "summary": "`@statewavedev/connectors-slack` bumps to `0.3.0`. The webhook handler from v0.2 grows two new dispatch paths so the same `(Request) => Promise<Response>` you mount on Vercel / Cloudflare / Express also turns Slack reaction + pin events into episodes.",
+      "notice": null,
+      "changes": [],
+      "maintenance": 0,
+      "packages": [],
+      "newContributors": []
+    },
+    {
+      "product": "connectors",
+      "tag": "v0.2.1",
+      "version": "0.2.1",
+      "title": "Discord connector (Phase-2 complete)",
+      "date": "2026-05-09T21:05:03Z",
+      "url": "https://github.com/smaramwbc/statewave-connectors/releases/tag/v0.2.1",
+      "prerelease": false,
+      "summary": "`@statewavedev/connectors-discord` ships at `0.1.0` — pull-mode source connector for Discord guilds, mirroring the `@statewavedev/connectors-slack@0.1.0` shape.",
+      "notice": null,
+      "changes": [],
+      "maintenance": 0,
+      "packages": [
+        {
+          "name": "@statewavedev/connectors-slack",
+          "version": "0.1.0"
+        }
+      ],
+      "newContributors": []
+    },
+    {
+      "product": "connectors",
+      "tag": "v0.2.0",
+      "version": "0.2.0",
+      "title": "Slack live mode + CI hardening",
+      "date": "2026-05-09T21:05:04Z",
+      "url": "https://github.com/smaramwbc/statewave-connectors/releases/tag/v0.2.0",
+      "prerelease": false,
+      "summary": "`@statewavedev/connectors-slack` ships its first push-mode surface — a fetch-style Events-API webhook handler plus a CLI command (`statewave-connectors listen slack`) that wraps it in a Node http daemon for the impatient.",
+      "notice": null,
+      "changes": [],
+      "maintenance": 0,
+      "packages": [
+        {
+          "name": "@statewavedev/connectors-slack",
+          "version": "0.2.0"
+        }
+      ],
+      "newContributors": []
+    },
+    {
+      "product": "connectors",
+      "tag": "v0.1.1",
+      "version": "0.1.1",
+      "title": "Phase-2 connectors (n8n, slack, zapier)",
+      "date": "2026-05-09T21:05:18Z",
+      "url": "https://github.com/smaramwbc/statewave-connectors/releases/tag/v0.1.1",
+      "prerelease": false,
+      "summary": "Three new packages ship at `0.1.0`, all published to npm with provenance.",
+      "notice": null,
+      "changes": [
+        {
+          "kind": "other",
+          "text": "`sync slack --channels …`, `sync n8n --workflows … --instance-url …`"
+        },
+        {
+          "kind": "other",
+          "text": "`doctor` reports `SLACK_BOT_TOKEN`, `N8N_API_KEY`, `N8N_INSTANCE_URL`"
+        },
+        {
+          "kind": "other",
+          "text": "`test --connector {slack,n8n,zapier}`"
+        },
+        {
+          "kind": "other",
+          "text": "`sync` help lists Zapier under a new \"helpers (no sync — push-mode integrations)\" section"
+        }
+      ],
+      "maintenance": 0,
+      "packages": [],
+      "newContributors": []
+    },
+    {
+      "product": "connectors",
+      "tag": "v0.1.0",
+      "version": "0.1.0",
+      "title": "Phase-1 ship (core, github, markdown, mcp, cli, all)",
+      "date": "2026-05-09T21:05:20Z",
+      "url": "https://github.com/smaramwbc/statewave-connectors/releases/tag/v0.1.0",
+      "prerelease": false,
+      "summary": "The first release of the Statewave Connectors monorepo.",
+      "notice": null,
+      "changes": [],
+      "maintenance": 0,
+      "packages": [],
+      "newContributors": []
+    },
+    {
+      "product": "python",
+      "tag": "v0.7.0",
+      "version": "0.7.0",
+      "title": null,
+      "date": "2026-05-08T12:48:07Z",
+      "url": "https://github.com/smaramwbc/statewave-py/releases/tag/v0.7.0",
+      "prerelease": false,
+      "summary": null,
+      "notice": null,
+      "changes": [],
+      "maintenance": 1,
+      "packages": [],
+      "newContributors": []
+    },
+    {
+      "product": "typescript",
+      "tag": "v0.7.0",
+      "version": "0.7.0",
+      "title": null,
+      "date": "2026-05-08T12:46:38Z",
+      "url": "https://github.com/smaramwbc/statewave-ts/releases/tag/v0.7.0",
+      "prerelease": false,
+      "summary": null,
+      "notice": null,
+      "changes": [],
+      "maintenance": 1,
+      "packages": [],
+      "newContributors": []
+    },
+    {
+      "product": "server",
+      "tag": "v0.7.1",
+      "version": "0.7.1",
+      "title": null,
+      "date": "2026-05-02T22:11:25Z",
+      "url": "https://github.com/smaramwbc/statewave/releases/tag/v0.7.1",
+      "prerelease": false,
+      "summary": null,
+      "notice": null,
+      "changes": [],
+      "maintenance": 6,
+      "packages": [],
+      "newContributors": []
+    },
+    {
+      "product": "python",
+      "tag": "v0.6.2",
+      "version": "0.6.2",
+      "title": null,
+      "date": "2026-05-02T22:12:37Z",
+      "url": "https://github.com/smaramwbc/statewave-py/releases/tag/v0.6.2",
+      "prerelease": false,
+      "summary": null,
+      "notice": null,
+      "changes": [],
+      "maintenance": 4,
+      "packages": [],
+      "newContributors": []
+    },
+    {
+      "product": "typescript",
+      "tag": "v0.6.3",
+      "version": "0.6.3",
+      "title": null,
+      "date": "2026-05-02T22:12:43Z",
+      "url": "https://github.com/smaramwbc/statewave-ts/releases/tag/v0.6.3",
+      "prerelease": false,
+      "summary": null,
+      "notice": null,
+      "changes": [
+        {
+          "kind": "fix",
+          "text": "Replace trailing-slash regex in baseUrl with linear loop",
+          "pr": 7,
+          "url": "https://github.com/smaramwbc/statewave-ts/pull/7"
+        }
+      ],
+      "maintenance": 6,
+      "packages": [],
+      "newContributors": [
+        "smaramwbc"
+      ]
+    },
+    {
+      "product": "server",
+      "tag": "v0.7.0",
+      "version": "0.7.0",
+      "title": "Admin Dashboard API",
+      "date": "2026-04-30T18:00:31Z",
+      "url": "https://github.com/smaramwbc/statewave/releases/tag/v0.7.0",
+      "prerelease": false,
+      "summary": null,
+      "notice": null,
+      "changes": [
+        {
+          "kind": "feature",
+          "text": "**Complete Admin API for dashboard support** — comprehensive endpoints for operational monitoring"
+        },
+        {
+          "kind": "feature",
+          "text": "**Subject health monitoring** — health scoring with configurable thresholds"
+        },
+        {
+          "kind": "feature",
+          "text": "**Session timeline and resolution tracking** — visualize conversation flow"
+        },
+        {
+          "kind": "feature",
+          "text": "**Compile job monitoring** — stuck job detection and retry capabilities"
+        },
+        {
+          "kind": "feature",
+          "text": "**Webhook event listing and statistics** — delivery tracking with dead letter queue"
+        },
+        {
+          "kind": "feature",
+          "text": "**Enhanced SLA calculations** — null-safe metrics computation"
+        },
+        {
+          "kind": "fix",
+          "text": "Fixed ResolutionRow metadata column mapping"
+        },
+        {
+          "kind": "fix",
+          "text": "Fixed session_count calculation from episodes.session_id"
+        }
+      ],
+      "maintenance": 0,
+      "packages": [],
+      "newContributors": []
+    },
+    {
+      "product": "python",
+      "tag": "v0.6.1",
+      "version": "0.6.1",
+      "title": "Version Alignment Release",
+      "date": "2026-04-30T18:02:06Z",
+      "url": "https://github.com/smaramwbc/statewave-py/releases/tag/v0.6.1",
+      "prerelease": false,
+      "summary": null,
+      "notice": null,
+      "changes": [
+        {
+          "kind": "other",
+          "text": "Aligned version with statewave server v0.6.1"
+        },
+        {
+          "kind": "other",
+          "text": "Support agent integration improvements"
+        },
+        {
+          "kind": "other",
+          "text": "Full async compile support with CompileJob model"
+        }
+      ],
+      "maintenance": 0,
+      "packages": [],
+      "newContributors": []
+    },
+    {
+      "product": "typescript",
+      "tag": "v0.6.2",
+      "version": "0.6.2",
+      "title": null,
+      "date": "2026-04-30T17:53:22Z",
+      "url": "https://github.com/smaramwbc/statewave-ts/releases/tag/v0.6.2",
+      "prerelease": false,
+      "summary": null,
+      "notice": null,
+      "changes": [],
+      "maintenance": 0,
+      "packages": [],
+      "newContributors": []
+    },
+    {
+      "product": "server",
+      "tag": "v0.5.0",
+      "version": "0.5.0",
+      "title": null,
+      "date": "2026-04-28T22:50:51Z",
+      "url": "https://github.com/smaramwbc/statewave/releases/tag/v0.5.0",
+      "prerelease": false,
+      "summary": null,
+      "notice": null,
+      "changes": [],
+      "maintenance": 0,
+      "packages": [],
+      "newContributors": []
+    },
+    {
+      "product": "python",
+      "tag": "v0.5.0",
+      "version": "0.5.0",
+      "title": null,
+      "date": "2026-04-28T22:51:34Z",
+      "url": "https://github.com/smaramwbc/statewave-py/releases/tag/v0.5.0",
+      "prerelease": false,
+      "summary": null,
+      "notice": null,
+      "changes": [],
+      "maintenance": 0,
+      "packages": [],
+      "newContributors": []
+    },
+    {
+      "product": "typescript",
+      "tag": "v0.5.0",
+      "version": "0.5.0",
+      "title": null,
+      "date": "2026-04-28T22:51:38Z",
+      "url": "https://github.com/smaramwbc/statewave-ts/releases/tag/v0.5.0",
+      "prerelease": false,
+      "summary": null,
+      "notice": null,
+      "changes": [],
+      "maintenance": 0,
+      "packages": [],
+      "newContributors": []
+    },
+    {
+      "product": "server",
+      "tag": "v0.4.3",
+      "version": "0.4.3",
+      "title": null,
+      "date": "2026-04-25T07:48:23Z",
+      "url": "https://github.com/smaramwbc/statewave/releases/tag/v0.4.3",
+      "prerelease": false,
+      "summary": null,
+      "notice": null,
+      "changes": [],
+      "maintenance": 0,
+      "packages": [],
+      "newContributors": []
+    },
+    {
+      "product": "python",
+      "tag": "v0.4.3",
+      "version": "0.4.3",
+      "title": null,
+      "date": "2026-04-25T07:49:02Z",
+      "url": "https://github.com/smaramwbc/statewave-py/releases/tag/v0.4.3",
+      "prerelease": false,
+      "summary": null,
+      "notice": null,
+      "changes": [],
+      "maintenance": 0,
+      "packages": [],
+      "newContributors": []
+    },
+    {
+      "product": "typescript",
+      "tag": "v0.4.3",
+      "version": "0.4.3",
+      "title": null,
+      "date": "2026-04-25T07:58:34Z",
+      "url": "https://github.com/smaramwbc/statewave-ts/releases/tag/v0.4.3",
+      "prerelease": false,
+      "summary": null,
+      "notice": null,
+      "changes": [],
+      "maintenance": 0,
+      "packages": [],
+      "newContributors": []
+    }
+  ]
+}
