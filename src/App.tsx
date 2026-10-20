@@ -32,6 +32,7 @@ const BlogIndexPage = lazy(() => import('./pages/BlogIndexPage').then(m => ({ de
 const BlogPostPage = lazy(() => import('./pages/BlogPostPage').then(m => ({ default: m.BlogPostPage })))
 const GuideJourneyPage = lazy(() => import('./pages/GuideJourneyPage').then(m => ({ default: m.GuideJourneyPage })))
 const FaqPage = lazy(() => import('./pages/FaqPage').then(m => ({ default: m.FaqPage })))
+const ChangelogPage = lazy(() => import('./pages/ChangelogPage').then(m => ({ default: m.ChangelogPage })))
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage').then(m => ({ default: m.NotFoundPage })))
 
 export default function App() {
@@ -72,6 +73,7 @@ export default function App() {
           <Route path="/blog/statewave-guide" element={<GuideJourneyPage />} />
           <Route path="/blog/:slug" element={<BlogPostPage />} />
           <Route path="/faq" element={<FaqPage />} />
+          <Route path="/changelog" element={<ChangelogPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Routes>
