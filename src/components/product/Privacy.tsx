@@ -9,7 +9,7 @@ const GOVERNANCE = 'https://github.com/smaramwbc/statewave-docs/blob/main/sensit
 function Box({ icon, title, body, tone, children, className = '', id }: { icon: ReactNode; title: string; body: string; tone?: 'dark'; children: ReactNode; className?: string; id?: string }) {
   return (
     <article id={id} className={`pd-box${tone ? ' pd-box--dark' : ''} ${className}`}>
-      <Tile size={44} tone={tone ? 'inv' : 'card'}>{icon}</Tile>
+      <Tile size={44} tone={tone ? 'inv' : 'tint'}>{icon}</Tile>
       <h3>{title}</h3>
       <p>{body}</p>
       {children}
@@ -17,9 +17,9 @@ function Box({ icon, title, body, tone, children, className = '', id }: { icon: 
   )
 }
 
-function Layer({ icon, name, sub, tone }: { icon: ReactNode; name: string; sub: string; tone?: 'warn' }) {
+function Layer({ icon, name, sub, out }: { icon: ReactNode; name: string; sub: string; out?: boolean }) {
   return (
-    <div className={`pd-layer${tone ? ' pd-layer--warn' : ''}`}>
+    <div className={`pd-layer${out ? ' pd-layer--out' : ''}`}>
       <Tile tone="card" size={34}>{icon}</Tile>
       <div><b>{name}</b><span>{sub}</span></div>
     </div>
@@ -97,8 +97,8 @@ export function Privacy() {
                 <Layer icon={<Cpu size={17} />} name="Heuristic compiler" sub="The default" />
               </div>
               <div className="pd-out">
-                <div className="pd-out__item pd-out__item--leaves"><span className="pd-warn">Episode batches →</span><Layer tone="warn" icon={<Cloud size={17} />} name="LLM compiler" sub="Optional, via LiteLLM" /></div>
-                <div className="pd-out__item pd-out__item--leaves"><span className="pd-warn">Text to embed →</span><Layer tone="warn" icon={<Sparkles size={17} />} name="Embeddings" sub="Optional. Self-host to keep local" /></div>
+                <div className="pd-out__item pd-out__item--leaves"><span className="pd-out__lbl">Episode batches →</span><Layer out icon={<Cloud size={17} />} name="LLM compiler" sub="Optional, via LiteLLM" /></div>
+                <div className="pd-out__item pd-out__item--leaves"><span className="pd-out__lbl">Text to embed →</span><Layer out icon={<Sparkles size={17} />} name="Embeddings" sub="Optional. Self-host to keep local" /></div>
                 <div className="pd-out__item"><span className="pd-muted">Governed by your agent</span><Layer icon={<Bot size={17} />} name="Your agent’s LLM" sub="Wherever you host it" /></div>
               </div>
             </div>

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { Cpu, Database, EyeOff, FileCode, History, Layers, RotateCcw, ShieldCheck } from 'lucide-react'
-import { usePrefersReducedMotion } from '../home/hooks'
+import { useParallax, usePrefersReducedMotion } from '../home/hooks'
 import { Brand, Head, Pill, Seg, Tile } from './ui'
 
 const DWELL = 7000
@@ -17,7 +17,7 @@ function Record() {
   return (
     <div className="pd-rec">
       <div className="pd-rec__srcs" aria-hidden="true">
-        {rows.map((r) => <span key={r.logo} className="pd-rec__src"><Brand name={r.logo} size={26} /></span>)}
+        {rows.map((r, i) => <span key={r.logo} className="pd-rec__src" style={{ ['--i' as string]: i }}><Brand name={r.logo} size={26} /></span>)}
       </div>
       <img src={`${IMG}/how-connectors.svg`} alt="" className="pd-rec__wires" width={103} height={284} />
       <div className="pd-card pd-rec__card">
@@ -26,8 +26,8 @@ function Record() {
           <b>account:northwind</b>
           <Pill tone="ok">● Recording</Pill>
         </div>
-        {rows.map((r) => (
-          <div key={r.logo} className={`pd-rec__ep${'fresh' in r ? ' is-new' : ''}`}>
+        {rows.map((r, i) => (
+          <div key={r.logo} className={`pd-rec__ep${'fresh' in r ? ' is-new' : ''}`} style={{ ['--i' as string]: i }}>
             <Tile tone="card"><Brand name={r.logo} size={16} /></Tile>
             <div><b>{r.text}</b><span>{r.date}</span></div>
             {'fresh' in r && <Pill tone="accent">New</Pill>}
@@ -179,13 +179,43 @@ const STEPS: { t: string; title: string; body: string; ep: string; chips: string
   },
 ]
 
-/** Steps advance on their own while the section is on screen; any click hands control to the reader. */
+/** From 1100px the walkthrough pins and scroll position picks the step (same as the homepage).
+ *  Narrower, steps advance on their own while on screen; any click hands control to the reader. */
 export function HowItWorks() {
   const [step, setStep] = useState(0)
   const [auto, setAuto] = useState(true)
   const [onscreen, setOnscreen] = useState(false)
+  const [pinned, setPinned] = useState(false)
   const rm = usePrefersReducedMotion()
   const ref = useRef<HTMLElement>(null)
+  const pin = useRef<HTMLDivElement>(null)
+  const vis = useParallax<HTMLDivElement>()
+
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 1100px)')
+    const sync = () => setPinned(mq.matches)
+    sync()
+    mq.addEventListener('change', sync)
+    return () => mq.removeEventListener('change', sync)
+  }, [])
+
+  useEffect(() => {
+    if (!pinned) return
+    const onScroll = () => {
+      const el = pin.current
+      if (!el) return
+      const r = el.getBoundingClientRect()
+      const total = r.height - window.innerHeight
+      if (total <= 0) return
+      const p = Math.min(0.999, Math.max(0, -r.top / total)) * STEPS.length
+      el.style.setProperty('--f', (p % 1).toFixed(3))
+      setStep(Math.floor(p))
+    }
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [pinned])
+
   useEffect(() => {
     const el = ref.current
     if (!el || typeof IntersectionObserver === 'undefined') return
@@ -193,38 +223,50 @@ export function HowItWorks() {
     io.observe(el)
     return () => io.disconnect()
   }, [])
-  const running = auto && onscreen && !rm
+  const running = auto && onscreen && !rm && !pinned
   useEffect(() => {
     if (!running) return
     const t = setTimeout(() => setStep((s) => (s + 1) % STEPS.length), DWELL)
     return () => clearTimeout(t)
   }, [running, step])
 
+  const pick = (i: number) => {
+    const el = pin.current
+    if (el && pinned) {
+      const r = el.getBoundingClientRect()
+      const total = r.height - window.innerHeight
+      window.scrollTo({ top: window.scrollY + r.top + (total * (i + 0.5)) / STEPS.length, behavior: rm ? 'auto' : 'smooth' })
+    } else { setStep(i); setAuto(false) }
+  }
+
   const s = STEPS[step]
   return (
     <section ref={ref} id="how-it-works" className="pd-sec pd-sec--card" aria-label="How it works">
       <div className="sw-wrap">
         <Head title="Four steps from event to answer" lede="One deterministic loop, from the raw event to the signed bundle your agent receives." />
-        <div className="pd-walk">
-          <div className="pd-steps" role="group" aria-label="Steps">
-            {STEPS.map((x, i) => (
-              <button key={x.t} type="button" aria-pressed={i === step} onClick={() => { setStep(i); setAuto(false) }}>
-                <span className="pd-steps__n">0{i + 1}</span>{x.t}
-                {i === step && <i key={step} aria-hidden="true" data-run={running || undefined} style={{ animationDuration: `${DWELL}ms` }} />}
-              </button>
-            ))}
-          </div>
-          {/* every step's copy ships in the server HTML; only the active one is shown */}
-          {STEPS.map((x, i) => (
-            <div key={x.t} className="pd-walk__copy" hidden={i !== step}>
-              <h3>{x.title}</h3>
-              <p>{x.body}</p>
-              <code className="pd-ep">{x.ep}</code>
-              <ul className="pd-chips">{x.chips.map((c) => <li key={c}>{c}</li>)}</ul>
+        <div ref={pin} className={`pd-pin${pinned ? ' pd-pin--on' : ''}`}>
+          <div className="pd-walk">
+            <div className="pd-steps" role="group" aria-label="Steps">
+              {STEPS.map((x, i) => (
+                <button key={x.t} type="button" aria-pressed={i === step} onClick={() => pick(i)}>
+                  <span className="pd-steps__n">0{i + 1}</span>{x.t}
+                  {i === step && <i key={step} aria-hidden="true" data-run={running || undefined} data-scroll={pinned || undefined} style={{ animationDuration: `${DWELL}ms` }} />}
+                </button>
+              ))}
             </div>
-          ))}
-          <div className="pd-visual" style={{ ['--bg' as string]: `url(${IMG}/${s.bg})` }}>
-            <div key={step} className="pd-visual__in">{s.visual}</div>
+            {/* every step's copy ships in the server HTML; only the active one is shown */}
+            {STEPS.map((x, i) => (
+              <div key={x.t} className="pd-walk__copy" hidden={i !== step}>
+                <h3>{x.title}</h3>
+                <p>{x.body}</p>
+                <code className="pd-ep">{x.ep}</code>
+                <ul className="pd-chips">{x.chips.map((c) => <li key={c}>{c}</li>)}</ul>
+              </div>
+            ))}
+            <div ref={vis} className="pd-visual">
+              <span aria-hidden="true" className="pd-visual__bg" style={{ backgroundImage: `url(${IMG}/${s.bg})` }} />
+              <div key={step} className="pd-visual__in">{s.visual}</div>
+            </div>
           </div>
         </div>
       </div>

@@ -9,6 +9,8 @@ import { COLUMNS } from './site-links'
 // Header dropdowns reuse the footer's link groups so the two never drift. Pricing is in the
 // design but this site has no pricing page, and Company is footer-only.
 const GROUPS = COLUMNS.filter((c) => c.title !== 'Company')
+/** Routes whose first section is a dark v8 hero; see docs/v8-page-checklist.md. */
+const CLEAR_TOP = new Set(['/', '/product'])
 const isInternal = (to: string) => to.startsWith('/') && !to.includes('#')
 
 /**
@@ -51,8 +53,9 @@ export function Navbar() {
   const lockedScrollRef = useRef<number | null>(null)
   const stars = formatCompactCount(useGithubStars())
 
-  // The home hero is dark, so the bar starts transparent there and becomes the
-  // floating pill once the page scrolls (or the drawer is open).
+  // Pages that open on a dark v8 hero (CLEAR_TOP) start with a transparent bar and become the
+  // floating pill once the page scrolls (or the drawer is open). A route list, not a DOM probe,
+  // so the prerendered HTML already has the right bar and nothing flashes on hydration.
   const [scrolled, setScrolled] = useState(false)
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24)
@@ -60,7 +63,7 @@ export function Navbar() {
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
-  const clear = location.pathname === '/' && !scrolled && !mobileOpen
+  const clear = CLEAR_TOP.has(location.pathname) && !scrolled && !mobileOpen
 
   // Tone follows whatever the bar is sitting on: sample the first opaque full-width background
   // under its centre line and go dark over dark sections, so the pill takes the section's colour

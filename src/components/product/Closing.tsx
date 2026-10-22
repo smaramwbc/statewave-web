@@ -2,16 +2,10 @@ import { useState } from 'react'
 import { Cloud, Cpu, Database, Package, Server, SquareTerminal } from 'lucide-react'
 import { formatCompactCount, useGithubStars } from '../../lib/credibility-stats'
 import { PAGE_FAQS } from '../../lib/page-faqs'
-import { Code } from '../home/code'
-import { useCopy } from '../home/hooks'
+import { Code, CopyBtn } from '../home/code'
 import { DOCS, GITHUB } from '../home/links'
 import { H2, Icon, Ln } from '../home/ui'
 import { Head, Pill, Seg, Tile } from './ui'
-
-function CopyText({ text, className = 'pd-copy' }: { text: string; className?: string }) {
-  const [done, copy] = useCopy(text)
-  return <button type="button" className={className} onClick={copy} aria-label={done ? 'Copied' : `Copy ${text}`}>{done ? 'Copied' : 'Copy'}</button>
-}
 
 const SAMPLES = {
   Python: `from statewave import StatewaveClient
@@ -93,7 +87,7 @@ export function RunIt() {
             <div className="pd-sample">
               <div className="pd-sample__bar">
                 <Seg dark label="Language" options={LANGS} value={lang} onChange={setLang} />
-                <CopyText text={SAMPLES[lang]} className="pd-copy pd-copy--bare" />
+                <CopyBtn text={SAMPLES[lang]} className="pd-copy pd-copy--bare" label={`Copy ${lang} sample`} />
               </div>
               <pre className="pd-sample__code"><code><Code text={SAMPLES[lang]} /></code></pre>
               <div className="pd-sample__res">
@@ -107,7 +101,7 @@ export function RunIt() {
                 <div className="pd-ibox__t"><Tile tone="inv" size={36}><SquareTerminal size={18} /></Tile><h3>Install</h3></div>
                 {INSTALLS.map(([cmd, kind]) => (
                   <div key={cmd} className="pd-cmd">
-                    <span aria-hidden="true">$</span><code className="pd-grow">{cmd}</code><em>{kind}</em><CopyText text={cmd} className="pd-copy pd-copy--bare" />
+                    <span aria-hidden="true">$</span><code className="pd-grow">{cmd}</code><em>{kind}</em><CopyBtn text={cmd} className="pd-copy pd-copy--bare" label={`Copy ${cmd}`} />
                   </div>
                 ))}
               </div>
@@ -190,7 +184,7 @@ export function ProductCta() {
           <div className="pd-cta__side">
             <Seg dark label="Install method" options={CMDS} value={tab} onChange={setTab} />
             <div className="pd-cta__cmd">
-              <span aria-hidden="true">$</span><code className="pd-grow">{cmd}</code><CopyText text={cmd} />
+              <span aria-hidden="true">$</span><code className="pd-grow">{cmd}</code><CopyBtn text={cmd} className="pd-copy" label={`Copy ${cmd}`} />
             </div>
             <div className="pd-card pd-receipt">
               <div className="pd-row"><b>Receipt</b><code className="pd-muted pd-grow">01J9ZK4T7M3QX8R2…</code><Pill tone="ok">✓ Signed</Pill></div>

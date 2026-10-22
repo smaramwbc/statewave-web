@@ -103,7 +103,10 @@ export function Hero() {
             ranked, token-bounded bundle, with every fact traced back to its source.
           </p>
           <div className="pd-hero__ctas">
-            <Ln to={DOCS} className="sw-btn sw-btn--solid pd-btn">Get started →</Ln>
+            <Ln to={DOCS} className="sw-btn sw-btn--solid sw-hero__cta">
+              Get started
+              <span aria-hidden="true" className="sw-hero__go">→</span>
+            </Ln>
             <Ln to={DOCS_REPO} className="sw-btn sw-btn--ghost pd-btn">Read the docs</Ln>
           </div>
           <dl className="pd-stats">
