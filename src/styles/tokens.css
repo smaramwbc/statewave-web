@@ -23,6 +23,38 @@
   --sw-line-2: #d5dbe8;
   --sw-ok: #047857;
 
+  /* Figma "Statewave" file (product page onward): text, surface and status tokens */
+  --sw-ink: #0b1433;
+  --sw-ink-sec: #5e6a88;
+  --sw-muted: #8e97b5;
+  --sw-accent: #2f5bea;
+  --sw-tint: #eff2ff;
+  --sw-well: #f4f6fc;
+  --sw-stage: #f6f8fc;
+  --sw-ok-fg: #178c54;
+  --sw-ok-bg: #e5f7ed;
+  --sw-warn-fg: #b8730d;
+  --sw-warn-bg: #fff2db;
+  --sw-warn-mark: #f5a840;
+  --sw-bad-fg: #c73333;
+  --sw-bad-bg: #ffebeb;
+  --sw-violet: #7e84f0;
+  --sw-cyan: #3db2f2;
+  --sw-code-bg: #050a1f;
+  --sw-code-fg: #e0e5f5;
+  --sw-inv-muted: #b4bcd3;
+  --sw-inv-link: #8cccff;
+  --sw-syn-kw: #b8a6ff;
+  --sw-syn-str: #8ce0a6;
+  --sw-syn-num: #ffbf73;
+  --sw-syn-ok: #73d99e;
+  --sw-hair: rgba(11, 20, 51, 0.07);
+  --sw-hair-2: rgba(11, 20, 51, 0.1);
+  --sw-track: rgba(11, 20, 51, 0.08);
+  --sw-shadow-card: 0 8px 28px rgba(11, 20, 51, 0.08);
+  --sw-shadow-float: 0 14px 36px rgba(11, 20, 51, 0.14);
+  --sw-shadow-tile: 0 8px 20px rgba(11, 20, 51, 0.12);
+
   /* section rhythm: eyebrow > title > lede > body */
   --sw-gap-title: 28px;
   --sw-gap-lede: 24px;
