@@ -1,128 +1,97 @@
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { Link } from 'react-router'
-import { Logo } from './Logo'
-import { useChatWidget, useTrackDemoCta } from '../lib/widget-context-api'
+import { CREDIBILITY_STATS, formatCompactCount, useGithubStars } from '../lib/credibility-stats'
+import { Check, Copy } from 'lucide-react'
+import { Icon, Ln } from './home/ui'
+import { GITHUB } from './home/links'
+import { COLUMNS } from './site-links'
+import { useTrackDemoCta } from '../lib/widget-context-api'
+
+const INSTALL = 'npx @statewavedev/statewave'
+
+const SOCIAL: [string, string, string][] = [
+  ['GitHub', GITHUB, 'github'],
+  ['Docker Hub', 'https://hub.docker.com/r/statewavedev/statewave', 'docker'],
+  ['PyPI', 'https://pypi.org/project/statewave/', 'python'],
+  ['npm', 'https://www.npmjs.com/package/@statewavedev/statewave', 'npm'],
+]
 
 export function Footer() {
-  const { openWidget } = useChatWidget()
-  const footerDemoRef = useRef<HTMLButtonElement>(null)
-  useTrackDemoCta(footerDemoRef)
+  const stars = formatCompactCount(useGithubStars())
+  const version = CREDIBILITY_STATS.pypi_version
+  const [copied, setCopied] = useState(false)
+  // Hides the floating chat pill while the footer's demo link is on screen, as the old footer button did.
+  const demoRef = useRef<HTMLLIElement>(null)
+  useTrackDemoCta(demoRef)
+  const copy = async () => {
+    try { await navigator.clipboard.writeText(INSTALL) } catch { /* insecure context or denied: still flash feedback */ }
+    setCopied(true)
+    window.setTimeout(() => setCopied(false), 1500)
+  }
+
   return (
-    <footer className="border-t border-theme-border bg-surface-0 pl-safe pr-safe">
-      <div className="mx-auto max-w-7xl px-5 sm:px-6 py-12 sm:py-14 md:py-16">
-        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-5 gap-x-6 gap-y-10 md:gap-12">
-          <div className="col-span-2 md:col-span-1">
-            <Link to="/" className="flex items-center gap-2">
-              <Logo variant="full" className="w-34" />
+    <footer className="sw-foot pl-safe pr-safe">
+      <div className="sw-foot__glow sw-foot__glow--v" aria-hidden="true" />
+      <div className="sw-foot__glow sw-foot__glow--c" aria-hidden="true" />
+
+      <div className="sw-foot__wrap">
+        <div className="sw-foot__top">
+          <div>
+            <Link to="/" aria-label="Statewave home" className="sw-foot__logo">
+              <img src="/brand/logo-horizontal-db.svg" alt="Statewave" width={136} height={28} />
             </Link>
-            <p className="mt-4 text-sm text-theme-muted leading-relaxed">
-              Open-source memory runtime for AI agents.<br />
-              Self-hosted on Postgres. Apache-2.0.
+            <p className="sw-foot__blurb">Open-source memory runtime for AI agents. Self-hosted on Postgres, Apache-2.0.</p>
+            <p className="sw-foot__meta sw-mono">
+              {version && <><Link to="/blog">v{version}</Link><i>·</i></>}
+              {stars && <><Ln to={GITHUB}>★ {stars}</Ln><i>·</i></>}
+              <span>Apache-2.0</span>
             </p>
-
-            <a
-              href="https://www.producthunt.com/products/statewave?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-statewave"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-5 -ml-[3px] inline-block"
-            >
-              <img
-                className="theme-dark h-[54px] w-[250px]"
-                src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1214060&theme=dark"
-                alt="Statewave - Open-source memory runtime for production AI agents. | Product Hunt"
-                width={250}
-                height={54}
-              />
-              <img
-                className="theme-light h-[54px] w-[250px]"
-                src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1214060&theme=light"
-                alt="Statewave - Open-source memory runtime for production AI agents. | Product Hunt"
-                aria-hidden="true"
-                width={250}
-                height={54}
-              />
-            </a>
           </div>
 
-          <div>
-            <h3 className="text-sm font-medium text-theme-primary mb-4">Product</h3>
-            <ul className="space-y-2.5 sm:space-y-2">
-              <li><Link to="/product" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">How it works</Link></li>
-              <li><Link to="/why" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">Why Statewave</Link></li>
-              <li><Link to="/use-cases" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">Use Cases</Link></li>
-              <li><Link to="/connectors" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">Connectors</Link></li>
-              <li>
-                <button
-                  ref={footerDemoRef}
-                  type="button"
-                  onClick={() => openWidget()}
-                  className="text-sm text-theme-muted hover:text-theme-primary transition-colors text-left"
-                >
-                  Live Demo
-                </button>
-              </li>
-            </ul>
-          </div>
-
-          {/* The /vs pages are the site's comparison entry points, so each keeps a
-              sitewide link here instead of sitting one click behind the hub. */}
-          <div>
-            <h3 className="text-sm font-medium text-theme-primary mb-4">Alternatives</h3>
-            <ul className="space-y-2.5 sm:space-y-2">
-              <li><Link to="/vs" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">All comparisons</Link></li>
-              <li><Link to="/vs/mem0" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">vs Mem0</Link></li>
-              <li><Link to="/vs/letta" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">vs Letta</Link></li>
-              <li><Link to="/vs/zep" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">vs Zep</Link></li>
-              <li><Link to="/vs/supermemory" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">vs Supermemory</Link></li>
-            </ul>
-          </div>
-
-          <div>
-            <h3 className="text-sm font-medium text-theme-primary mb-4">Developers</h3>
-            <ul className="space-y-2.5 sm:space-y-2">
-              <li><a href="https://github.com/smaramwbc/statewave-docs/blob/main/getting-started.md" target="_blank" rel="noopener noreferrer" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">Getting Started</a></li>
-              <li><a href="https://github.com/smaramwbc/statewave-docs/blob/main/api/v1-contract.md" target="_blank" rel="noopener noreferrer" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">API Reference</a></li>
-              <li><a href="https://github.com/smaramwbc/statewave-py" target="_blank" rel="noopener noreferrer" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">Python SDK</a></li>
-              <li><a href="https://github.com/smaramwbc/statewave-ts" target="_blank" rel="noopener noreferrer" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">TypeScript SDK</a></li>
-              <li><Link to="/openrouter" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">OpenRouter proxy</Link></li>
-              <li><Link to="/whitepaper" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">White paper</Link></li>
-              <li><Link to="/benchmarks" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">Benchmarks</Link></li>
-            </ul>
-          </div>
-
-          <div>
-            <h3 className="text-sm font-medium text-theme-primary mb-4">Community</h3>
-            <ul className="space-y-2.5 sm:space-y-2">
-              <li><a href="https://github.com/smaramwbc/statewave" target="_blank" rel="noopener noreferrer" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">GitHub</a></li>
-              <li><a href="https://github.com/smaramwbc/statewave-examples" target="_blank" rel="noopener noreferrer" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">Examples</a></li>
-              <li><a href="https://github.com/smaramwbc/statewave-docs/blob/main/roadmap.md" target="_blank" rel="noopener noreferrer" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">Roadmap</a></li>
-              <li><Link to="/blog" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">Blog</Link></li>
-              <li><Link to="/faq" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">FAQ</Link></li>
-              <li><Link to="/about" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">About</Link></li>
-              <li><Link to="/launch" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">Newsletter</Link></li>
-              <li><Link to="/press" className="text-sm text-theme-muted hover:text-theme-primary transition-colors">Press kit</Link></li>
-            </ul>
+          <div className="sw-foot__side">
+            <div className="sw-foot__cmd">
+              <span className="sw-mono" style={{ color: '#4a8cff' }}>$</span>
+              <code className="sw-mono">{INSTALL}</code>
+              <button type="button" className="sw-foot__copy" onClick={copy} aria-label={copied ? 'Copied' : 'Copy install command'} title={copied ? 'Copied' : 'Copy'}>{copied ? <Check size={15} aria-hidden="true" /> : <Copy size={15} aria-hidden="true" />}</button>
+            </div>
           </div>
         </div>
 
-        <div className="mt-12 pt-8 border-t border-theme-border flex flex-col md:flex-row md:justify-between md:items-center gap-4">
-          <p className="text-xs text-theme-muted">
-            © {new Date().getFullYear()} Statewave. Open source under Apache-2.0.
-            <span className="mx-2 text-theme-border">·</span>
-            <Link to="/privacy" className="hover:text-theme-primary transition-colors">Privacy</Link>
-            <span className="mx-2 text-theme-border">·</span>
-            <Link to="/terms" className="hover:text-theme-primary transition-colors">Terms</Link>
-            <span className="mx-2 text-theme-border">·</span>
-            <Link to="/cookies" className="hover:text-theme-primary transition-colors">Cookies</Link>
-            <span className="mx-2 text-theme-border">·</span>
-            <Link to="/impressum" className="hover:text-theme-primary transition-colors">Impressum</Link>
-          </p>
+        <div className="sw-foot__rule" />
 
-          <p className="text-xs text-theme-muted md:text-right">
-            Built for teams who believe AI memory is infrastructure, not an afterthought.
+        <div className="sw-foot__cols">
+          {COLUMNS.map((c) => (
+            <nav key={c.title} aria-label={c.title}>
+              <h3 className="sw-foot__label">{c.title}</h3>
+              <ul>
+                {c.items.map(([label, to]) => (
+                  <li key={label} ref={to === '/demo' ? demoRef : undefined}><Ln to={to}>{label}</Ln></li>
+                ))}
+              </ul>
+            </nav>
+          ))}
+        </div>
+
+        <div className="sw-foot__rule" />
+
+        <div className="sw-foot__legal">
+          <p>
+            <span>© {new Date().getFullYear()} Statewave</span>
+            <span>Apache-2.0</span>
+            <Link to="/privacy">Privacy</Link>
+            <Link to="/terms">Terms</Link>
+            <Link to="/cookies">Cookies</Link>
+            <Link to="/impressum">Impressum</Link>
           </p>
+          <div className="sw-foot__social">
+            {SOCIAL.map(([label, to, icon]) => (
+              <Ln key={label} to={to} ariaLabel={label}><Icon name={icon} size={20} /></Ln>
+            ))}
+          </div>
         </div>
       </div>
+
+      <div className="sw-foot__mark" aria-hidden="true">Statewave</div>
     </footer>
   )
 }

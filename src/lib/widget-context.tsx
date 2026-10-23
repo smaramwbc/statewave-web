@@ -63,6 +63,8 @@ function normalizePersona(maybeSubject: string): string {
 // from demo memory: resetDemo() does NOT clear it. The user can wipe their
 // memory pool without re-seeing the intro.
 const ONBOARDING_KEY = 'statewave-demo-onboarding-v1'
+/** Upper bound on one chat exchange, retries included. */
+const EXCHANGE_TIMEOUT_MS = 25_000
 
 interface OnboardingRecord {
   welcomeSeenAt: number | null
@@ -341,6 +343,21 @@ export function ChatWidgetProvider({ children }: { children: ReactNode }) {
     })()
   }, [refreshState, seedFromPersona])
 
+  /** Pin the support channel (docs-grounded persona, single column) without
+   *  opening the floating widget — used by the embedded homepage chat so each
+   *  message costs one backend call instead of the demo's two. */
+  const enterSupportChannel = useCallback(() => {
+    setMode('support')
+    setTourStep(0)
+    if (persona !== 'statewave-support') {
+      setPersona('statewave-support')
+      setPersonaLabel('Statewave Support')
+      setStatelessMessages([])
+      setStatewaveMessages([])
+      setLastContext(null)
+    }
+  }, [persona])
+
   const clearChat = useCallback(() => {
     setStatelessMessages([])
     setStatewaveMessages([])
@@ -383,6 +400,9 @@ export function ChatWidgetProvider({ children }: { children: ReactNode }) {
    */
   const runExchange = useCallback(async (trimmed: string, skipStateless: boolean) => {
     try {
+      // Bound the whole exchange (retries included) so a hung backend ends in
+      // the error path instead of an endless typing indicator.
+      const signal = AbortSignal.timeout(EXCHANGE_TIMEOUT_MS)
       // The "without memory" comparison call is purely demo chrome — the
       // support channel never renders that column, so don't waste a backend
       // round-trip on it. Halves per-turn LLM load for support traffic.
@@ -393,12 +413,14 @@ export function ChatWidgetProvider({ children }: { children: ReactNode }) {
             headers: { 'Content-Type': 'application/json' },
             credentials: 'same-origin',
             body: JSON.stringify({ messages: [{ role: 'user', content: trimmed }], mode: 'stateless', persona }),
+            signal,
           })
       const statewaveFetch = fetchWithRetry('/api/widget-chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'same-origin',
         body: JSON.stringify({ messages: [{ role: 'user', content: trimmed }], mode: 'statewave', persona }),
+        signal,
       })
       const [statelessResp, statewaveResp] = await Promise.all([statelessFetch, statewaveFetch])
 
@@ -426,6 +448,7 @@ export function ChatWidgetProvider({ children }: { children: ReactNode }) {
         role: 'assistant',
         content: statewaveData.reply ?? statewaveData.error ?? 'No response',
         timestamp: Date.now(),
+        failed: !statewaveResp.ok || undefined,
         // Sources are only emitted by the docs-shared persona; for everything
         // else `sources` is absent and the bubble renders without a citations line.
         sources: Array.isArray(statewaveData.sources) && statewaveData.sources.length > 0
@@ -609,6 +632,7 @@ export function ChatWidgetProvider({ children }: { children: ReactNode }) {
     availablePersonas,
     mode,
     openWidget,
+    enterSupportChannel,
     closeWidget,
     minimizeWidget,
     expandWidget,

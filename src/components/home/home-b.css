@@ -1,0 +1,135 @@
+/* Homepage v8: extracted styles for HowItWorks, Benchmarks, Hero and Integrations.
+ * Selectors carry .sw-home so they outrank the generic `.sw-home a` / `.sw-section`
+ * rules that inline styles used to override. Tokens come from home.css. */
+
+/* ── hero ─────────────────────────────────────────────── */
+.sw-home .sw-hero__in { position: relative; display: flex; flex-direction: column; align-items: center; }
+.sw-home .sw-hero__ctas { margin-top: 40px; display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+.sw-home .sw-hero__cta { gap: 14px; padding: 6px 6px 6px 24px; }
+.sw-home .sw-hero__go { width: 40px; height: 40px; border-radius: 999px; background: var(--sw-blue); color: #fff; display: flex; align-items: center; justify-content: center; }
+.sw-home .sw-hero__gh { margin-top: 20px; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 6px 10px; font-size: 12px; line-height: 16px; color: #b4bcd3; }
+.sw-home .sw-hero__gh:hover { color: #b4bcd3; }
+.sw-home .sw-hero__sep { color: var(--sw-ink-2); }
+.sw-home .sw-hero__note { margin-top: 16px; font-size: 14px; line-height: 20px; color: var(--sw-ink-4); }
+
+/* ── how it works ─────────────────────────────────────── */
+.sw-home .sw-how-sec { padding: clamp(24px, 3vw, 40px) var(--sw-gutter); }
+.sw-home .sw-how__glow { position: absolute; right: -10%; top: -30%; width: 70%; height: 90%; border-radius: 50%; background: radial-gradient(closest-side, rgba(74, 140, 255, 0.22), rgba(47, 91, 240, 0.08) 60%, rgba(47, 91, 240, 0)); filter: blur(30px); pointer-events: none; }
+.sw-home .sw-how__in { position: relative; }
+.sw-home .sw-how__list { min-width: 0; border-bottom: 1px solid rgba(255, 255, 255, 0.12); }
+.sw-home .sw-how__n { padding-top: 8px; font-size: 14px; line-height: 20px; color: var(--sw-ink-4); transition: color 0.4s; }
+.sw-home .sw-how__n.is-on { color: var(--sw-sky); }
+.sw-home .sw-how__body { min-width: 0; display: flex; flex-direction: column; }
+.sw-home .sw-how__t { font-family: var(--sw-display); font-weight: 700; font-size: 28px; line-height: 34px; letter-spacing: -0.02em; color: #c9d0e2; transition: color 0.4s; }
+.sw-home .sw-how__t.is-on { color: #fff; }
+.sw-home .sw-how__ep { margin-top: 4px; font-size: 14px; line-height: 20px; color: #8fb8ff; }
+.sw-home .sw-how__dwrap { display: grid; grid-template-rows: 0fr; opacity: 0; transition: grid-template-rows 0.45s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.35s; }
+.sw-home .sw-how__row.is-on .sw-how__dwrap { grid-template-rows: 1fr; opacity: 1; }
+.sw-home .sw-how__d { min-height: 0; overflow: hidden; margin-top: 8px; font-size: 17px; line-height: 26px; color: #dce3f2; text-wrap: pretty; }
+.sw-home .sw-how__row { position: relative; opacity: 0.55; transform: translateX(0); transition: opacity 0.4s, transform 0.45s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.sw-home .sw-how__row.is-on { opacity: 1; }
+.sw-home .sw-how__row:hover { opacity: 0.85; }
+.sw-home .sw-how__bar { position: absolute; left: 0; right: 0; top: -1px; height: 2px; background: var(--sw-sky); transform-origin: left; transform: scaleX(clamp(0, calc(var(--p, 0) - var(--i)), 1)); }
+@media (prefers-reduced-motion: reduce) { .sw-home .sw-how__row, .sw-home .sw-how__dwrap { transition: none; } .sw-home .sw-how__row.is-on { transform: none; } }
+.sw-home .sw-how__visual { min-width: 0; }
+
+/* isometric stack (svg) */
+.sw-home .sw-hw-svg { display: block; overflow: visible; }
+.sw-home .sw-hw-layer { cursor: pointer; opacity: 0.4; transform: translateY(0); transition: opacity 0.5s ease-out, transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.sw-home .sw-hw-layer.is-on { opacity: 1; transform: translateY(-8px); }
+.sw-home .sw-hw-faces { filter: none; transition: filter 0.4s; }
+.sw-home .sw-hw-layer.is-on .sw-hw-faces { filter: drop-shadow(0 0 10px rgba(74, 140, 255, 0.6)); }
+.sw-home .sw-hw-face { stroke: rgba(255, 255, 255, 0.22); stroke-width: 1; }
+.sw-home .sw-hw-layer.is-on .sw-hw-face { stroke: var(--sw-sky); }
+.sw-home .sw-hw-face--l { fill: #0b1640; }
+.sw-home .sw-hw-face--r { fill: #09122f; }
+.sw-home .sw-hw-face--top { fill: #0e1a47; stroke-width: 1.2; }
+.sw-home .sw-hw-grid { fill: none; stroke: rgba(255, 255, 255, 0.05); stroke-width: 1; }
+.sw-home .sw-hw-tile { fill: #142150; stroke: rgba(255, 255, 255, 0.12); stroke-width: 1; }
+.sw-home .sw-hw-tile.is-on { fill: #1c2c6b; stroke: rgba(255, 255, 255, 0.24); }
+.sw-home .sw-hw-txt { fill: #9fb0d6; }
+.sw-home .sw-hw-txt.is-on, .sw-home .sw-hw-white { fill: #fff; }
+.sw-home .sw-hw-mono { font-family: var(--sw-font-label); }
+.sw-home .sw-hw-chat { fill: none; stroke: #9fb0d6; stroke-width: 1.3; stroke-linejoin: round; }
+.sw-home .sw-hw-chat.is-on { stroke: #fff; }
+.sw-home .sw-hw-mask { display: block; width: 14px; height: 14px; background: #9fb0d6; -webkit-mask: var(--m) center/contain no-repeat; mask: var(--m) center/contain no-repeat; }
+.sw-home .sw-hw-mask.is-on { background: #fff; }
+.sw-home .sw-hw-ghost { opacity: 0.45; }
+.sw-home .sw-hw-ghost text { fill: var(--sw-ink-4); }
+.sw-home .sw-hw-strike { stroke: var(--sw-ink-4); stroke-width: 1.2; }
+.sw-home .sw-hw-rank { fill: rgba(255, 255, 255, 0.2); }
+.sw-home .sw-hw-rank.is-on { fill: rgba(74, 140, 255, 0.75); }
+.sw-home .sw-hw-track { fill: rgba(255, 255, 255, 0.12); }
+.sw-home .sw-hw-used { fill: rgba(255, 255, 255, 0.35); }
+.sw-home .sw-hw-used.is-on { fill: var(--sw-sky); }
+.sw-home .sw-hw-receipt { cursor: pointer; opacity: 0; transition: opacity 0.5s ease-out 0.2s; }
+.sw-home .sw-hw-receipt.is-on { opacity: 1; }
+.sw-home .sw-hw-receipt rect { fill: #15235a; stroke: var(--sw-sky); stroke-width: 1; }
+.sw-home .sw-hw-trace { opacity: 0; transition: opacity 0.5s ease-out; }
+.sw-home .sw-hw-trace.is-on { opacity: 1; }
+.sw-home line.sw-hw-trace { stroke: var(--sw-sky); stroke-width: 1; }
+.sw-home circle.sw-hw-trace { fill: var(--sw-sky); }
+.sw-home .sw-hw-name { font-size: 11px; letter-spacing: 0.06em; fill: rgba(255, 255, 255, 0.55); }
+.sw-home .sw-hw-name.is-on { fill: #fff; }
+.sw-home .sw-hw-tick { stroke: rgba(255, 255, 255, 0.55); stroke-width: 1; }
+.sw-home .sw-hw-tick.is-on { stroke: #fff; }
+
+/* ── benchmarks ───────────────────────────────────────── */
+.sw-home .sw-bench-sec { min-height: 760px; }
+.sw-home .sw-bench__cap { font-size: 12px; line-height: 16px; letter-spacing: 0.08em; text-transform: uppercase; }
+.sw-home .sw-bench__figwrap { flex: 1; display: flex; align-items: center; padding: 32px 0; }
+.sw-home .sw-bench__fig { font-family: var(--sw-display); font-weight: 700; font-size: clamp(88px, 12vw, 160px); line-height: 0.9; letter-spacing: -0.045em; }
+.sw-home .sw-bench__name { font-family: var(--sw-display); font-weight: 700; font-size: 28px; line-height: 34px; }
+.sw-home .sw-bench__sub { margin-top: 4px; font-size: 17px; line-height: 26px; }
+.sw-home .sw-bench__list { display: grid; gap: 16px; }
+.sw-home .sw-bench__row { display: flex; align-items: baseline; gap: 10px; }
+.sw-home .sw-bench__lbl { font-size: 14px; line-height: 20px; color: var(--sw-ink-2); }
+.sw-home .sw-bench__bar { margin-top: 8px; }
+.sw-home .sw-bench__axis { display: flex; justify-content: space-between; font-size: 12px; line-height: 16px; color: var(--sw-ink-4); }
+.sw-home .sw-bench__note { margin: 12px 0 0; font-size: 14px; line-height: 20px; color: var(--sw-ink-3); }
+.sw-home .sw-bench__right { min-width: 0; }
+.sw-home .sw-reads { margin-top: 24px; border-bottom: 1px solid rgba(10, 18, 51, 0.1); }
+.sw-home .sw-read { display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: 12px; padding: 20px 0; border-top: 1px solid rgba(10, 18, 51, 0.1); }
+.sw-home .sw-read__n { font-size: 14px; line-height: 26px; color: var(--sw-blue); }
+.sw-home .sw-read__t { font-size: 17px; line-height: 26px; font-weight: 600; }
+.sw-home .sw-read__d { margin-top: 4px; font-size: 17px; line-height: 26px; color: var(--sw-ink-2); }
+.sw-home .sw-bar i.sw-bar__mem0 { background: #9aa6c2; }
+.sw-home .sw-bar i.sw-bar__lme { background: #c3cbdd; }
+.sw-home .sw-bar i.sw-bar__hot { background: var(--sw-blue); }
+.sw-home .sw-lme__sub { font-size: 12px; line-height: 16px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--sw-ink-3); }
+.sw-home .sw-lme__row { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 12px; align-items: center; }
+.sw-home .sw-lme__v { font-size: 17px; line-height: 26px; color: var(--sw-ink-3); }
+.sw-home .sw-lme__v.is-hot { color: var(--sw-navy); }
+.sw-home .sw-lme__n { grid-column: 1 / -1; font-size: 14px; line-height: 20px; color: var(--sw-ink-3); }
+.sw-home .sw-bench__foot { margin-top: 24px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px 24px; }
+.sw-home .sw-bench__meta { max-width: 640px; }
+.sw-home .sw-bench__m1 { display: block; font-size: 14px; line-height: 20px; color: var(--sw-ink-3); }
+.sw-home .sw-bench__m2 { display: block; margin-top: 8px; font-size: 14px; line-height: 20px; color: var(--sw-ink-3); }
+.sw-home .sw-bench__btns { display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* ── integrations ─────────────────────────────────────── */
+.sw-home .sw-int__head { text-align: center; display: flex; flex-direction: column; align-items: center; }
+.sw-home .sw-orb__glow { position: absolute; inset: 18%; border-radius: 50%; background: radial-gradient(closest-side, rgba(47, 91, 240, 0.18), rgba(47, 91, 240, 0)); filter: blur(20px); }
+.sw-home .sw-orb-side__t { font-family: var(--sw-display); font-size: 22px; font-weight: 500; letter-spacing: -0.02em; }
+.sw-home .sw-orb-side__p { margin: 8px 0 0; font-size: 15px; line-height: 1.55; color: #3d4a66; }
+.sw-home .sw-orb-side__a { margin-top: 10px; display: inline-flex; font-size: 14px; font-weight: 500; color: var(--sw-blue); }
+.sw-home .sw-orb-side__a:hover { color: var(--sw-blue); }
+.sw-home .sw-int__fw { margin-top: 24px; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 8px; }
+.sw-home .sw-int__fwl { font-size: 14px; color: var(--sw-ink-3); margin-right: 6px; }
+
+/* phones: the stack is drawn at ~0.5x, so its layer labels need to be larger to stay legible */
+@media (max-width: 700px) {
+  .sw-home .sw-hw-name { font-size: 22px; letter-spacing: 0.03em; }
+}
+
+/* hero: calmer rhythm, one-line install command as the primary action */
+.sw-home .sw-hero__sub { margin-top: 28px; max-width: 560px; font-size: 18px; line-height: 28px; }
+.sw-home .sw-hero__cmd { margin-top: 36px; display: flex; align-items: center; gap: 12px; width: min(560px, 100%); height: 60px; padding: 0 8px 0 20px; border-radius: 14px; background: rgba(255, 255, 255, 0.07); border: 1px solid rgba(255, 255, 255, 0.18); text-align: left; transition: border-color 0.25s, background-color 0.25s; }
+.sw-home .sw-hero__cmd:hover { border-color: rgba(143, 184, 255, 0.55); background: rgba(255, 255, 255, 0.1); }
+.sw-home .sw-hero__prompt { color: var(--sw-sky); font-family: var(--sw-font-label); font-size: 16px; }
+.sw-home .sw-hero__cmd code { flex: 1; min-width: 0; font-size: 17px; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sw-home .sw-hero__copy { flex: 0 0 auto; width: 44px; height: 44px; display: grid; place-items: center; border: 0; border-radius: 10px; background: rgba(255, 255, 255, 0.1); color: #fff; cursor: pointer; transition: background-color 0.25s; }
+.sw-home .sw-hero__copy:hover { background: rgba(255, 255, 255, 0.2); }
+.sw-home .sw-hero__ctas { margin-top: 24px; }
+.sw-home .sw-console-wrap { margin-top: clamp(56px, 6vw, 80px); }
+@media (max-width: 480px) { .sw-home .sw-hero__cmd code { font-size: 14px; } .sw-home .sw-hero__cmd { padding-left: 14px; } }
