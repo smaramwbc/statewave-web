@@ -1,5 +1,4 @@
-import { Bot, CodeXml, FileText, History, Layers, List, Package, RefreshCw, ShieldCheck, SquareCheck } from 'lucide-react'
-import type { ReactNode } from 'react'
+import { Bot, CodeXml, FileText, Layers, List, Package, RefreshCw, ShieldCheck, SquareCheck } from 'lucide-react'
 import { Ln } from '../home/ui'
 import { DOCS, DOCS_REPO } from '../home/links'
 import { PROOF_FIGURES } from '../../lib/proof-stats'
@@ -17,15 +16,6 @@ const BUNDLE = [
   { icon: <List size={15} />, text: 'Resend invoices from the billing portal', score: '18.2' },
   { icon: <FileText size={15} />, text: 'Duplicate INV-2291 refunded on 9 Sep', score: '14.7' },
 ]
-
-function Toast({ icon, tone, title, sub, className }: { icon: ReactNode; tone: 'tint' | 'warn'; title: string; sub: string; className: string }) {
-  return (
-    <div className={`pd-toast ${className}`}>
-      <Tile tone={tone}>{icon}</Tile>
-      <div><b>{title}</b><span>{sub}</span></div>
-    </div>
-  )
-}
 
 /** The agent session the hero argues for: a reply backed by ranked, sourced facts. Illustrative data. */
 function Stage() {
@@ -76,8 +66,6 @@ function Stage() {
           </div>
         </div>
       </div>
-      <Toast className="pd-toast--a" tone="tint" icon={<History size={15} />} title="2 prior sessions recalled" sub="Slack · Zendesk" />
-      <Toast className="pd-toast--b" tone="warn" icon={<RefreshCw size={15} />} title="Stale fact superseded" sub="Renews on the 1st → the 14th" />
     </div>
   )
 }
@@ -96,11 +84,11 @@ export function Hero() {
       <div className="sw-wrap pd-hero__in">
         <div className="pd-hero__copy">
           <h1 id="pd-hero-title" className="pd-hero__title">
-            How AI agent <br />memory works <span className="sw-hero__grad">From event to receipt</span>
+            How AI agent memory works, <span className="sw-hero__grad">from event to receipt</span>
           </h1>
           <p className="pd-hero__sub">
-            Your app sends Statewave what happened. It compiles typed facts about each customer and hands your agent a
-            ranked, token-bounded bundle, with every fact traced back to its source.
+            Your app sends Statewave what happened. Statewave compiles typed facts about each customer and hands your
+            agent a ranked, token&#8209;bounded bundle, with every fact traced to its source.
           </p>
           <div className="pd-hero__ctas">
             <Ln to={DOCS} className="sw-btn sw-btn--solid sw-hero__cta">
