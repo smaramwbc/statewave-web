@@ -1,0 +1,264 @@
+---
+title: "Statewave Guide — Day 9: An event happened a thousand times. The product only needed to remember one thing"
+slug: statewave-guide-day-9
+date: "2026-11-09T21:00:00Z"
+description: Memory remembers experience, not truth. Making that real took four closed loops, a detour into Statewave itself, and cutting durable writes by 88–100%.
+author: Saber Maram
+built: "2026-09-06"
+repoLabel: "PR #9"
+repoUrl: https://github.com/smaramwbc/statewave-guide/pull/9
+series: statewave-guide
+episode: 9
+image: /images/blog/statewave-guide-day-9/og.png
+headerImage: /images/blog/statewave-guide-day-9/header.png
+tags:
+  - memory
+  - trust
+---
+
+import { Flow } from '../../components/Flow'
+
+Day 8 ended with:
+
+> If the Guide can finally understand the product and the current screen, can it also remember what the user has already learned — without letting the past overwrite what is true now?
+
+**Yes.**
+
+But this one took the longest arc of the project so far, four closed loops, and a detour into someone else's codebase.
+
+The first rule arrived before any storage did:
+
+> **Memory remembers experience. Not truth.**
+
+Memory never learns what the product *is*.
+
+It learns what this person *did*.
+
+A profile here is arithmetic over events:
+
+how many times, which feature, which build, what they explicitly asked for.
+
+No prose.
+
+No summaries.
+
+No model deciding what your behavior "means."
+
+And the boundary is structural, not polite:
+
+a remembered delete guide cannot put a Delete button on the screen for someone who lost the permission.
+
+Memory enters the pipeline **after** the answer exists.
+
+It may shape presentation.
+
+It may never shape facts.
+
+Then an independent review asked the question our gates couldn't:
+
+were the adaptations worth having?
+
+Two of the three were not. 😅
+
+A returning user used to get:
+
+> Great — you've done this before.
+
+We removed it.
+
+Not because it was false.
+
+Because it was the software talking about itself.
+
+That became its own accounting rule:
+
+> **An adaptation that changes nothing is not an adaptation.**
+
+Every memory proposal is now compared against what a person would have seen anyway:
+
+<div className="rounded-2xl border border-brand-500/25 bg-brand-500/[0.05] p-6 sm:p-7">
+<ul className="my-0! pl-0! list-none! space-y-4">
+<li className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:gap-5">
+<span className="font-mono text-sm text-theme-primary sm:w-52 sm:shrink-0">APPLIED</span>
+<span className="section-eyebrow font-mono text-[13px] text-brand-500">the screen actually changed</span>
+</li>
+<li className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:gap-5">
+<span className="font-mono text-sm text-theme-primary sm:w-52 sm:shrink-0">ALREADY_SATISFIED</span>
+<span className="section-eyebrow font-mono text-[13px] text-brand-500">the presentation was already doing it</span>
+</li>
+<li className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:gap-5">
+<span className="font-mono text-sm text-theme-primary sm:w-52 sm:shrink-0">REFUSED</span>
+<span className="section-eyebrow font-mono text-[13px] text-brand-500">memory wanted something it may not have</span>
+</li>
+</ul>
+</div>
+
+Emphasizing a button that was already primary?
+
+`ALREADY_SATISFIED`.
+
+Not an adaptation.
+
+Not a caption explaining that something invisible happened.
+
+Then we made memory real.
+
+Until that point, "memory" meant `localStorage`.
+
+A person who cleared their browser became a stranger.
+
+So:
+
+a person completes a guide in one browser context.
+
+That context is **destroyed**.
+
+A second, independent browser with empty storage recognizes them from a Statewave server and shortens the answer.
+
+> **We gave the Guide memory. Then removed the browser it remembered us in.**
+
+With one hard rule for the wiring:
+
+the credential never reaches the page.
+
+<Flow steps={['Browser', 'host backend', 'Statewave']} />
+
+A key in frontend code is a key given to every visitor.
+
+And then the interesting part started.
+
+Because real storage asks a question `localStorage` never did:
+
+**what is all of this costing?**
+
+We measured a typical session:
+
+<div className="rounded-2xl border border-brand-500/25 bg-brand-500/[0.05] p-6 sm:p-8">
+<div className="grid grid-cols-2 gap-4 text-center">
+<div><p className="font-heading text-4xl sm:text-5xl font-bold tracking-tight text-theme-primary m-0!">11</p><p className="mt-2 font-mono text-xs text-theme-secondary/80 m-0!">events written</p></div>
+<div><p className="font-heading text-4xl sm:text-5xl font-bold tracking-tight text-danger m-0!">1</p><p className="mt-2 font-mono text-xs text-theme-secondary/80 m-0!">a later answer could read</p></div>
+</div>
+</div>
+
+The two highest-volume records — one per answer viewed, one per fold opened — were read by *nothing*.
+
+We proved it by running every event kind through the real planner, alone, across every response shape:
+
+zero applied outcomes.
+
+Ever.
+
+So they stopped being persisted:
+
+**88–100% fewer durable writes**, depending on the session.
+
+> **No future presentation effect. No durable guide memory.**
+
+That audit also found a real bug that had been green for weeks:
+
+a repeated preference resolved by **array position**.
+
+The same two records could answer `CONCISE` on one read and `FULL` on the next —
+
+the *store* was deciding the preference, not the person.
+
+Counters commute.
+
+Our ordering tests shuffled counters.
+
+The one order-sensitive branch was never permuted. 😬
+
+Fixed, and the fixture widened so it can never quietly regress.
+
+And still the loop ended in **PARTIALLY**.
+
+Because one thing remained true:
+
+finish the same walkthrough fifty times, get fifty durable records.
+
+All asserting one fact.
+
+Fixing that honestly meant fixing the platform, not the Guide.
+
+So we went to Statewave itself.
+
+Filed the issues.
+
+The recent-history read landed.
+
+An active-state read landed.
+
+Then we found something better than a bug report:
+
+with repeated observations of the same fact, the *surviving* record was chosen by a *random UUID*.
+
+Eight identical runs:
+
+five said one value, three said the other. 🎲
+
+A memory system flipping a coin about what it remembers.
+
+The platform fixed it in days —
+
+deterministic ordering, wording-independent supersession, and finally:
+
+**consumer-registrable claim keys.**
+
+Which let the Guide finish with two small, different keys —
+
+because remembering turned out to be two different problems:
+
+<div className="grid gap-[18px] sm:grid-cols-2">
+<div className="rounded-2xl border border-brand-500/25 bg-brand-500/[0.05] p-6 sm:p-7">
+<p className="section-eyebrow mt-0! mb-3! font-mono text-xs uppercase tracking-[0.18em] text-brand-500">A completion is monotonic</p>
+<p className="m-0! text-[15px] leading-[1.6] text-theme-secondary">Once true, always true. Its idempotency key <strong className="text-theme-primary">is</strong> the fact, so repeats become no-ops at the front door.</p>
+</div>
+<div className="rounded-2xl border border-brand-500/25 bg-brand-500/[0.05] p-6 sm:p-7">
+<p className="section-eyebrow mt-0! mb-3! font-mono text-xs uppercase tracking-[0.18em] text-brand-500">A preference is mutable</p>
+<p className="m-0! text-[15px] leading-[1.6] text-theme-secondary">Its whole content is a value that changes. Deduplication would trap your first choice forever, so it must be <strong className="text-theme-primary">superseded</strong>, never deduplicated.</p>
+</div>
+</div>
+
+We measured the failure mode before choosing:
+
+four preference changes under one ingest key = one record, holding the **first** value.
+
+Three choices, silently gone.
+
+The final numbers, against a real server, through the production adapter:
+
+<div className="rounded-2xl border border-brand-500/25 bg-brand-500/[0.05] p-6 sm:p-8">
+<ul className="my-0! pl-0! list-none! space-y-3.5 font-mono text-sm">
+<li className="flex items-baseline justify-between gap-4"><span className="text-theme-secondary">1000 observations of one completion</span><span className="text-success">1 durable record</span></li>
+<li className="flex items-baseline justify-between gap-4"><span className="text-theme-secondary">4 preference changes → 4 episodes</span><span className="text-success">1 active value. The right one.</span></li>
+<li className="flex items-baseline justify-between gap-4"><span className="text-theme-secondary">504 writes → 5 durable episodes</span><span className="text-success">2 events read back</span></li>
+</ul>
+<div className="mt-5 border-t border-brand-500/20 pt-4 font-mono text-[13px] text-theme-secondary/80">
+completed = true<br />guidanceDetail = CONCISE
+</div>
+</div>
+
+Reset resurrects nothing.
+
+A build-1 completion does not mark build-2 complete.
+
+26 persisted records swept: zero secrets, zero instance labels, zero raw questions, zero UI text.
+
+And the authority negatives held all the way through:
+
+remembered state still cannot put an action on the screen.
+
+**139 gates. All green.**
+
+The past can stay remembered.
+
+It just doesn't get to overwrite what is true now —
+
+and it finally learned to take up the space of what it *knows*,
+
+not the space of every time it learned it.
+
+<div className="mt-10 rounded-2xl border border-brand-500/25 bg-surface-1/45 p-6 sm:p-8">
+<p className="!my-0 font-heading text-2xl font-bold tracking-tight text-theme-primary sm:text-3xl">Statewave Guide — Day 9.</p>
+<p className="!mb-0 mt-4 text-base text-theme-secondary"><strong className="text-theme-primary">Next question:</strong> Can a stranger install all of this in an afternoon — and trust it by evening?</p>
+</div>
