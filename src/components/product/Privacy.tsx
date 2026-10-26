@@ -1,7 +1,7 @@
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 import type { ReactNode } from 'react'
 import { Bot, Cloud, Cpu, Database, DollarSign, Eye, FileCode, KeyRound, List, Lock, Search, Sparkles, Split, Tag, User } from 'lucide-react'
-import { Head, Pill, Seg, SnapDots, Tile } from './ui'
+import { Head, Pill, Seg, Tile } from './ui'
 import type { Tone } from './ui'
 
 const GOVERNANCE = 'https://github.com/smaramwbc/statewave-docs/blob/main/sensitivity-labels.md'
@@ -81,7 +81,6 @@ function PolicyMode() {
 }
 
 export function Privacy() {
-  const bento = useRef<HTMLDivElement>(null)
   return (
     <section id="privacy" className="pd-sec pd-sec--card" aria-label="Privacy and data flow">
       <div className="sw-wrap">
@@ -90,7 +89,7 @@ export function Privacy() {
           lede="Everything lives in your Postgres, with no telemetry path back to us. Policies decide what each caller sees."
           more={{ to: GOVERNANCE, label: 'How Statewave governs memory' }}
         />
-        <div ref={bento} className="pd-bento">
+        <div className="pd-bento">
           <Box className="pd-bento__wide" icon={<Split size={22} />} title="What can leave, layer by layer" body="Storage, retrieval and the default compiler run on your infrastructure. Data only leaves if you plug in an outside model.">
             <div className="pd-flow">
               <div className="pd-infra">
@@ -123,7 +122,6 @@ export function Privacy() {
             <PolicyMode />
           </Box>
         </div>
-        <SnapDots of={bento} />
       </div>
     </section>
   )

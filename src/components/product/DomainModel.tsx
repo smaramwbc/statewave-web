@@ -1,7 +1,7 @@
 import { ArrowRight, History, Layers, LinkIcon, Lock, Package } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { useSeen } from '../home/hooks'
-import { Brand, Head, Pill, SnapDots, Tile } from './ui'
+import { Brand, Head, Pill, Tile } from './ui'
 
 function Stage({ n, i, icon, kind, title, body, children }: { n: number; i: number; icon: ReactNode; kind: string; title: string; body: string; children: ReactNode }) {
   return (
@@ -67,7 +67,6 @@ export function DomainModel() {
             <div className="pd-meter" role="img" aria-label="1,284 of 2,000 tokens used"><i style={{ width: '64.2%' }} /></div>
           </Stage>
         </div>
-        <SnapDots of={story} />
 
         <div className="pd-evs">
           <div className="pd-evs__copy">

@@ -560,33 +560,36 @@
   .sw-home[data-armed] .pd-evs__table:not([data-in]) .pd-evs__row > * { opacity: 0; translate: -10px 0; }
 }
 
-/* ── phones: card groups swipe sideways (scroll-snap) instead of stacking into one long column ── */
-.pd-dots { display: flex; justify-content: center; gap: 6px; margin-top: 4px; }
-.pd-dots i { width: 6px; height: 6px; border-radius: 99px; background: var(--sw-hair-2); transition: width 0.25s, background-color 0.25s; }
-.pd-dots i[data-on] { width: 18px; background: var(--sw-accent); }
+/* ── phones: cards stack, so trim repeated detail to keep the page short ── */
 @media (max-width: 639px) {
-  .pd-bento, .pd-support, .pd-story {
-    display: flex; gap: 12px; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; scrollbar-width: none;
-    margin-inline: calc(-1 * var(--sw-pad)); padding: 6px var(--sw-pad) 20px; scroll-padding-inline: var(--sw-pad);
-  }
-  .pd-bento::-webkit-scrollbar, .pd-support::-webkit-scrollbar, .pd-story::-webkit-scrollbar { display: none; }
-  .pd-support__side { display: contents; }
-  /* the view() rise keys off the nearest scroller, which is now sideways, so it would never finish */
-  .pd-bento > *, .pd-support > *, .pd-support__side .pd-feat, .pd-story > * { flex: 0 0 calc(100vw - var(--sw-pad) - 36px); scroll-snap-align: start; animation: none; }
-  .pd-story > .pd-obj__step { display: none; }
-  /* each card keeps its own height instead of stretching to the tallest in the row */
-  .pd-bento, .pd-support, .pd-story { align-items: flex-start; }
-  .pd-support__side .pd-feat > :last-child { margin-top: 0; }
-  /* health, SLA and prior fixes are the next cards in this row, so the pack shows only its brief */
-  .pd-hp__col--side { display: none; }
+  /* health, SLA and prior fixes have their own cards right below, so the pack shows only its brief */
+  .pd-hp__col--side, .pd-hp__block:has(.pd-hp__done) { display: none; }
   .pd-flow, .pd-out { gap: 10px; }
   .pd-infra { gap: 8px; padding: 14px; }
-  /* trims that keep every card within one phone screen */
   .pd-infra .pd-layer > div > span { display: none; }
   /* Tile sizes are inline styles, so only !important can shrink them here */
   .pd-layer .pd-tile { width: 26px !important; height: 26px !important; }
   .pd-layer { padding: 7px 12px; }
-  .pd-hp__block:has(.pd-hp__done) { display: none; }
+  /* the three-step story above already shows episode → fact, so the side-by-side table is cut */
+  .pd-evs { display: none; }
+  /* labels, policies and log-only keep their title and one line; the diagrams above carry the section */
+  .pd-bento > :nth-child(n+3) > :nth-child(n+4) { display: none; }
+  /* the closing section repeats the install commands, and the hero already shows a receipt */
+  .pd-run__side > .pd-ibox:first-child, .pd-cta__side > .pd-receipt { display: none; }
+  .pd-sec { padding: 48px 0; }
+  .pd-sec .sw-wrap { gap: 28px; }
+  .pd-bento, .pd-support, .pd-support__side { gap: 16px; }
+  .pd-obj, .pd-feat, .pd-box { padding: 20px; }
+  .pd-obj > p, .pd-reqs ~ * { display: none; }
+  /* SLA and repeat-issue keep their one line; the health score keeps its bars */
+  .pd-support__side > .pd-feat:nth-child(n+2) > :last-child { display: none; }
+  /* one type scale: section 30, step 24, card 20, lede 16, nothing under 12 */
+  .sw-pd .pd-head .sw-h2, .sw-pd .pd-faq__head .sw-h2, .sw-pd .pd-cta__copy .sw-h2 { font-size: 30px; line-height: 1.15; }
+  .pd-walk__copy h3 { font-size: 24px; }
+  .pd-obj h3, .pd-box h3, .pd-feat h3, .pd-ibox__t h3 { font-size: 20px; line-height: 26px; }
+  .pd-lede, .pd-walk__copy p { font-size: 16px; line-height: 25px; }
+  .pd-bubble--user span, .pd-src, .pd-ctx__foot code, .pd-rec__ep > div span, .pd-cmp__k, .pd-cmp__card .pd-pill,
+  .pd-track__seg, .pd-gov__head code, .pd-repeat em, .pd-cmd em { font-size: 12px; }
 }
 
 /* touch has no hover: give the same lift while a finger is down */

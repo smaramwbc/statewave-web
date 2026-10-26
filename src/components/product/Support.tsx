@@ -1,6 +1,6 @@
-import { useRef, type ReactNode } from 'react'
+import type { ReactNode } from 'react'
 import { CircleAlert, Clock, FileText, Gauge, ListChecks, Repeat, User } from 'lucide-react'
-import { Head, Pill, SnapDots, Tile } from './ui'
+import { Head, Pill, Tile } from './ui'
 
 function Feature({ icon, title, body, children, className = '' }: { icon: ReactNode; title: string; body: string; children: ReactNode; className?: string }) {
   return (
@@ -39,7 +39,6 @@ const FACTORS = [['Open issue', -15], ['Repeated issue', -20], ['SLA breach', -1
 const SLA = [['First response', 37, '2m 25s · target 5m'], ['Resolution', 83, '26h · target 24h']] as const
 
 export function Support() {
-  const row = useRef<HTMLDivElement>(null)
   return (
     <section id="support" className="pd-sec pd-sec--panel" aria-label="Support agents">
       <div className="sw-wrap">
@@ -48,7 +47,7 @@ export function Support() {
           lede="Support is where Statewave is most tuned and most tested, against eight eval criteria."
           more={{ to: '/use-cases#strongest', label: 'Support agent workflow' }}
         />
-        <div ref={row} className="pd-support">
+        <div className="pd-support">
           <Feature className="pd-handoff" icon={<FileText size={18} />} title="Handoff packs" body="The brief a human needs when an agent escalates, assembled in one call.">
             <div className="pd-hp">
               <div className="pd-row">
@@ -110,7 +109,6 @@ export function Support() {
             </Feature>
           </div>
         </div>
-        <SnapDots of={row} />
       </div>
     </section>
   )
