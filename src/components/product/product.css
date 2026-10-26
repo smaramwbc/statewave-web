@@ -583,11 +583,13 @@
   .pd-obj > p, .pd-reqs ~ * { display: none; }
   /* SLA and repeat-issue keep their one line; the health score keeps its bars */
   .pd-support__side > .pd-feat:nth-child(n+2) > :last-child { display: none; }
-  /* one type scale: section 30, step 24, card 20, lede 16, nothing under 12 */
+  /* one type scale: section 30, step 22, card 20, lede 16, tabs 16, nothing under 12 */
   .sw-pd .pd-head .sw-h2, .sw-pd .pd-faq__head .sw-h2, .sw-pd .pd-cta__copy .sw-h2 { font-size: 30px; line-height: 1.15; }
-  .pd-walk__copy h3 { font-size: 24px; }
+  .pd-walk__copy h3 { font-size: 22px; }
+  .pd-steps button { gap: 8px; padding: 12px 14px; font-size: 16px; }
+  .pd-steps__n { font-size: 12px; }
   .pd-obj h3, .pd-box h3, .pd-feat h3, .pd-ibox__t h3 { font-size: 20px; line-height: 26px; }
-  .pd-lede, .pd-walk__copy p { font-size: 16px; line-height: 25px; }
+  .pd-lede, .pd-walk__copy p, .pd-hero__sub { font-size: 16px; line-height: 25px; }
   .pd-bubble--user span, .pd-src, .pd-ctx__foot code, .pd-rec__ep > div span, .pd-cmp__k, .pd-cmp__card .pd-pill,
   .pd-track__seg, .pd-gov__head code, .pd-repeat em, .pd-cmd em { font-size: 12px; }
 }
