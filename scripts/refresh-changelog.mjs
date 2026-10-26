@@ -205,12 +205,17 @@ function parseBody(raw, repo, tag) {
   return { summary, notice, changes, maintenance, packages: packagesIn(body), newContributors }
 }
 
+/** Escapes every regex metacharacter, backslashes included, so a tag matches literally. */
+function escapeRegExp(s) {
+  return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
 function toEntry(product, repo, r) {
   const tag = r.tag_name
   const name = (r.name ?? '').trim()
   // "v0.7.0: Admin Dashboard API", "Statewave v0.9.2 — …", "v1.0.0 — …" → just the words after the tag.
   const title = name && name !== tag
-    ? name.replace(new RegExp(`^(statewave(-py|-ts)?\\s+)?${tag.replace(/\./g, '\\.')}\\s*[—–:-]?\\s*`, 'i'), '').trim() || null
+    ? name.replace(new RegExp(`^(statewave(-py|-ts)?\\s+)?${escapeRegExp(tag)}\\s*[—–:-]?\\s*`, 'i'), '').trim() || null
     : null
   return {
     product,
