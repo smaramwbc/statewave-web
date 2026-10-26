@@ -175,6 +175,7 @@ const SCOPE: { icon: ReactNode; area: string; yes: string[]; no: string[] }[] = 
 
 export function Scope() {
   const count = (k: 'yes' | 'no') => SCOPE.reduce((n, r) => n + r[k].length, 0)
+  const fold = useFold()
   return (
     <section id="scope" className="pd-sec pd-sec--card" aria-labelledby="gv-scope">
       <div className="sw-wrap">
@@ -185,17 +186,21 @@ export function Scope() {
             <span role="columnheader"><b>Covered today</b><Pill inv>{count('yes')} items</Pill></span>
             <span role="columnheader"><b>Not built yet</b><Pill>{count('no')} items</Pill></span>
           </div>
-          {SCOPE.map((r) => (
-            <div key={r.area} className="gv-scope__row" role="row">
-              <span role="rowheader" className="gv-row"><Tile size={36}>{r.icon}</Tile><b>{r.area}</b></span>
-              <ul role="cell" aria-label="Covered today">
+          {SCOPE.map((r, i) => {
+            const { open, onToggle } = fold(i)
+            const panel = `gv-scope-${r.area.toLowerCase()}`
+            return (
+            <div key={r.area} className="gv-scope__row" role="row" data-fold={open === undefined ? undefined : open ? 'open' : 'shut'}>
+              <span role="rowheader" className="gv-row"><Tile size={36}>{r.icon}</Tile><b className="pd-grow"><FoldTitle panel={panel} open={open} onToggle={onToggle}>{r.area}</FoldTitle></b></span>
+              <ul id={panel} role="cell" aria-label="Covered today" hidden={open === false}>
                 {r.yes.map((t) => <li key={t}><span className="gv-mark is-on"><Check size={11} /></span>{t}</li>)}
               </ul>
-              <ul role="cell" aria-label="Not built yet" className="gv-scope__no">
+              <ul role="cell" aria-label="Not built yet" className="gv-scope__no" hidden={open === false}>
                 {r.no.length ? r.no.map((t) => <li key={t}><span className="gv-mark"><Minus size={11} /></span>{t}</li>) : <li className="gv-none">None listed</li>}
               </ul>
             </div>
-          ))}
+            )
+          })}
         </div>
       </div>
     </section>

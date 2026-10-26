@@ -3,10 +3,20 @@ import type { ReactNode } from 'react'
 import { ArrowDown, Ban, Check, Eye, File, FileCode, Minus, Scan, ScanLine, Tag, UserCheck } from 'lucide-react'
 import { H2 } from '../home/ui'
 import { Seg, Tile } from '../product/ui'
-import { GHead } from './ui'
+import { useFold } from '../home/hooks'
+import { FoldTitle, GHead, type Fold } from './ui'
 
 const Pill = ({ inv, mono, children }: { inv?: boolean; mono?: boolean; children: ReactNode }) =>
   <span className={`gv-pill${inv ? ' gv-pill--inv' : ''}${mono ? ' gv-mono' : ''}`}>{children}</span>
+
+function MiniCard({ id, icon, title, open, onToggle, children }: Fold & { id: string; icon: ReactNode; title: string; children: ReactNode }) {
+  return (
+    <div className="gv-card gv-mini-card" data-fold={open === undefined ? undefined : open ? 'open' : 'shut'}>
+      <div className="gv-row gv-mini-card__head"><Tile size={32}>{icon}</Tile><b className="pd-grow"><FoldTitle panel={id} open={open} onToggle={onToggle}>{title}</FoldTitle></b></div>
+      <div id={id} className="gv-mini-card__body" hidden={open === false}>{children}</div>
+    </div>
+  )
+}
 
 function Pointer({ icon, title, body }: { icon: ReactNode; title: string; body: string }) {
   return (
@@ -87,6 +97,7 @@ const GATES = [
 ]
 
 export function PolicySection() {
+  const fold = useFold()
   return (
     <section id="policy" className="pd-sec pd-sec--card" aria-labelledby="gv-policy">
       <div className="sw-wrap">
@@ -123,8 +134,7 @@ export function PolicySection() {
           </div>
         </div>
         <div className="gv-grid gv-grid--3">
-          <div className="gv-card gv-mini-card">
-            <div className="gv-row gv-mini-card__head"><Tile size={32}><Tag size={15} /></Tile><b>Label predicates</b></div>
+          <MiniCard {...fold(0)} id="gv-pred-label" icon={<Tag size={15} />} title="Label predicates">
             <div className="gv-venns" aria-hidden="true">
               <figure>
                 <svg viewBox="0 0 150 104" width="150" height="104"><circle cx="43" cy="53" r="42" /><circle cx="103" cy="53" r="42" /><path className="gv-venn__hit" d="M73 23.4a42 42 0 0 1 0 59.2a42 42 0 0 1 0-59.2z" /><text x="12" y="57">Memory</text><text x="93" y="57">Rule list</text></svg>
@@ -136,9 +146,8 @@ export function PolicySection() {
               </figure>
             </div>
             <p className="gv-foot">Predicates inside one when block combine with AND</p>
-          </div>
-          <div className="gv-card gv-mini-card">
-            <div className="gv-row gv-mini-card__head"><Tile size={32}><UserCheck size={15} /></Tile><b>Caller predicates</b></div>
+          </MiniCard>
+          <MiniCard {...fold(1)} id="gv-pred-caller" icon={<UserCheck size={15} />} title="Caller predicates">
             <div className="gv-gates">
               {GATES.map((g) => (
                 <div key={g.k} className="gv-gate">
@@ -153,9 +162,8 @@ export function PolicySection() {
               ))}
             </div>
             <p className="gv-foot">caller_type and caller_id match exactly</p>
-          </div>
-          <div className="gv-card gv-mini-card">
-            <div className="gv-row gv-mini-card__head"><Tile size={32}><Ban size={15} /></Tile><b>Two actions</b></div>
+          </MiniCard>
+          <MiniCard {...fold(2)} id="gv-actions" icon={<Ban size={15} />} title="Two actions">
             <div className="gv-action">
               <div className="gv-row"><b className="pd-grow">Billing contact email</b><Pill inv mono>deny</Pill></div>
               <span>Excluded from selected_entries</span>
@@ -164,7 +172,7 @@ export function PolicySection() {
               <div className="gv-row"><b className="pd-grow">Admin API token</b><Pill inv mono>redact</Pill></div>
               <code>[REDACTED by policy]</code>
             </div>
-          </div>
+          </MiniCard>
         </div>
       </div>
     </section>
