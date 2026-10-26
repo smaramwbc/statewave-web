@@ -572,11 +572,21 @@
   .pd-bento::-webkit-scrollbar, .pd-support::-webkit-scrollbar, .pd-story::-webkit-scrollbar { display: none; }
   .pd-support__side { display: contents; }
   /* the view() rise keys off the nearest scroller, which is now sideways, so it would never finish */
-  .pd-bento > *, .pd-support > *, .pd-support__side .pd-feat, .pd-story > * { flex: 0 0 86%; scroll-snap-align: start; animation: none; }
+  .pd-bento > *, .pd-support > *, .pd-support__side .pd-feat, .pd-story > * { flex: 0 0 calc(100vw - var(--sw-pad) - 36px); scroll-snap-align: start; animation: none; }
   .pd-story > .pd-obj__step { display: none; }
-  /* the handoff card is far taller than the rest; don't stretch the others to match */
-  .pd-support { align-items: flex-start; }
+  /* each card keeps its own height instead of stretching to the tallest in the row */
+  .pd-bento, .pd-support, .pd-story { align-items: flex-start; }
   .pd-support__side .pd-feat > :last-child { margin-top: 0; }
+  /* health, SLA and prior fixes are the next cards in this row, so the pack shows only its brief */
+  .pd-hp__col--side { display: none; }
+  .pd-flow, .pd-out { gap: 10px; }
+  .pd-infra { gap: 8px; padding: 14px; }
+  /* trims that keep every card within one phone screen */
+  .pd-infra .pd-layer > div > span { display: none; }
+  /* Tile sizes are inline styles, so only !important can shrink them here */
+  .pd-layer .pd-tile { width: 26px !important; height: 26px !important; }
+  .pd-layer { padding: 7px 12px; }
+  .pd-hp__block:has(.pd-hp__done) { display: none; }
 }
 
 /* touch has no hover: give the same lift while a finger is down */
