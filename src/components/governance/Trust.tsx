@@ -1,12 +1,12 @@
 import type { ReactNode } from 'react'
 import {
   ArrowDown, Brain, CalendarClock, Check, Clock, Database, FileCode, FileText, Ghost, GitMerge, Globe, Layers,
-  Lock, Minus, ReceiptText, RotateCcw, ShieldCheck, Tag, ToggleLeft, Trash2, TriangleAlert, UserCheck,
+  Lock, Minus, ReceiptText, RotateCcw, ShieldCheck, Tag, ToggleLeft, Trash2, TriangleAlert,
 } from 'lucide-react'
 import { logo } from '../home/links'
 import { Tile } from '../product/ui'
 import { useFold } from '../home/hooks'
-import { FoldTitle, GHead, type Fold } from './ui'
+import { FoldTitle, GHead, Step, type Fold } from './ui'
 
 const Pill = ({ inv, children }: { inv?: boolean; children: ReactNode }) => <span className={`gv-pill${inv ? ' gv-pill--inv' : ''}`}>{children}</span>
 
@@ -48,7 +48,7 @@ export function Receipts() {
       <div className="sw-wrap">
         <div className="pd-navy gv-dark">
           <div aria-hidden="true" className="gv-dark__glow" />
-          <GHead dark id="gv-receipts" a="Every call can leave a signed" b="receipt you can replay"
+          <GHead dark step={<Step n={5} q="Can you prove it?" />} id="gv-receipts" a="Every call can leave a signed" b="receipt you can replay"
             lede="Ask for a receipt on a context call and Statewave stores an append-only record addressed by ULID. It records what was selected, which policy applied and a SHA-256 hash of the exact bytes the agent received." />
           <div className="gv-viewer">
             <div className="gv-viewer__bar">
@@ -104,6 +104,11 @@ function TCard({ icon, title, body, open, onToggle, children }: Fold & { icon: R
   )
 }
 
+const TENANTS = [
+  ['tenant_01', 'Plan renews on the 14th', 'Billing contact email'],
+  ['tenant_02', 'Trial ends on Friday', 'Prefers email over calls'],
+]
+
 const LogoTile = ({ src }: { src: string }) => <span className="gv-logo"><img src={src} alt="" width={18} height={18} loading="lazy" /></span>
 
 export function Identity() {
@@ -111,30 +116,24 @@ export function Identity() {
   return (
     <section id="identity" className="pd-sec pd-sec--panel" aria-labelledby="gv-identity">
       <div className="sw-wrap">
-        <GHead id="gv-identity" a="Identity, tenants and erasure" b="handled on every call"
-          lede="Governance depends on knowing who is calling, keeping tenants apart and being able to delete what you hold." />
-        <div className="gv-grid gv-grid--3">
-          <TCard {...fold(0)} icon={<UserCheck size={17} />} title="Caller identity" body="Pass caller_id and caller_type on context and handoff calls. When a tenant requires identity, a call missing either one returns 401.">
-            <div className="gv-float gv-row"><LogoTile src={logo('claude')} /><div className="gv-stack pd-grow"><b>support_agent</b><span className="gv-muted">caller_id: support_agent</span></div><Pill>200</Pill></div>
-            <div className="gv-float gv-float--dash gv-indent gv-row"><div className="gv-stack pd-grow"><b>No caller_id</b><span className="gv-muted gv-mono">require_caller_identity: true</span></div><Pill inv>401</Pill></div>
-          </TCard>
-          <TCard {...fold(1)} icon={<Layers size={17} />} title="Tenant isolation" body="Queries are scoped to the X-Tenant-ID header in the application layer, so one instance serves many tenants. Receipts carry the tenant_id.">
+        <GHead id="gv-identity" a="Your data stays yours" b="tenants, region and erasure"
+          lede="Statewave runs next to your agent in your own Postgres, keeps each tenant's memory apart and deletes a customer's memory in one call." />
+        <div className="gv-grid gv-grid--2">
+          <TCard {...fold(0)} icon={<Layers size={17} />} title="Tenant isolation" body="Queries are scoped to the X-Tenant-ID header in the application layer, so one instance serves many tenants. Receipts carry the tenant_id.">
             <div className="gv-tenants">
-              {['tenant_01', 'tenant_02'].map((t) => <div key={t} className="gv-float"><b>{t}</b><i /><i /><i /></div>)}
+              {TENANTS.map(([t, ...m]) => <div key={t} className="gv-float"><b>{t}</b>{m.map((x) => <span key={x} className="gv-tenant__mem">{x}</span>)}</div>)}
               <span className="gv-tenants__lock"><Lock size={18} /></span>
             </div>
             <Pill>tenant_id stamped on every receipt</Pill>
           </TCard>
-          <TCard {...fold(2)} icon={<Database size={17} />} title="Runs in your Postgres" body="Self-hosted by default. Statewave runs next to your agent and keeps what it stores in your own Postgres.">
+          <TCard {...fold(1)} icon={<Database size={17} />} title="Runs in your Postgres" body="Self-hosted by default. Statewave runs next to your agent and keeps what it stores in your own Postgres.">
             <div className="gv-stair">
               <div className="gv-float gv-row"><LogoTile src={logo('claude')} /><div className="gv-stack"><b>Your agent</b><span className="gv-muted">SDK or REST</span></div></div>
               <div className="gv-float gv-float--accent gv-row"><LogoTile src="/favicon.svg" /><div className="gv-stack"><b>Statewave</b><span className="gv-muted">self-hosted</span></div></div>
               <div className="gv-float gv-row"><LogoTile src={logo('postgresql')} /><div className="gv-stack"><b>PostgreSQL</b><span className="gv-muted">your database</span></div></div>
             </div>
           </TCard>
-        </div>
-        <div className="gv-grid gv-grid--2">
-          <TCard {...fold(3)} icon={<Globe size={17} />} title="Residency and retention" body="STATEWAVE_REGION is enforced in the application layer and, in multi-region mode, stamped on receipts. receipt_retention_days sets when old receipts are tombstoned, and 0 keeps them forever.">
+          <TCard {...fold(2)} icon={<Globe size={17} />} title="Residency and retention" body="STATEWAVE_REGION is enforced in the application layer and, in multi-region mode, stamped on receipts. receipt_retention_days sets when old receipts are tombstoned, and 0 keeps them forever.">
             <div className="gv-pair">
               <div className="gv-float">
                 <div className="gv-row"><Tile tone="card" size={28}><Globe size={15} /></Tile><div className="gv-stack"><b>STATEWAVE_REGION</b><span className="gv-muted">Enforced in the application layer</span></div></div>
@@ -142,7 +141,7 @@ export function Identity() {
                 <span className="gv-muted">stamped on receipts</span>
               </div>
               <div className="gv-float">
-                <div className="gv-row"><Tile tone="card" size={28}><Clock size={15} /></Tile><div className="gv-stack"><b>receipt_retention_days</b><span className="gv-muted">retention window</span></div></div>
+                <div className="gv-row"><Tile tone="card" size={28}><Clock size={15} /></Tile><div className="gv-stack"><b>receipt_retention_days</b><span className="gv-muted">set to 30 days here</span></div></div>
                 <div className="gv-ret">
                   <span className="gv-ret__l">tombstoned</span><span className="gv-ret__r">kept</span>
                   {Array.from({ length: 10 }, (_, i) => <i key={i} className={i > 3 ? 'is-on' : undefined} />)}
@@ -152,11 +151,11 @@ export function Identity() {
               </div>
             </div>
           </TCard>
-          <TCard {...fold(4)} icon={<Trash2 size={17} />} title="Subject erasure" body="Deleting a subject removes its episodes, memories and derived records in one call. Receipts are append-only and leave through the retention window.">
+          <TCard {...fold(3)} icon={<Trash2 size={17} />} title="Subject erasure" body="Deleting a subject removes its episodes, memories and derived records in one call. Receipts are append-only and leave through the retention window.">
             <div className="gv-float gv-erase">
               <div className="gv-row"><Tile tone="card" size={28}><Trash2 size={15} /></Tile><div className="gv-stack pd-grow"><b>Delete subject account:northwind</b><span className="gv-muted">DELETE /v1/subjects/{'{id}'}</span></div><Pill inv>one call</Pill></div>
-              {[[<FileText size={15} />, 'Episodes', 'removed'], [<Brain size={15} />, 'Memories', 'removed'], [<ReceiptText size={15} />, 'Receipts', 'retention']].map(([icon, t, s]) => (
-                <div key={t as string} className={`gv-erase__row gv-row${s === 'retention' ? ' is-kept' : ''}`}>{icon}<span>{t}</span><i /><Pill>{s}</Pill></div>
+              {[[<FileText size={15} />, 'Episodes', '42 removed'], [<Brain size={15} />, 'Memories', '18 removed'], [<ReceiptText size={15} />, 'Receipts', 'kept until retention']].map(([icon, t, s]) => (
+                <div key={t as string} className={`gv-erase__row gv-row${t === 'Receipts' ? ' is-kept' : ''}`}>{icon}<span>{t}</span><i /><Pill>{s}</Pill></div>
               ))}
             </div>
           </TCard>
@@ -191,7 +190,12 @@ export function Scope() {
             const panel = `gv-scope-${r.area.toLowerCase()}`
             return (
             <div key={r.area} className="gv-scope__row" role="row" data-fold={open === undefined ? undefined : open ? 'open' : 'shut'}>
-              <span role="rowheader" className="gv-row"><Tile size={36}>{r.icon}</Tile><b className="pd-grow"><FoldTitle panel={panel} open={open} onToggle={onToggle}>{r.area}</FoldTitle></b></span>
+              <span role="rowheader" className="gv-scope__area">
+                <span className="gv-row"><Tile size={36}>{r.icon}</Tile><b className="pd-grow"><FoldTitle panel={panel} open={open} onToggle={onToggle}>{r.area}</FoldTitle></b></span>
+                <span className="gv-blocks" role="img" aria-label={`${r.yes.length} covered, ${r.no.length} not built yet`}>
+                  {r.yes.map((t) => <i key={t} className="is-on" />)}{r.no.map((t) => <i key={t} />)}
+                </span>
+              </span>
               <ul id={panel} role="cell" aria-label="Covered today" hidden={open === false}>
                 {r.yes.map((t) => <li key={t}><span className="gv-mark is-on"><Check size={11} /></span>{t}</li>)}
               </ul>

@@ -29,6 +29,11 @@ const DECISIONS = [
   { text: 'Admin API token', label: 'secret', verdict: 'deny', strong: true },
 ]
 
+const Mark = ({ n }: { n: number }) => <b className="gv-marker gv-admin__mark">{n}</b>
+
+// What the numbered marks on the mock point at; plain words for a first-time reader.
+const KEY = ['Each row is one agent asking for memory', 'What the policy did to that call', 'The signed receipt you can replay']
+
 function Admin() {
   return (
     <div className="gv-admin" role="img" aria-label="Example Statewave admin screen: a list of context-call receipts in log_only mode, with one receipt open listing the memories a policy rule would redact or deny once enforced.">
@@ -42,7 +47,7 @@ function Admin() {
         </div>
         <div className="gv-admin__body">
           <table className="gv-admin__table">
-            <thead><tr><th>Receipt</th><th>Subject</th><th>Caller</th><th>Decisions</th><th>Time</th></tr></thead>
+            <thead><tr><th><Mark n={1} />Receipt</th><th>Subject</th><th>Caller</th><th><Mark n={2} />Decisions</th><th>Time</th></tr></thead>
             <tbody>
               {ROWS.map(([id, subj, caller, n, t], i) => (
                 <tr key={id} className={i === 0 ? 'is-on' : undefined}>
@@ -57,7 +62,7 @@ function Admin() {
           </table>
           <div className="gv-admin__side">
             <div>
-              <span className="gv-muted gv-small">Receipt</span>
+              <span className="gv-row gv-muted gv-small"><Mark n={3} />Receipt</span>
               <code className="gv-admin__id">01J9ZK4T7M3QX8R2</code>
               <span className="gv-row gv-small gv-medium"><ShieldCheck size={13} />Signed with HMAC-SHA256</span>
             </div>
@@ -98,8 +103,7 @@ export function Hero() {
           Audit every memory <span className="sw-hero__grad">your agent uses</span>
         </h1>
         <p className="gv-hero__sub">
-          Sensitivity labels, declarative policies and signed receipts sit in the retrieval path, so every context call
-          can be checked, replayed and explained.
+          Decide what each agent can see, try the rules safely, and prove later what it was given.
         </p>
         <div className="pd-hero__ctas gv-center">
           <Ln to={GOV_DOCS} className="sw-btn sw-btn--solid sw-hero__cta">
@@ -109,6 +113,9 @@ export function Hero() {
           <Ln to={DOCS} className="sw-btn sw-btn--ghost pd-btn">Get started</Ln>
         </div>
         <Admin />
+        <ol className="gv-admin__key">
+          {KEY.map((k, i) => <li key={k}><Mark n={i + 1} />{k}</li>)}
+        </ol>
       </div>
     </section>
   )

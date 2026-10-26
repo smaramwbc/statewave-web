@@ -4,7 +4,7 @@ import { ArrowDown, Ban, Check, Eye, File, FileCode, Minus, Scan, ScanLine, Tag,
 import { H2 } from '../home/ui'
 import { Seg, Tile } from '../product/ui'
 import { useFold } from '../home/hooks'
-import { FoldTitle, GHead, type Fold } from './ui'
+import { FoldTitle, GHead, Step, type Fold } from './ui'
 
 const Pill = ({ inv, mono, children }: { inv?: boolean; mono?: boolean; children: ReactNode }) =>
   <span className={`gv-pill${inv ? ' gv-pill--inv' : ''}${mono ? ' gv-mono' : ''}`}>{children}</span>
@@ -40,6 +40,7 @@ export function Labels() {
       <div className="sw-wrap">
         <div className="gv-split">
           <div className="gv-split__copy">
+            <Step n={2} q="What is sensitive?" />
             <H2 id="gv-labels" a="Labels get promoted" b="before policy reads them" />
             <p className="pd-lede">Labels are tags on each memory. Detectors can suggest them at compile time, and nothing is enforced until an operator promotes them.</p>
             <ul className="gv-pointers">
@@ -101,7 +102,7 @@ export function PolicySection() {
   return (
     <section id="policy" className="pd-sec pd-sec--card" aria-labelledby="gv-policy">
       <div className="sw-wrap">
-        <GHead id="gv-policy" a="Policy is a YAML bundle" b="where the first match wins"
+        <GHead id="gv-policy" step={<Step n={3} q="What is allowed?" />} a="Policy is a YAML bundle" b="where the first match wins"
           lede="A bundle is a content-hashed list of rules. Each rule has an id, a when block and an action, and a memory that matches no rule is allowed." />
         <div className="gv-grid gv-grid--policy">
           <div className="gv-card gv-editor">
@@ -228,8 +229,9 @@ export function Rollout() {
             </div>
           </div>
           <div className="gv-split__copy">
+            <Step n={4} q="Is it switched on?" />
             <H2 id="gv-rollout" a="Ship in log_only first" b="then enforce per tenant" />
-            <p className="pd-lede">Every call keeps returning what it returned yesterday while the receipt records what enforcement would do. Read those receipts, then flip policy_mode when the results look right.</p>
+            <p className="pd-lede">log_only writes what each rule would do to the receipt but changes no answer. Read those receipts, then switch policy_mode to enforce when the results look right.</p>
             <ol className="gv-card gv-steps">
               {STEPS.map(([t, c], i) => (
                 <li key={t}><span className="gv-steps__n">{i + 1}</span><b className="pd-grow">{t}</b><code>{c}</code></li>

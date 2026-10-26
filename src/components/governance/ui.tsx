@@ -3,9 +3,10 @@ import { ChevronDown, ChevronUp } from 'lucide-react'
 import { H2 } from '../home/ui'
 
 /** Centered two-tone section heading from the governance Figma frames. */
-export function GHead({ id, a, b, lede, dark }: { id: string; a: string; b: string; lede: string; dark?: boolean }) {
+export function GHead({ id, a, b, lede, dark, step }: { id: string; a: string; b: string; lede: string; dark?: boolean; step?: ReactNode }) {
   return (
     <div className={`gv-head${dark ? ' gv-head--dark' : ''}`}>
+      {step}
       <H2 id={id} a={a} b={b} />
       <p className="pd-lede">{lede}</p>
     </div>
@@ -24,3 +25,6 @@ export function FoldTitle({ panel, open, onToggle, children }: Fold & { panel: s
     </button>
   )
 }
+
+/** Ties a section back to its card in "Follow one call", e.g. "Check 02 · What is sensitive?". */
+export const Step = ({ n, q }: { n: number; q: string }) => <span className="gv-step">Check 0{n} · {q}</span>
