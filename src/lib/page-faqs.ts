@@ -145,6 +145,12 @@ export const PAGE_FAQS: Partial<Record<RouteKey, readonly FaqEntry[]>> = {
       links: [{ label: 'Receipts reference', href: `${DOCS}/receipts.md` }],
     },
     {
+      question: 'What is a state-assembly receipt?',
+      answer:
+        'An immutable record of one context call, signed when a signing key is configured. It carries an integrity hash of the exact bytes handed to the model, the policy in force and the source of every memory it used. Replay re-runs that retrieval against today’s memories and shows what would change.',
+      links: [{ label: 'Receipts reference', href: `${DOCS}/receipts.md` }],
+    },
+    {
       question: 'Can I change the ranking weights?',
       answer:
         'Not today. The weights are fixed so ranking stays deterministic and reproducible. You can scope requests by subject, filter by memory kind, or modify the context assembler in your own self-hosted deployment.',

@@ -6,9 +6,9 @@ import { Brand, Tile } from './ui'
 
 const STATS = [
   { n: '3', label: 'API calls', icon: <CodeXml size={15} /> },
-  { n: '0', label: 'Telemetry paths', icon: <ShieldCheck size={15} /> },
+  { n: '0', label: 'Telemetry paths to Statewave', icon: <ShieldCheck size={15} /> },
   { n: '1', label: 'Container', icon: <Package size={15} /> },
-  { n: PROOF_FIGURES.supportCriteria, label: 'Support evals', icon: <SquareCheck size={15} /> },
+  { n: PROOF_FIGURES.supportCriteria, label: 'Support eval criteria', icon: <SquareCheck size={15} /> },
 ]
 
 const BUNDLE = [

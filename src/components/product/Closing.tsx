@@ -14,7 +14,7 @@ with StatewaveClient("http://localhost:8100") as sw:
     sw.create_episode(
         subject_id="account:northwind",
         source="chat", type="conversation",
-        payload={"messages": [...]},
+        payload={"messages": [{"role": "user", "content": "We moved our renewal to the 14th."}]},
     )
     sw.compile_memories("account:northwind")
 
@@ -31,7 +31,7 @@ const sw = new StatewaveClient("http://localhost:8100");
 
 await sw.createEpisode({
   subjectId: "account:northwind", source: "chat",
-  type: "conversation", payload: { messages: [] },
+  type: "conversation", payload: { messages: [{ role: "user", content: "We moved our renewal to the 14th." }] },
 });
 await sw.compileMemories("account:northwind");
 
@@ -42,13 +42,16 @@ const bundle = await sw.getContext({
 });
 console.log(bundle.receiptId);`,
   curl: `curl -X POST localhost:8100/v1/episodes \\
+  -H "Content-Type: application/json" \\
   -d '{"subject_id": "account:northwind", "source": "chat",
-       "type": "conversation", "payload": {"messages": []}}'
+       "type": "conversation", "payload": {"messages": [{"role": "user", "content": "We moved our renewal to the 14th."}]}}'
 
 curl -X POST localhost:8100/v1/memories/compile \\
+  -H "Content-Type: application/json" \\
   -d '{"subject_id": "account:northwind"}'
 
 curl -X POST localhost:8100/v1/context \\
+  -H "Content-Type: application/json" \\
   -d '{"subject_id": "account:northwind",
        "task": "When does our plan renew?",
        "max_tokens": 2000, "emit_receipt": true}'
@@ -174,7 +177,7 @@ export function ProductCta() {
           <img src="/images/product/v8/cta-glow.svg" alt="" aria-hidden="true" className="pd-cta__glow" />
           <div className="pd-cta__copy">
             <H2 a="Run it on your own data" />
-            <p>Inspect every bundle your agent receives. Start with one command on your own infrastructure, with everything kept in your Postgres.</p>
+            <p>Inspect every bundle your agent receives. Start with one command on your own infrastructure, with storage and retrieval in your own Postgres.</p>
             <div className="pd-hero__ctas">
               <Ln to={DOCS} className="sw-btn sw-btn--solid pd-btn">Read the docs</Ln>
               <Ln to={GITHUB} className="sw-btn sw-btn--ghost pd-btn"><Icon name="github" size={16} />Star on GitHub{stars ? ` · ${stars}` : ''}</Ln>

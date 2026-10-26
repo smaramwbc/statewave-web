@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import { useEffect, useState, type ReactNode, type RefObject } from 'react'
 import { H2, Ln } from '../home/ui'
 
 /** Section header from the Figma file: title left, lede (and an optional link) right. */
@@ -42,4 +42,31 @@ export function Seg<T extends string>({ label, options, value, onChange, dark }:
 /** Full-colour brand mark (the shared v8 logo files). */
 export function Brand({ name, size = 16 }: { name: 'slack' | 'zendesk' | 'gmail' | 'github'; size?: number }) {
   return <img src={`/images/home/v8/logos/${name}.svg`} alt="" width={size} height={size} className="pd-brand" loading="lazy" />
+}
+
+/** Dots under a phone swipe row: one per card, the one in view filled. Renders nothing when the row doesn't scroll. */
+export function SnapDots({ of }: { of: RefObject<HTMLElement | null> }) {
+  const [n, setN] = useState(0)
+  const [at, setAt] = useState(0)
+  useEffect(() => {
+    const el = of.current
+    if (!el) return
+    // cards inside a display: contents wrapper count as cards of the row; hidden connectors don't
+    const cards = () => [...el.children]
+      .flatMap((c) => (getComputedStyle(c).display === 'contents' ? [...c.children] : [c]))
+      .filter((c) => getComputedStyle(c).display !== 'none') as HTMLElement[]
+    const sync = () => {
+      const all = el.scrollWidth > el.clientWidth ? cards() : []
+      const x = el.getBoundingClientRect().left
+      const d = all.map((c) => Math.abs(c.getBoundingClientRect().left - x - parseFloat(getComputedStyle(el).scrollPaddingLeft || '0')))
+      setN(all.length)
+      setAt(d.indexOf(Math.min(...d)))
+    }
+    sync()
+    el.addEventListener('scroll', sync, { passive: true })
+    window.addEventListener('resize', sync)
+    return () => { el.removeEventListener('scroll', sync); window.removeEventListener('resize', sync) }
+  }, [of])
+  if (n < 2) return null
+  return <div className="pd-dots" aria-hidden="true">{Array.from({ length: n }, (_, i) => <i key={i} data-on={i === at || undefined} />)}</div>
 }

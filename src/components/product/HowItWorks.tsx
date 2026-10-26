@@ -149,8 +149,8 @@ function Govern() {
         ))}
       </div>
       <div className="pd-gov__acts">
-        <span className="pd-gov__replay"><RotateCcw size={14} />Replay bundle</span>
-        <span className="pd-gov__ok">✓ Hash matches</span>
+        <span className="pd-gov__replay"><RotateCcw size={14} />Replay against today's memories</span>
+        <span className="pd-gov__ok">✓ Integrity hash verified</span>
       </div>
     </div>
   )
@@ -230,6 +230,16 @@ export function HowItWorks() {
     return () => clearTimeout(t)
   }, [running, step])
 
+  // narrow screens: the tab strip scrolls sideways, so keep the active step in view (strip only, never the page)
+  const tabs = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    const el = tabs.current
+    const b = el?.children[step] as HTMLElement | undefined
+    if (!el || !b || pinned) return
+    const left = el.scrollLeft + b.getBoundingClientRect().left - el.getBoundingClientRect().left
+    el.scrollTo({ left: left - (el.clientWidth - b.offsetWidth) / 2, behavior: rm ? 'auto' : 'smooth' })
+  }, [step, pinned, rm])
+
   const pick = (i: number) => {
     const el = pin.current
     if (el && pinned) {
@@ -246,7 +256,7 @@ export function HowItWorks() {
         <Head title="Four steps from event to answer" lede="One deterministic loop, from the raw event to the signed bundle your agent receives." />
         <div ref={pin} className={`pd-pin${pinned ? ' pd-pin--on' : ''}`}>
           <div className="pd-walk">
-            <div className="pd-steps" role="group" aria-label="Steps">
+            <div ref={tabs} className="pd-steps" role="group" aria-label="Steps">
               {STEPS.map((x, i) => (
                 <button key={x.t} type="button" aria-pressed={i === step} onClick={() => pick(i)}>
                   <span className="pd-steps__n">0{i + 1}</span>{x.t}

@@ -1,6 +1,6 @@
-import type { ReactNode } from 'react'
+import { useRef, type ReactNode } from 'react'
 import { CircleAlert, Clock, FileText, Gauge, ListChecks, Repeat, User } from 'lucide-react'
-import { Head, Pill, Tile } from './ui'
+import { Head, Pill, SnapDots, Tile } from './ui'
 
 function Feature({ icon, title, body, children, className = '' }: { icon: ReactNode; title: string; body: string; children: ReactNode; className?: string }) {
   return (
@@ -33,21 +33,22 @@ function Ring({ score }: { score: number }) {
   )
 }
 
-/** Factor bars scale 5% per point, so −14 / −12 / +8 read in proportion. */
-const FACTORS = [['Open issues', -14], ['SLA breach', -12], ['Response time', 8]] as const
+/** Penalties from server/services/health.py: 100 − 15 − 20 − 10 = 55. Bars scale 5% per point. */
+const FACTORS = [['Open issue', -15], ['Repeated issue', -20], ['SLA breach', -10]] as const
 /** Both SLA bars share one scale with the target tick at 77%: 5m and 24h. */
 const SLA = [['First response', 37, '2m 25s · target 5m'], ['Resolution', 83, '26h · target 24h']] as const
 
 export function Support() {
+  const row = useRef<HTMLDivElement>(null)
   return (
     <section id="support" className="pd-sec pd-sec--panel" aria-label="Support agents">
       <div className="sw-wrap">
         <Head
           title="Built for support agents first"
-          lede="Support is where Statewave is most tuned and most tested, with eight eval criteria you can run against your own stack."
+          lede="Support is where Statewave is most tuned and most tested, against eight eval criteria."
           more={{ to: '/use-cases#strongest', label: 'Support agent workflow' }}
         />
-        <div className="pd-support">
+        <div ref={row} className="pd-support">
           <Feature className="pd-handoff" icon={<FileText size={18} />} title="Handoff packs" body="The brief a human needs when an agent escalates, assembled in one call.">
             <div className="pd-hp">
               <div className="pd-row">
@@ -88,7 +89,7 @@ export function Support() {
               <div className="pd-well pd-health">
                 <ul className="pd-bars">
                   {FACTORS.map(([k, v]) => (
-                    <li key={k}><span>{k}</span><i><b className={v > 0 ? 'is-up' : ''} style={{ width: `${Math.abs(v) * 5}%` }} /></i><em>{v > 0 ? `+${v}` : `−${-v}`}</em></li>
+                    <li key={k}><span>{k}</span><i><b style={{ width: `${-v * 5}%` }} /></i><em>−{-v}</em></li>
                   ))}
                 </ul>
                 <div className="pd-health__score"><b>55</b><span>/ 100 · Watch</span></div>
@@ -109,6 +110,7 @@ export function Support() {
             </Feature>
           </div>
         </div>
+        <SnapDots of={row} />
       </div>
     </section>
   )

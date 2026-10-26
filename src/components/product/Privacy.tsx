@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { Bot, Cloud, Cpu, Database, DollarSign, Eye, FileCode, KeyRound, List, Lock, Search, Sparkles, Split, Tag, User } from 'lucide-react'
-import { Head, Pill, Seg, Tile } from './ui'
+import { Head, Pill, Seg, SnapDots, Tile } from './ui'
 import type { Tone } from './ui'
 
 const GOVERNANCE = 'https://github.com/smaramwbc/statewave-docs/blob/main/sensitivity-labels.md'
@@ -49,11 +49,13 @@ function Switches() {
 
 /** Line tints follow the design: rule heads blue, their scopes muted, the mode green. */
 const POLICY = [
-  ['policy: support-standard', ''], ['rules:', ''],
-  ['  - deny: secret', 'k'], ['    callers: [research-agent]', 'm'],
-  ['  - redact: pii', 'k'], ['    tenants: ["*"]', 'm'],
-  ['  - deny: financial', 'k'], ['    callers: [support-agent]', 'm'],
-  ['mode: log_only', 'g'],
+  ['version: 1', ''], ['rules:', ''],
+  ['  - id: deny-secrets-for-research-agent', 'k'], ['    when:', ''],
+  ['      memory_has_any_label: [secret]', 'm'], ['      caller_type: research-agent', 'm'],
+  ['    action: deny', 'g'],
+  ['  - id: redact-pii', 'k'], ['    when:', ''],
+  ['      memory_has_any_label: [pii]', 'm'],
+  ['    action: redact', 'g'],
 ] as const
 
 const MODES = [{ id: 'log', text: 'Log-only' }, { id: 'enforce', text: 'Enforce' }] as const
@@ -79,15 +81,16 @@ function PolicyMode() {
 }
 
 export function Privacy() {
+  const bento = useRef<HTMLDivElement>(null)
   return (
     <section id="privacy" className="pd-sec pd-sec--card" aria-label="Privacy and data flow">
       <div className="sw-wrap">
         <Head
-          title="Your data stays in your network"
+          title="Your data stays in your network by default"
           lede="Everything lives in your Postgres, with no telemetry path back to us. Policies decide what each caller sees."
           more={{ to: GOVERNANCE, label: 'How Statewave governs memory' }}
         />
-        <div className="pd-bento">
+        <div ref={bento} className="pd-bento">
           <Box className="pd-bento__wide" icon={<Split size={22} />} title="What can leave, layer by layer" body="Storage, retrieval and the default compiler run on your infrastructure. Data only leaves if you plug in an outside model.">
             <div className="pd-flow">
               <div className="pd-infra">
@@ -113,13 +116,14 @@ export function Privacy() {
               ))}
             </ul>
           </Box>
-          <Box icon={<FileCode size={22} />} title="Declarative policies" body="YAML or JSON rules that deny or redact per caller and tenant.">
-            <pre className="pd-policy"><code>{POLICY.map(([l, c]) => <span key={l} className={c && `pd-policy--${c}`}>{l}{'\n'}</span>)}</code></pre>
+          <Box icon={<FileCode size={22} />} title="Declarative policies" body="YAML or JSON rules that deny or redact by label and caller type.">
+            <pre className="pd-policy"><code>{POLICY.map(([l, c], i) => <span key={i} className={c && `pd-policy--${c}`}>{l}{'\n'}</span>)}</code></pre>
           </Box>
           <Box icon={<Eye size={22} />} title="Log-only, then enforce" body="Audit what a policy would do before you switch it on.">
             <PolicyMode />
           </Box>
         </div>
+        <SnapDots of={bento} />
       </div>
     </section>
   )
