@@ -179,7 +179,7 @@
 /* ── policy ───────────────────────────────────────── */
 @media (min-width: 1100px) { .gv-grid--policy { grid-template-columns: minmax(0, 1fr) minmax(0, 440px); } }
 .gv-editor { display: flex; flex-direction: column; }
-.gv-code { padding: 18px 0 22px; overflow-x: auto; font-size: 13px; }
+.sw-gv .gv-code { padding: 18px 0 22px; overflow-x: auto; font-size: 13px; }
 .gv-code > span { display: flex; align-items: center; gap: 18px; min-height: 24px; padding: 0 20px; border-left: 2px solid transparent; white-space: pre; }
 .gv-code > span.is-hit { background: var(--sw-tint); border-left-color: var(--sw-blue); }
 .gv-code i { flex: 0 0 18px; font-style: normal; font-size: 12px; text-align: right; color: var(--sw-inv-muted); }
@@ -246,7 +246,7 @@
 .gv-viewer__bar { display: flex; align-items: center; gap: 10px; padding: 14px 20px; background: #14204f; border-bottom: 1px solid rgba(255, 255, 255, 0.09); font-size: 13px; }
 .gv-viewer__body { display: grid; grid-template-columns: minmax(0, 1fr); }
 @media (min-width: 1100px) { .gv-viewer__body { grid-template-columns: minmax(0, 1fr) 460px; } }
-.gv-json { padding: 16px 24px 18px; overflow-x: auto; font-size: 13px; }
+.sw-gv .gv-json { padding: 20px 24px; overflow-x: auto; font-size: 13px; }
 .gv-json > span { display: flex; align-items: center; gap: 12px; height: 24px; white-space: pre; }
 .gv-json i { flex: 0 0 18px; font-style: normal; }
 .gv-json em { color: var(--sw-inv-link); }
@@ -353,7 +353,7 @@
   .gv-venns svg { width: 120px; }
   .gv-tenants { gap: 24px; }
   .gv-erase__row > span { flex-basis: 76px; }
-  .gv-code, .gv-json { font-size: 12px; }
+  .sw-gv .gv-code, .sw-gv .gv-json { font-size: 12px; }
   /* phones: keep the story, drop the duplicates */
   .gv-json, .gv-gates .gv-gate:first-child, .sw-gv .pd-cta__side > .pd-receipt { display: none; }
 }
@@ -432,3 +432,4 @@
 @media (min-width: 640px) { .gv-editor .gv-code, .gv-json { display: flex; flex: 1; flex-direction: column; justify-content: center; } }
 .gv-editor .gv-code > span { min-height: 26px; }
 .gv-dark-card .gv-mini-card__head { flex-wrap: wrap; }
+@media (min-width: 1100px) { .gv-json > span { height: 26px; } }
