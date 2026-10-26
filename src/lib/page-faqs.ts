@@ -109,6 +109,32 @@ export const PAGE_FAQS: Partial<Record<RouteKey, readonly FaqEntry[]>> = {
     },
   ],
 
+  // Governance page. Answers checked against the statewave server source (policy.py, receipts.py, subjects.py) on 2026-10-26.
+  '/governance': [
+    {
+      question: 'What does Statewave check on every context call?',
+      answer:
+        'Five things: the caller identity (caller_id and caller_type), the sensitivity labels an operator has promoted on each memory, the active policy bundle where the first matching rule wins, the tenant policy_mode (log_only or enforce), and, when you ask for one, a receipt that hashes the exact context the agent received.',
+      links: [{ label: 'Sensitivity labels and policy', href: `${DOCS}/sensitivity-labels.md` }],
+    },
+    {
+      question: 'What is the difference between log_only and enforce?',
+      answer:
+        'log_only is the default. Every memory is still delivered, and the receipt lists in policy.filters_applied what each rule would deny or redact. In enforce, denied memories are removed before scoring so they never reach ranking, and redacted ones reach the agent as [REDACTED by policy]. policy_mode is set per tenant.',
+    },
+    {
+      question: 'Are receipts signed, and can I replay them?',
+      answer:
+        'Receipts are opt-in per call with emit_receipt, or always on through tenant config. Each one carries a SHA-256 hash of the delivered context and is signed with HMAC-SHA256 when an operator signing key is configured. Replay re-runs retrieval with the stored policy snapshot against today’s memories and returns a structural diff, not a byte-for-byte replay.',
+      links: [{ label: 'State-assembly receipts', href: 'https://github.com/smaramwbc/statewave/blob/main/docs/state-assembly-receipts.md' }],
+    },
+    {
+      question: 'Does deleting a subject delete its receipts?',
+      answer:
+        'No. DELETE /v1/subjects/{subject_id} removes the subject’s episodes, memories and derived records in one call. Receipts are append-only: receipt_retention_days tombstones them once they age out, and 0 or no value keeps them.',
+    },
+  ],
+
   // Mirrors the Figma product page FAQ (node 256:139), condensed from the source-checked answers.
   '/product': [
     {
