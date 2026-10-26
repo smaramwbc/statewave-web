@@ -592,6 +592,18 @@
   .pd-track__seg, .pd-gov__head code, .pd-repeat em, .pd-cmd em { font-size: 12px; }
 }
 
+/* phones: the story cards open one at a time; the header is the tap target */
+.pd-obj__head { position: relative; display: flex; flex-direction: column; gap: 20px; }
+.pd-obj__toggle { all: unset; cursor: pointer; }
+.pd-obj__toggle::after { content: ''; position: absolute; inset: -8px; }
+.pd-obj__toggle:focus-visible::after { border-radius: 12px; outline: 2px solid var(--sw-accent); }
+.pd-obj__chev { margin-left: auto; color: var(--sw-ink-sec); }
+/* the heading's negative margin tucks the body text up; a closed card has none, so keep its padding even */
+.pd-obj:not([data-open]) .pd-obj__toggle { display: block; padding-bottom: 12px; }
+@media (prefers-reduced-motion: no-preference) {
+  .pd-obj[data-open] .pd-obj__ex { animation: pd-in 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+}
+
 /* touch has no hover: give the same lift while a finger is down */
 .pd-obj:active, .pd-feat:active, .pd-evs__table:active, .pd-box:active, .pd-ibox:active, .pd-sample:active { transform: translateY(-4px); }
 .pd-panel:active, .pd-rec__card:active, .pd-gov__card:active, .pd-receipt:active, .pd-stats > div:active { transform: translateY(-3px); }
