@@ -49,7 +49,7 @@ export function Receipts() {
         <div className="pd-navy gv-dark">
           <div aria-hidden="true" className="gv-dark__glow" />
           <GHead dark step={<Step n={5} q="Can you prove it?" />} id="gv-receipts" a="Every call can leave a signed" b="receipt you can replay"
-            lede="Ask for a receipt on a context call and Statewave stores an append-only record addressed by ULID. It records what was selected, which policy applied and a SHA-256 hash of the exact bytes the agent received." />
+            lede="Ask for one and Statewave records what the agent was given, which policy applied and a hash of the exact bytes." />
           <div className="gv-viewer">
             <div className="gv-viewer__bar">
               <ReceiptText size={16} /><b className="pd-grow gv-medium">receipt.json</b>
