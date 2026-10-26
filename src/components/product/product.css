@@ -76,10 +76,10 @@
 .pd-hero__arc { position: absolute; left: 50%; bottom: -510px; width: 3200px; height: 680px; margin-left: -1600px; pointer-events: none;
   background: radial-gradient(circle 2440px at 50% 2440px, var(--sw-navy-deep) 2398px, var(--sw-blue) 2398.5px 2400px, rgba(47, 91, 240, 0.5) 2400px, transparent 2440px); }
 .pd-hero__in { display: grid; grid-template-columns: minmax(0, 1fr); gap: 56px; align-items: center; }
-.pd-hero__copy { display: flex; flex-direction: column; gap: 32px; max-width: 600px; }
-.pd-hero__title { font-family: var(--sw-display); font-weight: 700; font-size: clamp(38px, 4.2vw, 56px); line-height: 1.08; letter-spacing: -0.022em; color: #fff; text-wrap: balance; }
+.pd-hero__copy { display: flex; flex-direction: column; gap: 32px; max-width: 640px; }
+.pd-hero__title { font-family: var(--sw-display); font-weight: 700; font-size: clamp(40px, 4.8vw, 66px); line-height: 1.06; letter-spacing: -0.022em; color: #fff; text-wrap: balance; }
 .pd-hero__title .sw-hero__grad { display: block; padding-bottom: 0.06em; }
-.pd-hero__sub { max-width: 580px; margin-top: -8px; font-size: 18px; line-height: 28px; color: #b4bcd3; text-wrap: pretty; }
+.pd-hero__sub { max-width: 520px; margin-top: -8px; font-size: 19px; line-height: 29px; color: #b4bcd3; text-wrap: pretty; }
 .pd-hero__ctas { display: flex; flex-wrap: wrap; gap: 12px; }
 .sw-pd .pd-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px 0; padding-top: 24px; border-top: 1px solid rgba(255, 255, 255, 0.1); }
 .pd-stats > div { display: flex; flex-direction: column; gap: 10px; padding: 0 16px 0 20px; border-left: 1px solid rgba(255, 255, 255, 0.1); }
@@ -122,7 +122,7 @@
   .pd-stats > div:first-child { padding-left: 0; border-left: 0; }
 }
 @media (min-width: 1100px) {
-  .pd-hero__in { grid-template-columns: minmax(0, 600px) minmax(0, 712px); justify-content: space-between; gap: 64px; }
+  .pd-hero__in { grid-template-columns: minmax(0, 640px) minmax(0, 712px); justify-content: space-between; gap: 64px; }
 }
 
 /* ── how it works ─────────────────────────────────── */

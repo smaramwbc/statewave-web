@@ -87,8 +87,7 @@ export function Hero() {
             How AI agent memory works, <span className="sw-hero__grad">from event to receipt</span>
           </h1>
           <p className="pd-hero__sub">
-            Your app sends Statewave what happened. Statewave compiles typed facts about each customer and hands your
-            agent a ranked, token&#8209;bounded bundle, with every fact traced to its source.
+            Send Statewave what happened. Your agent gets back the facts that matter, ranked and traced to their source.
           </p>
           <div className="pd-hero__ctas">
             <Ln to={DOCS} className="sw-btn sw-btn--solid sw-hero__cta">
