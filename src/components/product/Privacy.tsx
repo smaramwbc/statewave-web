@@ -110,7 +110,7 @@ export function Privacy() {
           </Box>
           <Box icon={<Tag size={22} />} title="Sensitivity labels" body="pii, financial and secret. Suggested at compile time, promoted by an operator." id="audit-governance">
             <ul className="pd-list">
-              {([[<User size={15} />, 'Billing contact email', 'Suggested at compile time', 'pii'], [<DollarSign size={15} />, 'Annual contract value', 'Promoted by an operator', 'financial'], [<KeyRound size={15} />, 'Admin API token', 'Promoted by an operator', 'secret']] as const).map(([icon, name, sub, label]) => (
+              {([[<User size={15} />, 'Billing contact email', 'Suggested, then promoted', 'pii'], [<DollarSign size={15} />, 'Annual contract value', 'Promoted by an operator', 'financial'], [<KeyRound size={15} />, 'Admin API token', 'Promoted by an operator', 'secret']] as const).map(([icon, name, sub, label]) => (
                 <li key={label}><Tile size={32}>{icon}</Tile><div><b>{name}</b><span>{sub}</span></div><Pill tone="accent">{label}</Pill></li>
               ))}
             </ul>

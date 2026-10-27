@@ -68,7 +68,7 @@ export function DomainModel() {
             <div className="pd-row"><Brand name="slack" /><b>Slack</b><span className="pd-muted pd-grow">#billing · 2 Sep</span></div>
             <q className="pd-obj__quote">Heads up, we moved our renewal to the 14th.</q>
             <div className="pd-row pd-small">
-              <Lock size={13} className="pd-ok" /><span className="pd-ok pd-grow">Saved as-is</span><code className="pd-muted">ep_7c1e04a2</code>
+              <Lock size={13} className="pd-ok" /><span className="pd-ok pd-grow">Saved as-is</span><code className="pd-muted">7c1e04a2-…</code>
             </div>
           </Stage>
           <Step label="Compiled" i={1} />
@@ -85,7 +85,7 @@ export function DomainModel() {
             <div className="pd-row pd-row--start"><span className="pd-muted pd-small">Task</span><b className="pd-medium">When does our plan renew?</b></div>
             <div className="pd-bitem is-top"><span>Plan renews on the 14th</span><b>21.4</b></div>
             <div className="pd-bitem"><span>Resend invoices from the portal</span><b>18.2</b></div>
-            <div className="pd-bitem is-out"><span>Duplicate INV-2291 refunded</span><b>Left out</b></div>
+            <div className="pd-bitem is-out"><span>Onboarding notes</span><b>Didn’t fit</b></div>
             <div className="pd-row pd-small"><span className="pd-muted pd-grow">Token budget</span><b className="pd-medium">1,284 / 2,000</b></div>
             <div className="pd-meter" role="img" aria-label="1,284 of 2,000 tokens used"><i style={{ width: '64.2%' }} /></div>
           </Stage>

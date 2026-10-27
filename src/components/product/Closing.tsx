@@ -96,7 +96,7 @@ export function RunIt() {
               <div className="pd-sample__res">
                 <span>Response</span>
                 <code>receipt_id: 01J9ZK4T7M3QX8R2V6N0B5HCWD</code>
-                <span>2 memories · 2 episodes · 1,284 / 2,000 tokens · signed</span>
+                <span>3 memories · 1 episode · 1,284 / 2,000 tokens · signed</span>
               </div>
             </div>
             <div className="pd-run__side">
@@ -161,7 +161,7 @@ const CMDS = [
 
 const RECEIPT = [
   ['Subject', 'account:northwind'],
-  ['Selected', '2 memories · 2 episodes'],
+  ['Selected', '3 memories · 1 episode'],
   ['Budget', '1,284 / 2,000 tokens'],
   ['Policy', 'support-standard'],
 ] as const

@@ -133,7 +133,7 @@ function Retrieve() {
 function Govern() {
   const rows = [
     [<Database size={15} />, 'Subject', 'account:northwind'],
-    [<Layers size={15} />, 'Selected', '2 memories · 2 episodes'],
+    [<Layers size={15} />, 'Selected', '3 memories · 1 episode'],
     [<FileCode size={15} />, 'Policy', 'support-standard'],
     [<EyeOff size={15} />, 'Redacted', 'Billing email (pii)'],
   ] as const
@@ -252,7 +252,7 @@ export function HowItWorks() {
   return (
     <section ref={ref} id="how-it-works" className="pd-sec pd-sec--card" aria-label="How it works">
       <div className="sw-wrap">
-        <Head title="Four steps from event to answer" lede="One deterministic loop, from the raw event to the signed bundle your agent receives." />
+        <Head title="Four steps from event to answer" lede="One loop, from the raw event to the signed bundle your agent receives." />
         <div ref={pin} className={`pd-pin${pinned ? ' pd-pin--on' : ''}`}>
           <div className="pd-walk">
             <div ref={tabs} className="pd-steps" role="group" aria-label="Steps">
