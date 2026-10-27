@@ -37,7 +37,7 @@ function Stage() {
           <div className="pd-reply">
             <Tile size={28}><Bot size={15} /></Tile>
             <div className="pd-bubble pd-bubble--agent">
-              <p>Your plan renews on the 14th, and I’ve resent the May invoice to billing@northwind.io.</p>
+              <p>Your plan renews on the 14th, and I’ve resent the May invoice to your billing contact.</p>
               <div className="pd-srcs">
                 <span className="pd-src"><Brand name="slack" size={12} />Renewal moved · 2 Sep</span>
                 <span className="pd-src"><Brand name="zendesk" size={12} />INV-2291 · 9 Sep</span>

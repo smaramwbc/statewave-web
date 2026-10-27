@@ -68,7 +68,7 @@ const INSTALLS = [
 ] as const
 
 const REQS = [
-  [<Database size={16} />, 'Database', 'PostgreSQL 14+ with pgvector 0.4.2+'],
+  [<Database size={16} />, 'Database', 'PostgreSQL 15+ with pgvector 0.4.2+'],
   [<Cpu size={16} />, 'Runtime', 'Python 3.11+, CPU-only, no GPU'],
   [<Package size={16} />, 'Image', 'linux/amd64 and arm64'],
   [<Cloud size={16} />, 'Deploy', 'Docker Compose, Helm, Fly.io or Railway'],
@@ -163,7 +163,7 @@ const RECEIPT = [
   ['Subject', 'account:northwind'],
   ['Selected', '2 memories · 2 episodes'],
   ['Budget', '1,284 / 2,000 tokens'],
-  ['Policy', 'support-standard · log only'],
+  ['Policy', 'support-standard'],
 ] as const
 
 export function ProductCta() {
