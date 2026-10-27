@@ -10,7 +10,7 @@ import '../components/product/product.css'
 import '../components/governance/governance.css'
 
 const ROLLOUT = [
-  ['Bundle', 'sha256:a1b2c3… · active'],
+  ['Bundle', 'a1b2c3… · active'],
   ['Receipts', 'filters_applied reviewed'],
   ['Mode', 'log_only, then enforce'],
   ['policy_mode', 'enforce'],

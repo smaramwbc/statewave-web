@@ -29,8 +29,8 @@ function Pointer({ icon, title, body }: { icon: ReactNode; title: string; body: 
 
 const STAGES = [
   { t: 'Compiled', d: 'Default-allow until labelled', pill: 'no label', meta: 'sensitivity_labels: []' },
-  { t: 'Suggested', d: 'Detector match, advisory only', pill: 'suggested: pii', meta: 'suggested_labels' },
-  { t: 'Promoted', d: 'An operator promotes it, recorded on the memory', pill: 'pii', meta: 'POST …/promote-labels', on: true },
+  { t: 'Suggested', d: 'Detector match, advisory only', pill: 'suggested: pii.email', meta: 'suggested_labels' },
+  { t: 'Promoted', d: 'An operator promotes it, recorded on the memory', pill: 'pii.email', meta: 'POST …/promote-labels', on: true },
   { t: 'Read by policy', d: 'Matched by deny-pii-for-marketing-tools', pill: 'deny', meta: 'policy.filters_applied', on: true, last: true },
 ]
 
@@ -42,7 +42,7 @@ export function Labels() {
           <div className="gv-split__copy">
             <Step n={2} q="What is sensitive?" />
             <H2 id="gv-labels" a="Labels get promoted" b="before policy reads them" />
-            <p className="pd-lede">Labels are tags on each memory. Detectors can suggest them at compile time, and nothing is enforced until an operator promotes them.</p>
+            <p className="pd-lede">Labels are tags on each memory. Detectors can suggest them at compile time, and a suggestion does nothing until an operator promotes it.</p>
             <ul className="gv-pointers">
               <Pointer icon={<ScanLine size={17} />} title="Detectors suggest at compile time" body="When turned on, they flag emails, phone numbers, card numbers that pass a Luhn check and secret tokens" />
               <Pointer icon={<Eye size={17} />} title="Suggestions stay advisory" body="The policy evaluator ignores a suggested label until it is promoted" />
@@ -81,7 +81,7 @@ const YAML: { l: L; hit?: boolean; note?: string }[] = [
   { l: ['rules:'] },
   { l: ['  - id:', ' deny-pii-for-marketing-tools'], hit: true, note: 'Billing contact email · deny' },
   { l: ['    when:'], hit: true },
-  { l: ['      memory_has_any_label:', ' [pii]'], hit: true },
+  { l: ['      memory_has_any_label:', ' [pii, pii.email]'], hit: true },
   { l: ['      caller_type:', ' marketing_tool'], hit: true },
   { l: ['    action:', ' deny'], hit: true },
   { l: [''] },
@@ -183,7 +183,7 @@ export function PolicySection() {
 const MODES = [{ id: 'log_only', text: 'log_only' }, { id: 'enforce', text: 'enforce' }] as const
 const CALL = [
   { m: 'Plan renews on the 14th', l: 'none' },
-  { m: 'Billing contact email', l: 'pii', act: 'deny' },
+  { m: 'Billing contact email', l: 'pii.email', act: 'deny' },
   { m: 'Admin API token', l: 'secret', act: 'redact' },
   { m: 'Renewal discussed on 2 Sep', l: 'none' },
 ]
@@ -224,7 +224,7 @@ export function Rollout() {
               </div>
               <div className="gv-notes">
                 <div className={enforce ? undefined : 'is-on'}><b>In log_only</b><p>All four memories reach the agent, and the receipt lists what enforcement would have done</p></div>
-                <div className={enforce ? 'is-on' : undefined}><b>In enforce</b><p>Denied memories are removed before scoring, so they never leak through ranking</p></div>
+                <div className={enforce ? 'is-on' : undefined}><b>In enforce</b><p>Denied memories are removed before scoring, so they never enter ranking</p></div>
               </div>
             </div>
           </div>

@@ -54,9 +54,9 @@ export function Checks() {
               <span className="gv-muted">Identity is required</span>
             </div>
           </Check>
-          <Check {...fold(1)} n="02" q="What is sensitive?" icon={<Tag size={17} />} title="Labels" result="2 of the 4 memories are labelled" body="Memories carry sensitivity labels such as pii or secret. Only labels an operator has promoted count toward policy.">
+          <Check {...fold(1)} n="02" q="What is sensitive?" icon={<Tag size={17} />} title="Labels" result="2 of the 4 memories are labelled" body="Memories carry sensitivity labels such as pii.email or secret. A detector’s suggestion counts only once an operator promotes it.">
             <div className="gv-stagger">
-              {[['Billing contact email', 'pii'], ['Admin API token', 'secret'], ['Plan renews on the 14th', 'none']].map(([t, l]) => (
+              {[['Billing contact email', 'pii.email'], ['Admin API token', 'secret'], ['Plan renews on the 14th', 'none']].map(([t, l]) => (
                 <div key={t} className="gv-float gv-row"><b className="pd-grow">{t}</b><Pill inv={l !== 'none'}>{l}</Pill></div>
               ))}
             </div>
@@ -79,13 +79,13 @@ export function Checks() {
               ))}
             </div>
           </Check>
-          <Check wide {...fold(4)} n="05" q="Can you prove it?" icon={<ReceiptText size={17} />} title="Receipt" result="receipt 01J9ZK4T… saved" body="Ask for a receipt and Statewave saves the exact context delivered, hashed, signed when a key is configured, and replayable later.">
+          <Check wide {...fold(4)} n="05" q="Can you prove it?" icon={<ReceiptText size={17} />} title="Receipt" result="receipt 01J9ZM2D… saved" body="Ask for a receipt and Statewave saves the exact context delivered, hashed, signed when a key is configured, and replayable later.">
             <div className="gv-seal">
               <div className="gv-float gv-seal__card">
                 <div className="gv-row"><Tile tone="card" size={28}><FileText size={15} /></Tile><div className="gv-stack"><b>Receipt</b><span className="gv-muted">Signed</span></div></div>
                 <dl className="gv-mini gv-mini--stack">
-                  <div><dt>receipt_id</dt><dd>01J9ZK4T…</dd></div>
-                  <div><dt>context_hash</dt><dd>sha256:9f4c…</dd></div>
+                  <div><dt>receipt_id</dt><dd>01J9ZM2D…</dd></div>
+                  <div><dt>context_hash</dt><dd>9f4c…</dd></div>
                 </dl>
                 <div className="gv-row gv-seal__sig"><ShieldCheck size={15} />HMAC-SHA256</div>
               </div>

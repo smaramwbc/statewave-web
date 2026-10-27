@@ -5,9 +5,9 @@ import { GOV_DOCS } from './links'
 
 // Illustrative receipts list, matching the Figma admin mock.
 const ROWS = [
-  ['01J9ZK4T7M3QX8R2', 'account:northwind', 'support_agent', 3, '12s ago'],
+  ['01J9ZK4T7M3QX8R2', 'account:northwind', 'marketing_tool', 2, '12s ago'],
   ['01J9ZK3P1D8WQ5N7', 'account:helios', 'support_agent', 0, '41s ago'],
-  ['01J9ZK2R6H4TB9E3', 'account:northwind', 'marketing_tool', 1, '2m ago'],
+  ['01J9ZK2R6H4TB9E3', 'account:orbit', 'marketing_tool', 1, '2m ago'],
   ['01J9ZK1A9C2VM6K8', 'account:orbit', 'admin', 0, '5m ago'],
   ['01J9ZJZX5F7LP3Q1', 'account:helios', 'support_agent', 2, '9m ago'],
   ['01J9ZJYB3N8RD4W6', 'account:kestrel', 'security', 0, '14m ago'],
@@ -18,15 +18,14 @@ const ROWS = [
 
 const META = [
   ['Subject', 'account:northwind'],
-  ['Caller', 'support_agent'],
-  ['Policy bundle', 'sha256:a1b2c3…'],
+  ['Caller', 'marketing_tool'],
+  ['Policy bundle', 'a1b2c3…'],
   ['Mode', 'log_only'],
 ] as const
 
 const DECISIONS = [
-  { text: 'Billing contact email', label: 'pii', verdict: 'redact' },
-  { text: 'Annual contract value', label: 'financial', verdict: 'deny', strong: true },
-  { text: 'Admin API token', label: 'secret', verdict: 'deny', strong: true },
+  { text: 'Billing contact email', label: 'pii.email', verdict: 'deny', strong: true },
+  { text: 'Admin API token', label: 'secret', verdict: 'redact' },
 ]
 
 function Admin() {
@@ -34,7 +33,7 @@ function Admin() {
     <div className="gv-admin" role="img" aria-label="Example Statewave admin screen: a list of context-call receipts in log_only mode, with one receipt open listing the memories a policy rule would redact or deny once enforced.">
       <div aria-hidden="true">
         <div className="gv-admin__bar">
-          <b>Statewave admin</b><i>/</i><span>support-agent</span><i>/</i><b className="gv-medium">Receipts</b>
+          <b>Statewave admin</b><i>/</i><span>tenant_01</span><i>/</i><b className="gv-medium">Receipts</b>
           <span className="gv-admin__search"><Search size={13} />Search by subject or receipt_id</span>
           <span className="gv-chip gv-mono">policy_mode: log_only</span>
           <span className="gv-chip">Last 24 hours</span>
@@ -48,7 +47,7 @@ function Admin() {
                   <td className="gv-mono gv-ink">{id}</td>
                   <td className="gv-mono">{subj}</td>
                   <td className="gv-mono">{caller}</td>
-                  <td>{n ? <span className={`gv-pill${n === 3 ? ' gv-pill--inv' : ''}`}>{n} {n === 1 ? 'filter' : 'filters'} applied</span> : <span className="gv-muted">No filters applied</span>}</td>
+                  <td>{n ? <span className={`gv-pill${i === 0 ? ' gv-pill--inv' : ''}`}>{n} {n === 1 ? 'filter' : 'filters'} applied</span> : <span className="gv-muted">No filters applied</span>}</td>
                   <td className="gv-muted">{t}</td>
                 </tr>
               ))}

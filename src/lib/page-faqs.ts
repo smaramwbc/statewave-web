@@ -114,13 +114,13 @@ export const PAGE_FAQS: Partial<Record<RouteKey, readonly FaqEntry[]>> = {
     {
       question: 'What does Statewave check on every context call?',
       answer:
-        'Five things: the caller identity (caller_id and caller_type), the sensitivity labels an operator has promoted on each memory, the active policy bundle where the first matching rule wins, the tenant policy_mode (log_only or enforce), and, when you ask for one, a receipt that hashes the exact context the agent received.',
+        'Five things: the caller identity (caller_id and caller_type), the sensitivity labels on each memory (a detector’s suggestion counts only once promoted), the active policy bundle where the first matching rule wins, the tenant policy_mode (log_only or enforce), and, when you ask for one, a receipt that hashes the exact context the agent received.',
       links: [{ label: 'Sensitivity labels and policy', href: `${DOCS}/sensitivity-labels.md` }],
     },
     {
       question: 'What is the difference between log_only and enforce?',
       answer:
-        'log_only is the default. Every memory is still delivered, and the receipt lists in policy.filters_applied what each rule would deny or redact. In enforce, denied memories are removed before scoring so they never reach ranking, and redacted ones reach the agent as [REDACTED by policy]. policy_mode is set per tenant.',
+        'log_only is the default. Every memory is still delivered, and the receipt lists in policy.filters_applied what each rule would deny or redact. In enforce, denied memories are removed before scoring so they never reach ranking, and redacted ones reach the agent as [REDACTED by policy]. Rules read memory labels, so raw episodes are not filtered. policy_mode is set per tenant.',
     },
     {
       question: 'Are receipts signed, and can I replay them?',

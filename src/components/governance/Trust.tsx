@@ -13,14 +13,14 @@ const Pill = ({ inv, children }: { inv?: boolean; children: ReactNode }) => <spa
 // [key, value, legend marker, legend text]
 const JSON_LINES: [string, string, number?][] = [
   ['{', ''],
-  ['  "receipt_id":', ' "01J9ZK4T7M3QX8R2",', 1],
+  ['  "receipt_id":', ' "01J9ZK4T7M3QX8R2V6N0B5HCWD",', 1],
   ['  "tenant_id":', ' "tenant_01",'],
   ['  "selected_entries":', ' [ … 4 ],', 2],
   ['  "policy":', ' {'],
   ['    "policy_bundle_hash":', ' "a1b2c3…",', 3],
-  ['    "filters_applied":', ' [ … 3 ]'],
+  ['    "filters_applied":', ' [ … 2 ]'],
   ['  },', ''],
-  ['  "output":', ' { "context_hash": "sha256:9f4c…" },', 4],
+  ['  "output":', ' { "context_hash": "9f4c…" },', 4],
   ['  "receipt_signature":', ' "7be1…",', 5],
   ['  "policy_snapshot":', ' { "bundle_yaml": "version: 1\\n…" }', 6],
   ['}', ''],
@@ -167,7 +167,7 @@ export function Identity() {
 
 const SCOPE: { icon: ReactNode; area: string; yes: string[]; no: string[] }[] = [
   { icon: <Tag size={17} />, area: 'Labels', yes: ['Operator-supplied sensitivity labels', 'Opt-in auto-label suggestions with operator promotion'], no: ['Recording who promoted a label'] },
-  { icon: <FileCode size={17} />, area: 'Policy', yes: ['Deny and redact rules, first match wins'], no: ['Visual policy editor in the admin app', 'Regex predicates', 'Explicit allow rules'] },
+  { icon: <FileCode size={17} />, area: 'Policy', yes: ['Deny and redact rules, first match wins'], no: ['Rules on raw episodes (policy reads memory labels only)', 'Visual policy editor in the admin app', 'Regex predicates', 'Explicit allow rules'] },
   { icon: <ToggleLeft size={17} />, area: 'Mode', yes: ['log_only by default, enforce per tenant'], no: [] },
   { icon: <ReceiptText size={17} />, area: 'Receipts', yes: ['Receipts with SHA-256 hash and HMAC signing', 'Replay with the original policy on current memories', 'Tenant-controlled receipt retention'], no: ['KMS-backed or asymmetric receipt signing', 'Byte-for-byte historical replay', 'Cross-tenant receipt aggregation'] },
 ]
