@@ -4,6 +4,7 @@ import { Layout } from './components/Layout'
 import { HomePage } from './pages/HomePage'
 
 const ProductPage = lazy(() => import('./pages/ProductPage').then(m => ({ default: m.ProductPage })))
+const GovernancePage = lazy(() => import('./pages/GovernancePage').then(m => ({ default: m.GovernancePage })))
 const WhyPage = lazy(() => import('./pages/WhyPage').then(m => ({ default: m.WhyPage })))
 const UseCasesPage = lazy(() => import('./pages/UseCasesPage').then(m => ({ default: m.UseCasesPage })))
 const MultiAgentMemoryPage = lazy(() => import('./pages/MultiAgentMemoryPage').then(m => ({ default: m.MultiAgentMemoryPage })))
@@ -41,6 +42,7 @@ export default function App() {
         <Route element={<Layout />}>
           <Route path="/" element={<HomePage />} />
           <Route path="/product" element={<ProductPage />} />
+          <Route path="/governance" element={<GovernancePage />} />
           <Route path="/why" element={<WhyPage />} />
           <Route path="/use-cases" element={<UseCasesPage />} />
           <Route path="/use-cases/multi-agent-memory" element={<MultiAgentMemoryPage />} />

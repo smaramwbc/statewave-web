@@ -1,36 +1,13 @@
-import { useEffect, useRef } from 'react'
 import type { ReactNode } from 'react'
 import { Eyebrow, H2, Ln } from './ui'
-import { useSeen, useTween } from './hooks'
+import { useParallax, useSeen, useTween } from './hooks'
 import './home-a.css'
 
 const ILLUS = '/images/home/v8/illus/'
 
-/** The dithered backdrop and the card float against each other as the pointer moves
- *  across the panel. Eased in rAF through --mx/--my so it never snaps. */
+/** The dithered backdrop and the card float against each other as the pointer moves across the panel. */
 function Vis({ img, children, mod = '' }: { img: string; children: ReactNode; mod?: string }) {
-  const ref = useRef<HTMLDivElement>(null)
-  useEffect(() => {
-    const el = ref.current
-    if (!el) return
-    let x = 0, y = 0, tx = 0, ty = 0, raf = 0
-    const frame = () => {
-      x += (tx - x) * 0.08; y += (ty - y) * 0.08
-      el.style.setProperty('--mx', x.toFixed(3)); el.style.setProperty('--my', y.toFixed(3))
-      raf = Math.abs(tx - x) + Math.abs(ty - y) > 0.002 ? requestAnimationFrame(frame) : 0
-    }
-    const kick = () => { if (!raf) raf = requestAnimationFrame(frame) }
-    const move = (e: PointerEvent) => {
-      const r = el.getBoundingClientRect()
-      tx = ((e.clientX - r.left) / r.width - 0.5) * 2
-      ty = ((e.clientY - r.top) / r.height - 0.5) * 2
-      kick()
-    }
-    const leave = () => { tx = 0; ty = 0; kick() }
-    el.addEventListener('pointermove', move)
-    el.addEventListener('pointerleave', leave)
-    return () => { el.removeEventListener('pointermove', move); el.removeEventListener('pointerleave', leave); cancelAnimationFrame(raf) }
-  }, [])
+  const ref = useParallax<HTMLDivElement>()
   return (
     <div ref={ref} className={`sw-vis${mod}`}>
       <span aria-hidden="true" className="sw-vis__bg" style={{ backgroundImage: `url(${ILLUS}${img})` }} />

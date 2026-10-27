@@ -109,38 +109,77 @@ export const PAGE_FAQS: Partial<Record<RouteKey, readonly FaqEntry[]>> = {
     },
   ],
 
+  // Governance page. Answers checked against the statewave server source (policy.py, receipts.py, subjects.py) on 2026-10-26.
+  '/governance': [
+    {
+      question: 'What does Statewave check on every context call?',
+      answer:
+        'Five things: the caller identity (caller_id and caller_type), the sensitivity labels on each memory (a detector’s suggestion counts only once promoted), the active policy bundle where the first matching rule wins, the tenant policy_mode (log_only or enforce), and, when you ask for one, a receipt that hashes the exact context the agent received.',
+      links: [{ label: 'Sensitivity labels and policy', href: `${DOCS}/sensitivity-labels.md` }],
+    },
+    {
+      question: 'What is the difference between log_only and enforce?',
+      answer:
+        'log_only is the default. Every memory is still delivered, and the receipt lists in policy.filters_applied what each rule would deny or redact. In enforce, denied memories are removed before scoring so they never reach ranking, and redacted ones reach the agent as [REDACTED by policy]. Rules read memory labels, so raw episodes are not filtered. policy_mode is set per tenant.',
+    },
+    {
+      question: 'Are receipts signed, and can I replay them?',
+      answer:
+        'Receipts are opt-in per call with emit_receipt, or always on through tenant config. Each one carries a SHA-256 hash of the delivered context and is signed with HMAC-SHA256 when an operator signing key is configured. Replay re-runs retrieval with the stored policy snapshot against today’s memories and returns a structural diff, not a byte-for-byte replay.',
+      links: [{ label: 'State-assembly receipts', href: 'https://github.com/smaramwbc/statewave/blob/main/docs/state-assembly-receipts.md' }],
+    },
+    {
+      question: 'Does deleting a subject delete its receipts?',
+      answer:
+        'No. DELETE /v1/subjects/{subject_id} removes the subject’s episodes, memories and derived records in one call. Receipts are append-only: receipt_retention_days tombstones them once they age out, and 0 or no value keeps them.',
+    },
+  ],
+
+  // Mirrors the Figma product page FAQ (node 256:139), condensed from the source-checked answers.
   '/product': [
     {
       question: 'How does a raw event become retrievable memory?',
       answer:
-        `Three endpoints carry the whole loop. POST /v1/episodes appends an immutable, content-hashed event under a subject. POST /v1/memories/compile turns new episodes into typed memories — profile_fact, procedure, episode_summary, artifact_ref — each with a confidence score, a validity window, and its source episode IDs. POST /v1/context returns a ranked, token-bounded bundle. Compilation is idempotent: running it twice creates no duplicates, a property the core repo covers with ${PROOF_FIGURES.unitTests} unit tests and ${PROOF_FIGURES.evalAssertions} eval assertions across the record → compile → retrieve path.`,
+        'Three endpoints carry the loop. POST /v1/episodes appends an immutable, append-only event under a subject. POST /v1/memories/compile turns new episodes into typed memories with confidence, a validity window and source episode IDs. POST /v1/context returns a ranked, token-bounded bundle. Compilation is idempotent, so re-running it never duplicates.',
       links: [
         { label: 'API v1 contract', href: `${DOCS}/api/v1-contract.md` },
         { label: 'Getting started', href: `${DOCS}/getting-started.md` },
       ],
     },
     {
-      question: 'What is inside a context bundle?',
+      question: 'What’s inside a context bundle?',
       answer:
-        'Sections for the task, compiled facts, procedures, recent history, and raw episodes — ranked by composite score and packed until the token budget is spent, never truncated mid-item. Every row carries its kind, confidence, validity window, source episode IDs, and supersession state (active, superseded, or tombstoned), so the calling application can render or audit exactly what the model saw. The benchmark harness exercises budgets of 512, 1,024, 2,048, and 4,096 tokens.',
+        'Sections for the task, compiled facts, procedures, recent history and raw episodes, packed by score until the token budget is spent and never cut mid-item. Every row carries its kind, confidence, validity window, source episode IDs and supersession state.',
       links: [{ label: 'Domain model', href: '/product#domain-model' }],
     },
     {
       question: 'How does Statewave decide which memories make the cut?',
       answer:
-        'A fixed, inspectable scoring model rather than embedding distance alone. Kind priority scores profile_fact 10, procedure 8, episode_summary 5, and raw_episode 3. Recency is a linear scale with the newest item at maximum. Task relevance is word overlap (0–5), or cosine similarity (0–8) when embeddings are configured. Temporal validity adds +3 for a currently valid memory and −4 for an expired one. Support workloads layer session, urgency, and repeat-issue signals on top.',
+        'A fixed scoring model, not embedding distance alone. Kind priority, recency, task relevance and temporal validity add up to a composite score. Support workloads add session, urgency and repeat-issue signals. The top items are packed until the budget runs out.',
       links: [{ label: 'Ranking and retrieval', href: `${DOCS}/architecture/ranking.md` }],
+    },
+    {
+      question: 'Does Statewave need an LLM to work?',
+      answer:
+        'No. The default heuristic compiler runs fully locally, and retrieval can fall back to text matching. Add an LLM key to use LLM compilation and semantic search through LiteLLM, or point it at a self-hosted model to keep everything in your network.',
+      links: [{ label: 'Privacy and data flow', href: '/product#privacy' }],
+    },
+    {
+      question: 'What happens when two memories conflict?',
+      answer:
+        'Newer overlapping memories supersede older ones automatically. Each memory is marked active, superseded or tombstoned, superseded facts stay out of the bundle, and the status is recorded in receipts so you can see which version the agent used.',
+      links: [{ label: 'Receipts reference', href: `${DOCS}/receipts.md` }],
     },
     {
       question: 'What is a state-assembly receipt?',
       answer:
-        'An immutable, ULID-addressable record of one context call, introduced with the v0.8 governance layer and extended in v0.9 with HMAC signing and receipt replay. It carries a SHA-256 integrity hash of the bytes delivered to the agent, the per-entry supersession status, and the content hash of the policy bundle that was in force — so a reviewer can verify it without trusting the application that wrote it. Request one per call with emit_receipt, or set receipts: always per tenant.',
+        'An immutable record of one context call, signed when a signing key is configured. It carries an integrity hash of the exact bytes handed to the model, the policy in force and the source of every memory it used. Replay re-runs that retrieval against today’s memories and shows what would change.',
       links: [{ label: 'Receipts reference', href: `${DOCS}/receipts.md` }],
     },
     {
       question: 'Can I change the ranking weights?',
       answer:
-        'Not today. The weights are constants in server/services/context.py with no per-tenant override, a deliberate choice to keep ranking deterministic and reproducible. You can scope requests by subject, filter /v1/memories/search results by kind, or modify the context assembler in your own self-hosted deployment. Per-call overrides stay unexposed on purpose: we would rather ship them in response to a concrete misranking than speculatively, because every knob is a new way for two deployments to disagree about the same subject.',
+        'Not today. The weights are fixed so ranking stays deterministic and reproducible. You can scope requests by subject, filter by memory kind, or modify the context assembler in your own self-hosted deployment.',
       links: [{ label: 'Ranking and retrieval', href: `${DOCS}/architecture/ranking.md` }],
     },
   ],
@@ -373,7 +412,7 @@ export const PAGE_FAQS: Partial<Record<RouteKey, readonly FaqEntry[]>> = {
     {
       question: 'How do I stop shared memory from blowing the context window?',
       answer:
-        'Set max_tokens on every context call. The bundle is ranked first and packed to that ceiling, highest-signal memories first, so each agent receives the slice relevant to its task rather than the full episode log. The budget is enforced before recall, not by truncating a prompt afterwards — the benchmark harness runs the same path at 512, 1,024, 2,048, and 4,096 tokens.',
+        'Set max_tokens on every context call. The bundle is ranked first and packed to that ceiling, highest-signal memories first, so each agent receives the slice relevant to its task rather than the full episode log. The budget is enforced before recall, not by truncating a prompt afterwards.',
       links: [{ label: 'Scoring model', href: '/product' }],
     },
   ],

@@ -49,6 +49,34 @@ export function useTween(to: number, ms: number, active: boolean, delay = 0) {
   return to * (rm ? 1 : p)
 }
 
+/** Pointer parallax: writes eased --mx/--my (-1..1) on the element as the pointer crosses it,
+ *  so a backdrop and a card can drift against each other. Eased in rAF so it never snaps. */
+export function useParallax<T extends HTMLElement>() {
+  const ref = useRef<T>(null)
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    let x = 0, y = 0, tx = 0, ty = 0, raf = 0
+    const frame = () => {
+      x += (tx - x) * 0.08; y += (ty - y) * 0.08
+      el.style.setProperty('--mx', x.toFixed(3)); el.style.setProperty('--my', y.toFixed(3))
+      raf = Math.abs(tx - x) + Math.abs(ty - y) > 0.002 ? requestAnimationFrame(frame) : 0
+    }
+    const kick = () => { if (!raf) raf = requestAnimationFrame(frame) }
+    const move = (e: PointerEvent) => {
+      const r = el.getBoundingClientRect()
+      tx = ((e.clientX - r.left) / r.width - 0.5) * 2
+      ty = ((e.clientY - r.top) / r.height - 0.5) * 2
+      kick()
+    }
+    const leave = () => { tx = 0; ty = 0; kick() }
+    el.addEventListener('pointermove', move)
+    el.addEventListener('pointerleave', leave)
+    return () => { el.removeEventListener('pointermove', move); el.removeEventListener('pointerleave', leave); cancelAnimationFrame(raf) }
+  }, [])
+  return ref
+}
+
 /** Clipboard copy with a short "Copied" confirmation. */
 export function useCopy(text: string, ms = 1600) {
   const [done, setDone] = useState(false)
@@ -61,4 +89,24 @@ export function useCopy(text: string, ms = 1600) {
     t.current = setTimeout(() => setDone(false), ms)
   }, [text, ms])
   return [done, copy] as const
+}
+
+/** Phones only: matches the max-width: 639px blocks in product.css and governance.css. The server renders every card open. */
+export function usePhone() {
+  const [phone, setPhone] = useState(false)
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 639px)')
+    const sync = () => setPhone(mq.matches)
+    sync()
+    mq.addEventListener('change', sync)
+    return () => mq.removeEventListener('change', sync)
+  }, [])
+  return phone
+}
+
+/** Phones only: one card open at a time (the first by default). Spread the result into a card that takes open/onToggle. */
+export function useFold(first = 0) {
+  const phone = usePhone()
+  const [open, setOpen] = useState(first)
+  return (i: number) => (phone ? { open: open === i, onToggle: () => setOpen(open === i ? -1 : i) } : {})
 }
