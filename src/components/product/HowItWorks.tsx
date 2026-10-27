@@ -135,7 +135,7 @@ function Govern() {
     [<Database size={15} />, 'Subject', 'account:northwind'],
     [<Layers size={15} />, 'Selected', '3 memories · 1 episode'],
     [<FileCode size={15} />, 'Policy', 'support-standard'],
-    [<EyeOff size={15} />, 'Redacted', 'Billing email (pii)'],
+    [<EyeOff size={15} />, 'Redacted', 'Billing email (pii.email)'],
   ] as const
   return (
     <div className="pd-gov">
