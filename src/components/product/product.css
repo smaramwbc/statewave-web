@@ -202,7 +202,7 @@
 .pd-gov__acts { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; font-size: 13px; font-weight: 500; }
 .pd-gov__acts span { display: inline-flex; align-items: center; gap: 6px; padding: 10px 18px; border-radius: 99px; box-shadow: var(--sw-shadow-float); }
 .pd-gov__replay { background: var(--sw-navy); color: #fff; }
-.pd-gov__ok { background: #fff; color: var(--sw-ok-fg); }
+.pd-gov__ok { font-size: 12px; font-weight: 500; color: var(--sw-ok-fg); }
 
 @media (max-width: 559px) {
   .pd-rec__srcs, .pd-rec__wires { display: none; }

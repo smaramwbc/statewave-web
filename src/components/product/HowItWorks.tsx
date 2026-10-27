@@ -142,7 +142,7 @@ function Govern() {
       <div className="pd-card pd-gov__card">
         <div className="pd-gov__head">
           <Tile tone="ok" size={34}><ShieldCheck size={17} /></Tile>
-          <div><b>Receipt signed</b><code>01J9ZK4T7M3QX8R2V6N0B5HCWD</code></div>
+          <div><b>Receipt signed</b><code>01J9ZK4T7M3QX8R2V6N0B5HCWD</code><span className="pd-gov__ok">✓ Signature verified</span></div>
         </div>
         {rows.map(([icon, k, v]) => (
           <div key={k} className="pd-gov__row"><span className="pd-muted">{icon}</span><span className="pd-muted">{k}</span><b>{v}</b></div>
@@ -150,7 +150,6 @@ function Govern() {
       </div>
       <div className="pd-gov__acts">
         <span className="pd-gov__replay"><RotateCcw size={14} />Replay against today's memories</span>
-        <span className="pd-gov__ok">✓ Integrity hash verified</span>
       </div>
     </div>
   )
@@ -159,8 +158,8 @@ function Govern() {
 const STEPS: { t: string; title: string; body: string; ep: string; chips: string[]; bg: string; visual: ReactNode }[] = [
   {
     t: 'Record', title: 'Record every event, untouched', ep: 'POST /v1/episodes',
-    body: 'Chats, tickets, tool calls and decisions land as immutable, content-hashed episodes under a subject. Nothing is ever overwritten.',
-    chips: ['Immutable', 'Content-hashed', 'One timeline per subject'], bg: 'how-record.png', visual: <Record />,
+    body: 'Chats, tickets, tool calls and decisions land as immutable, append-only episodes under a subject. Nothing is ever overwritten.',
+    chips: ['Immutable', 'Idempotent ingest', 'One timeline per subject'], bg: 'how-record.png', visual: <Record />,
   },
   {
     t: 'Compile', title: 'Compile locally, or with your own model', ep: 'POST /v1/memories/compile',

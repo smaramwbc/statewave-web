@@ -114,7 +114,7 @@ export const PAGE_FAQS: Partial<Record<RouteKey, readonly FaqEntry[]>> = {
     {
       question: 'How does a raw event become retrievable memory?',
       answer:
-        'Three endpoints carry the loop. POST /v1/episodes appends a content-hashed event under a subject. POST /v1/memories/compile turns new episodes into typed memories with confidence, a validity window and source episode IDs. POST /v1/context returns a ranked, token-bounded bundle. Compilation is idempotent, so re-running it never duplicates.',
+        'Three endpoints carry the loop. POST /v1/episodes appends an immutable, append-only event under a subject. POST /v1/memories/compile turns new episodes into typed memories with confidence, a validity window and source episode IDs. POST /v1/context returns a ranked, token-bounded bundle. Compilation is idempotent, so re-running it never duplicates.',
       links: [
         { label: 'API v1 contract', href: `${DOCS}/api/v1-contract.md` },
         { label: 'Getting started', href: `${DOCS}/getting-started.md` },
@@ -386,7 +386,7 @@ export const PAGE_FAQS: Partial<Record<RouteKey, readonly FaqEntry[]>> = {
     {
       question: 'How do I stop shared memory from blowing the context window?',
       answer:
-        'Set max_tokens on every context call. The bundle is ranked first and packed to that ceiling, highest-signal memories first, so each agent receives the slice relevant to its task rather than the full episode log. The budget is enforced before recall, not by truncating a prompt afterwards — the benchmark harness runs the same path at 512, 1,024, 2,048, and 4,096 tokens.',
+        'Set max_tokens on every context call. The bundle is ranked first and packed to that ceiling, highest-signal memories first, so each agent receives the slice relevant to its task rather than the full episode log. The budget is enforced before recall, not by truncating a prompt afterwards.',
       links: [{ label: 'Scoring model', href: '/product' }],
     },
   ],
