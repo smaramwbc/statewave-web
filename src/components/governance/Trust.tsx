@@ -151,10 +151,10 @@ export function Identity() {
               </div>
             </div>
           </TCard>
-          <TCard {...fold(3)} icon={<Trash2 size={17} />} title="Subject erasure" body="Deleting a subject removes its episodes, memories and derived records in one call. Receipts are append-only and leave through the retention window.">
+          <TCard {...fold(3)} icon={<Trash2 size={17} />} title="Subject erasure" body="Deleting a subject removes its episodes, memories and derived records in one call. Receipts are append-only: the delete does not touch them, and retention marks old ones tombstoned rather than removing what they contain.">
             <div className="gv-float gv-erase">
               <div className="gv-row"><Tile tone="card" size={28}><Trash2 size={15} /></Tile><div className="gv-stack pd-grow"><b>Delete subject account:northwind</b><span className="gv-muted">DELETE /v1/subjects/{'{id}'}</span></div><Pill inv>one call</Pill></div>
-              {[[<FileText size={15} />, 'Episodes', '42 removed'], [<Brain size={15} />, 'Memories', '18 removed'], [<ReceiptText size={15} />, 'Receipts', 'kept until retention']].map(([icon, t, s]) => (
+              {[[<FileText size={15} />, 'Episodes', '42 removed'], [<Brain size={15} />, 'Memories', '18 removed'], [<ReceiptText size={15} />, 'Receipts', 'not touched']].map(([icon, t, s]) => (
                 <div key={t as string} className={`gv-erase__row gv-row${t === 'Receipts' ? ' is-kept' : ''}`}>{icon}<span>{t}</span><i /><Pill>{s}</Pill></div>
               ))}
             </div>

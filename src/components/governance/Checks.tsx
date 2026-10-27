@@ -56,7 +56,7 @@ export function Checks() {
           </Check>
           <Check {...fold(1)} n="02" q="What is sensitive?" icon={<Tag size={17} />} title="Labels" result="2 of the 4 memories are labelled" body="Memories carry sensitivity labels such as pii.email or secret. A detector’s suggestion counts only once an operator promotes it.">
             <div className="gv-stagger">
-              {[['Billing contact email', 'pii.email'], ['Admin API token', 'secret'], ['Plan renews on the 14th', 'none']].map(([t, l]) => (
+              {[['Billing contact email', 'pii.email'], ['Admin API token', 'secret'], ['Plan renews on the 14th', 'none'], ['Renewal discussed on 2 Sep', 'none']].map(([t, l]) => (
                 <div key={t} className="gv-float gv-row"><b className="pd-grow">{t}</b><Pill inv={l !== 'none'}>{l}</Pill></div>
               ))}
             </div>

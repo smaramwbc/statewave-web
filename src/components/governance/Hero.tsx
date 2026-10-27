@@ -44,7 +44,7 @@ function Admin() {
             <tbody>
               {ROWS.map(([id, subj, caller, n, t], i) => (
                 <tr key={id} className={i === 0 ? 'is-on' : undefined}>
-                  <td className="gv-mono gv-ink">{id}</td>
+                  <td className="gv-mono gv-ink">{id}…</td>
                   <td className="gv-mono">{subj}</td>
                   <td className="gv-mono">{caller}</td>
                   <td>{n ? <span className={`gv-pill${i === 0 ? ' gv-pill--inv' : ''}`}>{n} {n === 1 ? 'filter' : 'filters'} applied</span> : <span className="gv-muted">No filters applied</span>}</td>
@@ -56,7 +56,7 @@ function Admin() {
           <div className="gv-admin__side">
             <div>
               <span className="gv-muted gv-small">Receipt</span>
-              <code className="gv-admin__id">01J9ZK4T7M3QX8R2</code>
+              <code className="gv-admin__id">01J9ZK4T7M3QX8R2V6N0B5HCWD</code>
               <span className="gv-row gv-small gv-medium"><ShieldCheck size={13} />Signed with HMAC-SHA256</span>
             </div>
             <dl className="gv-kv">{META.map(([k, v]) => <div key={k}><dt>{k}</dt><dd className="gv-mono">{v}</dd></div>)}</dl>
