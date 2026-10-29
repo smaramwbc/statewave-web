@@ -1,0 +1,121 @@
+/* /privacy, /terms, /cookies, /impressum. Same tokens, type and chrome as the v8 homepage. The hero
+ * uses the home's own classes (sw-hero); it ends on a straight edge and the home's cross divider,
+ * never the home's arc, which is the home's alone. Everything else sits under .lg (always inside
+ * .sw-home). */
+
+.lg { --lg-pad: clamp(64px, 7vw, 112px); --lg-ease: cubic-bezier(0.2, 0.8, 0.2, 1); }
+.lg-wrap { position: relative; z-index: 2; max-width: calc(var(--sw-max) + 2 * (var(--sw-pad) - var(--sw-gutter))); margin: 0 auto; padding: 0 var(--sw-pad); }
+
+/* ── hero: the last-updated date under the subtitle ── */
+.lg .sw-hero__title { white-space: normal; }
+.lg .lg-hero__date { margin-top: 28px; display: inline-flex; align-items: center; gap: 8px; height: 32px; padding: 0 14px; border-radius: 999px; background: rgba(255, 255, 255, 0.05); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.14); font-family: var(--sw-font-label); font-size: 13px; color: #8f99b5;
+  animation: lg-rise 0.6s var(--lg-ease) 240ms both; }
+.lg-hero__date time { color: #fff; }
+@keyframes lg-rise { from { opacity: 0; translate: 0 14px; } }
+
+/* ── body: one reading column, with the "On this page" list beside it on a wide screen ── */
+.lg-body { display: grid; grid-template-columns: minmax(0, 1fr); gap: 40px; padding-top: var(--lg-pad); padding-bottom: var(--lg-pad); }
+@media (min-width: 1000px) { .lg-body { grid-template-columns: 240px minmax(0, 760px); justify-content: center; gap: clamp(48px, 6vw, 96px); } }
+
+.lg-toc { align-self: start; padding: 20px 22px; border-radius: 16px; background: var(--sw-bg-2); box-shadow: inset 0 0 0 1px var(--sw-line); }
+@media (min-width: 1000px) { .lg-toc { position: sticky; top: 104px; padding: 0; background: none; box-shadow: none; } }
+.lg .lg-toc__title { font-family: var(--sw-display); font-size: 13px; line-height: 20px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--sw-blue); }
+.lg-toc ol { margin: 12px 0 0; padding: 0; list-style: none; display: grid; gap: 2px; }
+@media (min-width: 560px) and (max-width: 999px) { .lg-toc ol { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 24px; } }
+.lg .lg-toc a { display: block; padding: 6px 0 6px 14px; border-left: 2px solid var(--sw-line); font-size: 14px; line-height: 20px; color: var(--sw-ink-3); transition: color 0.2s, border-color 0.2s; }
+.lg .lg-toc a:hover { color: var(--sw-navy); }
+.lg .lg-toc a[aria-current] { border-left-color: var(--sw-blue); color: var(--sw-navy); font-weight: 600; }
+
+/* ── the legal text ── */
+.lg-doc { min-width: 0; }
+.lg-lead { padding-bottom: 40px; margin-bottom: 8px; border-bottom: 1px solid var(--sw-line); }
+.lg .lg-lead p { font-size: 19px; line-height: 30px; color: var(--sw-ink); text-wrap: pretty; }
+.lg .lg-lead p + p { margin-top: 16px; font-size: 16px; line-height: 26px; color: var(--sw-ink-2); }
+.lg-sec { padding: 40px 0; scroll-margin-top: 88px; border-bottom: 1px solid var(--sw-line);
+  transition: opacity 0.6s var(--lg-ease), translate 0.6s var(--lg-ease); }
+.lg-sec:last-child { border-bottom: 0; padding-bottom: 0; }
+.lg .lg-sec h2 { font-family: var(--sw-display); font-weight: 700; font-size: clamp(24px, 2.4vw, 30px); line-height: 1.2; letter-spacing: -0.02em; color: var(--sw-navy); text-wrap: balance; }
+.lg .lg-sec h3 { margin-top: 28px; font-family: var(--sw-display); font-weight: 600; font-size: 18px; line-height: 26px; color: var(--sw-navy); }
+.lg .lg-sec p, .lg .lg-sec li, .lg .lg-sec td { font-size: 16px; line-height: 27px; color: var(--sw-ink-2); text-wrap: pretty; }
+.lg .lg-sec h2 + p, .lg .lg-sec h2 + ul, .lg .lg-sec h2 + dl, .lg .lg-sec h2 + div { margin-top: 16px; }
+.lg .lg-sec h3 + p { margin-top: 8px; }
+.lg .lg-sec h2 + h3 { margin-top: 16px; }
+.lg .lg-sec p + p, .lg .lg-sec ul + p, .lg .lg-sec p + ul, .lg .lg-sec div + p { margin-top: 14px; }
+.lg .lg-sec strong { font-weight: 600; color: var(--sw-navy); }
+.lg .lg-sec code { padding: 1px 6px; border-radius: 6px; background: var(--sw-bg-2); box-shadow: inset 0 0 0 1px var(--sw-line); font-family: var(--sw-font-label); font-size: 13.5px; color: var(--sw-navy); overflow-wrap: anywhere; }
+.lg .lg-a { color: var(--sw-blue); text-decoration: underline; text-decoration-color: rgba(47, 91, 240, 0.3); text-underline-offset: 3px; transition: text-decoration-color 0.2s; overflow-wrap: anywhere; }
+.lg .lg-a:hover { text-decoration-color: currentColor; }
+
+/* lists: a short blue rule for bullets, a check for "what we don't do" */
+.lg-list { padding: 0; list-style: none; display: grid; gap: 10px; }
+.lg-list li { position: relative; padding-left: 22px; }
+.lg-list li::before { content: ''; position: absolute; left: 2px; top: 13px; width: 8px; height: 2px; border-radius: 2px; background: var(--sw-blue); }
+.lg-list--check li { padding-left: 30px; }
+.lg-list--check li::before { display: none; }
+.lg-list--check svg { position: absolute; left: 0; top: 4px; color: var(--sw-blue); }
+/* a definition-style list: the processor, then what it does */
+.lg-defs { padding: 0; list-style: none; display: grid; gap: 12px; }
+.lg-defs li { padding: 16px 20px; border-radius: 14px; background: #fff; box-shadow: inset 0 0 0 1px var(--sw-line); }
+.lg .lg-defs li strong { display: block; margin-bottom: 4px; font-family: var(--sw-display); }
+
+/* the cookie table: a card on a wide screen, stacked rows on a phone */
+.lg-table { margin-top: 20px; overflow-x: auto; border-radius: 14px; background: #fff; box-shadow: inset 0 0 0 1px var(--sw-line); }
+.lg-table table { width: 100%; border-collapse: collapse; text-align: left; }
+.lg-table th { padding: 12px 18px; border-bottom: 1px solid var(--sw-line); font-size: 12px; line-height: 16px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--sw-ink-3); }
+.lg-table td { padding: 16px 18px; vertical-align: top; }
+.lg .lg-table td:first-child { font-family: var(--sw-font-label); font-size: 14px; font-weight: 600; color: var(--sw-navy); white-space: nowrap; }
+@media (max-width: 640px) {
+  .lg-table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  .lg-table tr, .lg-table td { display: block; }
+  .lg-table td { padding: 4px 18px; }
+  .lg-table td:first-child { padding-top: 16px; }
+  .lg-table td:last-child { padding-bottom: 16px; }
+  .lg-table td[data-label]::before { content: attr(data-label) ': '; font-weight: 600; color: var(--sw-navy); }
+}
+
+/* the operator card on /impressum */
+.lg-op { position: relative; margin-top: 20px; padding: 24px 28px; border-radius: 16px; background: #fff; box-shadow: inset 0 0 0 1px var(--sw-line), 0 24px 48px -32px rgba(10, 18, 51, 0.2); }
+.lg-op dl { margin: 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: 4px 24px; }
+@media (min-width: 640px) { .lg-op dl { grid-template-columns: 180px minmax(0, 1fr); row-gap: 14px; } }
+.lg-op dt { padding-top: 6px; font-size: 12px; line-height: 20px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--sw-ink-3); }
+.lg-op dt:not(:first-of-type) { margin-top: 12px; }
+@media (min-width: 640px) { .lg-op dt:not(:first-of-type) { margin-top: 0; } }
+.lg-op dd { margin: 0; display: flex; align-items: flex-start; gap: 6px; font-size: 16px; line-height: 27px; color: var(--sw-navy); }
+.lg-op dd > span { padding-top: 3px; min-width: 0; }
+.lg-op__all { margin-top: 20px; display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 16px; border: 0; border-radius: 999px; background: var(--sw-navy); color: #fff; font-size: 14px; font-weight: 500; cursor: pointer; transition: background-color 0.25s, transform 0.25s var(--lg-ease); }
+.lg-op__all:hover { background: var(--sw-blue); transform: translateY(-1px); }
+
+/* a value plus its copy button */
+.lg-mail { display: inline-flex; align-items: center; gap: 2px; max-width: 100%; vertical-align: middle; }
+.lg-copy { flex: 0 0 auto; width: 32px; height: 32px; display: inline-grid; place-items: center; border: 0; border-radius: 8px; background: transparent; color: var(--sw-ink-3); cursor: pointer; transition: background-color 0.2s, color 0.2s; }
+.lg-copy:hover { background: var(--sw-bg-2); color: var(--sw-navy); }
+
+/* ── foot: the other three legal pages, on a full-width tint band ── */
+.lg-band { position: relative; z-index: 2; padding: var(--lg-pad) 0; background: var(--sw-bg-2); }
+.lg-band__head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 12px 40px; }
+.lg .lg-band__head p { font-size: 16px; line-height: 26px; color: var(--sw-ink-2); }
+.lg-cards { margin: 32px 0 0; padding: 0; list-style: none; display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
+@media (min-width: 900px) { .lg-cards { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; } }
+.lg-cards li { transition: opacity 0.6s var(--lg-ease) calc(var(--i, 0) * 90ms), translate 0.6s var(--lg-ease) calc(var(--i, 0) * 90ms); }
+.lg-card { height: 100%; display: flex; flex-direction: column; gap: 8px; padding: 24px 26px; border-radius: 16px; background: #fff; box-shadow: inset 0 0 0 1px var(--sw-line); transition: transform 0.35s var(--lg-ease), box-shadow 0.35s; }
+.lg-card:hover { transform: translateY(-4px); box-shadow: inset 0 0 0 1px var(--sw-line-2), 0 24px 48px -20px rgba(10, 18, 51, 0.24); }
+.lg-card__name { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-family: var(--sw-display); font-size: 20px; line-height: 26px; font-weight: 700; letter-spacing: -0.01em; color: var(--sw-navy); }
+.lg-card__name svg { flex: 0 0 auto; color: var(--sw-ink-4); transition: color 0.25s, transform 0.25s var(--lg-ease); }
+.lg-card:hover .lg-card__name svg { color: var(--sw-blue); transform: translate(2px, -2px); }
+.lg-card__blurb { font-size: 15px; line-height: 23px; color: var(--sw-ink-2); text-wrap: pretty; }
+
+@media (max-width: 640px) {
+  .lg-sec { padding: 32px 0; }
+  .lg-op { padding: 20px; }
+}
+
+/* Scroll-in: each section and card rises once as it comes into view. Armed only after mount, so the
+ * server HTML and anything without JS shows everything; under prefers-reduced-motion everything is
+ * simply there. The first section is never held back, so the page never opens on a gap. */
+@media (prefers-reduced-motion: no-preference) {
+  .lg[data-armed] .lg-sec:not(:first-of-type):not([data-seen]),
+  .lg[data-armed] .lg-cards:not([data-seen]) li { opacity: 0; translate: 0 20px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lg-hero__date { animation: none; }
+}
