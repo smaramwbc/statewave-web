@@ -335,6 +335,44 @@ export const PAGE_FAQS: Partial<Record<RouteKey, readonly FaqEntry[]>> = {
     },
   ],
 
+  // Rendered by ChangelogPage in the v8 FAQ markup. The page itself is built
+  // from the GitHub releases (scripts/refresh-changelog.mjs); these answers
+  // name no versions or dates, so they can't go stale as releases ship.
+  '/changelog': [
+    {
+      question: 'Where do these release notes come from?',
+      answer:
+        'From the GitHub releases of four repositories: statewave (the server), statewave-py and statewave-ts (the Python and TypeScript SDKs) and statewave-connectors. Each entry keeps the new features, fixes and npm package versions its release names. Dependency, CI and docs updates are counted rather than listed, and every entry links to the full notes on GitHub.',
+      links: [
+        { label: 'Server releases', href: 'https://github.com/smaramwbc/statewave/releases' },
+        { label: 'Python SDK releases', href: 'https://github.com/smaramwbc/statewave-py/releases' },
+        { label: 'TypeScript SDK releases', href: 'https://github.com/smaramwbc/statewave-ts/releases' },
+        { label: 'Connector releases', href: 'https://github.com/smaramwbc/statewave-connectors/releases' },
+      ],
+    },
+    {
+      question: 'How often is the changelog updated?',
+      answer:
+        'The page is built from a snapshot of those GitHub releases that is refreshed and published with the site, so a new release reaches GitHub first. The date on each entry is the day GitHub published the release, in UTC.',
+    },
+    {
+      question: 'How do I get notified about new Statewave releases?',
+      answer:
+        'On GitHub, open a repository’s Watch menu, choose Custom and tick Releases. To follow releases in a feed reader instead, add /releases.atom to the repository’s address, for example github.com/smaramwbc/statewave/releases.atom. New SDK versions are also listed on PyPI and npm as they are published.',
+      links: [
+        { label: 'Server release feed', href: 'https://github.com/smaramwbc/statewave/releases.atom' },
+        { label: 'Python SDK on PyPI', href: 'https://pypi.org/project/statewave/' },
+        { label: 'TypeScript SDK on npm', href: 'https://www.npmjs.com/package/@statewavedev/sdk' },
+      ],
+    },
+    {
+      question: 'Why do connector releases and connector packages have different version numbers?',
+      answer:
+        'statewave-connectors is one repository that publishes many npm packages. A GitHub release versions the repository as a whole, while each @statewavedev package keeps its own version number, so every connectors entry names the packages it moved and the version each one moved to.',
+      links: [{ label: 'All connectors', href: '/connectors' }],
+    },
+  ],
+
   '/use-cases': [
     {
       question: 'What is Statewave strongest at today?',
