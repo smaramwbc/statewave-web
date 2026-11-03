@@ -45,7 +45,7 @@ export function Support() {
         <Head
           title="Built for support agents first"
           lede="Support is where Statewave is most tuned and most tested, against eight eval criteria."
-          more={{ to: '/use-cases#strongest', label: 'Support agent workflow' }}
+          more={{ to: '/use-cases/support-agents', label: 'Support agent workflow' }}
         />
         <div className="pd-support">
           <Feature className="pd-handoff" icon={<FileText size={18} />} title="Handoff packs" body="The brief a human needs when an agent escalates, assembled in one call.">

@@ -13,7 +13,7 @@ Statewave stores immutable episodes, compiles them into typed memories with prov
 - [Website](https://www.statewave.ai/) — product overview, positioning, FAQ, and project updates.
 - [How It Works](https://www.statewave.ai/product) — lifecycle: record, compile, retrieve, govern.
 - [Why Statewave](https://www.statewave.ai/why) — comparison with prompt stuffing, naive RAG, and temporary chat history.
-- [Use Cases](https://www.statewave.ai/use-cases) — support agents, coding copilots, account intelligence, voice continuity, and multi-agent systems.
+- [Use Cases](https://www.statewave.ai/use-cases) — support agents, coding agents, multi-agent systems, personal assistants and shop assistants, each with a demo you can run.
 - [Connectors](https://www.statewave.ai/connectors) — GitHub, Jira, Slack, Notion, Discord, Zendesk, Intercom, Freshdesk, Gmail, n8n, Zapier, databases, Markdown/ADRs, MCP, and more.
 - [Developers](https://www.statewave.ai/developers) — SDKs, docs, API reference, and examples.
 - [About](https://www.statewave.ai/about) — what Statewave is, who it's for, the repos that ship it, and how to get in touch.
@@ -27,6 +27,7 @@ Statewave stores immutable episodes, compiles them into typed memories with prov
 - [Personal Assistant Memory](https://www.statewave.ai/use-cases/personal-assistant-memory) — cross-session memory for chat assistants: turns become typed, confidence-ranked facts recalled within a fixed token budget.
 - [Multi-Agent Shared Context](https://www.statewave.ai/use-cases/multi-agent-shared-context) — parallel agents coordinating through one authoritative context layer instead of message-passing, so conflicts are prevented rather than detected after wasted compute.
 - [Grounded Shop Assistant](https://www.statewave.ai/use-cases/grounded-shop-assistant) — a shopper/ops assistant pair that answers strictly from retrieved evidence, validates every citation, and turns ungrounded questions into coverage-gap episodes.
+- [Support Agent Memory](https://www.statewave.ai/use-cases/support-agents) — memory of every customer for AI support agents: past tickets, plan and prior fixes ranked into each reply with sources, plus handoff packs, repeat-issue detection, health scores, SLA tracking and Zendesk, Intercom and Freshdesk imports.
 
 ## Comparisons
 
