@@ -44,7 +44,7 @@ export function UseCases() {
               Your agent picks up each customer where the last session left off, with open issues, prior fixes and SLA
               status in one bundle.
             </p>
-            <Ln to="/use-cases" className="sw-more">Support agent workflow →</Ln>
+            <Ln to="/use-cases/support-agents" className="sw-more">Support agent workflow →</Ln>
             <Vis img="support-rings.png" mod=" sw-vis--p24">
               <div className="sw-vis__card sw-vis__card--380">
                 <div className="sw-vrow">
