@@ -1,8 +1,14 @@
+import { useEffect, useRef, useState } from 'react'
+import type { ComponentProps, CSSProperties, RefObject } from 'react'
 import { useParams, Link, Navigate } from 'react-router'
 import { MDXProvider } from '@mdx-js/react'
+import { ArrowRight } from 'lucide-react'
 import { ClientOnly } from '../components/ClientOnly'
+import { Divider, Ln } from '../components/home/ui'
+import { useSeen } from '../components/home/hooks'
 import { usePageSEO } from '../lib/seo'
-import { getPostBySlug, BLOG_POSTS, blogPostUrl } from '../lib/blog'
+import { getPostBySlug, BLOG_POSTS, SERIES, blogPostUrl } from '../lib/blog'
+import type { BlogPost } from '../lib/blog'
 import {
   BASE_URL,
   DEFAULT_OG_IMAGE,
@@ -16,21 +22,18 @@ import { POST_FAQ, HOWTO_SLUGS } from '../lib/blog-schema'
 import { GiscusComments } from '../components/GiscusComments'
 import { SeriesFrame } from '../components/SeriesFrame'
 import { GuideSubscribe } from '../components/GuideSubscribe'
+import '../components/home/home-b.css'
+import '../components/blog/blog-post.css'
 
-/* /blog/:slug post page.
+/* /blog/:slug in the v8 style: an interior hero (straight edge and the home's cross divider, not the
+ * arc), the post in one reading column with an "On this page" list beside it on wide screens, the
+ * comments, then more posts on a tint band. The post body is MDX; its tags are styled in
+ * blog-post.css under .bp-prose, so no post source changes. The older components a post can carry
+ * (Flow, GuideStack, SeriesFrame, GuideSubscribe) are Tailwind-styled: .bp remaps their theme colours
+ * to the v8 palette, since the v8 pages are light by design and ignore the theme switch.
  *
- * The MDX-compiled post body is rendered inside an <article> with a
- * `prose-style` class set we hand-write in Tailwind utilities so the
- * styling matches the rest of the site without pulling in @tailwindcss/
- * typography (one more dep, one more variant to keep in sync). The
- * MDXProvider lets us replace specific tags (e.g. <a> → React-Router
- * <Link> for in-site hrefs) without changing the post sources.
- *
- * SEO: per-post BlogPosting JSON-LD + BreadcrumbList for the post page.
- * Comments are Giscus, wrapped in ClientOnly so SSR / prerender ships
- * the post markup without the Giscus iframe (which is browser-only and
- * would otherwise stall hydration on the third-party script load).
- */
+ * SEO is unchanged: BlogPosting and BreadcrumbList JSON-LD, plus FAQPage and HowTo where a post has
+ * them. Comments are Giscus inside ClientOnly, so the prerender ships the post without the iframe. */
 
 /** "25 Aug 2026". UTC, so a date-only value like "2026-08-25" does not
  *  render as the 24th for a reader west of Greenwich, or during a
@@ -46,97 +49,217 @@ function formatShort(iso: string): string {
   return `${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]} ${d.getUTCFullYear()}`
 }
 
-function formatDate(iso: string): string {
-  const d = new Date(iso)
-  if (Number.isNaN(d.getTime())) return iso
-  return d.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  })
+/** "Build log" → "build-log", the value the blog index's ?category= filter reads. */
+const categorySlug = (c: string) => c.toLowerCase().replace(/\s+/g, '-')
+
+/* In-site links go through the router and external ones open in a new tab, like Ln everywhere else
+ * on the site. Tables get a wrapper so a wide one scrolls inside its card instead of the page. */
+const MDX_COMPONENTS = {
+  a: ({ href = '', children, ...rest }: ComponentProps<'a'>) => {
+    if (href.startsWith('/')) return <Link to={href} {...rest}>{children}</Link>
+    if (href.startsWith('#')) return <a href={href} {...rest}>{children}</a>
+    return <a href={href} target="_blank" rel="noopener noreferrer" {...rest}>{children}</a>
+  },
+  table: (props: ComponentProps<'table'>) => <div className="bp-table"><table {...props} /></div>,
 }
 
-const PROSE_CLASSES = [
-  // Base typography
-  'text-base leading-[1.75] text-theme-secondary',
+const BEAMS = [[18, 24, 0.22], [34, 24, 0.12], [70, -22, 0.16], [86, -22, 0.1]]
 
-  // The page already renders the title
-  '[&_h1]:hidden',
+/* ── hero ── */
 
-  // Headings
-  '[&_h2]:scroll-mt-28 [&_h2]:mt-14 [&_h2]:mb-5 [&_h2]:text-2xl [&_h2]:font-semibold [&_h2]:tracking-tight [&_h2]:leading-tight [&_h2]:text-theme-primary',
-  '[&_h3]:scroll-mt-28 [&_h3]:mt-10 [&_h3]:mb-3 [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:text-theme-primary',
-  '[&_h4]:scroll-mt-28 [&_h4]:mt-8 [&_h4]:mb-2 [&_h4]:text-lg [&_h4]:font-semibold [&_h4]:text-theme-primary',
+function Hero({ post }: { post: BlogPost }) {
+  const { meta } = post
+  const series = meta.series ? SERIES[meta.series] : undefined
+  return (
+    <section className="sw-hero bp-hero" aria-labelledby="bp-title">
+      <div className="sw-hero__beams" aria-hidden="true">
+        {BEAMS.map(([l, r, o]) => (
+          <i key={l} style={{ left: `${l}%`, transform: `rotate(${r}deg)`, ['--o' as string]: o }} />
+        ))}
+      </div>
+      <div className="sw-hero__in">
+        <nav className="bp-crumbs" aria-label="Breadcrumb">
+          <Ln to="/blog">Blog</Ln>
+          {series && <><span aria-hidden="true">/</span><Ln to={series.path}>{series.title}</Ln></>}
+          {!series && meta.category && (
+            <><span aria-hidden="true">/</span><Ln to={`/blog?category=${categorySlug(meta.category)}`}>{meta.category}</Ln></>
+          )}
+        </nav>
+        <h1 id="bp-title" className="sw-hero__title bp-title">{meta.title}</h1>
+        <p className="sw-hero__sub bp-sub">{meta.description}</p>
+        <p className="bp-meta">
+          <img src={AUTHOR_AVATAR_PATH} alt="" width={28} height={28} />
+          <span>{meta.author}</span>
+          <span aria-hidden="true">·</span>
+          {/* A series episode written up after the build says so: both dates, build first. */}
+          <time dateTime={meta.date}>
+            {meta.series && meta.built
+              ? `Built ${formatShort(meta.built)} · written up ${formatShort(meta.date)}`
+              : formatShort(meta.date)}
+          </time>
+        </p>
+      </div>
+    </section>
+  )
+}
 
-  // Heading permalink anchors
-  '[&_h2_a]:no-underline [&_h2_a]:text-theme-primary [&_h2_a:hover]:text-theme-primary',
-  '[&_h3_a]:no-underline [&_h3_a]:text-theme-primary [&_h3_a:hover]:text-theme-primary',
-  '[&_h4_a]:no-underline [&_h4_a]:text-theme-primary [&_h4_a:hover]:text-theme-primary',
+/* ── on this page: the post's h2s, read from the rendered article after mount (the prerender
+ *    reserves the column, so nothing shifts when it fills in), with the section in view marked ── */
 
-  // Paragraphs
-  '[&_p]:my-5',
+interface TocItem { id: string; text: string }
 
-  // Strong
-  '[&_strong]:font-semibold [&_strong]:text-theme-primary',
+function Toc({ article, slug }: { article: RefObject<HTMLElement | null>; slug: string }) {
+  const [items, setItems] = useState<TocItem[]>([])
+  const [active, setActive] = useState('')
 
-  // Links
-  '[&_a]:text-accent [&_a]:underline [&_a]:underline-offset-4 [&_a:hover]:text-accent-light',
+  useEffect(() => {
+    const el = article.current
+    if (!el) return
+    const heads = Array.from(el.querySelectorAll<HTMLHeadingElement>('h2[id]'))
+    const id = setTimeout(() => setItems(heads.map(h => ({ id: h.id, text: h.textContent?.trim() ?? '' }))), 0)
+    if (typeof IntersectionObserver === 'undefined' || heads.length === 0) return () => clearTimeout(id)
+    // The last heading above the upper third of the viewport is the section being read.
+    const io = new IntersectionObserver(() => {
+      const line = window.innerHeight / 3
+      let current = heads[0].id
+      for (const h of heads) if (h.getBoundingClientRect().top <= line) current = h.id
+      setActive(current)
+    }, { rootMargin: '0px 0px -66% 0px', threshold: [0, 1] })
+    heads.forEach(h => io.observe(h))
+    return () => { clearTimeout(id); io.disconnect() }
+  }, [article, slug])
 
-  // Lists
-  '[&_ul]:my-5 [&_ul]:list-disc [&_ul]:pl-6',
-  '[&_ul_li]:mb-2',
-  '[&_ol]:my-5 [&_ol]:list-decimal [&_ol]:pl-6',
-  '[&_ol_li]:mb-2',
+  return (
+    <aside className="bp-toc" aria-label="On this page">
+      {items.length > 1 && (
+        <>
+          <p className="bp-toc__title">On this page</p>
+          <ol>
+            {items.map(i => (
+              <li key={i.id}>
+                <a href={`#${i.id}`} {...(i.id === active ? { 'aria-current': 'true' as const } : {})}>{i.text}</a>
+              </li>
+            ))}
+          </ol>
+        </>
+      )}
+    </aside>
+  )
+}
 
-  // Inline code
-  '[&_code]:rounded [&_code]:bg-surface-2 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-[0.875em] [&_code]:text-theme-primary',
+/* ── the post ── */
 
-  // Code blocks
-  '[&_pre]:my-8 [&_pre]:overflow-x-auto [&_pre]:rounded-xl [&_pre]:border [&_pre]:border-theme-border [&_pre]:bg-surface-2 [&_pre]:p-4 [&_pre]:text-sm',
-  '[&_pre_code]:bg-transparent [&_pre_code]:p-0 [&_pre_code]:text-theme-secondary',
+function Body({ post }: { post: BlogPost }) {
+  const { meta } = post
+  const article = useRef<HTMLElement>(null)
+  const PostBody = post.Component
+  return (
+    <section className="bp-body" aria-label="Post">
+      <div className="bp-wrap">
+        {meta.headerImage && (
+          <figure className="bp-cover">
+            <img src={meta.headerImage} alt="" width={1600} height={640} />
+          </figure>
+        )}
+        <div className={`bp-layout${meta.series ? ' bp-layout--solo' : ''}`}>
+          {!meta.series && <Toc article={article} slug={meta.slug} />}
+          <article ref={article} className={`bp-prose${meta.series ? ' bp-prose--series' : ''}`}>
+            <MDXProvider components={MDX_COMPONENTS}>
+              <PostBody />
+            </MDXProvider>
+            <SeriesFrame post={post} />
+            {meta.tags && meta.tags.length > 0 && (
+              <ul className="bp-tags" aria-label="Tags">
+                {meta.tags.map(t => <li key={t}>{t}</li>)}
+              </ul>
+            )}
+            {/* Series episodes get theirs from SeriesFrame, with the series wording; every other
+                post gets the general one here. Never both: the form's ids are fixed. */}
+            {!meta.series && (
+              <div className="bp-subscribe">
+                <GuideSubscribe variant="blog" />
+              </div>
+            )}
+          </article>
+        </div>
+      </div>
+    </section>
+  )
+}
 
-  // Tables
-  '[&_table]:my-8 [&_table]:w-full [&_table]:border-collapse [&_table]:text-sm',
-  '[&_th]:border-b [&_th]:border-theme-border [&_th]:px-3 [&_th]:py-2 [&_th]:text-left [&_th]:font-semibold [&_th]:text-theme-primary',
-  '[&_td]:border-b [&_td]:border-theme-border [&_td]:px-3 [&_td]:py-2',
+/* ── discussion ── */
 
-  // Images
-  '[&_img]:my-8 [&_img]:rounded-2xl [&_img]:border [&_img]:border-theme-border',
+function Discussion({ post }: { post: BlogPost }) {
+  return (
+    <section className="bp-discuss" aria-labelledby="bp-discuss">
+      <div className="bp-wrap">
+        <div className="bp-discuss__in">
+          <h2 id="bp-discuss" className="bp-discuss__title">Discussion</h2>
+          <p className="bp-discuss__note">
+            Comments live in GitHub Discussions on{' '}
+            <a href="https://github.com/smaramwbc/statewave/discussions" target="_blank" rel="noopener noreferrer">
+              smaramwbc/statewave
+            </a>
+            . Sign in with your GitHub account to join in.
+          </p>
+          <ClientOnly>
+            <GiscusComments term={blogPostUrl(post.meta.slug)} theme="light" />
+          </ClientOnly>
+        </div>
+      </div>
+    </section>
+  )
+}
 
-  // Blockquotes
-  '[&_blockquote]:my-8 [&_blockquote]:border-l-2 [&_blockquote]:border-accent/40 [&_blockquote]:pl-4 [&_blockquote]:italic [&_blockquote]:text-theme-muted',
+/* ── more posts: the same category first, then the newest ── */
 
-  // Horizontal rule
-  '[&_hr]:my-10 [&_hr]:border-theme-border',
-].join(' ')
+function related(post: BlogPost): BlogPost[] {
+  const others = BLOG_POSTS.filter(p => p.meta.slug !== post.meta.slug)
+  const same = post.meta.category ? others.filter(p => p.meta.category === post.meta.category) : []
+  const rest = others.filter(p => !same.includes(p))
+  return [...same, ...rest].slice(0, 3)
+}
 
-/* Series episodes are written in feed cadence — one sentence per paragraph,
- * white space as punctuation, which the project brief calls for explicitly.
- * At the site's uniform paragraph spacing a three-word line and a
- * forty-word one get identical air, so sixty paragraphs read as one
- * undifferentiated column with nothing for the eye to hold.
- *
- * The fix is contrast rather than a smaller number: consecutive lines sit
- * close enough to read as one passage, and the gap opens up wherever a
- * card, quote, list or diagram breaks the run — which is where the
- * sections actually are in these posts, since they carry no headings.
- *
- * Scoped to posts with a `series` so no existing post shifts. */
-const SERIES_PROSE = [
-  // Bottom margins off: every gap is owned by the element that follows, so
-  // two rules can decide it rather than one uniform value.
-  '[&_p]:mb-0!',
-  // A line after another line is the same beat — close it up.
-  '[&_p+p]:mt-3!',
-  // A line after a block, or a card after a line, is a real break.
-  '[&_:not(p)+p]:mt-7!',
-  '[&_p+div]:mt-7!',
-].join(' ')
+function More({ post }: { post: BlogPost }) {
+  const [ref, seen] = useSeen<HTMLUListElement>()
+  return (
+    <section className="bp-more" aria-labelledby="bp-more">
+      <div className="bp-wrap">
+        <div className="bp-more__head">
+          <h2 id="bp-more" className="bp-more__title">More from the blog</h2>
+          <Ln to="/blog" className="bp-more__all">All posts <ArrowRight size={16} aria-hidden="true" /></Ln>
+        </div>
+        <ul ref={ref} className="bp-cards" {...(seen ? { 'data-seen': '' } : {})}>
+          {related(post).map(({ meta }, i) => (
+            <li key={meta.slug} className="bp-card" style={{ '--i': i } as CSSProperties}>
+              <Link to={blogPostUrl(meta.slug)} className="bp-card__link">
+                {meta.headerImage && (
+                  <span className="bp-card__art"><img src={meta.headerImage} alt="" loading="lazy" width={1600} height={640} /></span>
+                )}
+                <span className="bp-card__body">
+                  <span className="bp-card__meta">
+                    {meta.category && <span className="bp-card__cat">{meta.category}</span>}
+                    <time dateTime={meta.date}>{formatShort(meta.date)}</time>
+                  </span>
+                  <span className="bp-card__title">{meta.title}</span>
+                  <span className="bp-card__desc">{meta.description}</span>
+                  <span className="bp-card__more">Read the post <ArrowRight size={16} aria-hidden="true" /></span>
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  )
+}
 
 export function BlogPostPage() {
   const { slug } = useParams<{ slug: string }>()
   const post = slug ? getPostBySlug(slug) : undefined
   const postImage = post?.meta.image ? `${BASE_URL}${post.meta.image}` : DEFAULT_OG_IMAGE
+  const root = useRef<HTMLDivElement>(null)
+  useEffect(() => { root.current?.setAttribute('data-armed', '') }, [])
 
   // usePageSEO is called unconditionally to satisfy rules-of-hooks even
   // on the unknown-slug path. When `post` is undefined the JSON-LD list
@@ -169,177 +292,13 @@ export function BlogPostPage() {
     return <Navigate to="/blog" replace />
   }
 
-  const PostBody = post.Component
-
   return (
-    <>
-      <section className="relative pt-28 sm:pt-32 md:pt-36">
-        <div className="mx-auto max-w-5xl px-5 sm:px-6">
-          <div className="sw-card rounded-2xl border border-brand-500/20 bg-surface-1/45 p-6 sm:p-8 md:p-10">
-            <p className="text-xs text-theme-muted">
-              <Link
-                to="/blog"
-                className="transition-colors duration-200 hover:text-theme-primary"
-              >
-                ← Blog
-              </Link>
-            </p>
-
-            <div className="mt-7 flex flex-wrap items-center gap-2">
-              <time
-                dateTime={post.meta.date}
-                className="section-eyebrow text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75"
-              >
-                {/* A series episode written up after the build says so: both
-                    dates, build first. Everything else keeps the one date. */}
-                {post.meta.series && post.meta.built
-                  ? `Built ${formatShort(post.meta.built)} · written up ${formatShort(post.meta.date)}`
-                  : formatDate(post.meta.date)}
-              </time>
-
-              {post.meta.tags?.map((tag) => (
-                <span
-                  key={tag}
-                  className="rounded-full border border-brand-500/20 bg-brand-500/8 px-2.5 py-1 text-[11px] font-medium tracking-[0.02em] text-theme-secondary"
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
-
-            <h1 className="mt-6 max-w-4xl font-heading text-[clamp(2.25rem,5vw,4rem)] font-bold leading-[1.05] tracking-[-0.035em] text-theme-primary">
-              {post.meta.title}
-            </h1>
-
-            <p className="mt-6 max-w-3xl text-base leading-relaxed text-theme-secondary sm:text-lg">
-              {post.meta.description}
-            </p>
-
-            <div className="mt-6 flex items-center gap-2.5">
-              <img
-                src={AUTHOR_AVATAR_PATH}
-                alt={post.meta.author}
-                aria-hidden="true"
-                width={28}
-                height={28}
-                className="h-7 w-7 rounded-full border border-brand-500/20 object-cover"
-              />
-              <p className="text-xs text-theme-muted">By {post.meta.author}</p>
-            </div>
-
-            {post.meta.headerImage && (
-              <img
-                src={post.meta.headerImage}
-                alt={`Cover image for "${post.meta.title}"`}
-                aria-hidden="true"
-                className="mt-8 w-full h-auto rounded-2xl border border-brand-500/20"
-                width={1600}
-                height={640}
-              />
-            )}
-          </div>
-        </div>
-      </section>
-
-      <section className="px-5 pt-8 sm:px-6 sm:pt-12">
-        <article
-          className={`mx-auto max-w-4xl ${PROSE_CLASSES} ${
-            post.meta.series ? SERIES_PROSE : ''
-          }`}
-        >
-          <MDXProvider>
-            <PostBody />
-          </MDXProvider>
-          <SeriesFrame post={post} />
-          {/* Series episodes get theirs from SeriesFrame, with the series
-              wording; every other post gets the general one here. Never both:
-              the form's ids are fixed. */}
-          {!post.meta.series && (
-            <div className="mt-12">
-              <GuideSubscribe variant="blog" />
-            </div>
-          )}
-        </article>
-      </section>
-
-      <section className="bg-surface-1/40 px-5 pb-10 pt-12 sm:px-6 sm:pb-12 sm:pt-16">
-        <div className="mx-auto max-w-5xl">
-          <h2 className="mb-4 font-heading text-2xl font-semibold text-theme-primary">
-            More from the blog
-          </h2>
-
-          <ul className="grid gap-4 md:grid-cols-3">
-            {BLOG_POSTS.filter((p) => p.meta.slug !== post.meta.slug)
-              .slice(0, 3)
-              .map((p) => (
-                <li
-                  key={p.meta.slug}
-                  className="sw-card rounded-2xl border border-brand-500/20 bg-surface-1/45 p-5 transition-[border-color,transform,background-color] duration-300 hover:-translate-y-0.5 hover:border-brand-500/45"
-                >
-                  <Link
-                    to={blogPostUrl(p.meta.slug)}
-                    className="group flex h-full flex-col"
-                  >
-                    <time
-                      dateTime={p.meta.date}
-                      className="text-[11px] text-theme-muted/80"
-                    >
-                      {formatDate(p.meta.date)}
-                    </time>
-
-                    <h3 className="mt-3 font-heading text-base font-semibold leading-snug text-theme-primary">
-                      {p.meta.title}
-                    </h3>
-
-                    <p className="mt-4 text-sm text-accent">
-                      Read post{' '}
-                      <span
-                        aria-hidden
-                        className="inline-block transition-transform duration-300 group-hover:translate-x-1"
-                      >
-                        →
-                      </span>
-                    </p>
-                  </Link>
-                </li>
-              ))}
-          </ul>
-
-          <p className="mt-6 text-xs text-theme-muted">
-            <Link
-              to="/blog"
-              className="transition-colors duration-200 hover:text-theme-primary"
-            >
-              All posts →
-            </Link>
-          </p>
-        </div>
-      </section>
-
-      <section className="px-5 pb-20 pt-10 sm:px-6 sm:pt-12">
-        <div className="mx-auto max-w-4xl">
-          <h2 className="mb-4 font-heading text-2xl font-semibold text-theme-primary">
-            Discussion
-          </h2>
-
-          <p className="mb-6 text-sm leading-relaxed text-theme-muted">
-            Comments are powered by GitHub Discussions on{' '}
-            <a
-              href="https://github.com/smaramwbc/statewave/discussions"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-accent hover:underline"
-            >
-              smaramwbc/statewave
-            </a>
-            . Sign in with your GitHub account to comment.
-          </p>
-
-          <ClientOnly>
-            <GiscusComments term={blogPostUrl(post.meta.slug)} />
-          </ClientOnly>
-        </div>
-      </section>
-    </>
+    <div ref={root} className="sw-home bp">
+      <Hero post={post} />
+      <Divider />
+      <Body post={post} />
+      <Discussion post={post} />
+      <More post={post} />
+    </div>
   )
 }
