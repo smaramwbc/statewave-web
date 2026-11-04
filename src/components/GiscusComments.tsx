@@ -4,6 +4,9 @@ import { useTheme } from '../lib/theme'
 interface Props {
   /** Thread key. Use `pathname` for one-thread-per-post. */
   term: string
+  /** Pins the comments to one theme, for a page that ignores the site's theme switch (the v8 pages
+   *  are light by design). Without it the comments follow the visitor's theme. */
+  theme?: 'light' | 'dark'
 }
 
 const REPO = 'smaramwbc/statewave'
@@ -17,9 +20,10 @@ if (resolvedTheme === 'light') return 'light'
 return 'preferred_color_scheme'
 }
 
-export function GiscusComments({ term }: Props) {
+export function GiscusComments({ term, theme }: Props) {
   const containerRef = useRef<HTMLDivElement>(null)
-  const { resolvedTheme } = useTheme()
+  const { resolvedTheme: siteTheme } = useTheme()
+  const resolvedTheme = theme ?? siteTheme
 
   useEffect(() => {
     const container = containerRef.current
