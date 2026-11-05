@@ -90,7 +90,6 @@ export function Hero() {
         ))}
       </div>
       <div aria-hidden="true" className="pd-hero__glow" />
-      <div aria-hidden="true" className="pd-hero__arc" />
       <div className="sw-wrap gv-hero__in">
         <h1 id="gv-hero-title" className="gv-hero__title">
           Audit every memory <span className="sw-hero__grad">your agent uses</span>

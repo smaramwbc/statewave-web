@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { usePageSEO } from '../lib/seo'
+import { Divider } from '../components/home/ui'
 import { Hero } from '../components/governance/Hero'
 import { Checks } from '../components/governance/Checks'
 import { Labels, PolicySection, Rollout } from '../components/governance/Policy'
@@ -33,6 +34,8 @@ export function GovernancePage() {
   return (
     <div ref={root} className="sw-home sw-pd sw-gv">
       <Hero />
+      {/* The horizon arc is the homepage's alone; inner pages end the hero on a straight edge and the cross divider. */}
+      <Divider />
       <Checks />
       <Labels />
       <PolicySection />
