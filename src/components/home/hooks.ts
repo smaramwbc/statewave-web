@@ -90,3 +90,23 @@ export function useCopy(text: string, ms = 1600) {
   }, [text, ms])
   return [done, copy] as const
 }
+
+/** Phones only: matches the max-width: 639px blocks in product.css and governance.css. The server renders every card open. */
+export function usePhone() {
+  const [phone, setPhone] = useState(false)
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 639px)')
+    const sync = () => setPhone(mq.matches)
+    sync()
+    mq.addEventListener('change', sync)
+    return () => mq.removeEventListener('change', sync)
+  }, [])
+  return phone
+}
+
+/** Phones only: one card open at a time (the first by default). Spread the result into a card that takes open/onToggle. */
+export function useFold(first = 0) {
+  const phone = usePhone()
+  const [open, setOpen] = useState(first)
+  return (i: number) => (phone ? { open: open === i, onToggle: () => setOpen(open === i ? -1 : i) } : {})
+}
