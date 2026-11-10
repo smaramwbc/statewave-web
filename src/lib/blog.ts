@@ -56,8 +56,10 @@ export interface BlogPostFrontmatter {
   image?: string
   /** Editorial category, validated against BLOG_CATEGORIES at load time so a
    *  typo fails the build instead of silently creating a one-post category
-   *  nothing links to. Optional while older posts are backfilled. */
-  category?: BlogCategory
+   *  nothing links to. Required: a post without one would only show under
+   *  "All" on the blog index, never under a filter. Series episodes carry
+   *  one too (the Statewave Guide is 'Build log'). */
+  category: BlogCategory
   /** Series this post belongs to, e.g. 'statewave-guide'. Requires
    *  `episode`. */
   series?: SeriesId
@@ -98,6 +100,7 @@ const REQUIRED_FIELDS: (keyof BlogPostFrontmatter)[] = [
   'date',
   'description',
   'author',
+  'category',
 ]
 
 function validate(filePath: string, fm: Partial<BlogPostFrontmatter> | undefined): BlogPostFrontmatter {
@@ -111,7 +114,7 @@ function validate(filePath: string, fm: Partial<BlogPostFrontmatter> | undefined
     )
   }
 
-  if (fm.category && !BLOG_CATEGORIES.includes(fm.category)) {
+  if (!BLOG_CATEGORIES.includes(fm.category as BlogCategory)) {
     throw new Error(
       `Blog post ${filePath} has unknown category "${fm.category}". ` +
         `Known categories: ${BLOG_CATEGORIES.join(', ')}.`,
