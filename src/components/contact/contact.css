@@ -1,0 +1,101 @@
+/* /contact. Same tokens, type and chrome as the v8 homepage. The hero uses the home's own classes
+ * (sw-hero); it ends on a straight edge and the home's cross divider, never the home's arc, which is
+ * the home's alone. Everything else sits under .ct (always inside .sw-home). */
+
+.ct { --ct-pad: clamp(80px, 9vw, 136px); --ct-ease: cubic-bezier(0.2, 0.8, 0.2, 1); }
+.ct .sw-h2 { white-space: normal; }
+.ct-wrap { position: relative; z-index: 2; max-width: calc(var(--sw-max) + 2 * (var(--sw-pad) - var(--sw-gutter))); margin: 0 auto; padding: 0 var(--sw-pad); }
+.ct-section { position: relative; z-index: 2; padding: var(--ct-pad) 0; }
+/* full-width tint band, like the home's sw-section--tint */
+.ct-section--tint { background: var(--sw-bg-2); }
+.ct-head { max-width: 780px; }
+.ct-head--center { margin: 0 auto; text-align: center; }
+.ct-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+/* ── hero: every route as a small tile; a tile jumps to its card ── */
+.ct-tiles { margin: 48px 0 0; padding: 0; list-style: none; width: 100%; display: grid; grid-template-columns: repeat(6, minmax(0, 176px)); justify-content: center; gap: 12px; }
+@media (max-width: 1180px) { .ct-tiles { grid-template-columns: repeat(3, minmax(0, 176px)); } }
+.ct-tiles a { height: 100%; display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 20px 10px 16px; border-radius: 16px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.12); transition: border-color 0.25s, background-color 0.25s, transform 0.3s var(--ct-ease); }
+.ct-tiles a:hover { transform: translateY(-2px); border-color: rgba(143, 184, 255, 0.6); background: rgba(255, 255, 255, 0.08); }
+.ct-tiles__box { flex: 0 0 auto; width: 48px; height: 48px; border-radius: 14px; display: grid; place-items: center; background: #fff; color: var(--sw-navy); box-shadow: inset 0 1.5px 0 #fff, 0 18px 36px -16px rgba(47, 91, 240, 0.7), 0 0 0 5px rgba(255, 255, 255, 0.06); }
+.ct-tiles__label { min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 2px; text-align: center; }
+.ct-tiles__name { font-size: 14px; line-height: 20px; font-weight: 600; color: #fff; }
+.ct-tiles__via { font-size: 12px; line-height: 16px; color: #8f99b5; }
+/* a phone: two columns of compact rows, so the cards are not a screen away */
+@media (max-width: 560px) {
+  .ct-tiles { margin-top: 36px; grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 400px; gap: 8px; }
+  .ct-tiles a { flex-direction: row; gap: 10px; padding: 10px; border-radius: 14px; }
+  .ct-tiles__box { width: 36px; height: 36px; border-radius: 10px; box-shadow: inset 0 1.5px 0 #fff, 0 10px 24px -12px rgba(47, 91, 240, 0.7); }
+  .ct-tiles__box svg { width: 18px; height: 18px; }
+  .ct-tiles__label { align-items: flex-start; gap: 0; text-align: left; }
+  .ct-tiles__name { font-size: 13px; line-height: 17px; }
+  .ct-tiles__via { font-size: 11px; line-height: 15px; }
+}
+/* the tiles rise in once, one after the other, as the page opens */
+.ct-tiles li { animation: ct-rise 0.6s var(--ct-ease) both; animation-delay: calc(240ms + var(--i, 0) * 70ms); }
+@keyframes ct-rise { from { opacity: 0; translate: 0 14px; } }
+
+/* ── route cards ── */
+.ct-routes { margin-top: var(--sw-gap-body); display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
+@media (min-width: 1000px) { .ct-routes { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; } }
+.ct-route { position: relative; min-width: 0; display: flex; flex-direction: column; padding: 28px 28px 26px; border-radius: 16px; background: #fff; box-shadow: inset 0 0 0 1px var(--sw-line);
+  transition: transform 0.35s var(--ct-ease), box-shadow 0.35s, opacity 0.6s var(--ct-ease) calc(var(--i, 0) * 90ms), translate 0.6s var(--ct-ease) calc(var(--i, 0) * 90ms); }
+.ct-route:hover { transform: translateY(-4px); box-shadow: inset 0 0 0 1px var(--sw-line-2), 0 24px 48px -20px rgba(10, 18, 51, 0.24); }
+.ct-route:target { box-shadow: inset 0 0 0 2px var(--sw-blue), 0 16px 40px -24px rgba(47, 91, 240, 0.6); }
+.ct-route__head { display: flex; align-items: center; gap: 12px; }
+.ct-route__icon { flex: 0 0 auto; width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: var(--sw-bg); box-shadow: inset 0 0 0 1px var(--sw-line); color: var(--sw-blue); }
+.ct-route__via { font-size: 12px; line-height: 16px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--sw-blue); }
+.ct .ct-route__title { margin-top: 24px; font-family: var(--sw-display); font-size: 26px; line-height: 32px; font-weight: 700; letter-spacing: -0.02em; color: var(--sw-navy); }
+.ct .ct-route__text { margin-top: 12px; font-size: 16px; line-height: 25px; color: var(--sw-ink-2); text-wrap: pretty; }
+.ct-route__foot { margin-top: auto; padding-top: 24px; display: flex; flex-direction: column; align-items: flex-start; gap: 16px; }
+
+.ct .ct-go { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 20px; border-radius: 999px; background: var(--sw-navy); color: #fff; font-size: 15px; font-weight: 500; transition: background-color 0.25s, transform 0.25s var(--ct-ease); }
+.ct .ct-go:hover { background: var(--sw-blue); color: #fff; transform: translateY(-1px); }
+.ct-go svg { transition: transform 0.25s var(--ct-ease); }
+.ct-go:hover svg { transform: translate(2px, -2px); }
+
+/* an address: the mailto link plus a copy button, for when no mail app is set up */
+.ct-mail { display: flex; align-items: center; gap: 4px; max-width: 100%; padding: 4px 4px 4px 16px; border-radius: 12px; background: var(--sw-bg); box-shadow: inset 0 0 0 1px var(--sw-line); }
+.ct .ct-mail__addr { min-width: 0; overflow-wrap: anywhere; font-family: var(--sw-font-label); font-size: 17px; line-height: 24px; font-weight: 600; color: var(--sw-navy); }
+.ct .ct-mail__addr:hover { color: var(--sw-blue); }
+.ct-mail__copy { flex: 0 0 auto; width: 40px; height: 40px; display: grid; place-items: center; border: 0; border-radius: 9px; background: transparent; color: var(--sw-ink-3); cursor: pointer; transition: background-color 0.2s, color 0.2s; }
+.ct-mail__copy:hover { background: #fff; color: var(--sw-navy); }
+
+.ct-route__more { display: flex; flex-wrap: wrap; gap: 8px 20px; }
+.ct .ct-route__more .sw-more { font-size: 15px; line-height: 22px; }
+.ct .ct-ask { padding: 0; border: 0; cursor: pointer; }
+
+/* ── issues by repository ── */
+.ct-repos { margin-top: 40px; display: grid; gap: 16px; }
+@media (min-width: 1000px) { .ct-repos { grid-template-columns: 280px minmax(0, 1fr); gap: 40px; align-items: start; } }
+.ct .ct-repos p { font-size: 15px; line-height: 23px; color: var(--sw-ink-2); text-wrap: pretty; }
+.ct-repos p b { display: block; margin-bottom: 4px; font-weight: 600; color: var(--sw-navy); }
+.ct-repos ul { margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 8px; }
+.ct-repos li { transition: opacity 0.45s var(--ct-ease) calc(var(--i, 0) * 40ms), translate 0.45s var(--ct-ease) calc(var(--i, 0) * 40ms); }
+.ct .ct-repo { display: inline-flex; align-items: center; gap: 8px; height: 36px; padding: 0 14px; border-radius: 999px; background: #fff; box-shadow: inset 0 0 0 1px var(--sw-line); font-size: 14px; font-weight: 500; color: var(--sw-navy); white-space: nowrap; transition: box-shadow 0.25s, transform 0.25s var(--ct-ease); }
+.ct .ct-repo:hover { color: var(--sw-navy); box-shadow: inset 0 0 0 1px var(--sw-blue), 0 10px 24px -14px rgba(10, 18, 51, 0.35); transform: translateY(-1px); }
+.ct-repo code { font-size: 12px; color: var(--sw-ink-4); }
+
+.ct .ct-legal { margin-top: 32px; font-size: 14px; line-height: 21px; color: var(--sw-ink-3); text-wrap: pretty; }
+.ct .ct-legal a { font-weight: 500; }
+
+/* ── faq links ── */
+.ct .sw-faq details > div ul { margin: 12px 0 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 6px 20px; font-size: 15px; line-height: 22px; font-weight: 500; }
+
+@media (max-width: 640px) {
+  .ct-route { padding: 22px 20px 20px; }
+  .ct .ct-route__title { font-size: 22px; line-height: 28px; }
+  .ct .ct-mail__addr { font-size: 16px; }
+  .ct-repo code { display: none; }
+}
+
+/* scroll reveal (useSeen in ContactPage): the cards, then the repository chips, rise in one after
+ * the other. Only once the page is armed, so server HTML is never hidden, and only when motion is
+ * welcome: under prefers-reduced-motion everything is simply there. */
+@media (prefers-reduced-motion: no-preference) {
+  .ct[data-armed] .ct-routes:not([data-seen]) .ct-route { opacity: 0; translate: 0 24px; }
+  .ct[data-armed] .ct-repos:not([data-seen]) li { opacity: 0; translate: 0 10px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ct-tiles li { animation: none; }
+}
