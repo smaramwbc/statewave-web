@@ -1,0 +1,168 @@
+/* /blog/:slug. Same tokens, type and chrome as the v8 homepage. The hero uses the home's own classes
+ * (sw-hero); it ends on a straight edge and the home's cross divider, never the home's arc, which is
+ * the home's alone. Everything else sits under .bp (always inside .sw-home). The cards at the foot
+ * match the blog index's. */
+
+.bp {
+  --bp-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  /* The Tailwind-styled pieces a post can carry (Flow, GuideStack, SeriesFrame, GuideSubscribe) read
+   * the site theme's colours, which flip with the theme switch. The v8 pages are light by design, so
+   * inside a post those colours are pinned to the v8 palette. */
+  --color-theme-primary: var(--sw-navy);
+  --color-theme-secondary: var(--sw-ink-2);
+  --color-theme-muted: var(--sw-ink-3);
+  --color-theme-border: var(--sw-line);
+  --color-theme-surface-1: #fff;
+  --color-surface-0: #fff;
+  --color-surface-1: #fff;
+  --color-surface-2: var(--sw-bg-2);
+  --color-surface-3: var(--sw-line);
+  --color-brand-500: var(--sw-blue);
+  --color-accent: var(--sw-blue);
+  --color-accent-light: var(--sw-navy);
+}
+.bp-wrap { position: relative; z-index: 2; max-width: calc(var(--sw-max) + 2 * (var(--sw-pad) - var(--sw-gutter))); margin: 0 auto; padding: 0 var(--sw-pad); }
+.bp a:focus-visible { outline: 2px solid var(--sw-blue); outline-offset: 2px; }
+
+/* ── hero: a post title is a sentence, so it wraps and runs smaller than a page title ── */
+.bp .bp-crumbs { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; font-size: 14px; line-height: 20px; color: #8f99b5; }
+.bp .bp-crumbs a { color: #b4bcd3; }
+.bp .bp-crumbs a:hover { color: #fff; }
+.bp .bp-title { margin-top: 32px; max-width: 1040px; font-size: clamp(34px, 4.2vw, 60px); white-space: normal; text-wrap: balance; }
+.bp .bp-sub { max-width: 680px; }
+.bp .bp-meta { margin-top: 28px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 6px 10px; font-size: 14px; line-height: 20px; color: #8f99b5; }
+.bp .bp-meta img { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.14); }
+.bp .bp-meta > span:first-of-type { color: #dce3f2; font-weight: 500; }
+.bp .bp-meta time { font-variant-numeric: tabular-nums; }
+
+/* ── the post: a reading column, with the "On this page" list beside it on a wide screen ── */
+.bp-body { position: relative; z-index: 2; padding: clamp(48px, 6vw, 88px) 0 clamp(72px, 8vw, 112px); }
+.bp-cover { max-width: 1080px; margin: 0 auto clamp(48px, 6vw, 80px); border-radius: 20px; overflow: hidden; background: var(--sw-navy); box-shadow: 0 0 0 1px var(--sw-line), 0 32px 64px -40px rgba(10, 18, 51, 0.45); }
+.bp-cover img { display: block; width: 100%; height: auto; }
+.bp-layout { display: grid; grid-template-columns: minmax(0, 1fr); justify-content: center; }
+@media (min-width: 1100px) {
+  .bp-layout { --bp-gap: clamp(40px, 4vw, 72px); grid-template-columns: 220px minmax(0, 720px) 220px; gap: var(--bp-gap); }
+  .bp-layout--solo { grid-template-columns: minmax(0, 720px); }
+  /* a data table may run on into the empty right-hand column, so most fit without scrolling */
+  .bp-layout:not(.bp-layout--solo) .bp-table { margin-right: calc(-220px - var(--bp-gap)); }
+}
+.bp-toc { display: none; }
+@media (min-width: 1100px) {
+  .bp-toc { display: block; position: sticky; top: 112px; align-self: start; max-height: calc(100vh - 140px); overflow-y: auto; scrollbar-width: none; }
+}
+.bp .bp-toc__title { font-size: 12px; line-height: 16px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--sw-blue); }
+.bp-toc ol { margin: 14px 0 0; padding: 0; list-style: none; display: grid; gap: 2px; }
+.bp .bp-toc a { display: block; padding: 6px 0 6px 14px; border-left: 2px solid var(--sw-line); font-size: 14px; line-height: 20px; color: var(--sw-ink-3); text-wrap: pretty; transition: color 0.2s, border-color 0.2s; }
+.bp .bp-toc a:hover { color: var(--sw-navy); }
+.bp .bp-toc a[aria-current] { border-left-color: var(--sw-blue); color: var(--sw-navy); font-weight: 600; }
+
+/* ── prose: the MDX body's tags, styled in place ── */
+.bp-prose { min-width: 0; max-width: 720px; width: 100%; margin: 0 auto; font-size: 18px; line-height: 30px; color: var(--sw-ink-2); }
+.bp .bp-prose > :first-child { margin-top: 0; }
+.bp .bp-prose h1 { display: none; }
+.bp .bp-prose h2 { margin: 64px 0 0; font-family: var(--sw-display); font-size: clamp(26px, 2.6vw, 32px); line-height: 1.2; font-weight: 700; letter-spacing: -0.02em; color: var(--sw-navy); text-wrap: balance; }
+.bp .bp-prose h3 { margin: 40px 0 0; font-family: var(--sw-display); font-size: 22px; line-height: 30px; font-weight: 700; letter-spacing: -0.015em; color: var(--sw-navy); }
+.bp .bp-prose h4 { margin: 32px 0 0; font-size: 18px; line-height: 28px; font-weight: 600; color: var(--sw-navy); }
+/* rehype-autolink-headings wraps each heading in its own link */
+.bp .bp-prose :is(h2, h3, h4) a { color: inherit; text-decoration: none; }
+.bp .bp-prose :is(h2, h3, h4) a:hover { color: var(--sw-blue); }
+.bp .bp-prose p { margin: 20px 0 0; text-wrap: pretty; }
+.bp .bp-prose :is(h2, h3, h4) + p { margin-top: 16px; }
+.bp .bp-prose strong { font-weight: 600; color: var(--sw-navy); }
+.bp .bp-prose a { color: var(--sw-blue); text-decoration: underline; text-decoration-color: rgba(47, 91, 240, 0.35); text-underline-offset: 3px; transition: color 0.2s, text-decoration-color 0.2s; }
+.bp .bp-prose a:hover { color: var(--sw-navy); text-decoration-color: currentColor; }
+.bp-prose :is(ul, ol) { margin: 20px 0 0; padding-left: 24px; }
+.bp-prose li + li { margin-top: 8px; }
+.bp-prose li > :is(ul, ol) { margin-top: 8px; }
+.bp-prose ul { list-style: none; padding-left: 22px; }
+.bp-prose ul > li { position: relative; }
+.bp-prose ul > li::before { content: ''; position: absolute; left: -20px; top: 14px; width: 10px; height: 2px; border-radius: 1px; background: var(--sw-blue); }
+.bp-prose ol > li::marker { color: var(--sw-blue); font-weight: 600; font-variant-numeric: tabular-nums; }
+.bp .bp-prose li p { margin-top: 8px; }
+.bp .bp-prose li > p:first-child { margin-top: 0; }
+.bp .bp-prose :not(pre) > code { padding: 2px 6px; border-radius: 6px; background: var(--sw-bg-2); box-shadow: inset 0 0 0 1px var(--sw-line); font-family: var(--font-mono); font-size: 0.84em; color: var(--sw-navy); overflow-wrap: anywhere; }
+.bp .bp-prose pre { margin: 28px 0 0; padding: 20px 24px; border-radius: 14px; background: var(--sw-navy-deep); overflow-x: auto; font-family: var(--font-mono); font-size: 14px; line-height: 1.65; color: #e4e9f5; font-variant-ligatures: none; scrollbar-width: thin; scrollbar-color: rgba(255, 255, 255, 0.2) transparent; box-shadow: 0 30px 60px -40px rgba(7, 13, 38, 0.7); }
+.bp .bp-prose pre code { font: inherit; color: inherit; }
+.bp .bp-prose blockquote { margin: 28px 0 0; padding: 2px 0 2px 22px; border-left: 3px solid var(--sw-blue); font-size: 19px; line-height: 31px; color: var(--sw-navy); }
+.bp .bp-prose blockquote > :first-child { margin-top: 0; }
+.bp .bp-prose blockquote p { margin-top: 12px; }
+.bp .bp-prose hr { margin: 48px 0; border: 0; border-top: 1px solid var(--sw-line); }
+.bp .bp-prose img { max-width: 100%; height: auto; margin-top: 32px; }
+.bp-table { margin-top: 28px; overflow-x: auto; border-radius: 14px; background: #fff; box-shadow: inset 0 0 0 1px var(--sw-line); scrollbar-width: thin; }
+.bp-table table { width: 100%; border-collapse: collapse; font-size: 15px; line-height: 23px; }
+.bp-table th { padding: 12px 16px; border-bottom: 1px solid var(--sw-line); text-align: left; vertical-align: bottom; font-size: 12px; line-height: 16px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--sw-ink-3); white-space: nowrap; }
+.bp-table td { padding: 12px 16px; vertical-align: top; color: var(--sw-ink-2); }
+.bp-table tr + tr td { border-top: 1px solid var(--sw-line); }
+.bp .bp-table td:first-child { font-weight: 600; color: var(--sw-navy); }
+.bp-table td code { white-space: nowrap; }
+@media (max-width: 640px) {
+  .bp-prose { font-size: 17px; line-height: 28px; }
+  .bp .bp-prose h2 { margin-top: 48px; }
+  .bp .bp-prose pre { margin-left: -4px; margin-right: -4px; padding: 16px; font-size: 13px; }
+  .bp-table table { font-size: 14px; line-height: 21px; min-width: 520px; }
+}
+/* Series episodes are written in feed cadence: one sentence per paragraph, white space as punctuation.
+ * Lines that follow lines sit close enough to read as one passage, and the gap opens up wherever a
+ * quote, list or diagram breaks the run, which is where the sections are in posts with no headings. */
+.bp .bp-prose--series p { margin-top: 0; }
+.bp .bp-prose--series p + p { margin-top: 12px; }
+.bp .bp-prose--series :not(p) + p { margin-top: 28px; }
+.bp .bp-prose--series p + div { margin-top: 28px; }
+
+.bp-tags { margin: 48px 0 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 8px; }
+.bp-tags li { padding: 4px 12px; border-radius: 999px; background: var(--sw-bg-2); font-size: 13px; line-height: 20px; color: var(--sw-ink-3); }
+.bp .bp-tags li::before { content: none; }
+.bp-subscribe { margin-top: 48px; }
+
+/* ── discussion ── */
+.bp-discuss { position: relative; z-index: 2; padding: 0 0 clamp(80px, 9vw, 128px); }
+.bp-discuss__in { max-width: 720px; margin: 0 auto; padding-top: 48px; border-top: 1px solid var(--sw-line); }
+@media (min-width: 1100px) { .bp-discuss__in { max-width: 720px; } }
+.bp .bp-discuss__title { font-family: var(--sw-display); font-size: 28px; line-height: 34px; font-weight: 700; letter-spacing: -0.02em; color: var(--sw-navy); }
+.bp .bp-discuss__note { margin: 10px 0 24px; font-size: 15px; line-height: 23px; color: var(--sw-ink-3); }
+.bp .bp-discuss__note a { color: var(--sw-blue); }
+.bp-discuss .sw-card { background: #fff; box-shadow: inset 0 0 0 1px var(--sw-line); border: 0; }
+
+/* ── more from the blog: the index's cards, on a tint band ── */
+.bp-more { position: relative; z-index: 2; padding: clamp(72px, 8vw, 120px) 0; background: var(--sw-bg-2); }
+.bp-more__head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 12px 24px; }
+.bp .bp-more__title { font-family: var(--sw-display); font-size: clamp(28px, 3vw, 40px); line-height: 1.15; font-weight: 700; letter-spacing: -0.025em; color: var(--sw-navy); }
+.bp .bp-more__all { display: inline-flex; align-items: center; gap: 6px; font-size: 15px; font-weight: 600; color: var(--sw-blue); }
+.bp .bp-more__all svg { transition: transform 0.25s var(--bp-ease); }
+.bp .bp-more__all:hover svg { transform: translateX(3px); }
+.bp-cards { margin: 32px 0 0; padding: 0; list-style: none; display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; }
+@media (min-width: 760px) { .bp-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 1100px) { .bp-cards { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; } }
+.bp-card { position: relative; min-width: 0; display: flex; border-radius: 16px; background: #fff; overflow: hidden;
+  transition: transform 0.35s var(--bp-ease), box-shadow 0.35s, opacity 0.6s var(--bp-ease) calc(var(--i, 0) * 90ms), translate 0.6s var(--bp-ease) calc(var(--i, 0) * 90ms); }
+.bp-card::after { content: ''; position: absolute; inset: 0; border-radius: inherit; box-shadow: inset 0 0 0 1px var(--sw-line); pointer-events: none; transition: box-shadow 0.35s; }
+.bp-card:hover { transform: translateY(-4px); box-shadow: 0 24px 48px -20px rgba(10, 18, 51, 0.24); }
+.bp-card:hover::after { box-shadow: inset 0 0 0 1px var(--sw-line-2); }
+.bp .bp-card__link { width: 100%; display: flex; flex-direction: column; color: var(--sw-navy); }
+.bp .bp-card__link:focus-visible { outline-offset: -3px; border-radius: 16px; }
+.bp-card__art { display: block; aspect-ratio: 5 / 2; overflow: hidden; background: var(--sw-navy); }
+.bp-card__art img { display: block; width: 100%; height: 100%; object-fit: cover; transition: scale 0.6s var(--bp-ease); }
+.bp-card:hover .bp-card__art img { scale: 1.03; }
+.bp-card__body { flex: 1; display: flex; flex-direction: column; padding: 22px 24px 24px; }
+.bp-card__meta { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; }
+.bp-card__cat { font-size: 12px; line-height: 16px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--sw-blue); }
+.bp-card__meta time { font-size: 13px; line-height: 16px; color: var(--sw-ink-4); font-variant-numeric: tabular-nums; }
+.bp-card__title { margin-top: 12px; font-family: var(--sw-display); font-size: 21px; line-height: 27px; font-weight: 700; letter-spacing: -0.015em; color: var(--sw-navy); text-wrap: balance; }
+.bp-card__desc { margin-top: 8px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; font-size: 15px; line-height: 23px; color: var(--sw-ink-2); }
+.bp-card__more { margin-top: auto; padding-top: 18px; display: inline-flex; align-items: center; gap: 6px; font-size: 15px; line-height: 22px; font-weight: 500; color: var(--sw-blue); }
+.bp-card__more svg { transition: transform 0.25s var(--bp-ease); }
+.bp-card:hover .bp-card__more svg { transform: translateX(3px); }
+
+/* Cards rise in as the row scrolls into view. Armed only after mount (data-armed), so server HTML is
+ * never hidden; under prefers-reduced-motion everything is simply there. */
+@media (prefers-reduced-motion: no-preference) {
+  .bp[data-armed] .bp-cards:not([data-seen]) .bp-card { opacity: 0; translate: 0 24px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bp-card__art img { transition: none; }
+  .bp-card:hover .bp-card__art img { scale: none; }
+}
+
+/* the subscribe form's button, in the v8 primary style rather than the old gradient */
+.bp-prose .btn-gradient { background: var(--sw-navy); box-shadow: none; transition: background-color 0.25s; }
+.bp-prose .btn-gradient:hover { background: var(--sw-blue); }

@@ -4,7 +4,7 @@ import { Check, Copy } from 'lucide-react'
 import { Eyebrow, H2, Icon, Ln } from './ui'
 import { useCopy } from './hooks'
 import { Code, CopyBtn } from './code'
-import { DOCS, DOCS_REPO, EXAMPLES, GITHUB } from './links'
+import { DOCS, DOCS_REPO, EXAMPLES } from './links'
 import './home-a.css'
 
 const CODE = [
@@ -180,7 +180,7 @@ export function SelfHosted() {
             <Ln to={DOCS_REPO} className="sw-res__link">OpenRouter proxy →</Ln>
           </Resource>
           <Resource icon={svg('M4 5h12M4 10h12M4 15h8')} title="Changelog" body="Release notes for the server, SDKs and connectors.">
-            <Ln to={`${GITHUB}/releases`} className="sw-res__link">Read the changelog →</Ln>
+            <Ln to="/changelog" className="sw-res__link">Read the changelog →</Ln>
           </Resource>
         </div>
       </div>

@@ -16,6 +16,11 @@ export interface UseCaseDetailPage {
 
 export const USE_CASE_DETAIL_PAGES: readonly UseCaseDetailPage[] = [
   {
+    slug: 'coding-agents',
+    label: 'Coding Agents',
+    path: '/use-cases/coding-agents',
+  },
+  {
     slug: 'multi-agent-memory',
     label: 'Multi-Agent Memory',
     path: '/use-cases/multi-agent-memory',
@@ -34,6 +39,11 @@ export const USE_CASE_DETAIL_PAGES: readonly UseCaseDetailPage[] = [
     slug: 'grounded-shop-assistant',
     label: 'Grounded Shop Assistant',
     path: '/use-cases/grounded-shop-assistant',
+  },
+  {
+    slug: 'support-agents',
+    label: 'Support Agents',
+    path: '/use-cases/support-agents',
   },
 ] as const
 

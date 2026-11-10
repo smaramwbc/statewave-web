@@ -51,6 +51,30 @@ describe('Route rendering', () => {
     })
   })
 
+  it('renders the contact page at /contact, with a way in for every kind of request', async () => {
+    renderApp('/contact')
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { level: 1, name: /every way to reach/i })).toBeInTheDocument()
+    })
+    const main = screen.getByRole('main')
+    const hrefs = Array.from(main.querySelectorAll('a[href]')).map((a) => a.getAttribute('href'))
+    for (const want of [
+      'https://github.com/smaramwbc/statewave/issues/new?template=bug_report.yml',
+      'https://github.com/smaramwbc/statewave/issues/new?template=feature_request.yml',
+      'https://github.com/smaramwbc/statewave/discussions',
+      'mailto:security@statewave.ai',
+      'mailto:licensing@statewave.ai',
+      '/press',
+    ]) {
+      expect(hrefs, `/contact has no link to ${want}`).toContain(want)
+    }
+    // Every hero tile jumps to a card that exists.
+    for (const tile of main.querySelectorAll('.ct-tiles a')) {
+      const id = tile.getAttribute('href')!.slice(1)
+      expect(document.getElementById(id), `tile ${id} points at nothing`).not.toBeNull()
+    }
+  })
+
   it('renders connectors page at /connectors', async () => {
     renderApp('/connectors')
     await waitFor(() => {
@@ -60,6 +84,20 @@ describe('Route rendering', () => {
     await waitFor(() => {
       expect(screen.getByText(/give your agents memory/i)).toBeInTheDocument()
     })
+  })
+
+  it('renders the coding agents use case at /use-cases/coding-agents', async () => {
+    renderApp('/use-cases/coding-agents')
+    await waitFor(() => {
+      expect(screen.getByText(/stop re-explaining your repo/i)).toBeInTheDocument()
+    })
+    // The page leads to the three packages it is built from.
+    for (const slug of ['github', 'markdown', 'mcp-server']) {
+      expect(
+        document.querySelector(`main a[href="/connectors/${slug}"]`),
+        `no link to /connectors/${slug}`,
+      ).not.toBeNull()
+    }
   })
 
   it('renders benchmarks page at /benchmarks', async () => {
@@ -110,6 +148,22 @@ describe('Route rendering', () => {
     await waitFor(() => {
       expect(screen.getByText(/statewave returns a traceable bundle/i)).toBeInTheDocument()
     })
+  })
+
+  it('renders the changelog at /changelog, every entry linked to its GitHub release', async () => {
+    renderApp('/changelog')
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { level: 1, name: /what.s new/i })).toBeInTheDocument()
+    })
+    const entries = document.querySelectorAll('main article.cl-rel')
+    expect(entries.length).toBeGreaterThan(0)
+    for (const entry of entries) {
+      const product = entry.getAttribute('data-product')
+      expect(
+        entry.querySelector('a[href*="github.com/smaramwbc/statewave"][href*="/releases/tag/"]'),
+        `${entry.id} (${product}) has no link to its release`,
+      ).not.toBeNull()
+    }
   })
 
   it('renders 404 for unknown routes', async () => {
