@@ -1,6 +1,6 @@
 import { ArrowRight, ChevronDown, ChevronUp, History, Layers, LinkIcon, Lock, Package } from 'lucide-react'
-import { useEffect, useState, type ReactNode } from 'react'
-import { useSeen } from '../home/hooks'
+import { useState, type ReactNode } from 'react'
+import { usePhone, useSeen } from '../home/hooks'
 import { Brand, Head, Pill, Tile } from './ui'
 
 /** `open` is only passed on phones, where the cards collapse to their header and open one at a time. */
@@ -19,19 +19,6 @@ function Stage({ n, i, icon, kind, title, body, open, onToggle, children }: {
       <div id={id} className="pd-obj__ex" hidden={fold && !open}><div className="pd-obj__card">{children}</div></div>
     </article>
   )
-}
-
-/** Phones only: matches the max-width: 639px block in product.css. The server renders every card open. */
-function usePhone() {
-  const [phone, setPhone] = useState(false)
-  useEffect(() => {
-    const mq = window.matchMedia('(max-width: 639px)')
-    const sync = () => setPhone(mq.matches)
-    sync()
-    mq.addEventListener('change', sync)
-    return () => mq.removeEventListener('change', sync)
-  }, [])
-  return phone
 }
 
 const Step = ({ label, i }: { label: string; i: number }) => (
