@@ -179,6 +179,7 @@ export type RouteKey =
   | '/use-cases/personal-assistant-memory'
   | '/use-cases/multi-agent-shared-context'
   | '/use-cases/grounded-shop-assistant'
+  | '/use-cases/support-agents'
   | '/vs'
   | '/vs/mem0'
   | '/vs/letta'
@@ -217,6 +218,7 @@ export const PUBLIC_ROUTES: readonly RouteKey[] = [
   '/use-cases/personal-assistant-memory',
   '/use-cases/multi-agent-shared-context',
   '/use-cases/grounded-shop-assistant',
+  '/use-cases/support-agents',
   '/vs',
   '/vs/mem0',
   '/vs/letta',
@@ -335,7 +337,7 @@ export const PAGE_META: Record<RouteKey, PageMeta> = {
   '/use-cases': {
     title: 'Use Cases — Memory for Support Agents, Copilots, and AI Apps',
     description:
-      'What you can build with Statewave: support agents with durable customer memory, coding copilots with repo memory, account intelligence, voice continuity, multi-agent infrastructure, and connector patterns.',
+      'What you can build with Statewave, each with a demo you can run: support agents that remember every customer, coding agents with repo memory, multi-agent systems on one shared memory, personal assistants and grounded shop assistants.',
     breadcrumbLabel: 'Use Cases',
     ogType: 'article',
     priority: 0.8,
@@ -384,6 +386,15 @@ export const PAGE_META: Record<RouteKey, PageMeta> = {
     breadcrumbLabel: 'Grounded Shop Assistant',
     ogType: 'article',
     priority: 0.7,
+    changefreq: 'monthly',
+  },
+  '/use-cases/support-agents': {
+    title: 'Support Agent Memory — Every Customer, Every Ticket Remembered',
+    description:
+      'Give AI support agents memory of every customer: past tickets, plan and what fixed it last time, ranked into each reply with sources. Handoff packs, repeat-issue detection, health scores and SLA tracking, plus Zendesk, Intercom and Freshdesk imports.',
+    breadcrumbLabel: 'Support Agents',
+    ogType: 'article',
+    priority: 0.8,
     changefreq: 'monthly',
   },
   '/vs/mem0': {

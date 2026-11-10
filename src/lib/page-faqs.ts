@@ -487,12 +487,12 @@ export const PAGE_FAQS: Partial<Record<RouteKey, readonly FaqEntry[]>> = {
       question: 'What is Statewave strongest at today?',
       answer:
         'Support agents with returning customers. That workflow has the most machinery behind it: session-aware ranking, escalation handoff packs, repeat-issue detection, first-response and resolution SLA tracking, and deterministic 0–100 health scores with explainable factors (healthy ≥70, watch 40–69, at_risk below 40). It is the shape with the most evidence today, not the limit of the runtime — the same primitives carry every other use case on this page.',
-      links: [{ label: 'Support-native features', href: '/product' }],
+      links: [{ label: 'Support agents', href: '/use-cases/support-agents' }],
     },
     {
       question: 'Can I use Statewave outside customer support?',
       answer:
-        'Yes. The explorer on this page catalogs 54 use-case ideas across coding copilots, workspace and account assistants, voice continuity, and multi-agent infrastructure, four of them written up as full deep-dives. They differ only in which subjects you write and which task you retrieve for; record, compile, retrieve, and govern is the same loop underneath all of them.',
+        'Yes. Coding agents, multi-agent pipelines, personal assistants and grounded shop assistants each have a runnable demo and a page of their own. They differ only in which subjects you write and which task you retrieve for; record, compile, retrieve, and govern is the same loop underneath all of them.',
       links: [{ label: 'Multi-agent memory', href: '/use-cases/multi-agent-memory' }],
     },
     {
@@ -666,6 +666,33 @@ export const PAGE_FAQS: Partial<Record<RouteKey, readonly FaqEntry[]>> = {
       answer:
         'The same open-source memory runtime this site documents: append-only episodes, compileSubject, and Subjects persisted through StatewaveStore, served over one completion path shared by the shopper and ops assistants. Completions route through LiteLLM or OpenRouter, and an offline mode runs the flow with no provider at all. Its test suite is node --test across chat-core, statewave-core, and server, green on every Node version in CI.',
       links: [{ label: 'Source on GitHub', href: 'https://github.com/smaramwbc/statewave' }],
+    },
+  ],
+
+  '/use-cases/support-agents': [
+    {
+      question: 'How does a support agent recognise a returning customer?',
+      answer:
+        'Every ticket, chat and note is written as an episode under the customer’s subject, and the compiler turns them into typed memories: who they are, their plan, their preferences and their past issues. Before each reply the agent calls POST /v1/context with the customer’s message and gets back the memories that matter for it, ranked and packed to the max_tokens you set, each traced to the episode it came from.',
+      links: [{ label: 'Support agent example', href: 'https://github.com/smaramwbc/statewave-examples/tree/main/support-agent-python' }],
+    },
+    {
+      question: 'What goes into a handoff pack?',
+      answer:
+        'POST /v1/handoff returns the customer summary, the active issue, the steps already tried, key facts, the resolution history and recent context, plus handoff_notes: a pre-rendered markdown brief a person or a model can read. It also reports a token estimate and the IDs of the facts, episodes and resolutions it was built from, so whoever picks the ticket up can check any line of it.',
+      links: [{ label: 'API v1 contract', href: `${DOCS}/api/v1-contract.md` }],
+    },
+    {
+      question: 'How is the customer health score calculated?',
+      answer:
+        'GET /v1/subjects/{id}/health returns a 0–100 score with the factors behind it, such as open sessions or a resolution that missed its SLA, and a state: healthy at 70 and above, watch from 40 to 69, at_risk below 40. SLA metrics come from GET /v1/subjects/{id}/sla, with a 5-minute first response and a 24-hour resolution as defaults you can override per call. A webhook fires when an account’s health worsens or recovers.',
+      links: [{ label: 'API v1 contract', href: `${DOCS}/api/v1-contract.md` }],
+    },
+    {
+      question: 'Can I import our Zendesk, Intercom or Freshdesk history?',
+      answer:
+        'Yes. Each has a connector that backfills tickets or conversations, replies and internal notes, and a webhook receiver for live updates. Every item lands under the customer it belongs to, such as customer:<org_or_requester_id> for Zendesk, and every sync has a --dry-run that prints the episodes instead of sending them.',
+      links: [{ label: 'Connectors', href: '/connectors' }],
     },
   ],
 

@@ -40,6 +40,11 @@ export const USE_CASE_DETAIL_PAGES: readonly UseCaseDetailPage[] = [
     label: 'Grounded Shop Assistant',
     path: '/use-cases/grounded-shop-assistant',
   },
+  {
+    slug: 'support-agents',
+    label: 'Support Agents',
+    path: '/use-cases/support-agents',
+  },
 ] as const
 
 export function useCaseDetailPage(
