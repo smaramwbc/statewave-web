@@ -276,6 +276,36 @@ export const PAGE_FAQS: Partial<Record<RouteKey, readonly FaqEntry[]>> = {
     },
   ],
 
+  // Rendered by WhitepaperPage in the v8 FAQ markup. Every answer follows the
+  // paper itself (public/whitepaper/compiled-memory.pdf): the thesis and
+  // section 4, the setup in section 6.1, the comparison in section 5 and the
+  // limitations in section 7. Scores stay on the page body and /benchmarks.
+  '/whitepaper': [
+    {
+      question: 'What is the Compiled Memory white paper about?',
+      answer: 'It argues that agent memory should be a compiled, governed runtime rather than a retrieval index, because determinism, provenance and governability are hard to get from vector-first and graph-first designs. It formalises the long-horizon context-assembly problem, specifies Statewave’s four stages (record, compile, context, govern) down to the scoring signals and the token-bounded packing, compares the main memory architectures, and reports a head-to-head evaluation.',
+      links: [{ label: 'How Statewave works', href: '/product' }],
+    },
+    {
+      question: 'How was the evaluation in the paper run?',
+      answer: 'On a fork of mem0’s own memory-benchmarks suite, with mem0’s judge and scoring code unchanged: LoCoMo (1,540 questions) and a 30-question LongMemEval matched set. Statewave, mem0 cloud and mem0 OSS share the same gpt-4o answerer and judge and a top-200 retrieval cap, so only the memory backend differs. It is one run per system, BEAM is still pending, and every harness fix that helped the mem0 backends is disclosed.',
+      links: [
+        { label: 'Benchmarks and methodology', href: '/benchmarks' },
+        { label: 'statewave-memory-benchmarks', href: 'https://github.com/smaramwbc/statewave-memory-benchmarks' },
+      ],
+    },
+    {
+      question: 'Which memory architectures does the paper compare?',
+      answer: 'Stateless prompting, prompt stuffing, RAG over raw messages, vector plus LLM extraction (Mem0), memory the model reads without embeddings (memU), temporal knowledge graphs (Zep and Graphiti) and agent-managed memory (Letta and MemGPT). For each it asks which of determinism, provenance and governability is a documented contract. Only mem0 is measured head-to-head; the rest is qualitative, from public documentation.',
+      links: [{ label: 'All comparisons', href: '/vs' }],
+    },
+    {
+      question: 'What does the paper say Statewave can’t do yet?',
+      answer: 'Section 7 lists it plainly. The benchmarks are single runs. Statewave runs on a single Postgres: multi-replica API, but no cross-region clustering. Multi-tenant isolation is app-layer query scoping, not row-level security. It hasn’t been load-tested beyond modest scale, it has no graph reasoning, it is self-hosted only with no managed plane, and its scoring weights aren’t configurable.',
+      links: [{ label: 'Self-hosting and deployment', href: '/developers' }],
+    },
+  ],
+
   '/vs': [
     { question: 'How does Statewave compare to Mem0, Letta, Zep, and Supermemory?', answer: 'All four rank or retrieve memory at query time in their own way — Mem0 by relevance score, Letta through agent-managed tool calls, Zep via knowledge-graph traversal, Supermemory with hybrid search plus reranking. Statewave instead compiles episodes into typed memories ahead of time and assembles a deterministic, token-bounded bundle with policy enforcement and an optional integrity-hashed receipt of what was delivered.' },
     { question: 'Is Statewave self-hosted like these alternatives?', answer: 'Yes — Apache-2.0, self-hosted on PostgreSQL and pgvector, with no cloud dependency. That is not universal among the alternatives: Zep discontinued its self-hosted Community Edition in 2025 and now runs memory only through Zep Cloud, BYOK, or Bring-Your-Own-Cloud.' },
