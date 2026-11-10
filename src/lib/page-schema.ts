@@ -6,6 +6,7 @@ import {
   softwareApplicationJsonLd,
   blogIndexJsonLd,
   openrouterProxyJsonLd,
+  whitepaperJsonLd,
   type JsonLd,
   type RouteKey,
 } from './seo-meta'
@@ -51,6 +52,7 @@ export function routeJsonLd(
   if (pathname === '/product') nodes.push(productJsonLd())
   if (pathname === '/developers') nodes.push(howToJsonLd())
   if (pathname === '/openrouter') nodes.push(openrouterProxyJsonLd())
+  if (pathname === '/whitepaper') nodes.push(whitepaperJsonLd())
   if (pathname === '/blog' && blogPosts?.length) nodes.push(blogIndexJsonLd(blogPosts))
 
   // Pages carrying a <PageFaq> get its FAQPage node from the same data the
