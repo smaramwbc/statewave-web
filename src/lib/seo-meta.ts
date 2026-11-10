@@ -62,6 +62,7 @@ export type RouteKey =
   | '/developers'
   | '/openrouter'
   | '/about'
+  | '/contact'
   | '/blog'
   | '/blog/statewave-guide'
   | '/faq'
@@ -89,6 +90,7 @@ export const PUBLIC_ROUTES: readonly RouteKey[] = [
   '/developers',
   '/openrouter',
   '/about',
+  '/contact',
   '/blog',
   '/blog/statewave-guide',
   '/faq',
@@ -288,6 +290,15 @@ export const PAGE_META: Record<RouteKey, PageMeta> = {
     ogType: 'website',
     priority: 0.6,
     changefreq: 'monthly',
+  },
+  '/contact': {
+    title: 'Contact Statewave — Issues, Questions, Security, Licensing and Press',
+    description:
+      'Where to reach the Statewave team: bugs and feature requests on GitHub Issues, questions in GitHub Discussions, security reports to security@statewave.ai, enterprise support and licensing to licensing@statewave.ai, and press through the press kit.',
+    breadcrumbLabel: 'Contact',
+    ogType: 'website',
+    priority: 0.5,
+    changefreq: 'yearly',
   },
   '/blog': {
     title: 'Blog — Notes from the Statewave project',
