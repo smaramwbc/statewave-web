@@ -1,0 +1,97 @@
+/* /blog. Same tokens, type and chrome as the v8 homepage. The hero uses the home's own classes
+ * (sw-hero); it ends on a straight edge and the home's cross divider, never the home's arc, which is
+ * the home's alone. Everything else sits under .bl (always inside .sw-home). */
+
+.bl { --bl-ease: cubic-bezier(0.2, 0.8, 0.2, 1); }
+.bl-wrap { position: relative; z-index: 2; max-width: calc(var(--sw-max) + 2 * (var(--sw-pad) - var(--sw-gutter))); margin: 0 auto; padding: 0 var(--sw-pad); }
+/* full-width tint band, like the home's sw-section--tint; it starts right under the divider */
+.bl-section { position: relative; z-index: 2; padding: clamp(48px, 5vw, 72px) 0 clamp(80px, 9vw, 136px); }
+.bl-section--tint { background: var(--sw-bg-2); }
+.bl button:focus-visible, .bl a:focus-visible { outline: 2px solid var(--sw-blue); outline-offset: 2px; }
+
+/* ── hero: one tile per category; a tile filters the list and jumps to it ── */
+.bl .bl-rss { color: #fff; text-decoration: underline; text-decoration-color: rgba(255, 255, 255, 0.4); text-underline-offset: 3px; }
+.bl .bl-rss:hover { color: #fff; text-decoration-color: #fff; }
+.bl-cats { margin: 48px 0 0; padding: 0; list-style: none; width: 100%; display: grid; grid-template-columns: repeat(4, minmax(0, 176px)); justify-content: center; gap: 12px; }
+@media (max-width: 760px) { .bl-cats { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 400px; } }
+.bl-cats a { height: 100%; display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 20px 10px 16px; border-radius: 16px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.12); transition: border-color 0.25s, background-color 0.25s, transform 0.3s var(--bl-ease); }
+.bl-cats a:hover { transform: translateY(-2px); border-color: rgba(143, 184, 255, 0.6); background: rgba(255, 255, 255, 0.08); }
+.bl-cats__box { flex: 0 0 auto; width: 48px; height: 48px; border-radius: 14px; display: grid; place-items: center; background: #fff; color: var(--sw-navy); box-shadow: inset 0 1.5px 0 #fff, 0 18px 36px -16px rgba(47, 91, 240, 0.7), 0 0 0 5px rgba(255, 255, 255, 0.06); }
+.bl-cats__label { min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 2px; text-align: center; }
+.bl-cats__name { font-size: 14px; line-height: 20px; font-weight: 600; color: #fff; }
+.bl-cats__count { font-size: 12px; line-height: 16px; color: #8f99b5; }
+/* a phone: two columns of compact rows, so the posts are not a screen away */
+@media (max-width: 560px) {
+  .bl-cats { margin-top: 36px; gap: 8px; }
+  .bl-cats a { flex-direction: row; gap: 10px; padding: 10px; border-radius: 14px; }
+  .bl-cats__box { width: 36px; height: 36px; border-radius: 10px; box-shadow: inset 0 1.5px 0 #fff, 0 10px 24px -12px rgba(47, 91, 240, 0.7); }
+  .bl-cats__box svg { width: 18px; height: 18px; }
+  .bl-cats__label { align-items: flex-start; gap: 0; text-align: left; }
+  .bl-cats__name { font-size: 13px; line-height: 17px; }
+  .bl-cats__count { font-size: 11px; line-height: 15px; }
+}
+/* the tiles rise in once, one after the other, as the page opens */
+.bl-cats li { animation: bl-rise 0.6s var(--bl-ease) both; animation-delay: calc(240ms + var(--i, 0) * 70ms); }
+@keyframes bl-rise { from { opacity: 0; translate: 0 14px; } }
+
+/* ── the filter: one sticky row under the nav, scrolls sideways on a phone ── */
+.bl-bar { position: sticky; top: 84px; z-index: 5; width: fit-content; max-width: 100%; padding: 6px; border-radius: 999px; background: rgba(237, 240, 247, 0.88); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); box-shadow: inset 0 0 0 1px var(--sw-line-2), 0 12px 32px -20px rgba(10, 18, 51, 0.35); }
+.bl-filters { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; }
+.bl-filters::-webkit-scrollbar { display: none; }
+.bl-filters button { flex: 0 0 auto; display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 14px; border: 0; border-radius: 999px; background: transparent; color: #3d4a66; font-size: 14px; font-weight: 500; white-space: nowrap; cursor: pointer; transition: background-color 0.25s, color 0.25s; }
+.bl-filters button:hover { background: rgba(10, 18, 51, 0.05); }
+.bl-filters button[aria-pressed='true'] { background: var(--sw-navy); color: #fff; }
+.bl-filters i { font-style: normal; font-size: 12px; line-height: 20px; padding: 0 7px; border-radius: 999px; background: rgba(10, 18, 51, 0.06); color: var(--sw-ink-4); font-variant-numeric: tabular-nums; }
+.bl-filters button[aria-pressed='true'] i { background: rgba(255, 255, 255, 0.16); color: #fff; }
+
+.bl .bl-count { margin-top: 20px; font-size: 14px; line-height: 20px; color: var(--sw-ink-3); }
+.bl .bl-series { display: inline-flex; align-items: center; gap: 4px; font-weight: 500; }
+
+/* ── the cards ── */
+.bl-grid { margin: 24px 0 0; padding: 0; list-style: none; display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; }
+@media (min-width: 760px) { .bl-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; } }
+/* an <li> computes to display: list-item, which beats the UA's [hidden] rule */
+.bl-card[hidden] { display: none; }
+.bl-card { position: relative; min-width: 0; border-radius: 16px; background: #fff; overflow: hidden;
+  transition: transform 0.35s var(--bl-ease), box-shadow 0.35s, opacity 0.6s var(--bl-ease) calc(var(--i, 0) * 90ms), translate 0.6s var(--bl-ease) calc(var(--i, 0) * 90ms); }
+/* the hairline sits over the artwork, which an inset shadow on the card itself would not */
+.bl-card::after { content: ''; position: absolute; inset: 0; border-radius: inherit; box-shadow: inset 0 0 0 1px var(--sw-line); pointer-events: none; transition: box-shadow 0.35s; }
+.bl-card:hover { transform: translateY(-4px); box-shadow: 0 24px 48px -20px rgba(10, 18, 51, 0.24); }
+.bl-card:hover::after { box-shadow: inset 0 0 0 1px var(--sw-line-2); }
+.bl .bl-card__link { height: 100%; display: flex; flex-direction: column; color: var(--sw-navy); }
+/* the card clips to its corners and the link fills it, so draw the focus ring inside */
+.bl .bl-card__link:focus-visible { outline-offset: -3px; border-radius: 16px; }
+.bl-card__art { display: block; aspect-ratio: 5 / 2; overflow: hidden; background: var(--sw-navy); }
+.bl-card__art img { display: block; width: 100%; height: 100%; object-fit: cover; transition: scale 0.6s var(--bl-ease); }
+.bl-card:hover .bl-card__art img { scale: 1.03; }
+.bl-card__body { flex: 1; display: flex; flex-direction: column; padding: 24px 28px 26px; }
+.bl-card__meta { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; }
+.bl-card__cat { font-size: 12px; line-height: 16px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--sw-blue); }
+.bl-card__meta time { font-size: 13px; line-height: 16px; color: var(--sw-ink-4); font-variant-numeric: tabular-nums; }
+.bl .bl-card__title { margin-top: 14px; font-family: var(--sw-display); font-size: 24px; line-height: 30px; font-weight: 700; letter-spacing: -0.02em; color: var(--sw-navy); text-wrap: balance; }
+.bl .bl-card__desc { margin-top: 10px; font-size: 16px; line-height: 25px; color: var(--sw-ink-2); text-wrap: pretty; }
+/* margin-top auto: descriptions run two to four lines, so without it the link sits at a different
+ * height in every card of a row */
+.bl .bl-card__more { margin-top: auto; padding-top: 20px; display: inline-flex; align-items: center; gap: 6px; font-size: 15px; line-height: 22px; font-weight: 500; color: var(--sw-blue); }
+.bl-card__more svg { transition: transform 0.25s var(--bl-ease); }
+.bl-card:hover .bl-card__more svg { transform: translateX(3px); }
+
+@media (max-width: 640px) {
+  .bl-bar { width: auto; }
+  .bl-filters { -webkit-mask-image: linear-gradient(90deg, #000 82%, transparent); mask-image: linear-gradient(90deg, #000 82%, transparent); padding-right: 40px; }
+  .bl-card__body { padding: 20px 20px 22px; }
+  .bl .bl-card__title { font-size: 21px; line-height: 27px; }
+  .bl .bl-card__desc { font-size: 15px; line-height: 23px; }
+}
+
+/* scroll reveal (useSeen in BlogIndexPage): each card rises in as it scrolls into view, the two of a
+ * row one after the other. Only once the page is armed, so server HTML is never hidden, and only
+ * when motion is welcome: under prefers-reduced-motion everything is simply there. */
+@media (prefers-reduced-motion: no-preference) {
+  .bl[data-armed] .bl-card:not([data-seen]) { opacity: 0; translate: 0 24px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bl-cats li { animation: none; }
+  .bl-card__art img { transition: none; }
+  .bl-card:hover .bl-card__art img { scale: none; }
+}
