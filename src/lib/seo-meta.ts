@@ -49,6 +49,7 @@ export type RouteKey =
   | '/why'
   | '/benchmarks'
   | '/use-cases'
+  | '/use-cases/coding-agents'
   | '/use-cases/multi-agent-memory'
   | '/use-cases/personal-assistant-memory'
   | '/use-cases/multi-agent-shared-context'
@@ -76,6 +77,7 @@ export const PUBLIC_ROUTES: readonly RouteKey[] = [
   '/why',
   '/benchmarks',
   '/use-cases',
+  '/use-cases/coding-agents',
   '/use-cases/multi-agent-memory',
   '/use-cases/personal-assistant-memory',
   '/use-cases/multi-agent-shared-context',
@@ -167,6 +169,15 @@ export const PAGE_META: Record<RouteKey, PageMeta> = {
     breadcrumbLabel: 'Use Cases',
     ogType: 'article',
     priority: 0.8,
+    changefreq: 'monthly',
+  },
+  '/use-cases/coding-agents': {
+    title: 'Coding Agent Memory — Repo Memory for Claude Code, Cursor and Codex',
+    description:
+      'Give Claude Code, Cursor, Copilot and Codex a memory of your repository: issues, pull requests, reviews, ADRs and commits under one subject, read over MCP with a source for every answer. One command to set up.',
+    breadcrumbLabel: 'Coding Agents',
+    ogType: 'article',
+    priority: 0.7,
     changefreq: 'monthly',
   },
   '/use-cases/multi-agent-memory': {

@@ -23,6 +23,7 @@ Statewave stores immutable episodes, compiles them into typed memories with prov
 
 ## Use cases
 
+- [Coding Agent Memory](https://www.statewave.ai/use-cases/coding-agents) — repo memory for Claude Code, Cursor, Copilot and Codex: GitHub issues, pull requests and reviews plus ADRs and commits under one subject per repository, read over the Statewave MCP server. One command to set up.
 - [Multi-Agent Memory](https://www.statewave.ai/use-cases/multi-agent-memory) — one shared, append-only memory layer for agent pipelines: each agent writes findings as episodes and reads ranked, token-bounded context before acting, resumable across partial failures.
 - [Personal Assistant Memory](https://www.statewave.ai/use-cases/personal-assistant-memory) — cross-session memory for chat assistants: turns become typed, confidence-ranked facts recalled within a fixed token budget.
 - [Multi-Agent Shared Context](https://www.statewave.ai/use-cases/multi-agent-shared-context) — parallel agents coordinating through one authoritative context layer instead of message-passing, so conflicts are prevented rather than detected after wasted compute.
