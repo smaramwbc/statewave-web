@@ -20,6 +20,7 @@ Statewave stores immutable episodes, compiles them into typed memories with prov
 - [Blog](https://www.statewave.ai/blog) — design notes, deployment patterns, and how the runtime works under the hood. Also at [/blog/rss.xml](https://www.statewave.ai/blog/rss.xml), [/blog/atom.xml](https://www.statewave.ai/blog/atom.xml), [/blog/feed.json](https://www.statewave.ai/blog/feed.json).
 - [FAQ](https://www.statewave.ai/faq) — common questions about Statewave, answered directly.
 - [Benchmarks](https://www.statewave.ai/benchmarks) — LoCoMo and LongMemEval retrieval scores measured on the incumbent's own evaluation harness, with the run methodology.
+- [Press Kit](https://www.statewave.ai/press) — logos, brand colors, admin console screenshots, boilerplate, fast facts, and the press contact (press@statewave.ai).
 
 ## Use cases
 

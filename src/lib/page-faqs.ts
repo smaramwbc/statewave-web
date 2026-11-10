@@ -511,4 +511,42 @@ export const PAGE_FAQS: Partial<Record<RouteKey, readonly FaqEntry[]>> = {
     { question: 'Does it work with Claude, Cursor, or Codex?', answer: 'Yes. One command boots the runtime, and its shipped MCP server connects any MCP-compatible client. Supermemory’s hosted platform also ships MCP and connectors; Statewave is self-hosted, so you operate Postgres and a container.' },
     { question: 'Can I run it fully offline?', answer: 'Yes. Statewave’s storage is Postgres plus pgvector, self-hosted with no cloud dependency. Supermemory’s local binary also runs standalone, but its managed platform is a Cloudflare-edge service.' },
   ],
+
+  // Rendered by PressPage in the v8 FAQ markup. The logo answer follows
+  // TRADEMARKS.md in the statewave repo; the company details match the
+  // Impressum; the benchmark answer matches the boilerplate on the page.
+  '/press': [
+    {
+      question: 'Can I use the Statewave logo in my article?',
+      answer:
+        'Yes. The logos, icon and screenshots on this page are there for coverage of the project: articles, newsletters, podcasts, talks, reviews and comparisons. Use them unmodified, without changing their proportions, colors or composition, and not in a way that suggests endorsement, partnership or sponsorship. Anything beyond that, such as branded hosting or merchandise, needs written permission from licensing@statewave.ai.',
+      links: [
+        { label: 'Trademark policy', href: 'https://github.com/smaramwbc/statewave/blob/main/TRADEMARKS.md' },
+        { label: 'licensing@statewave.ai', href: 'mailto:licensing@statewave.ai' },
+      ],
+    },
+    {
+      question: 'How should I describe Statewave in one line?',
+      answer:
+        'As an open-source memory runtime for AI agents: it compiles raw events into provenance-tagged context bundles, it is Apache-2.0 across the server and SDKs, and it is self-hosted on Postgres with pgvector. The boilerplate on this page has a full paragraph and a version of 120 characters or fewer, both free to copy as written.',
+    },
+    {
+      question: 'Who develops Statewave?',
+      answer:
+        'WebConnect World SL, a company based in Madrid, Spain. The code is open source on GitHub under Apache-2.0, and the company’s legal details are on the Impressum. For interviews, quotes or background, write to press@statewave.ai and the request goes to the right person.',
+      links: [
+        { label: 'press@statewave.ai', href: 'mailto:press@statewave.ai' },
+        { label: 'Impressum', href: '/impressum' },
+      ],
+    },
+    {
+      question: 'Can I reproduce Statewave’s benchmark results?',
+      answer:
+        'Yes. The benchmark suite is open source under Apache-2.0, uses LoCoMo-based datasets and writes row-level JSONL output, so any published number can be rerun with your own API keys in roughly 20 minutes. There are no embargoes, hidden datasets or private evaluation steps.',
+      links: [
+        { label: 'Benchmark suite', href: 'https://github.com/smaramwbc/statewave-memory-benchmarks' },
+        { label: 'Benchmarks', href: '/benchmarks' },
+      ],
+    },
+  ],
 }
