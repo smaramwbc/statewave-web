@@ -189,6 +189,7 @@ export type RouteKey =
   | '/contact'
   | '/blog'
   | '/blog/statewave-guide'
+  | '/press'
   | '/faq'
   | ConnectorRoute
 
@@ -219,6 +220,7 @@ export const PUBLIC_ROUTES: readonly RouteKey[] = [
   '/contact',
   '/blog',
   '/blog/statewave-guide',
+  '/press',
   '/faq',
 ] as const
 
@@ -470,6 +472,15 @@ export const PAGE_META: Record<RouteKey, PageMeta> = {
     ogType: 'website',
     priority: 0.6,
     changefreq: 'monthly',
+  },
+  '/press': {
+    title: 'Statewave Press Kit — Logos, Screenshots, Boilerplate and Fast Facts',
+    description:
+      'The Statewave press kit: logos for light and dark backgrounds, brand colors, admin console screenshots in light and dark, a ready-to-use boilerplate, fast facts and the open benchmark data. Press contact: press@statewave.ai.',
+    breadcrumbLabel: 'Press Kit',
+    ogType: 'website',
+    priority: 0.4,
+    changefreq: 'yearly',
   },
 }
 
