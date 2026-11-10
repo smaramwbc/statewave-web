@@ -183,6 +183,7 @@ export type RouteKey =
   | '/vs/letta'
   | '/vs/zep'
   | '/vs/supermemory'
+  | '/guide'
   | '/connectors'
   | '/developers'
   | '/privacy'
@@ -218,6 +219,7 @@ export const PUBLIC_ROUTES: readonly RouteKey[] = [
   '/vs/letta',
   '/vs/zep',
   '/vs/supermemory',
+  '/guide',
   '/connectors',
   ...CONNECTOR_ROUTES,
   '/developers',
@@ -403,6 +405,15 @@ export const PAGE_META: Record<RouteKey, PageMeta> = {
     description:
       'How Statewave compares to Supermemory: deterministic, token-bounded context assembly with per-row provenance and optional integrity-hashed receipts vs. hybrid vector-plus-keyword search with context-aware reranking — plus each product’s own LoCoMo and LongMemEval figures, shown apart as they measure different things.',
     breadcrumbLabel: 'vs Supermemory',
+    ogType: 'article',
+    priority: 0.7,
+    changefreq: 'monthly',
+  },
+  '/guide': {
+    title: 'Statewave Guide — In-App Guidance Backed by Source-Code Evidence',
+    description:
+      'Statewave Guide is an open-source, in-app guidance framework. It indexes your React + Node source into an evidence-backed graph, points users at the real control, and refuses when there is no evidence. Apache-2.0.',
+    breadcrumbLabel: 'Guide',
     ogType: 'article',
     priority: 0.7,
     changefreq: 'monthly',
