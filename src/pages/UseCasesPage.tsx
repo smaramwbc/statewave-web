@@ -1,1732 +1,287 @@
-import { useMemo, useState, useRef } from 'react'
-import { motion } from 'framer-motion'
-import { Link, useLocation, useNavigate } from 'react-router'
-import { Section } from '../components/Section'
-import { Button } from '../components/Button'
-import { Heading } from '../components/Heading'
-import { CardAnchor } from '../components/CardAnchor'
-import { slugify } from '../lib/slugify'
+import { useEffect, useRef } from 'react'
+import type { CSSProperties } from 'react'
+import { ArrowRight, ArrowRightLeft, CodeXml, HeartPulse, Lightbulb, MessageCircle, Network, Repeat2, ShoppingBag, UserCheck } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
+import { Divider, Eyebrow, H2, Ln } from '../components/home/ui'
+import { useSeen } from '../components/home/hooks'
+import { EXAMPLES, GITHUB } from '../components/home/links'
+import { Beams, DemoButton, UseCaseClose, UseCaseFaq } from '../components/use-case/parts'
+// a plain lookup, not a hook: renamed so the hooks lint rule doesn't read it as one
+import { useCaseDetailPage as detailPage } from '../lib/use-case-pages'
 import { usePageSEO } from '../lib/seo'
-import { useChatWidget, useTrackDemoCta } from '../lib/widget-context-api'
-import {
-  Database,
-  Layers3,
-  BrainCircuit,
-  PackageCheck,
-} from 'lucide-react'
-import { PageFaq } from '../components/PageFaq'
+import '../components/home/home-b.css'
+import '../components/use-case/use-case.css'
+import '../components/use-case/hub.css'
 
-/* ─── Hash-based active card highlight ───────────────────────────────────── */
+/* /use-cases in the v8 style: every use case with a demo you can run today, each leading to its own page,
+ * then the loop they share and the ideas nobody has built yet. A card links to its detail page when one is
+ * registered in lib/use-case-pages, and to its demo on GitHub until then. */
 
-function useHashActive(id: string): boolean {
-  const { hash } = useLocation()
-  return hash === `#${id}`
-}
+const ORG = 'https://github.com/smaramwbc'
 
-/* ─── Domain types ───────────────────────────────────────────────────────── */
-
-type CategoryId =
-  | 'support'
-  | 'coding'
-  | 'workspace'
-  | 'account'
-  | 'voice'
-  | 'infra'
-  | 'domain'
-
-type StatusId = 'available' | 'strongest' | 'good-fit' | 'connector' | 'future'
-
-interface UseCase {
+interface Case {
+  slug: string
+  Icon: LucideIcon
   title: string
-  description: string
-  category: CategoryId
-  status: StatusId
-  tags?: string[]
-  stack?: string[]
-  repo?: string
-  audience?: string
-  /** Internal route for cards that have a dedicated detail page */
-  pageHref?: string
+  text: string
+  demo: { name: string; href: string }
+  also?: { label: string; to: string }
 }
 
-interface Connector {
-  title: string
-  description: string
-  group: 'support' | 'engineering' | 'docs' | 'crm' | 'realtime' | 'events'
-  /** When set, this card maps to a real package in the @statewavedev/connectors-* ecosystem. */
-  package?: {
-    /** 'available' = Phase-1 package shipped; 'planned' = on the connector roadmap. */
-    status: 'available' | 'planned'
-    /** Optional anchor in /connectors or external doc URL — defaults to /connectors. */
-    docHref?: string
-  }
-}
-
-/* ─── Categories ─────────────────────────────────────────────────────────── */
-
-const CATEGORIES: { id: CategoryId; label: string; blurb: string }[] = [
-  { id: 'support', label: 'Support & service', blurb: 'The strongest current wedge — ticket, chat, and incident workflows.' },
-  { id: 'coding', label: 'Developer copilots', blurb: 'Repo-aware coding agents and engineering assistants.' },
-  { id: 'workspace', label: 'Workspace & knowledge', blurb: 'Cross-source assistants that remember what your team decided.' },
-  { id: 'account', label: 'Customer & GTM', blurb: 'Account-aware sales, success, and renewal workflows.' },
-  { id: 'voice', label: 'Voice & realtime', blurb: 'Live conversation continuity and multimodal session memory.' },
-  { id: 'infra', label: 'Agent infrastructure', blurb: 'Memory primitives for multi-agent and long-running workflows.' },
-  { id: 'domain', label: 'Domain-specific', blurb: 'Vertical applications — legal, education, healthcare, ops, hiring.' },
-]
-
-const STATUSES: { id: StatusId; label: string; pillClass: string; dotClass: string }[] = [
+const CASES: Case[] = [
   {
-    id: 'available',
-    label: 'Available',
-    pillClass: 'bg-emerald-500/10 text-emerald-300 border-emerald-500/25',
-    dotClass: 'bg-emerald-400',
+    slug: 'coding-agents', Icon: CodeXml, title: 'Coding agents',
+    text: 'Your coding agent remembers the repo between sessions: the stack, the conventions and why each decision was made, so you stop re-explaining the codebase.',
+    demo: { name: 'coding-agent-python', href: `${EXAMPLES}/tree/main/coding-agent-python` },
   },
   {
-    id: 'strongest',
-    label: 'Strongest today',
-    pillClass: 'bg-accent/10 text-accent border-accent/30',
-    dotClass: 'bg-accent',
+    slug: 'multi-agent-memory', Icon: Network, title: 'Multi-agent systems',
+    text: 'Agents running in parallel read and write one shared memory. Conflicting facts are settled before they reach a prompt, and a crashed agent picks up where it stopped.',
+    demo: { name: 'statewave-multi-agent-memory', href: `${ORG}/statewave-multi-agent-memory` },
+    also: { label: 'Shared context walkthrough', to: '/use-cases/multi-agent-shared-context' },
   },
   {
-    id: 'good-fit',
-    label: 'Good fit now',
-    pillClass: 'bg-brand-500/10 text-brand-300 border-brand-500/25',
-    dotClass: 'bg-brand-400',
+    slug: 'personal-assistant-memory', Icon: MessageCircle, title: 'Personal assistants',
+    text: 'A chat assistant that remembers each user across sessions, with typed, ranked facts instead of a replayed chat history.',
+    demo: { name: 'statewave-personal-assistant', href: `${ORG}/statewave-personal-assistant` },
   },
   {
-    id: 'connector',
-    label: 'Connector / bootstrap',
-    pillClass: 'bg-emerald-500/10 text-emerald-300 border-emerald-500/25',
-    dotClass: 'bg-emerald-400',
-  },
-  {
-    id: 'future',
-    label: 'Frontier idea',
-    pillClass: 'bg-surface-3 text-theme-muted border-theme-border',
-    dotClass: 'bg-theme-muted',
+    slug: 'grounded-shop-assistant', Icon: ShoppingBag, title: 'Shop assistants',
+    text: 'Answers only from the catalog, with every citation checked. A question it can’t ground becomes a coverage gap for the content team.',
+    demo: { name: 'statewave-grounded-shop-assistant', href: `${ORG}/statewave-grounded-shop-assistant` },
   },
 ]
 
-/* ─── Use case inventory ─────────────────────────────────────────────────── */
-
-const USE_CASES: UseCase[] = [
-  /* Support & service — primary wedge */
-  {
-    title: 'Support agent memory',
-    description: 'Persistent customer context across sessions — plan, history, prior issues, last resolution. The flagship Statewave workflow.',
-    category: 'support', status: 'strongest', tags: ['support', 'multi-tenant'],
-  },
-  {
-    title: 'Escalation handoff packs',
-    description: 'Compact, structured briefs with active issue, attempted steps, health, and SLA — ready for tier-2 or human takeover.',
-    category: 'support', status: 'strongest', tags: ['support', 'handoff'],
-  },
-  {
-    title: 'Support health & SLA intelligence',
-    description: 'Deterministic 0–100 health scores with explainable factors. First-response and resolution SLA tracking with breach detection.',
-    category: 'support', status: 'strongest', tags: ['support', 'analytics'],
-  },
-  {
-    title: 'Repeat-issue detection',
-    description: 'Surface prior resolutions automatically when recurring patterns appear. Stop re-solving the same ticket.',
-    category: 'support', status: 'strongest', tags: ['support'],
-  },
-  {
-    title: 'Multi-tenant support brain',
-    description: 'One Statewave instance, isolated subjects per tenant. Each B2B customer gets their own remembered timeline.',
-    category: 'support', status: 'good-fit', tags: ['support', 'multi-tenant'],
-  },
-  {
-    title: 'Customer issue timeline assistant',
-    description: 'Reconstruct a customer’s full issue history — ranked, deduplicated, provenance-traced — in a single context bundle.',
-    category: 'support', status: 'good-fit', tags: ['support'],
-  },
-  {
-    title: 'Resolution playbook miner',
-    description: 'Compile recurring fixes into typed procedure memories. Promote the best resolutions back into the agent’s context.',
-    category: 'support', status: 'good-fit', tags: ['support', 'knowledge'],
-  },
-  {
-    title: 'Tier-2 → tier-3 escalation copilot',
-    description: 'Hand off a ticket up the support tiers with everything that has already been tried, with confidence-scored facts.',
-    category: 'support', status: 'good-fit', tags: ['support', 'handoff'],
-  },
-  {
-    title: 'Outage-aware support agent',
-    description: 'Cross-reference incident streams with support sessions so the agent knows which tickets are downstream of an outage.',
-    category: 'support', status: 'future', tags: ['support', 'realtime'],
-  },
-
-  /* Developer copilots */
-  {
-    title: 'Repo-aware coding assistant',
-    description: 'Persist architecture, conventions, and prior reviews per repo. Coding agents stop re-learning the same codebase.',
-    category: 'coding', status: 'good-fit', tags: ['coding'],
-  },
-  {
-    title: 'Issue & PR memory',
-    description: 'Ingest GitHub issues and PR threads as episodes. Compile decisions, blockers, and review feedback into durable memory.',
-    category: 'coding', status: 'good-fit', tags: ['coding', 'connectors'],
-  },
-  {
-    title: 'Architecture decision assistant',
-    description: 'Surface prior ADRs, RFC outcomes, and trade-off discussions when the agent reasons about a new system.',
-    category: 'coding', status: 'good-fit', tags: ['coding', 'knowledge'],
-  },
-  {
-    title: 'Code review continuity',
-    description: 'Remember what each reviewer pushed back on last time. Pre-empt the same review comments before the PR opens.',
-    category: 'coding', status: 'good-fit', tags: ['coding'],
-  },
-  {
-    title: 'Engineering onboarding copilot',
-    description: 'Compress the team’s tribal knowledge into structured memory so new hires can ask their copilot first.',
-    category: 'coding', status: 'good-fit', tags: ['coding', 'workspace'],
-  },
-  {
-    title: 'Bug triage memory',
-    description: 'Cluster related bug reports by subject. Carry repro steps, owners, and prior fixes across triage sessions.',
-    category: 'coding', status: 'good-fit', tags: ['coding'],
-  },
-  {
-    title: 'Long-running migration agent',
-    description: 'A multi-week refactor agent that remembers every file it touched, every decision, every revert.',
-    category: 'coding', status: 'future', tags: ['coding', 'infra'],
-  },
-  {
-    title: 'Convention-aware code reviewer',
-    description: 'A reviewer agent with persistent memory of team conventions, never re-asking about the same lint rule.',
-    category: 'coding', status: 'good-fit', tags: ['coding'],
-  },
-  {
-    title: 'DevRel snippet & example curator',
-    description: 'Track which examples developers actually struggle with. Compile into improved docs and copilot snippets.',
-    category: 'coding', status: 'good-fit', tags: ['coding', 'knowledge'],
-  },
-  {
-    title: 'Personal assistant memory',
-    description: 'An AI assistant that remembers who you are across every session — role, preferences, open issues — without burning the context window. Structured, ranked memory replaces raw chat history injection.',
-    category: 'coding', status: 'available',
-    tags: ['coding', 'multi-tenant'],
-    stack: ['Python', 'FastAPI', 'OpenAI'],
-    repo: 'statewave-personal-assistant',
-    audience: 'Developers building user-facing AI assistants where returning users should not have to repeat themselves.',
-    pageHref: '/use-cases/personal-assistant-memory',
-  },
-
-  /* Workspace & knowledge */
-  {
-    title: 'Cross-source workspace assistant',
-    description: 'Docs + tickets + code + chat — one assistant with one memory layer instead of four disconnected RAG indexes.',
-    category: 'workspace', status: 'good-fit', tags: ['workspace', 'knowledge'],
-  },
-  {
-    title: 'Decision & meeting memory',
-    description: 'Ingest meeting notes and decisions. Compile typed memories — owners, deadlines, dependencies — surfaced when relevant.',
-    category: 'workspace', status: 'good-fit', tags: ['workspace'],
-  },
-  {
-    title: 'Long-lived knowledge assistant',
-    description: 'A copilot that gets smarter over months, not just within one session — ranked, deduplicated, provenance-traced.',
-    category: 'workspace', status: 'good-fit', tags: ['workspace', 'knowledge'],
-  },
-  {
-    title: 'Org-aware research assistant',
-    description: 'Combine prior internal research with new web context. Past memos remembered alongside fresh sources.',
-    category: 'workspace', status: 'good-fit', tags: ['workspace'],
-  },
-  {
-    title: 'New-hire onboarding memory',
-    description: 'Each new hire gets their own subject — questions asked, doc gaps surfaced, follow-ups remembered weeks later.',
-    category: 'workspace', status: 'good-fit', tags: ['workspace'],
-  },
-  {
-    title: 'Strategy & OKR memory assistant',
-    description: 'Persist the why behind strategy decisions across quarterly cycles. Surface prior trade-offs when revisiting goals.',
-    category: 'workspace', status: 'future', tags: ['workspace'],
-  },
-
-  /* Customer & GTM */
-  {
-    title: 'Account-history assistant',
-    description: 'Every conversation, ticket, and renewal attached to one account subject. The single source of customer truth.',
-    category: 'account', status: 'good-fit', tags: ['account', 'multi-tenant'],
-  },
-  {
-    title: 'Customer-success copilot',
-    description: 'Remember adoption signals, blockers, and prior commitments per account. CSMs stop re-reading the whole CRM.',
-    category: 'account', status: 'good-fit', tags: ['account'],
-  },
-  {
-    title: 'Sales-to-support handoff',
-    description: 'Carry pre-sale promises, integrations discussed, and contractual context into post-sale support sessions.',
-    category: 'account', status: 'good-fit', tags: ['account', 'handoff'],
-  },
-  {
-    title: 'Renewal & health workflows',
-    description: 'Combine product usage, support load, and CSM notes into a renewal-readiness memory and signal model.',
-    category: 'account', status: 'good-fit', tags: ['account', 'analytics'],
-  },
-  {
-    title: 'Champion & contact graph memory',
-    description: 'Remember who advocated, who left, who blocks renewals. Carry stakeholder graphs across reps and tools.',
-    category: 'account', status: 'good-fit', tags: ['account'],
-  },
-  {
-    title: 'Win/loss memory',
-    description: 'Compile structured win/loss reasoning across closed deals. Feed it back to AEs at proposal time.',
-    category: 'account', status: 'good-fit', tags: ['account', 'knowledge'],
-  },
-  {
-    title: 'Outreach sequence memory',
-    description: 'Remember which messages each prospect already saw and how they reacted — across channels and reps.',
-    category: 'account', status: 'good-fit', tags: ['account'],
-  },
-
-  /* Voice & realtime */
-  {
-    title: 'Voice support continuity',
-    description: 'Caller hangs up, calls back tomorrow — the voice agent picks up exactly where it left off, with prior issues ranked.',
-    category: 'voice', status: 'good-fit', tags: ['voice', 'realtime', 'support'],
-  },
-  {
-    title: 'Call memory & summaries',
-    description: 'Ingest call transcripts as episodes. Compile durable summaries with action items, owners, and follow-ups.',
-    category: 'voice', status: 'good-fit', tags: ['voice', 'connectors'],
-  },
-  {
-    title: 'Live agent memory',
-    description: 'Streaming agent that updates its memory as the session progresses, while keeping context bundles token-bounded.',
-    category: 'voice', status: 'good-fit', tags: ['voice', 'realtime'],
-  },
-  {
-    title: 'Multilingual support memory',
-    description: 'Capture episodes in any language; the compiled memory is normalized so context retrieval is language-agnostic.',
-    category: 'voice', status: 'good-fit', tags: ['voice', 'support'],
-  },
-  {
-    title: 'Multimodal session continuity',
-    description: 'Voice + screen-share + text — every modality lands in the same episode log, compiled into one memory.',
-    category: 'voice', status: 'future', tags: ['voice', 'realtime'],
-  },
-  {
-    title: 'Wearable & kiosk session memory',
-    description: 'Short bursts of interaction with the same person across days and devices, stitched into one durable subject.',
-    category: 'voice', status: 'future', tags: ['voice'],
-  },
-
-  /* Agent infrastructure */
-  {
-    title: 'Multi-agent memory router',
-    description: 'Several specialized agents share one memory layer — each scoped by subject, none reading raw episodes blindly.',
-    category: 'infra', status: 'good-fit', tags: ['infra', 'multi-agent'],
-  },
-  {
-    title: 'Long-running agent state',
-    description: 'Agents that run for hours or days persist progress, decisions, and tool outcomes as durable episodes.',
-    category: 'infra', status: 'good-fit', tags: ['infra'],
-  },
-  {
-    title: 'Stateful copilot platform',
-    description: 'Build a copilot product where every customer’s memory is isolated, deletable, and provenance-traced by default.',
-    category: 'infra', status: 'good-fit', tags: ['infra', 'multi-tenant'],
-  },
-  {
-    title: 'Per-tenant memory systems',
-    description: 'Ship an AI feature in a B2B product without exposing one tenant’s data to another. Subjects are the boundary.',
-    category: 'infra', status: 'good-fit', tags: ['infra', 'multi-tenant'],
-  },
-  {
-    title: 'Agent handoff middleware',
-    description: 'Standardize how agents pass work between each other — typed memories instead of free-text dumps.',
-    category: 'infra', status: 'good-fit', tags: ['infra', 'handoff'],
-  },
-  {
-    title: 'Memory-as-a-service inside your product',
-    description: 'Expose Statewave behind your own API. Your customers get persistent context without ever knowing what powers it.',
-    category: 'infra', status: 'good-fit', tags: ['infra'],
-  },
-  {
-    title: 'Multi-step workflow durable state',
-    description: 'Replace fragile JSON blobs in a workflow engine with structured, queryable memory tied to the run’s subject.',
-    category: 'infra', status: 'good-fit', tags: ['infra'],
-  },
-  {
-    title: 'Planning-execution memory',
-    description: 'A planner agent emits steps; executor agents log outcomes back as episodes. The plan adapts from real history.',
-    category: 'infra', status: 'future', tags: ['infra', 'multi-agent'],
-  },
-  {
-    title: 'Self-improving feedback memory',
-    description: 'Capture user corrections as episodes. Compile them into preference memories that bias future agent behavior.',
-    category: 'infra', status: 'future', tags: ['infra'],
-  },
-  {
-    title: 'Multi-agent pipeline memory',
-    description: 'A shared memory layer for multi-agent pipelines. Each agent writes findings as episodes and reads compiled context before acting — no prompt chaining, no context blowout, resumable across partial failures.',
-    category: 'infra', status: 'available',
-    tags: ['infra', 'multi-agent'],
-    stack: ['Python', 'TypeScript', 'OpenAI'],
-    repo: 'statewave-multi-agent-memory',
-    audience: 'Developers building multi-agent pipelines where prompt chaining hits context limits or fails on partial runs.',
-    pageHref: '/use-cases/multi-agent-memory',
-  },
-  {
-    title: 'Parallel agents, shared source of truth',
-    description: 'Multiple agents working simultaneously read from and write to one authoritative context layer. Decisions are visible to all agents before they act — architectural conflicts caught before wasted compute, not after.',
-    category: 'infra', status: 'available',
-    tags: ['infra', 'multi-agent'],
-    stack: ['Python', 'LiteLLM'],
-    repo: 'statewave-multi-agent-shared-context',
-    audience: 'Developers running parallel agent workflows where agents duplicate work or produce contradictory outputs.',
-    pageHref: '/use-cases/multi-agent-shared-context',
-  },
-
-  /* Domain-specific */
-  {
-    title: 'Legal matter memory',
-    description: 'A matter is a subject. Filings, calls, and notes become episodes. Compiled facts are provenance-traced for audit.',
-    category: 'domain', status: 'good-fit', tags: ['domain'],
-  },
-  {
-    title: 'Education tutor memory',
-    description: 'Track each student’s misunderstandings and progress over months. The tutor never forgets what already clicked.',
-    category: 'domain', status: 'good-fit', tags: ['domain'],
-  },
-  {
-    title: 'Field service technician copilot',
-    description: 'Per-asset memory — every visit, repair, and part swap becomes an episode. The next tech walks in informed.',
-    category: 'domain', status: 'good-fit', tags: ['domain'],
-  },
-  {
-    title: 'HR people-ops assistant',
-    description: 'Per-employee subjects with policies, requests, and prior answers — surfaced privately and on demand.',
-    category: 'domain', status: 'good-fit', tags: ['domain'],
-  },
-  {
-    title: 'Recruiter pipeline memory',
-    description: 'Per-candidate timeline across interviewers, rounds, and feedback. No more re-asking what was already covered.',
-    category: 'domain', status: 'good-fit', tags: ['domain'],
-  },
-  {
-    title: 'Investor relations memory',
-    description: 'Conversations, materials shared, and prior questions per investor — surfaced before the next call.',
-    category: 'domain', status: 'good-fit', tags: ['domain'],
-  },
-  {
-    title: 'Trading & research analyst memory',
-    description: 'Persistent thesis tracking — what was said, when, with what confidence, and what later revised it.',
-    category: 'domain', status: 'future', tags: ['domain'],
-  },
-  {
-    title: 'Healthcare patient timeline',
-    description: 'A careful, audit-grade application — patient as subject, encounters as episodes, compiled with provenance.',
-    category: 'domain', status: 'future', tags: ['domain'],
-  },
-  {
-    title: 'Grounded shop assistant',
-    description: 'A shopper and ops assistant pair that only answers from retrieved evidence, validates every citation, and turns ungrounded questions into coverage-gap episodes the content team resolves.',
-    category: 'domain', status: 'available',
-    tags: ['domain', 'ecommerce'],
-    stack: ['TypeScript', 'Node.js', 'LiteLLM'],
-    repo: 'statewave-grounded-shop-assistant',
-    audience: 'Teams building customer-facing shopping or product-advisor assistants where wrong answers about stock, safety, or policy are costly.',
-    pageHref: '/use-cases/grounded-shop-assistant',
-  },
+const SUPPORT_POINTS: { Icon: LucideIcon; text: string }[] = [
+  { Icon: UserCheck, text: 'Returning customers, recognised' },
+  { Icon: Repeat2, text: 'Repeat issues surface the last fix' },
+  { Icon: ArrowRightLeft, text: 'Escalations arrive with a brief' },
+  { Icon: HeartPulse, text: 'Health scores and SLA tracking' },
 ]
 
-/* ─── Connector inventory (bootstrap patterns) ───────────────────────────── */
+/* ── hero ── */
 
-const CONNECTOR_GROUPS: { id: Connector['group']; label: string; description: string }[] = [
-  { id: 'support', label: 'Support systems', description: 'Backfill ticket history into episodes — bootstrap memory before the first live session.' },
-  { id: 'engineering', label: 'Engineering systems', description: 'Ingest issues, PRs, and commits to give coding agents real project memory.' },
-  { id: 'docs', label: 'Docs & wikis', description: 'Compile durable knowledge from internal documentation rather than re-embedding it ad hoc.' },
-  { id: 'crm', label: 'CRM & customer notes', description: 'Bring account history into a structured per-account memory.' },
-  { id: 'realtime', label: 'Voice & transcripts', description: 'Replay calls and meetings as episodes so the next conversation builds on the last.' },
-  { id: 'events', label: 'Event streams', description: 'Pipe product activity, incidents, and webhook deliveries into the episode log.' },
-]
-
-const CONNECTORS: Connector[] = [
-  { title: 'Zendesk ticket import', description: 'Backfill historical tickets and comments as episodes per customer (organization or requester) subject.', group: 'support', package: { status: 'available', docHref: 'https://github.com/smaramwbc/statewave-connectors/blob/main/packages/zendesk/README.md' } },
-  { title: 'Intercom conversation import', description: 'Ingest conversations, public replies, and admin notes scoped per customer (primary company or contact). US/EU/AU regions.', group: 'support', package: { status: 'available', docHref: 'https://github.com/smaramwbc/statewave-connectors/blob/main/packages/intercom/README.md' } },
-  { title: 'Front inbox connector', description: 'Stream shared-inbox threads and tags into episodes by account.', group: 'support' },
-  { title: 'Freshdesk ticket import', description: 'Backfill historical tickets, public replies, and private notes scoped per customer (company or requester). API key auth.', group: 'support', package: { status: 'available', docHref: 'https://github.com/smaramwbc/statewave-connectors/blob/main/packages/freshdesk/README.md' } },
-  { title: 'Help Scout import', description: 'One-shot import of historical conversations, then incremental sync going forward.', group: 'support' },
-  { title: 'PagerDuty incident connector', description: 'Bring incidents and post-mortems into the episode log so support agents know what broke.', group: 'support' },
-
-  { title: 'GitHub issues + PRs', description: 'Compile decisions, review comments, and resolutions as durable repo memory.', group: 'engineering', package: { status: 'available', docHref: 'https://github.com/smaramwbc/statewave-docs/blob/main/connectors/github.md' } },
-  { title: 'GitLab / Bitbucket connector', description: 'Same patterns as GitHub — issue, MR, and pipeline events as episodes.', group: 'engineering' },
-  { title: 'Linear / Jira ticket sync', description: 'Per-project subjects with ticket history, owners, and resolutions.', group: 'engineering' },
-  { title: 'Sentry / error stream', description: 'Errors and root-cause notes become episodes the coding agent can recall later.', group: 'engineering' },
-  { title: 'Datadog / observability events', description: 'Incidents, deploys, and SLOs land in the episode log next to the tickets they caused.', group: 'engineering' },
-
-  { title: 'Notion page ingestion', description: 'Treat Notion pages (and optionally their body content) as decision-memory episodes; re-pull when last_edited_time advances. Subject is operator-controlled — repo:owner/name, project:foo, or any string.', group: 'docs', package: { status: 'available', docHref: 'https://github.com/smaramwbc/statewave-connectors/blob/main/packages/notion/README.md' } },
-  { title: 'Confluence ingestion', description: 'Same shape as Notion — treat doc pages as episodes, recompile when pages change. Planned.', group: 'docs' },
-  { title: 'Google Docs / Drive connector', description: 'Watch a folder, ingest doc revisions, compile typed memories from changelogs.', group: 'docs' },
-  { title: 'Discourse / community forum', description: 'Public Q&A becomes durable knowledge memory available to the support agent.', group: 'docs' },
-  { title: 'GitHub markdown docs', description: 'Sync /docs and README content as episodes so the agent always speaks the latest API.', group: 'docs', package: { status: 'available', docHref: 'https://github.com/smaramwbc/statewave-docs/blob/main/connectors/markdown.md' } },
-
-  { title: 'Salesforce / HubSpot CRM', description: 'Account notes, opportunity history, and emails as per-account episodes.', group: 'crm' },
-  { title: 'Slack channel + thread import', description: 'Targeted channel imports — internal conversations as searchable episodes per subject.', group: 'crm', package: { status: 'available', docHref: 'https://github.com/smaramwbc/statewave-connectors/blob/main/packages/slack/README.md' } },
-  { title: 'Microsoft Teams thread import', description: 'Channel + meeting-chat history per workspace subject.', group: 'crm', package: { status: 'planned', docHref: 'https://github.com/smaramwbc/statewave-docs/blob/main/connectors/index.md' } },
-  { title: 'Gmail relationship memory', description: 'Pull messages matching a Gmail search query — per-contact email history scoped to relationship:<email>. Body extracted from MIME (text/plain preferred, text/html fallback). OAuth 2.0 refresh-token; gmail.readonly scope.', group: 'crm', package: { status: 'available', docHref: 'https://github.com/smaramwbc/statewave-connectors/blob/main/packages/gmail/README.md' } },
-  { title: 'Email thread connector (other providers)', description: 'Same shape as Gmail, but for Outlook, Fastmail, ProtonMail. Planned.', group: 'crm' },
-  { title: 'Customer.io / Segment activity', description: 'Product activity events streamed in as episodes — usage memory by account.', group: 'crm' },
-
-  { title: 'Gong / Chorus call transcripts', description: 'Sales calls become episodes; compiled memories surface in the next call’s prep.', group: 'realtime' },
-  { title: 'Zoom / Meet recording connector', description: 'Meeting transcripts ingested per project or account subject.', group: 'realtime' },
-  { title: 'Voice agent realtime stream', description: 'Live voice sessions emit episodes as they happen — context stays current.', group: 'realtime' },
-  { title: 'Otter / Fireflies notes connector', description: 'AI meeting notes become structured memory with owners and action items.', group: 'realtime' },
-
-  { title: 'Webhook event-stream replay', description: 'Replay any system’s historical webhooks as episodes to bootstrap memory.', group: 'events' },
-  { title: 'Kafka / SQS ingest pipeline', description: 'Stream high-volume product events into episodes with batched compilation.', group: 'events' },
-  { title: 'Stripe customer events', description: 'Subscription lifecycle, payment failures, and refunds as account episodes.', group: 'events' },
-  { title: 'Postgres CDC ingest', description: 'Treat row changes in your own DB as episodes via change-data-capture.', group: 'events' },
-]
-
-/* ─── Frontier ideas ─────────────────────────────────────────────────────── */
-
-const FRONTIER_IDEAS: { title: string; description: string }[] = [
-  {
-    title: 'Memory portability between AI providers',
-    description: 'Move your compiled memory between models or vendors — provenance and validity windows travel with it.',
-  },
-  {
-    title: 'Audit-grade memory for regulated workflows',
-    description: 'Provenance-traced facts and immutable episodes as the substrate for compliance-grade AI applications.',
-  },
-  {
-    title: 'Federated memory across orgs',
-    description: 'Cross-organization memory protocols where each side keeps storage local but agreed-upon facts can be shared.',
-  },
-  {
-    title: 'Personal memory layer for end-users',
-    description: 'Consumer agents that remember you across apps — under your control, deletable, and transparent.',
-  },
-  {
-    title: 'Industry-specific compiled memory packs',
-    description: 'Pre-trained compilers and memory schemas for verticals — legal, healthcare, finance, support.',
-  },
-  {
-    title: 'Agent-to-agent memory protocols',
-    description: 'A standard handshake for two agents to exchange typed memory, not unstructured prose.',
-  },
-  {
-    title: 'Memory-aware evals across vendors',
-    description: 'Evaluate models on the same compiled memory layer — apples-to-apples context quality benchmarks.',
-  },
-  {
-    title: 'Continuous self-improving copilots',
-    description: 'Copilots that compile their own mistakes into preference memories and quietly get better each week.',
-  },
-]
-
-/* ─── Helpers ────────────────────────────────────────────────────────────── */
-
-function statusMeta(id: StatusId) {
-  return STATUSES.find((s) => s.id === id)!
-}
-
-function categoryLabel(id: CategoryId) {
-  return CATEGORIES.find((c) => c.id === id)!.label
-}
-
-/* ─── Page ───────────────────────────────────────────────────────────────── */
-
-export function UseCasesPage() {
-  usePageSEO()
+function Hero() {
+  const support = detailPage('support-agents')
+  const jump = [
+    { label: 'Support agents', to: support?.path ?? '#cases' },
+    // a use case without its own page yet jumps to its card below
+    ...CASES.map(c => ({ label: c.title, to: detailPage(c.slug)?.path ?? `#${c.slug}` })),
+  ]
   return (
-    <>
-      <HeroSection />
-      <MentalModelStrip />
-      <StrongestTodaySection />
-      <ExplorerSection />
-      <ConnectorSection />
-      <FrontierSection />
-      <PageFaq route="/use-cases" />
-      <CTASection />
-    </>
-  )
-}
-
-/* ─── Hero ───────────────────────────────────────────────────────────────── */
-
-function HeroSection() {
-  const total = USE_CASES.length + CONNECTORS.length + FRONTIER_IDEAS.length
-
-  const [durableOrbitReplayKey, setDurableOrbitReplayKey] = useState(0)
-
-  const replayDurableOrbit = () => {
-    setDurableOrbitReplayKey((current) => current + 1)
-  }
-
-  return (
-    <section className="relative overflow-hidden pb-8 sm:pb-10 sm:pt-32 md:pt-36">
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background:
-            'radial-gradient(38rem 22rem at 18% 0%, rgba(99,102,241,.06), transparent 68%), radial-gradient(30rem 20rem at 82% 8%, rgba(96,165,250,.04), transparent 68%)',
-        }}
-      />
-
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 opacity-35"
-        style={{
-          backgroundImage:
-            'radial-gradient(var(--theme-hero-dot) 1px, transparent 1px)',
-          backgroundSize: '22px 22px',
-          maskImage:
-            'radial-gradient(ellipse 70% 70% at 24% 18%, #000 15%, transparent 72%)',
-          WebkitMaskImage:
-            'radial-gradient(ellipse 70% 70% at 24% 18%, #000 15%, transparent 72%)',
-        }}
-      />
-
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background:
-            'linear-gradient(to bottom, transparent 0%, transparent 76%, var(--theme-surface-0) 100%)',
-        }}
-      />
-
-      <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6">
-        <div className="grid items-center gap-10 lg:grid-cols-[1fr_0.8fr] lg:gap-10">
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="max-w-4xl"
-          >
-            <span className="hero-badge inline-flex items-center gap-2 rounded-full border border-brand-500/35 bg-brand-500/[0.06] px-5 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-400">
-              <span className="h-1.5 w-1.5 rounded-full bg-brand-500" />
-              {total}+ ideas to build
-            </span>
-
-            <h1 className="mt-7 max-w-4xl font-heading text-[clamp(2.75rem,6vw,5.5rem)] font-bold leading-[0.98] tracking-[-0.05em] text-theme-primary sm:mt-8">
-              Build with durable memory
-            </h1>
-
-            <p className="mt-6 max-w-[46rem] text-base leading-[1.7] text-theme-secondary/85 sm:mt-7 sm:text-lg">
-              Statewave is an open-source memory runtime for AI agents. Support agents are
-              the strongest workflow today — but the same primitives power coding copilots,
-              account assistants, voice continuity, multi-agent platforms, and far more.
-              This page is the map.
-            </p>
-            <div className="mt-8 grid max-w-[28rem] grid-cols-2 gap-3 sm:mt-10">
-              <JumpChip
-                href="#strongest"
-                label="Strongest today"
-                tone="accent"
-              />
-
-              <JumpChip
-                href="#explorer"
-                label="Use case explorer"
-              />
-
-              <JumpChip
-                href="#connectors"
-                label="Connectors & bootstrap"
-                tone="emerald"
-              />
-
-              <JumpChip
-                href="#frontier"
-                label="Frontier ideas"
-                tone="muted"
-              />
-            </div>
-          </motion.div>
-
-          <motion.div
-            className="relative z-10 w-full"
-            onViewportEnter={replayDurableOrbit}
-            viewport={{ amount: 0.35 }}
-          >
-            <img
-              key={`durable-orbit-dark-${durableOrbitReplayKey}`}
-              src={`/images/use-cases/multi-agent-memory/durable-memory-orbit-dark.svg?r=${durableOrbitReplayKey}`}
-              alt="Durable memory connecting agents, tools, and applications"
-              className="theme-dark relative z-10 block h-auto w-full max-w-full"
-            />
-
-            <img
-              key={`durable-orbit-light-${durableOrbitReplayKey}`}
-              src={`/images/use-cases/multi-agent-memory/durable-memory-orbit-light.svg?r=${durableOrbitReplayKey}`}
-              alt="Durable memory connecting agents, tools, and applications"
-              aria-hidden="true"
-              className="theme-light relative z-10 block h-auto w-full max-w-full"
-            />
-          </motion.div>
-        </div>
+    <section className="sw-hero uh-hero" aria-labelledby="uh-title">
+      <Beams />
+      <div className="sw-hero__in">
+        <Eyebrow dark>Use cases</Eyebrow>
+        <h1 id="uh-title" className="sw-hero__title">
+          What teams build<br /> <span className="sw-hero__grad">with Statewave.</span>
+        </h1>
+        <p className="sw-hero__sub">
+          Five use cases, each with a demo you can run today. Underneath, every one of them is the same loop.
+        </p>
+        <nav className="uh-jump" aria-label="Use cases">
+          {jump.map((j, i) => <Ln key={j.label} to={j.to} style={{ '--i': i } as CSSProperties}>{j.label}</Ln>)}
+        </nav>
       </div>
-
-
     </section>
   )
 }
 
-function JumpChip({
-  href,
-  label,
-  tone = 'default',
-  className = '',
-}: {
-  href: string
-  label: string
-  tone?: 'default' | 'accent' | 'emerald' | 'muted'
-  className?: string
-}) {
-  const toneClass =
-    tone === 'accent'
-      ? 'border-accent/35 bg-accent/[0.07] text-accent hover:border-accent/50 hover:bg-accent/12'
-      : tone === 'emerald'
-        ? 'border-[color:var(--color-success)]/30 bg-[color:var(--color-success)]/[0.06] text-[color:var(--color-success)] hover:border-[color:var(--color-success)]/45 hover:bg-[color:var(--color-success)]/[0.1]'
-        : tone === 'muted'
-          ? 'border-theme-border bg-surface-1/40 text-theme-muted hover:border-theme-border-hover hover:bg-surface-2 hover:text-theme-secondary'
-          : 'border-brand-500/20 bg-brand-500/[0.04] text-brand-300 hover:border-brand-500/35 hover:bg-brand-500/[0.08] hover:text-brand-200'
+/* ── the use cases: support first, as the one with the most behind it ── */
 
+function Cases() {
+  const [ref, seen] = useSeen<HTMLUListElement>()
+  const support = detailPage('support-agents')
   return (
-    <a
-      href={href}
-      className={`inline-flex w-full items-center justify-center gap-2 rounded-full border px-4 py-2 text-center text-[13px] font-medium transition-all duration-200 hover:-translate-y-[1px] ${toneClass} ${className}`}
-    >
-      <span className="flex-1 text-center">{label}</span>
+    <section id="cases" className="uc-section" aria-labelledby="uh-cases">
+      <div className="uc-wrap">
+        <div className="uc-head">
+          <Eyebrow>What you can build</Eyebrow>
+          <H2 id="uh-cases" a="Five use cases." b="Each one runs today." />
+          <p className="sw-lede">
+            Every card has a demo on GitHub you can clone and run against your own Statewave server.
+          </p>
+        </div>
 
-      <svg
-        className="h-3.5 w-3.5 shrink-0 opacity-60"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-        aria-hidden="true"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M19 14l-7 7m0 0l-7-7m7 7V3"
-        />
-      </svg>
-    </a>
-  )
-}
-
-/* ─── Mental model: existing data → episodes → memory → context ──────────── */
-
-function MentalModelStrip() {
-  const steps = [
-    {
-      label: 'Existing data',
-      desc: 'Tickets, code, docs, calls, events',
-      tone: 'muted' as const,
-      icon: Database,
-    },
-    {
-      label: 'Episodes',
-      desc: 'Immutable, append-only',
-      tone: 'brand' as const,
-      icon: Layers3,
-    },
-    {
-      label: 'Compiled memory',
-      desc: 'Typed facts with provenance',
-      tone: 'accent' as const,
-      icon: BrainCircuit,
-    },
-    {
-      label: 'Context bundles',
-      desc: 'Ranked, token-bounded',
-      tone: 'accent' as const,
-      icon: PackageCheck,
-    },
-  ]
-
-  return (
-    <Section className="relative !py-10">
-      <div
-        aria-hidden="true"
-        className="section-glow !opacity-30 pointer-events-none absolute inset-x-0 top-1/2 h-[18rem] -translate-y-1/2"
-      />
-
-      <div className="sw-card relative z-10 rounded-2xl border border-theme-border bg-surface-1 p-6 md:p-8">
-        <div className="grid gap-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.45fr)] lg:items-center">
-          <div className="max-w-lg">
-            <p className="section-eyebrow mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
-              The unifying loop
+        <article className="uh-feature">
+          <div className="uh-feature__text">
+            <p className="uh-badge">Most complete today</p>
+            <h3>Support agents</h3>
+            <p>
+              The workflow with the most behind it. Customers are recognised across sessions, a problem that comes back
+              brings its last fix with it, and every account has a health score and SLA tracking.
             </p>
-
-            <Heading
-              id="same-loop"
-              className="mt-3 max-w-md text-2xl font-semibold leading-tight text-theme-primary md:text-3xl"
-            >
-              Every use case on this page is the same loop
-            </Heading>
-
-            <p className="mt-4 max-w-md text-sm leading-7 text-theme-muted sm:text-[15px]">
-              Existing systems become episodes. Episodes compile into typed memory.
-              Memory gets ranked into a token-bounded bundle. Your agent gets the
-              context it needs — and nothing it doesn’t.
-            </p>
+            <ul className="uh-points">
+              {SUPPORT_POINTS.map(({ Icon, text }) => (
+                <li key={text}><span aria-hidden="true"><Icon size={16} /></span>{text}</li>
+              ))}
+            </ul>
+            <p className="uh-demo">Demo <Ln to={`${EXAMPLES}/tree/main/support-agent-python`}>support-agent-python</Ln></p>
+            <Ln to={support?.path ?? `${EXAMPLES}/tree/main/support-agent-python`} className="sw-btn uh-feature__go">
+              See support agents <ArrowRight size={16} aria-hidden="true" />
+            </Ln>
           </div>
-
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            {steps.map((step, index) => {
-              const Icon = step.icon
-
-              const toneClass =
-                step.tone === 'accent'
-                  ? 'border-accent/25 bg-accent/[0.04]'
-                  : step.tone === 'brand'
-                    ? 'border-brand-500/25 bg-brand-500/[0.04]'
-                    : 'border-theme-border bg-surface-2'
-
-              const iconClass =
-                step.tone === 'accent'
-                  ? 'border-accent/20 bg-accent/[0.07] text-accent'
-                  : step.tone === 'brand'
-                    ? 'border-brand-500/20 bg-brand-500/[0.07] text-brand-300'
-                    : 'border-theme-border bg-surface-1 text-theme-muted'
-
-              const numberClass =
-                step.tone === 'accent'
-                  ? 'text-accent'
-                  : step.tone === 'brand'
-                    ? 'text-brand-300'
-                    : 'text-theme-muted'
-
-              return (
-                <div
-                  key={step.label}
-                  className={`relative min-h-[154px] rounded-xl border p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-theme-border-hover ${toneClass}`}
-                >
-                  <div className="flex items-start justify-between gap-4">
-                    <span
-                      className={`font-mono text-[10px] font-medium tracking-[0.08em] ${numberClass}`}
-                    >
-                      {String(index + 1).padStart(2, '0')}
-                    </span>
-
-                    <span
-                      className={`inline-flex h-8 w-8 items-center justify-center rounded-lg border ${iconClass}`}
-                    >
-                      <Icon
-                        className="h-4 w-4"
-                        strokeWidth={1.8}
-                        aria-hidden="true"
-                      />
-                    </span>
-                  </div>
-
-                  <p className="mt-5 text-sm font-semibold text-theme-primary">
-                    {step.label}
-                  </p>
-
-                  <p className="mt-1.5 text-xs leading-relaxed text-theme-muted">
-                    {step.desc}
-                  </p>
-                </div>
-              )
-            })}
-          </div>
-        </div>
-      </div>
-    </Section>
-  )
-}
-/* ─── Strongest today (preserve the support wedge) ───────────────────────── */
-
-function StrongestTodaySection() {
-  const featured = USE_CASES.filter((u) => u.status === 'strongest')
-  const navigate = useNavigate()
-
-  const goToComparison = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault()
-
-    navigate(
-      { pathname: '/why', hash: '#vs-alternatives' },
-      {
-        state: {
-          returnTo: '/use-cases',
-          returnLabel: 'Use Cases',
-          returnSection: 'Strongest today',
-          returnScrollY: window.scrollY,
-        },
-      },
-    )
-  }
-
-  return (
-    <Section id="strongest" className="!pb-24 !pt-14">
-      <div className="mb-10 grid gap-6 md:grid-cols-[minmax(0,1fr)_auto] md:items-end">
-        <div className="max-w-4xl">
-          <p className="section-eyebrow mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-accent">
-            Strongest today
-          </p>
-
-          <Heading
-            id="proven-wedge"
-            className="font-heading text-4xl md:text-[49px] font-bold leading-[1.06] tracking-[-0.03em] text-theme-primary"
-          >
-            The proven wedge: support agents
-          </Heading>
-
-          <p className="mt-4 max-w-[48rem] text-base leading-7 text-theme-muted sm:text-[17px] sm:leading-8">
-            Support is where Statewave is deeply optimized — session-aware ranking,
-            handoff packs, health and SLA scoring, and repeat-issue detection. It’s the
-            workflow with the most evidence today, not the limit of the platform.
-          </p>
-        </div>
-
-        <a
-          href="/why#vs-alternatives"
-          onClick={goToComparison}
-          className="group inline-flex w-fit items-center gap-2 rounded-full border border-theme-border bg-surface-1/60 px-4 py-2.5 text-sm font-medium text-theme-secondary transition-all duration-200 hover:-translate-y-px hover:border-accent/35 hover:text-accent"
-        >
-          See the technical comparison
-
-          <svg
-            className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            aria-hidden="true"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M13 7l5 5m0 0l-5 5m5-5H6"
-            />
-          </svg>
-        </a>
-      </div>
-
-      <div className="grid gap-5 md:grid-cols-2">
-        {featured.map((uc, index) => (
-          <FeaturedCard
-            key={uc.title}
-            uc={uc}
-            index={index}
-          />
-        ))}
-      </div>
-    </Section>
-  )
-}
-
-function FeaturedCard({ uc, index }: { uc: UseCase; index: number }) {
-  const meta = statusMeta(uc.status)
-  const slug = slugify(uc.title)
-  const active = useHashActive(slug)
-
-  return (
-    <motion.div
-      id={slug}
-      initial={{ opacity: 0, y: 16 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: '-50px' }}
-      transition={{ delay: index * 0.05, duration: 0.5 }}
-      className={`sw-card group relative scroll-mt-24 rounded-2xl border border-theme-border bg-surface-1 p-6 transition-all duration-200 hover:-translate-y-0.5 hover:border-accent/30 ${active ? 'card-anchor-active' : ''
-        }`}
-    >
-      <div className="mb-5 flex items-center justify-between gap-4">
-        <span className="text-[10px] font-medium uppercase tracking-[0.14em] text-theme-muted">
-          {categoryLabel(uc.category)}
-        </span>
-
-        <span className="inline-flex items-center gap-1.5 text-[10px] font-medium text-theme-muted">
-          <span className={`h-1.5 w-1.5 rounded-full ${meta.dotClass}`} />
-          {meta.label}
-        </span>
-      </div>
-
-      <h3 className="flex items-start gap-2 text-lg font-semibold leading-snug text-theme-primary">
-        <span>{uc.title}</span>
-
-        <CardAnchor id={slug} />
-      </h3>
-
-      <p className="mt-3 line-clamp-2 text-sm leading-6 text-theme-muted">
-        {uc.description}
-      </p>
-    </motion.div>
-  )
-}
-
-function Tag({ label }: { label: string }) {
-  return (
-    <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-medium text-theme-muted bg-surface-2 border border-theme-border">
-      {label}
-    </span>
-  )
-}
-
-/* ─── Explorer (filterable grid) ─────────────────────────────────────────── */
-
-type CategoryFilter = CategoryId | 'all'
-type StatusFilter = StatusId | 'all'
-
-function ExplorerSection() {
-  const [category, setCategory] = useState<CategoryFilter>('all')
-  // Default to "Available" — the use cases backed by a shipped example/page —
-  // so visitors first see what they can actually grab today.
-  const [status, setStatus] = useState<StatusFilter>('available')
-
-  const explorerPool = useMemo(() => USE_CASES.filter((u) => u.status !== 'strongest'), [])
-
-  const filtered = useMemo(() => {
-    return explorerPool.filter((u) => {
-      if (category !== 'all' && u.category !== category) return false
-      if (status !== 'all' && u.status !== status) return false
-      return true
-    })
-  }, [explorerPool, category, status])
-
-  const categoryCount = (id: CategoryFilter) =>
-    id === 'all' ? explorerPool.length : explorerPool.filter((u) => u.category === id).length
-
-  const statusCount = (id: StatusFilter) =>
-    id === 'all' ? explorerPool.length : explorerPool.filter((u) => u.status === id).length
-
-  return (
-    <Section id="explorer" className="bg-surface-1/50">
-      <div className="max-w-3xl mb-10">
-        <p className="section-eyebrow mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-400">
-          Use case explorer
-        </p>
-        <Heading id="beyond-support" className="font-heading text-4xl md:text-[49px] font-bold leading-[1.06] tracking-[-0.03em] text-theme-primary">
-          Beyond support: what else fits
-        </Heading>
-        <p className="max-w-[38rem] mt-4 text-theme-muted leading-relaxed">
-          The same memory primitives power developer copilots, workspace assistants, account
-          intelligence, voice continuity, and multi-agent infrastructure. Filter by category or by
-          how mature each shape is today.
-        </p>
-      </div>
-
-      <div className="mt-8 ">
-        {/* Categories */}
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-start">
-          <p className="section-eyebrow shrink-0 pt-2 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
-            Category
-          </p>
-
-          <div className="flex flex-wrap gap-2">
-            <FilterChip
-              active={category === 'all'}
-              onClick={() => setCategory('all')}
-              label="All categories"
-              count={categoryCount('all')}
-            />
-
-            {CATEGORIES.map((c) => (
-              <FilterChip
-                key={c.id}
-                active={category === c.id}
-                onClick={() => setCategory(c.id)}
-                label={c.label}
-                count={categoryCount(c.id)}
-              />
-            ))}
-          </div>
-        </div>
-
-        <div className="my-6 h-px bg-theme-border" />
-
-        {/* Status */}
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-start">
-          <p className="section-eyebrow shrink-0 pt-2 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
-            Status
-          </p>
-
-          <div className="flex flex-wrap gap-2">
-            <FilterChip
-              active={status === 'all'}
-              onClick={() => setStatus('all')}
-              label="Any"
-              count={statusCount('all')}
-              subtle
-            />
-
-            {STATUSES.filter((s) => s.id !== 'strongest' && s.id !== 'connector').map((s) => (
-              <FilterChip
-                key={s.id}
-                active={status === s.id}
-                onClick={() => setStatus(s.id)}
-                label={s.label}
-                count={statusCount(s.id)}
-                subtle
-                statusDotClass={s.dotClass}
-              />
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Active filter description */}
-      {category !== 'all' && (
-        <p className="mt-6 text-sm text-theme-muted max-w-2xl">
-          <span className="text-theme-secondary font-medium">{categoryLabel(category)}.</span>{' '}
-          {CATEGORIES.find((c) => c.id === category)!.blurb}
-        </p>
-      )}
-
-      {/* Grid */}
-      <div className="mt-10 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filtered.map((uc, i) => (
-          <UseCaseCard key={uc.title} uc={uc} index={i} />
-        ))}
-      </div>
-
-      {filtered.length === 0 && (
-        <div className="mt-12 text-center py-16 rounded-2xl border border-dashed border-theme-border bg-surface-2/40">
-          <p className="text-sm text-theme-muted">No use cases match this filter combination.</p>
-          <button
-            type="button"
-            onClick={() => {
-              setCategory('all')
-              setStatus('all')
-            }}
-            className="mt-3 text-sm text-accent hover:text-accent-light"
-          >
-            Reset filters
-          </button>
-        </div>
-      )}
-
-      {/* Counter */}
-      <p className="mt-8 text-xs text-theme-muted">
-        Showing <span className="text-theme-secondary font-medium">{filtered.length}</span> of{' '}
-        {explorerPool.length} ideas
-        {category !== 'all' && ` in ${categoryLabel(category)}`}
-        {status !== 'all' && ` · ${statusMeta(status as StatusId).label}`}
-      </p>
-    </Section>
-  )
-}
-
-function FilterChip({
-  active,
-  onClick,
-  label,
-  count,
-  subtle = false,
-  statusDotClass,
-}: {
-  active: boolean
-  onClick: () => void
-  label: string
-  count: number
-  subtle?: boolean
-  statusDotClass?: string
-}) {
-  const base = 'inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium border transition-all'
-  const activeClass = subtle
-    ? 'border-theme-border-hover bg-surface-3 text-theme-primary'
-    : 'border-accent/30 bg-accent/10 text-accent shadow-sm'
-  const idleClass = subtle
-    ? 'border-theme-border bg-transparent text-theme-muted hover:text-theme-secondary hover:border-theme-border-hover'
-    : 'border-theme-border bg-surface-2 text-theme-secondary hover:text-theme-primary hover:border-theme-border-hover'
-
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`${base} ${active ? activeClass : idleClass}`}
-      aria-pressed={active}
-    >
-      {statusDotClass && <span className={`w-1.5 h-1.5 rounded-full ${statusDotClass}`} />}
-      <span>{label}</span>
-      <span
-        className={`text-[10px] tabular-nums ${active && !subtle ? 'text-accent/80' : 'text-theme-muted'
-          }`}
-      >
-        {count}
-      </span>
-    </button>
-  )
-}
-
-function UseCaseCard({ uc, index }: { uc: UseCase; index: number }) {
-  const meta = statusMeta(uc.status)
-  const slug = slugify(uc.title)
-  const active = useHashActive(slug)
-  const hasExtra = uc.repo || uc.stack || uc.audience
-
-  const inner = (
-    <>
-      <div className="flex items-center justify-between gap-2 mb-3">
-        <span className="text-[10px] font-medium uppercase tracking-wider text-theme-muted">
-          {categoryLabel(uc.category)}
-        </span>
-        <span
-          className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full border text-[10px] font-medium ${meta.pillClass}`}
-        >
-          <span className={`w-1.5 h-1.5 rounded-full ${meta.dotClass}`} />
-          {meta.label}
-        </span>
-      </div>
-      <h3 className="flex items-center gap-2 text-base font-semibold text-theme-primary group-hover:text-accent transition-colors">
-        <span>{uc.title}</span>
-        {!uc.pageHref && <CardAnchor id={slug} />}
-      </h3>
-      <p className="mt-2 text-sm text-theme-muted leading-relaxed">{uc.description}</p>
-
-      {uc.audience && (
-        <p className="mt-3 text-xs text-theme-muted/80 leading-relaxed italic">{uc.audience}</p>
-      )}
-
-      {uc.stack && uc.stack.length > 0 && (
-        <div className="mt-3 flex flex-wrap gap-1.5">
-          {uc.stack.map((s) => (
-            <span
-              key={s}
-              className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-medium text-accent/80 bg-accent/6 border border-accent/15"
-            >
-              {s}
-            </span>
-          ))}
-        </div>
-      )}
-
-      {uc.repo && (
-        <div className="mt-3 flex items-center gap-1.5 text-[11px] text-theme-muted">
-          <svg className="w-3.5 h-3.5 shrink-0" fill="currentColor" viewBox="0 0 24 24" aria-hidden>
-            <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
-          </svg>
-          <span className="font-mono">{uc.repo}</span>
-        </div>
-      )}
-
-      {uc.tags && uc.tags.length > 0 && (
-        <div className="mt-3 flex flex-wrap gap-1.5">
-          {uc.tags.map((t) => (
-            <Tag key={t} label={t} />
-          ))}
-        </div>
-      )}
-
-      {uc.pageHref && (
-        <div className="mt-auto pt-4 flex items-center gap-1 text-xs font-medium text-accent">
-          View full page
-          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-          </svg>
-        </div>
-      )}
-    </>
-  )
-
-  const cardClass = `group scroll-mt-24 flex h-full flex-col p-5 rounded-2xl border bg-surface-1 transition-colors ${hasExtra ? 'border-accent/20 hover:border-accent/40' : 'border-theme-border hover:border-accent/25'
-    } ${active ? 'card-anchor-active' : ''}`
-
-  if (uc.pageHref) {
-    return (
-      <motion.div
-        id={slug}
-        initial={{ opacity: 0, y: 12 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: '-30px' }}
-        transition={{ delay: Math.min(index * 0.03, 0.25), duration: 0.4 }}
-        whileHover={{ y: -3 }}
-        className="h-full"
-      >
-        <Link to={uc.pageHref} className={cardClass}>
-          {inner}
-        </Link>
-      </motion.div>
-    )
-  }
-
-  return (
-    <motion.article
-      id={slug}
-      initial={{ opacity: 0, y: 12 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: '-30px' }}
-      transition={{ delay: Math.min(index * 0.03, 0.25), duration: 0.4 }}
-      whileHover={{ y: -3 }}
-      className={cardClass}
-    >
-      {inner}
-    </motion.article>
-  )
-}
-
-/* ─── Connectors / bootstrap patterns ────────────────────────────────────── */
-
-type ConnectorStatusFilter = 'all' | 'available' | 'recipe' | 'coming-soon'
-
-function ConnectorSection() {
-  // Each connector is one of: a shipped package ("Available", green badge),
-  // a planned package ("Coming soon"), or an integration recipe you build on
-  // the ingest API ("Recipe"). The filter buckets match those badges exactly,
-  // so nothing unbadged ever shows under "Available". Default to Available.
-  const [connectorStatus, setConnectorStatus] =
-    useState<ConnectorStatusFilter>('available')
-  const connectorBucket = (c: Connector): Exclude<ConnectorStatusFilter, 'all'> =>
-    c.package?.status === 'available'
-      ? 'available'
-      : c.package?.status === 'planned'
-        ? 'coming-soon'
-        : 'recipe'
-  const connectorMatches = (c: Connector) =>
-    connectorStatus === 'all' || connectorBucket(c) === connectorStatus
-  const connectorCount = (key: ConnectorStatusFilter) =>
-    key === 'all'
-      ? CONNECTORS.length
-      : CONNECTORS.filter((c) => connectorBucket(c) === key).length
-  return (
-    <Section id="connectors">
-      <div className="max-w-4xl mb-8">
-        <p className="section-eyebrow mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-[color:var(--color-success)]">
-          Connectors & bootstrap
-        </p>
-        <Heading id="not-just-live-chats" className="font-heading text-4xl md:text-[49px] font-bold leading-[1.06] tracking-[-0.03em] text-theme-primary">
-          Statewave is not just for live chats
-        </Heading>
-        <p className="mt-4 text-theme-muted leading-relaxed">
-          You don’t need to wait for a new conversation to start. Pipe existing system history into
-          episodes, compile it once, and your agent walks into its first session already informed.
-        </p>
-      </div>
-
-      {/* Pointer to the official ecosystem. The patterns below cover anything you can build
-          on the ingest API; some of them now ship as official Statewave Connector packages. */}
-      <div className="mb-10 flex flex-col gap-3 rounded-2xl border border-accent/20 bg-accent/[0.04] p-5 sm:p-6 sm:flex-row sm:items-center sm:justify-between">
-        <div className="min-w-0">
-          <p className="text-[11px] font-medium uppercase tracking-wider text-accent">
-            Official ecosystem
-          </p>
-          <p className="mt-1 text-sm text-theme-secondary leading-relaxed">
-            Looking for ready-made connectors instead of integration recipes? <strong className="text-theme-primary">Statewave Connectors</strong> are modular packages — install only what you need. Phase 1 ships GitHub, Markdown/docs, and the MCP server.
-          </p>
-        </div>
-        <Link
-          to="/connectors"
-          className="shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium border border-accent/30 bg-accent/10 text-accent hover:bg-accent/15 hover:border-accent/50 transition-colors"
-        >
-          Explore Statewave Connectors
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-          </svg>
-        </Link>
-      </div>
-
-      {/* The bootstrap formula */}
-      <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/[0.03] p-6 md:p-8 mb-10">
-        <p className="text-[11px] font-medium uppercase tracking-wider text-emerald-400">
-          The bootstrap pattern
-        </p>
-        <div className="mt-4 flex flex-col md:flex-row md:items-center md:gap-3 gap-2">
-          <BootstrapStep label="Existing data" sub="ticket / repo / doc / call" tone="muted" />
-          <Arrow />
-          <BootstrapStep label="Episodes" sub="immutable, per-subject" tone="brand" />
-          <Arrow />
-          <BootstrapStep label="Compiled memory" sub="typed, confidence-scored" tone="emerald" />
-          <Arrow />
-          <BootstrapStep label="Better context" sub="ranked, token-bounded" tone="emerald" />
-        </div>
-        <p className="mt-5 text-sm text-theme-muted leading-relaxed max-w-3xl">
-          Every connector below is a recipe for that pattern. Most teams start with a one-shot
-          historical import, then keep their connector running incrementally so the memory stays
-          current as new events arrive.
-        </p>
-
-        <Link
-          to="/connectors"
-          className="mt-5 inline-flex items-center gap-2 text-sm font-medium text-accent transition-colors hover:text-accent/80"
-        >
-          View Statewave Connectors
-          <span aria-hidden="true">→</span>
-        </Link>
-
-      </div>
-
-      {/* Status filter — Available / Recipe / Coming soon / All */}
-      <div className="flex flex-col gap-3 lg:flex-row lg:items-start mb-6">
-        <p className="section-eyebrow shrink-0 pt-2 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
-          Status
-        </p>
-
-        <div className="flex flex-wrap gap-2">
-          <FilterChip
-            active={connectorStatus === 'available'}
-            onClick={() => setConnectorStatus('available')}
-            label="Available"
-            count={connectorCount('available')}
-            subtle
-            statusDotClass="bg-[color:var(--color-success)]"
-          />
-
-          <FilterChip
-            active={connectorStatus === 'recipe'}
-            onClick={() => setConnectorStatus('recipe')}
-            label="Recipe"
-            count={connectorCount('recipe')}
-            subtle
-            statusDotClass="bg-brand-400"
-          />
-
-          <FilterChip
-            active={connectorStatus === 'coming-soon'}
-            onClick={() => setConnectorStatus('coming-soon')}
-            label="Coming soon"
-            count={connectorCount('coming-soon')}
-            subtle
-            statusDotClass="bg-theme-muted"
-          />
-
-          <FilterChip
-            active={connectorStatus === 'all'}
-            onClick={() => setConnectorStatus('all')}
-            label="All"
-            count={connectorCount('all')}
-            subtle
-          />
-        </div>
-      </div>
-
-
-      {/* Connector groups */}
-      <div className="space-y-10">
-        {CONNECTOR_GROUPS.map((group) => {
-          const items = CONNECTORS.filter(
-            (c) => c.group === group.id && connectorMatches(c),
-          )
-          if (items.length === 0) return null
-          return (
-            <div key={group.id}>
-              <div className="mb-4">
-                <h3 className="text-lg font-semibold text-theme-primary">{group.label}</h3>
-                <p className="mt-1 text-sm text-theme-muted max-w-2xl">
-                  {group.description}
-                </p>
-              </div>
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                {items.map((c) => (
-                  <ConnectorCard key={c.title} connector={c} />
-                ))}
-              </div>
+          <div className="uh-feature__stage" aria-hidden="true">
+            <div className="uh-ticket">
+              <p className="uh-ticket__who"><b>Maya Hassan</b><span>Northwind Logistics</span></p>
+              <p className="uh-ticket__text">p95 on routing-fleet went from 280ms to 1.4s. Can you triage before we page?</p>
             </div>
-          )
-        })}
-      </div>
-
-      <p className="mt-10 text-xs text-theme-muted/80 max-w-3xl">
-        Cards tagged{' '}
-        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-brand-500/10 text-brand-300 text-[10px] font-medium uppercase tracking-wider align-middle">
-          Recipe
-        </span>{' '}
-        are integration patterns you build on Statewave’s ingest API — write a small importer in your
-        preferred language; the SDKs make the per-subject episode loop straightforward. Cards tagged{' '}
-        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-300 text-[10px] font-medium uppercase tracking-wider align-middle">
-          Available
-        </span>{' '}
-        or{' '}
-        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-surface-2 text-theme-muted text-[10px] font-medium uppercase tracking-wider align-middle">
-          Coming soon
-        </span>{' '}
-        ship as official packages — see the{' '}
-
-        .
-      </p>
-    </Section>
-  )
-}
-
-function BootstrapStep({
-  label,
-  sub,
-  tone,
-}: {
-  label: string
-  sub: string
-  tone: 'muted' | 'brand' | 'emerald'
-}) {
-  const toneClass =
-    tone === 'emerald'
-      ? 'border-emerald-500/30 bg-emerald-500/[0.06] text-theme-primary'
-      : tone === 'brand'
-        ? 'border-brand-500/25 bg-brand-500/[0.05] text-theme-primary'
-        : 'border-theme-border bg-surface-2 text-theme-secondary'
-  const subToneClass =
-    tone === 'emerald' ? 'text-emerald-300' : tone === 'brand' ? 'text-brand-300' : 'text-theme-muted'
-  return (
-    <div className={`flex-1 px-4 py-3 rounded-xl border ${toneClass}`}>
-      <p className="text-sm font-semibold">{label}</p>
-      <p className={`text-[11px] mt-0.5 ${subToneClass}`}>{sub}</p>
-    </div>
-  )
-}
-
-function Arrow() {
-  return (
-    <svg
-      className="hidden md:block w-4 h-4 text-theme-muted shrink-0"
-      fill="none"
-      stroke="currentColor"
-      viewBox="0 0 24 24"
-      aria-hidden
-    >
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-    </svg>
-  )
-}
-
-function ConnectorCard({ connector }: { connector: Connector }) {
-  const slug = slugify(connector.title)
-  const active = useHashActive(slug)
-  const pkg = connector.package
-  const status: 'available' | 'coming-soon' | 'recipe' =
-    pkg?.status === 'available'
-      ? 'available'
-      : pkg?.status === 'planned'
-        ? 'coming-soon'
-        : 'recipe'
-  const STATUS_STYLE = {
-    available: {
-      label: 'Available',
-      badge: 'bg-emerald-500/10 text-emerald-300',
-      dot: 'bg-emerald-400',
-      border: 'border-emerald-500/20 hover:border-emerald-500/40',
-    },
-    'coming-soon': {
-      label: 'Coming soon',
-      badge: 'bg-surface-2 text-theme-muted',
-      dot: 'bg-theme-muted',
-      border: 'border-theme-border hover:border-theme-border',
-    },
-    recipe: {
-      label: 'Recipe',
-      badge: 'bg-brand-500/10 text-brand-300',
-      dot: 'bg-brand-400',
-      border: 'border-theme-border hover:border-accent/30',
-    },
-  } as const
-  const s = STATUS_STYLE[status]
-  return (
-    <div
-      id={slug}
-      className={`group scroll-mt-24 p-4 rounded-xl border bg-surface-1 transition-colors ${s.border} ${active ? 'card-anchor-active' : ''}`}
-    >
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex items-center gap-2 min-w-0">
-          <span className={`w-1.5 h-1.5 rounded-full ${s.dot}`} aria-hidden />
-          <h4 className="flex items-center gap-2 text-sm font-semibold text-theme-primary truncate">
-            <span className="truncate">{connector.title}</span>
-            <CardAnchor id={slug} />
-          </h4>
-        </div>
-        <span
-          className={`shrink-0 text-[10px] font-medium uppercase tracking-wider px-2 py-0.5 rounded-full ${s.badge}`}
-        >
-          {s.label}
-        </span>
-      </div>
-      <p className="mt-2 text-xs text-theme-muted leading-relaxed">{connector.description}</p>
-      {pkg && (
-        <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] font-medium">
-
-          {pkg.docHref && (
-            <a
-              href={pkg.docHref}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-theme-muted hover:text-accent transition-colors"
-            >
-              Docs
-              <svg
-                className="w-3 h-3"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                aria-hidden
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5h5v5M19 5l-9 9M5 7v12h12" />
-              </svg>
-            </a>
-          )}
-        </div>
-      )}
-    </div>
-  )
-}
-
-/* ─── Frontier ───────────────────────────────────────────────────────────── */
-
-function FrontierSection() {
-  return (
-    <Section id="frontier" className="bg-surface-1/50">
-      <div className="max-w-2xl mb-10">
-        <p className="section-eyebrow mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-theme-muted">
-          Frontier ideas
-        </p>
-        <Heading id="ideas-at-the-edge" className="font-heading text-4xl md:text-[49px] font-bold leading-[1.06] tracking-[-0.03em] text-theme-primary">
-          Ideas at the edge
-        </Heading>
-        <p className="mt-4 text-theme-muted leading-relaxed">
-          Directions Statewave makes possible but doesn’t yet ship pre-built. Some are research
-          territory; some are just engineering work the platform doesn’t prescribe. Treat this
-          section as inspiration, not a roadmap.
-        </p>
-      </div>
-
-      <div className="mt-12 grid gap-x-12 md:grid-cols-2">
-        {FRONTIER_IDEAS.map((idea, i) => (
-          <FrontierCard key={idea.title} idea={idea} index={i} />
-        ))}
-      </div>
-    </Section>
-  )
-}
-
-function FrontierCard({
-  idea,
-  index,
-}: {
-  idea: { title: string; description: string }
-  index: number
-}) {
-  const slug = slugify(idea.title)
-  const active = useHashActive(slug)
-
-  return (
-    <motion.article
-      id={slug}
-      initial={{ opacity: 0, y: 10 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: '-30px' }}
-      transition={{ delay: index * 0.04, duration: 0.4 }}
-      className={`group relative scroll-mt-24 border-t border-theme-border py-7 transition-colors duration-300 ${active ? 'card-anchor-active' : ''
-        }`}
-    >
-      <div
-        className="absolute inset-y-4 -left-4 w-px origin-center scale-y-0 bg-gradient-to-b from-transparent via-theme-muted/60 to-transparent transition-transform duration-300 group-hover:scale-y-100"
-        aria-hidden="true"
-      />
-
-      <div className="grid grid-cols-[3rem_1fr] gap-4">
-        <span
-          className="font-heading text-sm font-semibold tabular-nums text-theme-muted/45 transition-colors duration-300 group-hover:text-theme-muted"
-          aria-hidden="true"
-        >
-          {String(index + 1).padStart(2, '0')}
-        </span>
-
-        <div>
-          <div className="mb-3 flex items-center gap-2">
-            <span
-              className="h-1.5 w-1.5 rounded-full bg-theme-muted transition-colors duration-300 group-hover:bg-brand-400"
-              aria-hidden="true"
-            />
-
-            <span className="text-[10px] font-medium uppercase tracking-[0.18em] text-theme-muted">
-              Frontier
-            </span>
+            <ul className="uh-recall">
+              <li><b>Ticket #4937</b><span>Same symptom, fixed by a per-region split</span></li>
+              <li><b>Triage note</b><span>High-sev Northwind tickets page EU on-call</span></li>
+              <li><b>Account</b><span>Team plan, EU-Paris, renewal Sep 15</span></li>
+            </ul>
           </div>
+        </article>
 
-          <h3 className="flex items-start gap-2 font-heading text-lg font-semibold leading-snug text-theme-secondary transition-colors duration-300 group-hover:text-theme-primary">
-            <span>{idea.title}</span>
-            <CardAnchor id={slug} />
-          </h3>
+        <ul ref={ref} className="uh-cases" {...(seen ? { 'data-seen': '' } : {})}>
+          {CASES.map((c, i) => {
+            const page = detailPage(c.slug)
+            return (
+              <li key={c.slug} style={{ '--i': i } as CSSProperties}>
+                <article id={c.slug} className="uh-case">
+                  <span className="uh-case__icon" aria-hidden="true"><c.Icon size={20} /></span>
+                  <h3>{c.title}</h3>
+                  <p>{c.text}</p>
+                  <p className="uh-demo">Demo <Ln to={c.demo.href}>{c.demo.name}</Ln></p>
+                  <div className="uh-case__links">
+                    <Ln to={page?.path ?? c.demo.href} className="uh-case__go">
+                      {page ? `See ${c.title.toLowerCase()}` : 'See the demo'} <ArrowRight size={16} aria-hidden="true" />
+                    </Ln>
+                    {c.also && <Ln to={c.also.to} className="uh-case__also">{c.also.label}</Ln>}
+                  </div>
+                </article>
+              </li>
+            )
+          })}
+        </ul>
+      </div>
+    </section>
+  )
+}
 
-          <p className="mt-3 max-w-xl text-sm leading-relaxed text-theme-muted">
-            {idea.description}
+/* ── the loop under all of them ── */
+
+const LOOP = [
+  { n: '01', t: 'Your history', d: 'Tickets, repos, docs, chats and events you already have.' },
+  { n: '02', t: 'Episodes', d: 'Each one recorded once, append-only, under a subject.' },
+  { n: '03', t: 'Compiled memory', d: 'Typed facts, each traced to the episodes it came from.' },
+  { n: '04', t: 'Context bundle', d: 'Ranked for the task and packed to a token budget.' },
+]
+
+const SOURCES = [
+  { name: 'Zendesk', src: '/images/home/v8/logos/zendesk.svg' },
+  { name: 'Intercom', src: '/connectors/intercom.svg' },
+  { name: 'Freshdesk', src: '/connectors/freshdesk.svg' },
+  { name: 'GitHub', src: '/images/home/v8/logos/github.svg' },
+  { name: 'Slack', src: '/connectors/Slack_icon_2019.svg' },
+  { name: 'Notion', src: '/connectors/notion.svg' },
+  { name: 'Gmail', src: '/connectors/gmail.svg' },
+  { name: 'Jira', src: '/connectors/jira.svg' },
+]
+
+function Loop() {
+  return (
+    <section className="uc-section uc-section--tint" aria-labelledby="uh-loop">
+      <div className="uc-wrap">
+        <div className="uc-head">
+          <Eyebrow>Under every use case</Eyebrow>
+          <H2 id="uh-loop" a="One loop." b="A different subject each time." />
+          <p className="sw-lede">
+            A support agent keeps one subject per customer, a coding agent one per repository, a pipeline one per run. The
+            calls are the same: record what happened, compile it, and read back what the next step needs.
           </p>
         </div>
+        <ol className="uh-loop">
+          {LOOP.map(s => (
+            <li key={s.n}>
+              <span className="sw-mono">{s.n}</span>
+              <b>{s.t}</b>
+              <p>{s.d}</p>
+            </li>
+          ))}
+        </ol>
+        <div className="uh-sources">
+          <div>
+            <b>Start from the history you already have</b>
+            <p>Connectors backfill it as episodes, so the agent’s first conversation isn’t its first day.</p>
+          </div>
+          <ul aria-label="Some of the connectors">
+            {SOURCES.map(s => (
+              <li key={s.name} title={s.name}><img src={s.src} alt={s.name} width={24} height={24} /></li>
+            ))}
+          </ul>
+          <Ln to="/connectors" className="uh-sources__go">All connectors <ArrowRight size={16} aria-hidden="true" /></Ln>
+        </div>
       </div>
-    </motion.article>
+    </section>
   )
 }
 
-/* ─── CTA ────────────────────────────────────────────────────────────────── */
+/* ── ideas: patterns people ask about that nobody has built on Statewave yet ── */
 
-function CTASection() {
-  const { openWidget } = useChatWidget()
-  const ctaDemoRef = useRef<HTMLElement>(null)
+const IDEAS = [
+  { title: 'Agent-to-agent memory exchange', text: 'Two agents trade typed memories with their provenance, instead of passing prose back and forth.' },
+  { title: 'Federated memory across companies', text: 'Each side keeps its own storage, and only the facts both agree on are shared.' },
+  { title: 'Memory packs for an industry', text: 'Ready-made memory schemas and compiler settings for legal, healthcare or finance teams.' },
+  { title: 'Memory people own', text: 'A personal memory that follows someone across apps, which they can read, export and delete.' },
+  { title: 'Voice support that remembers', text: 'A caller who rings back gets an agent that knows the last call, not just the last ticket.' },
+  { title: 'Copilots that learn from corrections', text: 'Each correction compiles into a preference, so the copilot gets a little better every week.' },
+]
 
-  useTrackDemoCta(ctaDemoRef)
-
+function Ideas() {
+  const [ref, seen] = useSeen<HTMLUListElement>()
   return (
-    <Section>
-      <div className="cta-card relative overflow-hidden rounded-[2.5rem] border border-brand-500/25 bg-surface-1/55 px-6 py-20 text-center">
-        <div
-          className="cta-card-glow absolute inset-0"
-          aria-hidden="true"
-        />
-
-        <div
-          className="absolute inset-x-20 top-0 h-px bg-gradient-to-r from-transparent via-brand-500/60 to-transparent"
-          aria-hidden="true"
-        />
-
-        <div className="relative z-10 mx-auto max-w-4xl">
-          <div className="section-eyebrow mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
-            EXPLORE THE POSSIBILITIES
-          </div>
-
-          <Heading
-            id="see-your-idea"
-            className="font-heading text-4xl md:text-[64px] font-bold leading-[1.02] tracking-[-0.04em] text-theme-primary"
-          >
-            See your idea{' '}
-            <span className="text-gradient-brand">on this page</span>
-          </Heading>
-
-          <p className="mt-6 mx-auto max-w-2xl text-[20px] leading-[1.65] text-theme-secondary/85">
-            If you’re building any AI workflow with multi-session memory,
-            Statewave is the layer underneath. Run it locally in two minutes —
-            or try the live demo first.
+    <section className="uc-section" aria-labelledby="uh-ideas">
+      <div className="uc-wrap">
+        <div className="uc-head uc-head--center">
+          <Eyebrow>Ideas</Eyebrow>
+          <H2 id="uh-ideas" a="Ideas we haven’t built." b="Yours could be next." />
+          <p className="sw-lede">
+            These aren’t on the roadmap. They’re patterns people ask about that the same primitives could support. If
+            you’re building one, we’d like to hear how it goes.
           </p>
-
-          <div className="mt-10 flex flex-wrap justify-center gap-4">
-            <Button
-              href="https://github.com/smaramwbc/statewave-docs/blob/main/getting-started.md"
-              size="lg"
-            >
-              Get Started
-
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                aria-hidden="true"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M13 7l5 5m0 0l-5 5m5-5H6"
-                />
-              </svg>
-            </Button>
-
-            <Button
-              ref={ctaDemoRef}
-              onClick={() => openWidget()}
-              variant="secondary"
-              size="lg"
-            >
-              Try Live Demo
-            </Button>
-
-            <Button
-              to="/developers"
-              variant="secondary"
-              size="lg"
-            >
-              Developer Resources
-            </Button>
-          </div>
         </div>
+        <ul ref={ref} className="uh-ideas" {...(seen ? { 'data-seen': '' } : {})}>
+          {IDEAS.map((idea, i) => (
+            <li key={idea.title} style={{ '--i': i } as CSSProperties}>
+              <span aria-hidden="true"><Lightbulb size={18} /></span>
+              <h3>{idea.title}</h3>
+              <p>{idea.text}</p>
+            </li>
+          ))}
+        </ul>
+        <p className="uh-ideas__cta">
+          <Ln to={`${GITHUB}/discussions`}>Share yours in GitHub Discussions →</Ln>
+        </p>
       </div>
-    </Section>
+    </section>
+  )
+}
+
+export function UseCasesPage() {
+  usePageSEO()
+  const root = useRef<HTMLDivElement>(null)
+  useEffect(() => { root.current?.setAttribute('data-armed', '') }, [])
+  return (
+    <div ref={root} className="sw-home uc uh">
+      <Hero />
+      <Divider />
+      <Cases />
+      <Divider />
+      <Loop />
+      <Divider />
+      <Ideas />
+      <UseCaseFaq route="/use-cases" title="Questions about use cases" />
+      <UseCaseClose title="Start with one subject." grad="Wrap two calls around your agent.">
+        <div className="sw-hero__ctas">
+          <Ln to="/developers" className="sw-btn sw-btn--solid sw-hero__cta">
+            Start building
+            <span aria-hidden="true" className="sw-hero__go">→</span>
+          </Ln>
+          <DemoButton className="sw-btn sw-btn--ghost">Try the live demo</DemoButton>
+        </div>
+      </UseCaseClose>
+    </div>
   )
 }
