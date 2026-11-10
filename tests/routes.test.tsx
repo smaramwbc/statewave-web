@@ -112,6 +112,22 @@ describe('Route rendering', () => {
     })
   })
 
+  it('renders the changelog at /changelog, every entry linked to its GitHub release', async () => {
+    renderApp('/changelog')
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { level: 1, name: /what.s new/i })).toBeInTheDocument()
+    })
+    const entries = document.querySelectorAll('main article.cl-rel')
+    expect(entries.length).toBeGreaterThan(0)
+    for (const entry of entries) {
+      const product = entry.getAttribute('data-product')
+      expect(
+        entry.querySelector('a[href*="github.com/smaramwbc/statewave"][href*="/releases/tag/"]'),
+        `${entry.id} (${product}) has no link to its release`,
+      ).not.toBeNull()
+    }
+  })
+
   it('renders 404 for unknown routes', async () => {
     renderApp('/unknown-page')
     await waitFor(() => {
