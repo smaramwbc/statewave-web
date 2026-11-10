@@ -10,7 +10,7 @@ import { COLUMNS } from './site-links'
 // design but this site has no pricing page, and Company is footer-only.
 const GROUPS = COLUMNS.filter((c) => c.title !== 'Company')
 /** Routes whose first section is a dark v8 hero; see docs/v8-page-checklist.md. */
-const CLEAR_TOP = new Set(['/', '/product'])
+const CLEAR_TOP = new Set(['/', '/product', '/governance'])
 const isInternal = (to: string) => to.startsWith('/') && !to.includes('#')
 
 /**
