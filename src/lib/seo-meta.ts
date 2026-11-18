@@ -60,6 +60,10 @@ export type RouteKey =
   | '/vs/supermemory'
   | '/connectors'
   | '/developers'
+  | '/privacy'
+  | '/terms'
+  | '/cookies'
+  | '/impressum'
   | '/openrouter'
   | '/about'
   | '/blog'
@@ -87,6 +91,10 @@ export const PUBLIC_ROUTES: readonly RouteKey[] = [
   '/vs/supermemory',
   '/connectors',
   '/developers',
+  '/privacy',
+  '/terms',
+  '/cookies',
+  '/impressum',
   '/openrouter',
   '/about',
   '/blog',
@@ -267,6 +275,42 @@ export const PAGE_META: Record<RouteKey, PageMeta> = {
     ogType: 'article',
     priority: 0.8,
     changefreq: 'monthly',
+  },
+  '/privacy': {
+    title: 'Privacy Policy — Statewave',
+    description:
+      'How statewave.ai handles personal data: what we collect on the site, the demo and the newsletter, the lawful basis for each, our third-party processors, how long we keep data, and your rights under the GDPR.',
+    breadcrumbLabel: 'Privacy Policy',
+    ogType: 'website',
+    priority: 0.2,
+    changefreq: 'yearly',
+  },
+  '/terms': {
+    title: 'Terms of Service — Statewave',
+    description:
+      'The terms for using statewave.ai, the hosted live demo and the newsletter: acceptable use, intellectual property, warranty, liability and governing law. Self-hosted Statewave is covered by Apache-2.0 instead.',
+    breadcrumbLabel: 'Terms of Service',
+    ogType: 'website',
+    priority: 0.2,
+    changefreq: 'yearly',
+  },
+  '/cookies': {
+    title: 'Cookie Policy — Statewave',
+    description:
+      'What cookies and browser storage statewave.ai uses, why, and how long they live. Statewave uses only cookieless, privacy-friendly analytics (Plausible) and sets no advertising or tracking cookies.',
+    breadcrumbLabel: 'Cookie Policy',
+    ogType: 'website',
+    priority: 0.2,
+    changefreq: 'yearly',
+  },
+  '/impressum': {
+    title: 'Impressum / Legal Disclosure — Statewave',
+    description:
+      'The legal disclosure for statewave.ai under § 5 TMG and the Spanish LSSI-CE: the operator, WebConnect World SL in Madrid, with its registered address, tax IDs and contact addresses.',
+    breadcrumbLabel: 'Impressum',
+    ogType: 'website',
+    priority: 0.2,
+    changefreq: 'yearly',
   },
   '/openrouter': {
     ogImage: '/openrouter/og.png',
