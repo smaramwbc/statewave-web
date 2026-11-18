@@ -4,7 +4,7 @@ import { Bot, Cloud, Cpu, Database, DollarSign, Eye, FileCode, KeyRound, List, L
 import { Head, Pill, Seg, Tile } from './ui'
 import type { Tone } from './ui'
 
-const GOVERNANCE = 'https://github.com/smaramwbc/statewave-docs/blob/main/sensitivity-labels.md'
+const GOVERNANCE = '/governance'
 
 function Box({ icon, title, body, tone, children, className = '', id }: { icon: ReactNode; title: string; body: string; tone?: 'dark'; children: ReactNode; className?: string; id?: string }) {
   return (
