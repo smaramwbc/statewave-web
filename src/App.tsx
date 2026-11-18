@@ -15,7 +15,8 @@ const StatewaveVsLettaPage = lazy(() => import('./pages/StatewaveVsLettaPage').t
 const StatewaveVsZepPage = lazy(() => import('./pages/StatewaveVsZepPage').then(m => ({ default: m.StatewaveVsZepPage })))
 const StatewaveVsSupermemoryPage = lazy(() => import('./pages/StatewaveVsSupermemoryPage').then(m => ({ default: m.StatewaveVsSupermemoryPage })))
 const AlternativesPage = lazy(() => import('./pages/AlternativesPage').then(m => ({ default: m.AlternativesPage })))
-const ConnectorsPage = lazy(() => import('./pages/ConnectorsPage').then(m => ({ default: m.ConnectorsPage })))
+const ConnectorDetailPage = lazy(() => import('./pages/ConnectorDetailPage').then(m => ({ default: m.ConnectorDetailPage })))
+const ConnectorsIndexPage = lazy(() => import('./pages/ConnectorsIndexPage').then(m => ({ default: m.ConnectorsIndexPage })))
 const DevelopersPage = lazy(() => import('./pages/DevelopersPage').then(m => ({ default: m.DevelopersPage })))
 const OpenRouterPage = lazy(() => import('./pages/OpenRouterPage').then(m => ({ default: m.OpenRouterPage })))
 const CookiesPage = lazy(() => import('./pages/CookiesPage').then(m => ({ default: m.CookiesPage })))
@@ -52,7 +53,8 @@ export default function App() {
           <Route path="/vs/zep" element={<StatewaveVsZepPage />} />
           <Route path="/vs/supermemory" element={<StatewaveVsSupermemoryPage />} />
           <Route path="/vs" element={<AlternativesPage />} />
-          <Route path="/connectors" element={<ConnectorsPage />} />
+          <Route path="/connectors" element={<ConnectorsIndexPage />} />
+          <Route path="/connectors/:slug" element={<ConnectorDetailPage />} />
           <Route path="/developers" element={<DevelopersPage />} />
           <Route path="/openrouter" element={<OpenRouterPage />} />
           <Route path="/launch" element={<LaunchPage />} />

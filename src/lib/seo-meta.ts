@@ -43,6 +43,130 @@ export const OPENROUTER_LAST_UPDATED = '2026-09-28'
 
 /* ─── Route table ────────────────────────────────────────────────────────── */
 
+/** One /connectors/<slug> page per file in src/content/connectors, in the
+ *  index's group order. Titles and descriptions live here rather than being
+ *  read from that content so this module stays small: it ships on every
+ *  route, the connector content only with the connector pages. The
+ *  descriptions are each connector's hero line. tests/connector-routes.test.ts
+ *  fails if this list and the content folder drift apart. */
+const CONNECTOR_PAGES = {
+  github: {
+    name: 'GitHub',
+    title: 'GitHub Connector — Repo Memory for AI Agents | Statewave',
+    description:
+      'Issues, pull requests, reviews and releases become one memory per repository, so your coding agent knows the bugs and decisions behind the code.',
+  },
+  gitlab: {
+    name: 'GitLab',
+    title: 'GitLab Connector — Repo Memory for AI Agents | Statewave',
+    description:
+      'Issues, merge requests, comments, approvals and releases from GitLab become one memory per project, so your coding agent can recall why a change was made and who signed off.',
+  },
+  bitbucket: {
+    name: 'Bitbucket',
+    title: 'Bitbucket Connector — Repo Memory for AI Agents | Statewave',
+    description:
+      'Pull requests, comments and issues from Bitbucket Cloud become one memory per repository, so your coding agent can recall what a review decided.',
+  },
+  gitea: {
+    name: 'Gitea & Forgejo',
+    title: 'Gitea & Forgejo Connector — Repo Memory for AI Agents | Statewave',
+    description:
+      'Point the connector at your instance. Issues, pull requests, reviews and releases become one memory per repository that your coding agent can recall.',
+  },
+  'azure-devops': {
+    name: 'Azure DevOps',
+    title: 'Azure DevOps Connector — Repo Memory for AI Agents | Statewave',
+    description:
+      'Pull requests, thread comments, reviewer votes and work items from Azure DevOps become one memory per repository, so your coding agent can see what was decided and who approved it.',
+  },
+  slack: {
+    name: 'Slack',
+    title: 'Slack Connector — Team Memory for AI Agents | Statewave',
+    description:
+      'Messages and thread replies from the channels you pick become one memory for the workspace, so your agents know what the team already worked out.',
+  },
+  discord: {
+    name: 'Discord',
+    title: 'Discord Connector — Community Memory for AI Agents | Statewave',
+    description:
+      'Messages and thread replies from the channels you pick become one memory per server, so your bot can answer the questions your community already solved.',
+  },
+  gmail: {
+    name: 'Gmail',
+    title: 'Gmail Connector — Relationship Memory for AI Agents | Statewave',
+    description:
+      'Messages that match your Gmail search become one memory per relationship, so your agent knows where things stand with each person.',
+  },
+  zendesk: {
+    name: 'Zendesk',
+    title: 'Zendesk Connector — Customer Memory for AI Agents | Statewave',
+    description:
+      'Tickets, replies and internal notes become one memory per customer, so your support agent starts every conversation knowing the history.',
+  },
+  intercom: {
+    name: 'Intercom',
+    title: 'Intercom Connector — Customer Memory for AI Agents | Statewave',
+    description:
+      'Conversations, replies and admin notes land in one memory per company, so your agent knows what this customer asked before and what fixed it.',
+  },
+  freshdesk: {
+    name: 'Freshdesk',
+    title: 'Freshdesk Connector — Customer Memory for AI Agents | Statewave',
+    description:
+      'Tickets, public replies and private notes become one memory per company, so your agent knows a customer’s past tickets before it answers.',
+  },
+  markdown: {
+    name: 'Markdown & docs',
+    title: 'Markdown & Docs Connector — Decision Memory for AI Agents | Statewave',
+    description:
+      'Markdown files become decision memory, sorted into ADRs, RFCs, decisions and pages. It runs on your machine and needs no credentials.',
+  },
+  notion: {
+    name: 'Notion',
+    title: 'Notion Connector — Decision Memory for AI Agents | Statewave',
+    description:
+      'Pages shared with your integration become decision memory. Add their content and comments, and file them under the repo, project or team they govern.',
+  },
+  jira: {
+    name: 'Jira',
+    title: 'Jira Connector — Project Memory for AI Agents | Statewave',
+    description:
+      'Issues, comments and status changes land under their project, so an agent can tell you what broke, who fixed it and when.',
+  },
+  n8n: {
+    name: 'n8n',
+    title: 'n8n Connector — Workflow Memory for AI Agents | Statewave',
+    description:
+      'Runs, failures and the nodes that broke become memory for each workflow, so an agent can say what failed last night and whether it happened before.',
+  },
+  zapier: {
+    name: 'Zapier',
+    title: 'Zapier Connector — Workflow Memory for AI Agents | Statewave',
+    description:
+      'Add a Webhooks by Zapier step to the end of a zap, and each run becomes an episode under the subject you choose.',
+  },
+  'mcp-server': {
+    name: 'MCP server',
+    title: 'Statewave MCP Server — Memory for Claude Code, Cursor and Copilot',
+    description:
+      'One MCP server gives Claude Code, Cursor, Copilot and Codex your team’s decisions and history, with a source for every answer.',
+  },
+  database: {
+    name: 'Databases',
+    title: 'SQL Database Connector — Records Memory for AI Agents | Statewave',
+    description:
+      'Bring selected rows from Postgres, MySQL, MariaDB or SQL Server into memory. Read-only, allowlisted and capped on every run.',
+  },
+} as const satisfies Record<string, { name: string; title: string; description: string }>
+
+export type ConnectorSlug = keyof typeof CONNECTOR_PAGES
+export type ConnectorRoute = `/connectors/${ConnectorSlug}`
+
+export const CONNECTOR_ROUTES: readonly ConnectorRoute[] = (
+  Object.keys(CONNECTOR_PAGES) as ConnectorSlug[]
+).map((slug) => `/connectors/${slug}` as const)
+
 export type RouteKey =
   | '/'
   | '/product'
@@ -65,6 +189,7 @@ export type RouteKey =
   | '/blog'
   | '/blog/statewave-guide'
   | '/faq'
+  | ConnectorRoute
 
 /** Canonical, indexable public routes. Order matters — used to render the
  *  sitemap and the llms.txt index. /blog/<slug> entries are appended to
@@ -86,6 +211,7 @@ export const PUBLIC_ROUTES: readonly RouteKey[] = [
   '/vs/zep',
   '/vs/supermemory',
   '/connectors',
+  ...CONNECTOR_ROUTES,
   '/developers',
   '/openrouter',
   '/about',
@@ -119,6 +245,23 @@ export interface PageMeta {
     | 'monthly'
     | 'yearly'
     | 'never'
+}
+
+function connectorPageMeta(): Record<ConnectorRoute, PageMeta> {
+  return Object.fromEntries(
+    (Object.keys(CONNECTOR_PAGES) as ConnectorSlug[]).map((slug) => {
+      const page = CONNECTOR_PAGES[slug]
+      const meta: PageMeta = {
+        title: page.title,
+        description: page.description,
+        breadcrumbLabel: page.name,
+        ogType: 'article',
+        priority: 0.6,
+        changefreq: 'monthly',
+      }
+      return [`/connectors/${slug}`, meta]
+    }),
+  ) as Record<ConnectorRoute, PageMeta>
 }
 
 export const PAGE_META: Record<RouteKey, PageMeta> = {
@@ -259,6 +402,7 @@ export const PAGE_META: Record<RouteKey, PageMeta> = {
     priority: 0.8,
     changefreq: 'monthly',
   },
+  ...connectorPageMeta(),
   '/developers': {
     title: 'Developers — SDKs, API, and Self-Hosted Deployment',
     description:
