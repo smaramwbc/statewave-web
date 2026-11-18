@@ -308,9 +308,9 @@ export const PAGE_META: Record<RouteKey, PageMeta> = {
     changefreq: 'weekly',
   },
   '/faq': {
-    title: 'FAQ — Statewave',
+    title: 'Statewave FAQ — Agent Memory, Self-Hosting and Licensing',
     description:
-      'Answers to common questions about Statewave: what it is, how memory compilation and retrieval work, self-hosting, governance, pricing, and how it compares to RAG.',
+      'Answers to common questions about Statewave: what it is, how it gives AI agents persistent memory, how it differs from a vector database, self-hosting, Apache-2.0 licensing, and the LLMs and frameworks it works with.',
     breadcrumbLabel: 'FAQ',
     ogType: 'website',
     priority: 0.6,
