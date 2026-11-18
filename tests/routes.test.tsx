@@ -62,6 +62,20 @@ describe('Route rendering', () => {
     })
   })
 
+  it('renders the coding agents use case at /use-cases/coding-agents', async () => {
+    renderApp('/use-cases/coding-agents')
+    await waitFor(() => {
+      expect(screen.getByText(/stop re-explaining your repo/i)).toBeInTheDocument()
+    })
+    // The page leads to the three packages it is built from.
+    for (const slug of ['github', 'markdown', 'mcp-server']) {
+      expect(
+        document.querySelector(`main a[href="/connectors/${slug}"]`),
+        `no link to /connectors/${slug}`,
+      ).not.toBeNull()
+    }
+  })
+
   it('renders benchmarks page at /benchmarks', async () => {
     renderApp('/benchmarks')
     await waitFor(() => {
