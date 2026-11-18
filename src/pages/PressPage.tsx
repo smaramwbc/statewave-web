@@ -1,761 +1,477 @@
-import { Section } from '../components/Section'
-import { Heading } from '../components/Heading'
-import { CopyButton } from '../components/CopyButton'
+import { useEffect, useRef, useState } from 'react'
+import type { CSSProperties, ReactNode } from 'react'
+import { ArrowDownToLine, ArrowUpRight, Check, Copy } from 'lucide-react'
+import { Divider, Eyebrow, H2, Ln } from '../components/home/ui'
+import { useCopy, useSeen } from '../components/home/hooks'
+import { GITHUB } from '../components/home/links'
+import { PAGE_FAQS } from '../lib/page-faqs'
 import { usePageSEO } from '../lib/seo'
-import { Button } from '../components/Button'
+import '../components/home/home-b.css'
+import '../components/press/press.css'
 
-// Copy-button text constants — defined here so the rendered prose and the
-// copied-to-clipboard string stay in sync, and so journalists copying
-// these snippets get a clean plain-text version (no React entities).
+/* /press in the v8 style: the kit for journalists, newsletter editors and list maintainers.
+ * Boilerplate, fast facts, logos, colors, screenshots and the press address. No founder bio, per the
+ * neutral brand voice; the legal operator is on /impressum. Every file is one already in
+ * public/press or public/images/press, and the facts match /product and the v1.0.0 release.
+ * An interior page: the hero ends on a straight edge and the home's cross divider, not the arc. */
+
+// Constants so the rendered text and the copied string stay the same.
 const BOILERPLATE_LONG =
   'Statewave is the open-source memory runtime that gives AI agents reproducible, provenance-tagged context — without sampling-noise from query-time retrieval. It compiles raw events into deterministic context bundles per subject and assembles a ranked, token-bounded bundle on demand, with full provenance back to source episodes. Statewave is Apache-2.0 across server and SDKs, self-hosted on PostgreSQL + pgvector, and ships with a public LoCoMo-based benchmark anyone can rerun in roughly 20 minutes.'
 
 const BOILERPLATE_SHORT =
   'Open-source memory runtime for AI agents — compiled, provenance-tagged context bundles, Apache-2.0, self-hosted on Postgres.'
 
-const PRESS_CONTACT = 'press@statewave.ai'
+const PRESS = 'press@statewave.ai'
+const BENCHMARKS_REPO = 'https://github.com/smaramwbc/statewave-memory-benchmarks'
 
-/**
- * /press — kit for journalists, newsletter editors, and Awesome-list
- * maintainers. Boilerplate, downloadable logos and screenshots, and a
- * direct press contact email. No personal founder bio per the launch
- * neutral-brand-voice rule; the legal operator is disclosed on
- * /impressum.
- */
-export function PressPage() {
-  usePageSEO({
-    title: 'Statewave — Press Kit',
-    description:
-      'Press kit for Statewave: logos, screenshots, boilerplate, fast facts, and the row-level open benchmark data. Press contact: press@statewave.ai.',
-  })
+type Fact = { label: string; value: string; to?: string }
 
+const FACTS: Fact[] = [
+  { label: 'Category', value: 'Memory runtime for AI agents' },
+  { label: 'License', value: 'Apache-2.0 across the server, SDKs and benchmark' },
+  { label: 'Language', value: 'Python server, with Python and TypeScript SDKs' },
+  { label: 'Storage', value: 'PostgreSQL 15+ with pgvector 0.4.2+' },
+  { label: 'Deployment', value: 'Docker Compose, Helm, Fly.io or Railway' },
+  { label: 'Model providers', value: '100+ through LiteLLM, including OpenAI, Anthropic, Bedrock and Ollama' },
+  { label: 'v1.0 released', value: 'June 9, 2026', to: `${GITHUB}/releases/tag/v1.0.0` },
+  { label: 'Repository', value: 'smaramwbc/statewave on GitHub', to: GITHUB },
+  { label: 'Open benchmark', value: 'statewave-memory-benchmarks on GitHub', to: BENCHMARKS_REPO },
+  { label: 'Live demo', value: 'statewave.ai/demo, no signup required', to: '/demo' },
+]
+
+/** The brand guide's primary colors (public/press/statewave-brand-colors.png). */
+const COLORS = [
+  { name: 'Cyan 500', hex: '#00C6FF' },
+  { name: 'Blue 500', hex: '#4A8CFF' },
+  { name: 'Indigo 500', hex: '#6366F1' },
+  { name: 'Violet 500', hex: '#7A5CFF' },
+  { name: 'Purple 600', hex: '#8B5CF6' },
+]
+
+type Asset = { label: string; href: string }
+
+/** The full-color logo, one card per background. */
+const LOGOS: { id: string; title: string; img: string; dark?: boolean; files: Asset[] }[] = [
+  {
+    id: 'dark',
+    title: 'For dark backgrounds',
+    img: '/press/statewave-wordmark-dark.png',
+    dark: true,
+    files: [
+      { label: 'PNG', href: '/press/statewave-wordmark-dark.png' },
+      { label: 'SVG', href: '/press/logo-horizontal-db.svg' },
+    ],
+  },
+  {
+    id: 'light',
+    title: 'For light backgrounds',
+    img: '/press/statewave-wordmark-light.png',
+    files: [
+      { label: 'PNG', href: '/press/statewave-wordmark-light.png' },
+      { label: 'SVG', href: '/press/logo-horizontal-lb.svg' },
+    ],
+  },
+]
+
+const MORE_FILES: { title: string; text: string; files: Asset[] }[] = [
+  {
+    title: 'Logo, white',
+    text: 'One color, for photos and busy backgrounds',
+    files: [
+      { label: 'PNG', href: '/press/logo-horizontal-white.png' },
+      { label: 'SVG', href: '/press/logo-horizontal-white.svg' },
+    ],
+  },
+  {
+    title: 'Logo, black',
+    text: 'One color, for print and monochrome layouts',
+    files: [
+      { label: 'PNG', href: '/press/logo-horizontal-black.png' },
+      { label: 'SVG', href: '/press/logo-horizontal-black.svg' },
+    ],
+  },
+  {
+    title: 'Color reference',
+    text: 'Gradient, primary and support colors, light and dark text',
+    files: [{ label: 'PNG', href: '/press/statewave-brand-colors.png' }],
+  },
+]
+
+const SHOTS = [
+  { id: 'overview', title: 'Overview', alt: 'The Statewave admin console overview' },
+  { id: 'subjects', title: 'Subjects', alt: 'The Statewave admin console subject list' },
+  { id: 'diagnostics', title: 'Diagnostics', alt: 'The Statewave admin console diagnostics view' },
+] as const
+
+const shot = (id: string, theme: 'light' | 'dark') => `/images/press/screenshots/${id}-${theme}.png`
+
+const DATA = [
+  {
+    title: 'Benchmark suite',
+    text: 'Apache-2.0, LoCoMo-based datasets and row-level JSONL output you can rerun with your own keys.',
+    to: BENCHMARKS_REPO,
+  },
+  {
+    title: 'Architecture',
+    text: 'How the system is built: the execution flow and the memory pipeline, from episode to bundle.',
+    to: 'https://github.com/smaramwbc/statewave-docs/blob/main/architecture/overview.md',
+  },
+  {
+    title: 'Comparisons',
+    text: 'How Statewave compares with other memory systems and vector stores, with the method shown.',
+    to: 'https://github.com/smaramwbc/statewave-docs/tree/main/comparisons',
+  },
+]
+
+const i = (n: number) => ({ ['--i' as string]: n }) as CSSProperties
+
+/** A file link. Plain <a download>, not Ln: a router Link would try to render the file as a page. */
+function Dl({ href, className, children, name }: { href: string; className?: string; children: ReactNode; name?: string }) {
+  return <a href={href} download={name ?? true} className={className}>{children}</a>
+}
+
+function CopyIcon({ done }: { done: boolean }) {
+  return done ? <Check size={16} aria-hidden="true" /> : <Copy size={16} aria-hidden="true" />
+}
+
+/* ── hero ── */
+
+function Email({ dark }: { dark?: boolean }) {
+  const [done, copy] = useCopy(PRESS)
   return (
-    <>
-      <section className="relative overflow-hidden pt-24 pb-16 sm:pt-28 sm:pb-20 md:pt-36 md:pb-24">
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 top-[-180px] bottom-0 bg-[radial-gradient(ellipse_at_top,rgba(122,92,255,0.15),transparent_72%)]"
-        />
+    <div className={`pk-mail${dark ? ' pk-mail--dark' : ''}`}>
+      <Ln to={`mailto:${PRESS}`} className="pk-mail__addr">{PRESS}</Ln>
+      <button type="button" className="pk-mail__copy" onClick={copy} aria-label={`Copy ${PRESS}`}>
+        <CopyIcon done={done} />
+      </button>
+      <span className="pk-sr" aria-live="polite">{done ? 'Copied' : ''}</span>
+    </div>
+  )
+}
 
-        <div className="relative mx-auto max-w-4xl">
-          <p className="section-eyebrow mb-5 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
-            Press Kit
+function Hero() {
+  return (
+    <section className="sw-hero pk-hero" aria-label="Press kit">
+      <div className="sw-hero__beams" aria-hidden="true">
+        {[[18, 24, 0.22], [34, 24, 0.12], [70, -22, 0.16], [86, -22, 0.1]].map(([l, r, o]) => (
+          <i key={l} style={{ left: `${l}%`, transform: `rotate(${r}deg)`, ['--o' as string]: o }} />
+        ))}
+      </div>
+      <div className="sw-hero__in">
+        <Eyebrow dark>Press kit</Eyebrow>
+        <h1 className="sw-hero__title">
+          Everything you need<br /> <span className="sw-hero__grad">to write about Statewave.</span>
+        </h1>
+        <p className="sw-hero__sub">
+          Logos, screenshots, a ready-to-use description and the key facts, free to use in coverage of the project.
+        </p>
+        <div className="pk-hero__cta">
+          <Dl href="/press/BRAND-ASSETS.zip" name="Statewave-Brand-Assets.zip" className="sw-btn sw-btn--solid">
+            Brand kit <span className="pk-size">ZIP · 0.7 MB</span> <ArrowDownToLine size={18} aria-hidden="true" />
+          </Dl>
+          <Dl href="/press/SCREENSHOTS.zip" name="Statewave-Screenshots.zip" className="sw-btn sw-btn--ghost">
+            Screenshots <span className="pk-size">ZIP · 7.7 MB</span> <ArrowDownToLine size={18} aria-hidden="true" />
+          </Dl>
+        </div>
+        <div className="pk-hero__contact">
+          <span>Press contact</span>
+          <Email dark />
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ── boilerplate ── */
+
+function CopyCard({ text, label, short }: { text: string; label: string; short?: boolean }) {
+  const [done, copy] = useCopy(text)
+  return (
+    <div className={`pk-copy${short ? ' pk-copy--short' : ''}`}>
+      <p>{short ? `“${text}”` : text}</p>
+      <button type="button" className="pk-copy__btn" onClick={copy} aria-label={label}>
+        <CopyIcon done={done} /> <span>{done ? 'Copied' : 'Copy'}</span>
+      </button>
+    </div>
+  )
+}
+
+function Boilerplate() {
+  return (
+    <section id="boilerplate" className="pk-section" aria-labelledby="pk-about">
+      <div className="pk-wrap pk-wrap--narrow">
+        <Eyebrow>Boilerplate</Eyebrow>
+        <H2 id="pk-about" a="What is Statewave?" />
+        <CopyCard text={BOILERPLATE_LONG} label="Copy the boilerplate paragraph" />
+        <p className="pk-note">Short version, 120 characters or fewer:</p>
+        <CopyCard text={BOILERPLATE_SHORT} label="Copy the short boilerplate" short />
+        <p className="pk-note">Both are free to copy as written, in articles, newsletters, podcasts and product roundups.</p>
+      </div>
+    </section>
+  )
+}
+
+/* ── fast facts ── */
+
+function Facts() {
+  const [ref, seen] = useSeen<HTMLDListElement>()
+  return (
+    <section id="facts" className="pk-section pk-section--tint" aria-labelledby="pk-facts">
+      <div className="pk-wrap">
+        <div className="pk-head">
+          <Eyebrow>Fast facts</Eyebrow>
+          <H2 id="pk-facts" a="The project" b="at a glance." />
+        </div>
+        <dl ref={ref} className="pk-facts" data-seen={seen || undefined}>
+          {FACTS.map((f, n) => (
+            <div key={f.label} className="pk-fact" style={i(n)}>
+              <dt>{f.label}</dt>
+              <dd>{f.to ? <Ln to={f.to}>{f.value}</Ln> : f.value}</dd>
+            </div>
+          ))}
+        </dl>
+      </div>
+    </section>
+  )
+}
+
+/* ── logos, icon and colors ── */
+
+function Files({ files, title }: { files: Asset[]; title: string }) {
+  return (
+    <span className="pk-files">
+      {files.map(f => (
+        <Dl key={f.href} href={f.href} className="pk-file">
+          <span className="pk-sr">{title}, </span>{f.label} <ArrowDownToLine size={14} aria-hidden="true" />
+        </Dl>
+      ))}
+    </span>
+  )
+}
+
+function Swatch({ name, hex, n }: { name: string; hex: string; n: number }) {
+  const [done, copy] = useCopy(hex)
+  return (
+    <li style={i(n)}>
+      <button type="button" className="pk-swatch" onClick={copy} aria-label={`Copy ${name} ${hex}`}>
+        <span className="pk-swatch__chip" style={{ background: hex }}>
+          <span className="pk-swatch__done" aria-hidden="true">{done && <Check size={18} />}</span>
+        </span>
+        <span className="pk-swatch__name">{name}</span>
+        <span className="pk-swatch__hex sw-mono">{done ? 'Copied' : hex}</span>
+      </button>
+    </li>
+  )
+}
+
+function Brand() {
+  const [ref, seen] = useSeen<HTMLDivElement>()
+  return (
+    <section id="logos" className="pk-section" aria-labelledby="pk-logos">
+      <div className="pk-wrap">
+        <div className="pk-head">
+          <Eyebrow>Brand assets</Eyebrow>
+          <H2 id="pk-logos" a="Logos, icon" b="and colors." />
+          <p className="sw-lede">
+            Use them as they are: no recoloring, stretching or redrawing. The <Ln to={`${GITHUB}/blob/main/TRADEMARKS.md`} className="sw-lede__link">trademark policy</Ln> covers the details.
           </p>
-
-          <h1 className="font-heading text-4xl font-bold leading-[0.98] tracking-[-0.03em] text-theme-primary sm:text-5xl md:text-[56px]">
-            Everything you need to write about{" "}
-            <span className="text-gradient-brand">Statewave.</span>
-          </h1>
-
-          <p className="mt-7 text-[17px] leading-[1.7] text-theme-secondary/90 sm:text-[19px] md:text-[20px]">
-            Statewave is an open-source memory runtime for AI agents. This page
-            collects the assets, key facts, and direct contact information for
-            journalists, newsletter editors, and reviewers covering the project.
-          </p>
-
-          <div className="mt-8 flex flex-wrap items-center gap-x-2 gap-y-2 text-sm leading-relaxed text-theme-muted">
-            <span>Press contact:</span>
-
-            <a
-              href="mailto:press@statewave.ai"
-              className="font-medium text-brand-400 transition-colors hover:text-brand-300"
-            >
-              press@statewave.ai
-            </a>
-
-            <CopyButton
-              text={PRESS_CONTACT}
-              label="Copy press contact email"
-            />
-
-            <span className="text-theme-muted/50">•</span>
-
-            <span>
-              Replies within 24 hours during launch week, 72 hours otherwise.
+        </div>
+        <div ref={ref} className="pk-brand" data-seen={seen || undefined}>
+          {LOGOS.map((l, n) => (
+            <figure key={l.id} className={`pk-logo${l.dark ? ' pk-logo--dark' : ''}`} style={i(n)}>
+              <div className="pk-logo__art"><img src={l.img} alt={`Statewave logo ${l.title.toLowerCase()}`} width={1600} height={600} loading="lazy" /></div>
+              <figcaption>
+                <span><b>{l.title}</b><small>Full color · transparent</small></span>
+                <Files files={l.files} title={`Logo ${l.title.toLowerCase()}`} />
+              </figcaption>
+            </figure>
+          ))}
+          <figure className="pk-logo pk-logo--icon" style={i(2)}>
+            <div className="pk-logo__art"><img src="/press/statewave-icon.png" alt="Statewave icon" width={1000} height={1000} loading="lazy" /></div>
+            <figcaption>
+              <span><b>Icon</b><small>1000×1000 · transparent</small></span>
+              <Files files={[{ label: 'PNG', href: '/press/statewave-icon.png' }]} title="Icon" />
+            </figcaption>
+          </figure>
+          <div className="pk-colors" style={i(3)}>
+            <p><b>Primary colors</b><small>Click a color to copy its HEX.</small></p>
+            <ul>{COLORS.map((c, n) => <Swatch key={c.hex} {...c} n={n} />)}</ul>
+          </div>
+        </div>
+        <ul className="pk-more" aria-label="More brand files">
+          {MORE_FILES.map(f => (
+            <li key={f.title}>
+              <span><b>{f.title}</b><small>{f.text}</small></span>
+              <Files files={f.files} title={f.title} />
+            </li>
+          ))}
+          <li>
+            <span><b>Complete brand kit</b><small>Horizontal and stacked logos, icons, SVG sources, color and type guides</small></span>
+            <span className="pk-files">
+              <Dl href="/press/BRAND-ASSETS.zip" name="Statewave-Brand-Assets.zip" className="pk-file">ZIP · 0.7 MB <ArrowDownToLine size={14} aria-hidden="true" /></Dl>
             </span>
-          </div>
-        </div>
-      </section>
-
-      <Section>
-        <div className="mx-auto max-w-4xl">
-          <div className="mb-10 max-w-2xl">
-            <p className="section-eyebrow mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
-              Media resources
-            </p>
-
-            <Heading
-              id="boilerplate"
-              className="font-heading text-3xl font-bold leading-tight tracking-[-0.02em] text-theme-primary sm:text-4xl"
-            >
-              Boilerplate
-            </Heading>
-
-            <p className="mt-5 text-[17px] leading-[1.7] text-theme-secondary/85">
-              A ready-to-use project description for articles, newsletters, podcasts,
-              and product roundups.
-            </p>
-          </div>
-
-          <div className="relative rounded-[2rem] border border-theme-border bg-surface-2/35 p-7 pr-20 backdrop-blur-sm transition-colors hover:border-theme-border-hover sm:p-8 sm:pr-24">
-            <div className="absolute right-4 top-4">
-              <CopyButton
-                text={BOILERPLATE_LONG}
-                label="Copy boilerplate paragraph"
-                variant="card-corner"
-              />
-            </div>
-
-            <p className="text-[16px] leading-[1.8] text-theme-secondary">
-              Statewave is the open-source memory runtime that gives AI agents
-              reproducible, provenance-tagged context — without sampling-noise from
-              query-time retrieval. It compiles raw events into deterministic context
-              bundles per subject and assembles a ranked, token-bounded bundle on
-              demand, with full provenance back to source episodes. Statewave is
-              Apache-2.0 across server and SDKs, self-hosted on PostgreSQL +
-              pgvector, and ships with a public LoCoMo-based benchmark anyone can
-              rerun in roughly 20 minutes.
-            </p>
-          </div>
-
-          <div className="mt-8">
-            <p className="mb-3 text-xs font-medium uppercase tracking-[0.16em] text-theme-muted">
-              Short version (≤120 characters)
-            </p>
-
-            <div className="relative rounded-2xl border border-theme-border bg-surface-2/20 p-5 pr-14 transition-colors hover:border-theme-border-hover">
-              <div className="absolute right-3 top-3">
-                <CopyButton
-                  text={BOILERPLATE_SHORT}
-                  label="Copy short boilerplate"
-                />
-              </div>
-
-              <p className="pr-2 text-[15px] leading-[1.7] text-theme-secondary">
-                “Open-source memory runtime for AI agents — compiled,
-                provenance-tagged context bundles, Apache-2.0, self-hosted on
-                Postgres.”
-              </p>
-            </div>
-
-            <p className="mt-3 text-xs leading-relaxed text-theme-muted">
-              Free to copy verbatim.
-            </p>
-          </div>
-        </div>
-      </Section>
-
-      <Section className="relative overflow-hidden bg-surface-1">
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute right-0 top-1/2 h-72 w-72 -translate-y-1/2 rounded-full bg-brand-500/[0.05] blur-3xl"
-        />
-
-        <div className="relative mx-auto max-w-5xl">
-          <div className="mb-10 max-w-2xl">
-            <p className="section-eyebrow mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
-              Project overview
-            </p>
-
-            <Heading
-              id="fast-facts"
-              className="font-heading text-3xl font-bold leading-tight tracking-[-0.02em] text-theme-primary sm:text-4xl"
-            >
-              Fast facts
-            </Heading>
-
-            <p className="mt-5 text-[17px] leading-[1.7] text-theme-secondary/85">
-              The core technical and project details editors and reviewers usually
-              need at a glance.
-            </p>
-          </div>
-
-          <dl className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <FactCard label="Category" value="Memory runtime for AI agents" />
-
-            <FactCard
-              label="License"
-              value="Apache-2.0 across the server, SDKs, and benchmark"
-            />
-
-            <FactCard
-              label="Language"
-              value="Python core with a TypeScript SDK"
-            />
-
-            <FactCard
-              label="Storage"
-              value="PostgreSQL 14+ with pgvector"
-            />
-
-            <FactCard
-              label="Deployment"
-              value="Docker Compose, Helm chart, and bare-metal"
-            />
-
-            <FactCard
-              label="Model providers"
-              value="100+ through LiteLLM, including OpenAI, Anthropic, Bedrock, and Ollama"
-            />
-
-            <FactCard
-              label="v1.0 released"
-              value="June 9, 2026"
-            />
-
-            <FactCard
-              label="Repository"
-              value="github.com/smaramwbc/statewave"
-            />
-
-            <FactCard
-              label="Open benchmark"
-              value="github.com/smaramwbc/statewave-memory-benchmarks"
-            />
-
-            <FactCard
-              label="Live demo"
-              value="statewave.ai/demo — no signup required"
-            />
-          </dl>
-        </div>
-      </Section>
-
-      <Section>
-        <div className="mx-auto max-w-5xl">
-          <div className="mb-10 max-w-2xl">
-            <p className="section-eyebrow mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
-              Brand resources
-            </p>
-
-            <Heading
-              id="logo"
-              className="font-heading text-3xl font-bold leading-tight tracking-[-0.02em] text-theme-primary sm:text-4xl"
-            >
-              Logo &amp; brand assets
-            </Heading>
-
-            <p className="mt-5 text-[17px] leading-[1.7] text-theme-secondary/85">
-              Official Statewave logos, icons, colors, and source files for press
-              coverage, articles, presentations, and partner materials.
-            </p>
-          </div>
-
-          {/* Logo previews */}
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-            <div className="overflow-hidden rounded-[2rem] border border-theme-border bg-[#08152d]">
-              <div className="flex min-h-[250px] items-center justify-center px-6 py-8 sm:min-h-[300px] sm:px-8">
-                <img
-                  src="/press/statewave-wordmark-dark.png"
-                  alt="Statewave logo for dark backgrounds"
-                  className="max-h-60 w-full max-w-[360px] object-contain"
-                />
-              </div>
-
-              <div className="flex items-center justify-between border-t border-white/10 px-6 py-4">
-                <div>
-                  <p className="text-sm font-semibold text-white">
-                    Logo for dark backgrounds
-                  </p>
-                  <p className="mt-1 text-xs text-white/55">
-                    PNG · 1600×600 · transparent
-                  </p>
-                </div>
-
-                <a
-                  href="/press/statewave-wordmark-light.png"
-                  download
-                  className="text-sm font-medium text-brand-400 transition-colors hover:text-brand-300"
-                >
-                  Download ↓
-                </a>
-              </div>
-            </div>
-
-            <div className="overflow-hidden rounded-[2rem] border border-theme-border bg-white">
-              <div className="flex min-h-[250px] items-center justify-center px-8 py-12 sm:min-h-[300px] sm:px-12">
-                <img
-                  src="/press/statewave-wordmark-light.png"
-                  alt="Statewave logo for light backgrounds"
-                  className="max-h-60 w-full max-w-[360px] object-contain"
-                />
-              </div>
-
-              <div className="flex items-center justify-between border-t border-black/10 px-6 py-4">
-                <div>
-                  <p className="text-sm font-semibold text-slate-900">
-                    Logo for light backgrounds
-                  </p>
-                  <p className="mt-1 text-xs text-slate-500">
-                    PNG · 1600×600 · transparent
-                  </p>
-                </div>
-
-                <a
-                  href="/press/statewave-wordmark-dark.png"
-                  download
-                  className="text-sm font-medium text-brand-600 transition-colors hover:text-brand-700"
-                >
-                  Download ↓
-                </a>
-              </div>
-            </div>
-          </div>
-
-          {/* Icon and colors */}
-          <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-[0.75fr_1.25fr]">
-            <div className="flex min-h-[220px] flex-col rounded-[2rem] border border-theme-border bg-surface-2/25 p-6">
-              <div className="flex flex-1 items-center justify-center py-6">
-                <img
-                  src="/press/statewave-icon.png"
-                  alt="Statewave icon"
-                  className="h-28 w-28 object-contain"
-                />
-              </div>
-
-              <div className="flex items-end justify-between">
-                <div>
-                  <p className="text-sm font-semibold text-theme-primary">
-                    Statewave icon
-                  </p>
-                  <p className="mt-1 text-xs text-theme-muted">
-                    PNG · 1000×1000 · transparent
-                  </p>
-                </div>
-
-                <a
-                  href="/press/statewave-icon.png"
-                  download
-                  className="text-sm font-medium text-brand-400 transition-colors hover:text-brand-300"
-                >
-                  Download ↓
-                </a>
-              </div>
-            </div>
-
-            <div className="rounded-[2rem] border border-theme-border bg-surface-2/25 p-6 sm:p-7">
-              <div className="mb-6">
-                <p className="text-sm font-semibold text-theme-primary">
-                  Brand colors
-                </p>
-                <p className="mt-1 text-xs leading-relaxed text-theme-muted">
-                  Primary colors used across the Statewave identity.
-                </p>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                <BrandColor
-                  name="Cyan"
-                  hex="#00C7FF"
-                  className="bg-[#00C7FF]"
-                />
-
-                <BrandColor
-                  name="Blue"
-                  hex="#3B82F6"
-                  className="bg-[#3B82F6]"
-                />
-
-                <BrandColor
-                  name="Indigo"
-                  hex="#6366F1"
-                  className="bg-[#6366F1]"
-                />
-
-                <BrandColor
-                  name="Violet"
-                  hex="#7C5CFF"
-                  className="bg-[#7C5CFF]"
-                />
-              </div>
-
-              <a
-                href="/press/statewave-brand-colors.png"
-                download
-                className="mt-6 inline-flex text-sm font-medium text-brand-400 transition-colors hover:text-brand-300"
-              >
-                Download full color reference ↓
-              </a>
-            </div>
-          </div>
-
-          {/* Additional files */}
-          <div className="mt-8">
-            <p className="mb-4 text-xs font-semibold uppercase tracking-[0.16em] text-theme-muted">
-              Additional files
-            </p>
-
-            <div className="divide-y divide-theme-border overflow-hidden rounded-2xl border border-theme-border bg-surface-2/20">
-              <AssetDownload
-                title="Wordmark SVG"
-                description="Scalable vector source"
-                href="/press/statewave-wordmark.svg"
-                fileType="SVG"
-              />
-
-              <AssetDownload
-                title="Complete brand kit"
-                description="Logos, icons, SVG sources, and color reference"
-                href="/press/BRAND-ASSETS.zip"
-                fileType="ZIP"
-              />
-
-              <AssetDownload
-                title="Trademark and naming guidance"
-                description="Guidance for referencing Statewave in media coverage"
-                href="https://github.com/smaramwbc/statewave/blob/main/TRADEMARKS.md"
-                fileType="MD"
-                external
-              />
-            </div>
-          </div>
-        </div>
-      </Section>
-
-      <Section className="bg-surface-1">
-        <div className="mx-auto max-w-5xl">
-          <div className="mb-10 max-w-2xl">
-            <p className="section-eyebrow mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
-              Media assets
-            </p>
-
-            <Heading
-              id="screenshots"
-              className="font-heading text-3xl font-bold leading-tight tracking-[-0.02em] text-theme-primary sm:text-4xl"
-            >
-              Product screenshots
-            </Heading>
-
-            <p className="mt-5 text-[17px] leading-[1.7] text-theme-secondary/85">
-              Official Statewave interface screenshots for articles, presentations,
-              reviews, media coverage, and partner documentation.
-            </p>
-          </div>
-
-          <div className="rounded-[2rem] border border-theme-border bg-surface-2/25 p-6 sm:p-8">
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-              {/* Overview */}
-              <div className="overflow-hidden rounded-2xl border border-theme-border bg-surface-1">
-                <img
-                  src="/images/press/screenshots/overview-light.png"
-                  alt="Statewave overview interface"
-                  className="theme-light aspect-video h-full w-full object-cover"
-                />
-
-                <img
-                  src="/images/press/screenshots/overview-dark.png"
-                  alt="Statewave overview interface"
-                  className="theme-dark aspect-video h-full w-full object-cover"
-                />
-              </div>
-
-              {/* Subjects */}
-              <div className="overflow-hidden rounded-2xl border border-theme-border bg-surface-1">
-                <img
-                  src="/images/press/screenshots/subjects-light.png"
-                  alt="Statewave subjects interface"
-                  className="theme-light aspect-video h-full w-full object-cover"
-                />
-
-                <img
-                  src="/images/press/screenshots/subjects-dark.png"
-                  alt="Statewave subjects interface"
-                  className="theme-dark aspect-video h-full w-full object-cover"
-                />
-              </div>
-
-              {/* Diagnostics */}
-              <div className="overflow-hidden rounded-2xl border border-theme-border bg-surface-1">
-                <img
-                  src="/images/press/screenshots/diagnostics-light.png"
-                  alt="Statewave diagnostics interface"
-                  className="theme-light aspect-video h-full w-full object-cover"
-                />
-
-                <img
-                  src="/images/press/screenshots/diagnostics-dark.png"
-                  alt="Statewave diagnostics interface"
-                  className="theme-dark aspect-video h-full w-full object-cover"
-                />
-              </div>
-
-            </div>
-
-            <div className="mt-8 flex flex-col gap-4 border-t border-theme-border pt-6 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <h3 className="text-lg font-semibold text-theme-primary">
-                  Complete Screenshot Pack
-                </h3>
-
-                <p className="mt-2 text-sm leading-relaxed text-theme-secondary">
-                  High-resolution PNG screenshots (1920×1080), ready for articles,
-                  presentations, and press coverage.
-                </p>
-              </div>
-
-              <Button
-                size="lg"
-                onClick={() => {
-                  const link = document.createElement("a")
-                  link.href = "/press/SCREENSHOTS.zip"
-                  link.download = "Statewave-Screenshots.zip"
-                  document.body.appendChild(link)
-                  link.click()
-                  document.body.removeChild(link)
-                }}
-              >
-                Download
-
-                <svg
-                  className="h-4 w-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  aria-hidden="true"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 4v12m0 0 4-4m-4 4-4-4M5 20h14"
-                  />
-                </svg>
-              </Button>
-            </div>
-          </div>
-        </div>
-      </Section>
-
-      <Section>
-        <div className="mx-auto max-w-5xl">
-          <div className="mb-10 max-w-2xl">
-            <p className="section-eyebrow mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
-              Contact
-            </p>
-
-            <Heading
-              id="team"
-              className="font-heading text-3xl font-bold leading-tight tracking-[-0.02em] text-theme-primary sm:text-4xl"
-            >
-              Team & media contact
-            </Heading>
-
-            <p className="mt-5 text-[17px] leading-[1.7] text-theme-secondary/85">
-              Statewave is developed by the team at
-              <span className="font-semibold text-theme-primary">
-                {" "}WebConnect World SL
-              </span>
-              {" "}in Madrid, Spain. For interviews, quotes, background information,
-              or media enquiries, contact our press team and we'll connect you with
-              the appropriate person.
-            </p>
-          </div>
-
-          <div className="rounded-[2rem] border border-theme-border bg-surface-2/25 p-7 sm:p-8">
-            <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-theme-muted">
-                  Press contact
-                </p>
-
-                <a
-                  href="mailto:press@statewave.ai"
-                  className="mt-2 inline-block text-xl font-semibold text-brand-400 transition-colors hover:text-brand-300"
-                >
-                  press@statewave.ai
-                </a>
-
-                <p className="mt-3 text-sm leading-relaxed text-theme-secondary">
-                  Interview requests, press quotes, media kits and partnership
-                  enquiries.
-                </p>
-              </div>
-
-              <Button
-                variant="secondary"
-                size="lg"
-                onClick={() => {
-                  window.location.href = "mailto:press@statewave.ai"
-                }}
-              >
-                Contact us
-              </Button>
-            </div>
-
-            <div className="mt-8 border-t border-theme-border pt-6 text-sm text-theme-muted">
-              Full legal disclosure available on{" "}
-              <a
-                href="/impressum"
-                className="font-medium text-brand-400 hover:text-brand-300"
-              >
-                /impressum
-              </a>
-              .
-            </div>
-          </div>
-        </div>
-      </Section>
-
-      <Section className="bg-surface-1/40">
-        <div className="mx-auto max-w-5xl">
-          <div className="mb-10 max-w-2xl">
-            <p className="section-eyebrow mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-500/75">
-              Open science
-            </p>
-
-            <Heading
-              id="data"
-              className="font-heading text-3xl font-bold leading-tight tracking-[-0.02em] text-theme-primary sm:text-4xl"
-            >
-              Data & reproducibility
-            </Heading>
-
-            <p className="mt-5 text-[17px] leading-[1.7] text-theme-secondary/85">
-              Every benchmark we publish can be reproduced using your own API keys.
-              No embargoes, no hidden datasets, and no private evaluation process.
-            </p>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-3">
-            <ResourceCard
-              title="Benchmark suite"
-              description="Apache-2.0 benchmark with LoCoMo-based datasets and row-level JSONL output."
-              href="https://github.com/smaramwbc/statewave-memory-benchmarks"
-            />
-
-            <ResourceCard
-              title="Architecture"
-              description="System architecture, execution flow and memory pipeline."
-              href="https://github.com/smaramwbc/statewave-docs/blob/main/architecture/overview.md"
-            />
-
-            <ResourceCard
-              title="Comparisons"
-              description="Transparent comparisons against other memory systems and vector stores."
-              href="https://github.com/smaramwbc/statewave-docs/tree/main/comparisons"
-            />
-          </div>
-        </div>
-      </Section>
-    </>
-  );
-}
-
-function ResourceCard({
-  title,
-  description,
-  href,
-}: {
-  title: string
-  description: string
-  href: string
-}) {
-  return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="group rounded-[1.5rem] border border-theme-border bg-surface-2/25 p-6 transition-all duration-200 hover:-translate-y-1 hover:border-theme-border-hover"
-    >
-      <h3 className="text-lg font-semibold text-theme-primary">
-        {title}
-      </h3>
-
-      <p className="mt-3 text-sm leading-[1.7] text-theme-secondary">
-        {description}
-      </p>
-
-      <span className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-brand-400 group-hover:text-brand-300">
-        View resource ↗
-      </span>
-    </a>
-  )
-}
-
-function FactCard({
-  label,
-  value,
-}: {
-  label: string
-  value: string
-}) {
-  return (
-    <div className="rounded-[1.5rem] border border-theme-border bg-surface-2/30 p-5 transition-colors hover:border-theme-border-hover sm:p-6">
-      <dt className="text-[11px] font-semibold uppercase tracking-[0.16em] text-theme-muted">
-        {label}
-      </dt>
-
-      <dd className="mt-2 text-[15px] leading-[1.65] text-theme-primary">
-        {value}
-      </dd>
-    </div>
-  )
-}
-
-function BrandColor({
-  name,
-  hex,
-  className,
-}: {
-  name: string
-  hex: string
-  className: string
-}) {
-  return (
-    <div>
-      <div className={`h-20 rounded-xl ${className}`} />
-
-      <p className="mt-3 text-xs font-semibold text-theme-primary">
-        {name}
-      </p>
-
-      <p className="mt-1 font-mono text-[11px] text-theme-muted">
-        {hex}
-      </p>
-    </div>
-  )
-}
-
-function AssetDownload({
-  title,
-  description,
-  href,
-  fileType,
-  external = false,
-}: {
-  title: string
-  description: string
-  href: string
-  fileType: string
-  external?: boolean
-}) {
-  return (
-    <a
-      href={href}
-      download={!external}
-      target={external ? "_blank" : undefined}
-      rel={external ? "noopener noreferrer" : undefined}
-      className="group flex items-center justify-between gap-5 px-5 py-4 transition-colors hover:bg-surface-2/40 sm:px-6"
-    >
-      <div className="min-w-0">
-        <p className="text-sm font-medium text-theme-primary">
-          {title}
-        </p>
-
-        <p className="mt-1 text-xs leading-relaxed text-theme-muted">
-          {description}
-        </p>
+          </li>
+        </ul>
       </div>
+    </section>
+  )
+}
 
-      <div className="flex shrink-0 items-center gap-4">
-        <span className="rounded-md border border-theme-border px-2 py-1 font-mono text-[10px] text-theme-muted">
-          {fileType}
-        </span>
+/* ── screenshots ── */
 
-        <span className="text-sm font-medium text-brand-400 transition-transform group-hover:translate-y-0.5">
-          {external ? "↗" : "↓"}
-        </span>
+function Screenshots() {
+  const [theme, setTheme] = useState<'light' | 'dark'>('light')
+  const [ref, seen] = useSeen<HTMLDivElement>()
+  return (
+    <section id="screenshots" className="pk-section pk-section--tint" aria-labelledby="pk-shots">
+      <div className="pk-wrap">
+        <div className="pk-head pk-head--row">
+          <div>
+            <Eyebrow>Screenshots</Eyebrow>
+            <H2 id="pk-shots" a="The admin console," b="in light and dark." />
+          </div>
+          <div className="pk-seg" role="group" aria-label="Screenshot theme">
+            {(['light', 'dark'] as const).map(t => (
+              <button key={t} type="button" aria-pressed={theme === t} onClick={() => setTheme(t)}>
+                {t === 'light' ? 'Light' : 'Dark'}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div ref={ref} className="pk-shots" data-seen={seen || undefined}>
+          {SHOTS.map((s, n) => (
+            <figure key={s.id} className="pk-shot" style={i(n)}>
+              <div className="pk-shot__img">
+                <img src={shot(s.id, theme)} alt={`${s.alt}, ${theme} theme`} width={3840} height={2160} loading="lazy" />
+              </div>
+              <figcaption>
+                <b>{s.title}</b>
+                <span className="pk-files">
+                  <Dl href={shot(s.id, 'light')} className="pk-file"><span className="pk-sr">{s.title}, </span>Light <ArrowDownToLine size={14} aria-hidden="true" /></Dl>
+                  <Dl href={shot(s.id, 'dark')} className="pk-file"><span className="pk-sr">{s.title}, </span>Dark <ArrowDownToLine size={14} aria-hidden="true" /></Dl>
+                </span>
+              </figcaption>
+            </figure>
+          ))}
+        </div>
+        <div className="pk-pack">
+          <p>
+            <b>The full set: 9 screens, each in light and dark.</b> Overview, subjects, diagnostics, jobs, policy,
+            receipts, suggested labels, webhooks and settings. PNG, 3840×2160.
+          </p>
+          <Dl href="/press/SCREENSHOTS.zip" name="Statewave-Screenshots.zip" className="sw-btn sw-btn--outline">
+            Download all <span className="pk-size">ZIP · 7.7 MB</span> <ArrowDownToLine size={18} aria-hidden="true" />
+          </Dl>
+        </div>
       </div>
-    </a>
+    </section>
+  )
+}
+
+/* ── open data ── */
+
+function OpenData() {
+  const [ref, seen] = useSeen<HTMLDivElement>()
+  return (
+    <section id="data" className="pk-section" aria-labelledby="pk-data">
+      <div className="pk-wrap">
+        <div className="pk-head">
+          <Eyebrow>Open data</Eyebrow>
+          <H2 id="pk-data" a="Every number we publish" b="can be rerun." />
+          <p className="sw-lede">
+            No embargoes, no hidden datasets and no private evaluation. The results themselves are on the <Ln to="/benchmarks" className="sw-lede__link">benchmarks page</Ln>.
+          </p>
+        </div>
+        <div ref={ref} className="pk-data" data-seen={seen || undefined}>
+          {DATA.map((d, n) => (
+            <Ln key={d.title} to={d.to} className="pk-res" style={i(n)}>
+              <b>{d.title} <ArrowUpRight size={18} aria-hidden="true" /></b>
+              <span>{d.text}</span>
+            </Ln>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ── contact ── */
+
+function Contact() {
+  return (
+    <section id="contact" className="pk-section pk-section--tint" aria-labelledby="pk-contact">
+      <div className="pk-wrap">
+        <div className="pk-contact">
+          <div>
+            <Eyebrow>Press contact</Eyebrow>
+            <H2 id="pk-contact" a="Interviews, quotes" b="and background." />
+            <p className="sw-lede">
+              Statewave is developed by WebConnect World SL in Madrid, Spain. Write to the press address and we’ll put
+              you in touch with the right person. Replies within 72 hours.
+            </p>
+          </div>
+          <div className="pk-contact__box">
+            <Email />
+            <p>
+              Not a press request? <Ln to="/contact">Contact</Ln> lists where everything else goes. The company’s legal
+              details are on the <Ln to="/impressum">Impressum</Ln>.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ── faq ── */
+
+/** The same entries usePageSEO emits as FAQPage JSON-LD, so the visible questions and the
+ *  structured data can't drift. */
+const FAQ = PAGE_FAQS['/press'] ?? []
+
+function Faq() {
+  return (
+    <section className="pk-section" aria-label="Frequently asked questions">
+      <div className="pk-wrap">
+        <div className="pk-head pk-head--center">
+          <Eyebrow>FAQ</Eyebrow>
+          <H2 a="Questions from the press" />
+        </div>
+        <div className="sw-faq">
+          {FAQ.map((e, n) => (
+            <details key={e.question} {...(n === 0 ? { open: true } : {})}>
+              <summary><span aria-hidden="true" className="sw-plus">+</span><h3>{e.question}</h3></summary>
+              <div>
+                <p>{e.answer}</p>
+                {e.links && e.links.length > 0 && (
+                  <ul>{e.links.map(l => <li key={l.href}><Ln to={l.href}>{l.label}</Ln></li>)}</ul>
+                )}
+              </div>
+            </details>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+export function PressPage() {
+  // Title, description and canonical come from the /press entry in lib/seo-meta.
+  usePageSEO()
+  const root = useRef<HTMLDivElement>(null)
+  useEffect(() => { root.current?.setAttribute('data-armed', '') }, [])
+  return (
+    <div ref={root} className="sw-home pk">
+      <Hero />
+      <Divider />
+      <Boilerplate />
+      <Facts />
+      <Brand />
+      <Screenshots />
+      <OpenData />
+      <Contact />
+      <Faq />
+    </div>
   )
 }
