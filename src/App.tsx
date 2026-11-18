@@ -10,6 +10,7 @@ const MultiAgentMemoryPage = lazy(() => import('./pages/MultiAgentMemoryPage').t
 const PersonalAssistantMemoryPage = lazy(() => import('./pages/PersonalAssistantMemoryPage').then(m => ({ default: m.PersonalAssistantMemoryPage })))
 const MultiAgentSharedContextPage = lazy(() => import('./pages/MultiAgentSharedContextPage').then(m => ({ default: m.MultiAgentSharedContextPage })))
 const GroundedShopAssistantPage = lazy(() => import('./pages/GroundedShopAssistantPage').then(m => ({ default: m.GroundedShopAssistantPage })))
+const SupportAgentsPage = lazy(() => import('./pages/SupportAgentsPage').then(m => ({ default: m.SupportAgentsPage })))
 const StatewaveVsMem0Page = lazy(() => import('./pages/StatewaveVsMem0Page').then(m => ({ default: m.StatewaveVsMem0Page })))
 const StatewaveVsLettaPage = lazy(() => import('./pages/StatewaveVsLettaPage').then(m => ({ default: m.StatewaveVsLettaPage })))
 const StatewaveVsZepPage = lazy(() => import('./pages/StatewaveVsZepPage').then(m => ({ default: m.StatewaveVsZepPage })))
@@ -47,6 +48,7 @@ export default function App() {
           <Route path="/use-cases/personal-assistant-memory" element={<PersonalAssistantMemoryPage />} />
           <Route path="/use-cases/multi-agent-shared-context" element={<MultiAgentSharedContextPage />} />
           <Route path="/use-cases/grounded-shop-assistant" element={<GroundedShopAssistantPage />} />
+          <Route path="/use-cases/support-agents" element={<SupportAgentsPage />} />
           <Route path="/vs/mem0" element={<StatewaveVsMem0Page />} />
           <Route path="/vs/letta" element={<StatewaveVsLettaPage />} />
           <Route path="/vs/zep" element={<StatewaveVsZepPage />} />
