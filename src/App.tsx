@@ -4,19 +4,24 @@ import { Layout } from './components/Layout'
 import { HomePage } from './pages/HomePage'
 
 const ProductPage = lazy(() => import('./pages/ProductPage').then(m => ({ default: m.ProductPage })))
+const GovernancePage = lazy(() => import('./pages/GovernancePage').then(m => ({ default: m.GovernancePage })))
 const WhyPage = lazy(() => import('./pages/WhyPage').then(m => ({ default: m.WhyPage })))
 const UseCasesPage = lazy(() => import('./pages/UseCasesPage').then(m => ({ default: m.UseCasesPage })))
+const CodingAgentsPage = lazy(() => import('./pages/CodingAgentsPage').then(m => ({ default: m.CodingAgentsPage })))
 const MultiAgentMemoryPage = lazy(() => import('./pages/MultiAgentMemoryPage').then(m => ({ default: m.MultiAgentMemoryPage })))
 const PersonalAssistantMemoryPage = lazy(() => import('./pages/PersonalAssistantMemoryPage').then(m => ({ default: m.PersonalAssistantMemoryPage })))
 const MultiAgentSharedContextPage = lazy(() => import('./pages/MultiAgentSharedContextPage').then(m => ({ default: m.MultiAgentSharedContextPage })))
 const GroundedShopAssistantPage = lazy(() => import('./pages/GroundedShopAssistantPage').then(m => ({ default: m.GroundedShopAssistantPage })))
+const SupportAgentsPage = lazy(() => import('./pages/SupportAgentsPage').then(m => ({ default: m.SupportAgentsPage })))
 const StatewaveVsMem0Page = lazy(() => import('./pages/StatewaveVsMem0Page').then(m => ({ default: m.StatewaveVsMem0Page })))
 const StatewaveVsLettaPage = lazy(() => import('./pages/StatewaveVsLettaPage').then(m => ({ default: m.StatewaveVsLettaPage })))
 const StatewaveVsZepPage = lazy(() => import('./pages/StatewaveVsZepPage').then(m => ({ default: m.StatewaveVsZepPage })))
 const StatewaveVsSupermemoryPage = lazy(() => import('./pages/StatewaveVsSupermemoryPage').then(m => ({ default: m.StatewaveVsSupermemoryPage })))
 const AlternativesPage = lazy(() => import('./pages/AlternativesPage').then(m => ({ default: m.AlternativesPage })))
-const ConnectorsPage = lazy(() => import('./pages/ConnectorsPage').then(m => ({ default: m.ConnectorsPage })))
+const ConnectorDetailPage = lazy(() => import('./pages/ConnectorDetailPage').then(m => ({ default: m.ConnectorDetailPage })))
+const ConnectorsIndexPage = lazy(() => import('./pages/ConnectorsIndexPage').then(m => ({ default: m.ConnectorsIndexPage })))
 const DevelopersPage = lazy(() => import('./pages/DevelopersPage').then(m => ({ default: m.DevelopersPage })))
+const GuidePage = lazy(() => import('./pages/GuidePage').then(m => ({ default: m.GuidePage })))
 const OpenRouterPage = lazy(() => import('./pages/OpenRouterPage').then(m => ({ default: m.OpenRouterPage })))
 const CookiesPage = lazy(() => import('./pages/CookiesPage').then(m => ({ default: m.CookiesPage })))
 const LaunchPage = lazy(() => import('./pages/LaunchPage').then(m => ({ default: m.LaunchPage })))
@@ -28,10 +33,12 @@ const PrivacyPage = lazy(() => import('./pages/PrivacyPage').then(m => ({ defaul
 const TermsPage = lazy(() => import('./pages/TermsPage').then(m => ({ default: m.TermsPage })))
 const ImpressumPage = lazy(() => import('./pages/ImpressumPage').then(m => ({ default: m.ImpressumPage })))
 const AboutPage = lazy(() => import('./pages/AboutPage').then(m => ({ default: m.AboutPage })))
+const ContactPage = lazy(() => import('./pages/ContactPage').then(m => ({ default: m.ContactPage })))
 const BlogIndexPage = lazy(() => import('./pages/BlogIndexPage').then(m => ({ default: m.BlogIndexPage })))
 const BlogPostPage = lazy(() => import('./pages/BlogPostPage').then(m => ({ default: m.BlogPostPage })))
 const GuideJourneyPage = lazy(() => import('./pages/GuideJourneyPage').then(m => ({ default: m.GuideJourneyPage })))
 const FaqPage = lazy(() => import('./pages/FaqPage').then(m => ({ default: m.FaqPage })))
+const ChangelogPage = lazy(() => import('./pages/ChangelogPage').then(m => ({ default: m.ChangelogPage })))
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage').then(m => ({ default: m.NotFoundPage })))
 
 export default function App() {
@@ -41,19 +48,24 @@ export default function App() {
         <Route element={<Layout />}>
           <Route path="/" element={<HomePage />} />
           <Route path="/product" element={<ProductPage />} />
+          <Route path="/governance" element={<GovernancePage />} />
           <Route path="/why" element={<WhyPage />} />
           <Route path="/use-cases" element={<UseCasesPage />} />
+          <Route path="/use-cases/coding-agents" element={<CodingAgentsPage />} />
           <Route path="/use-cases/multi-agent-memory" element={<MultiAgentMemoryPage />} />
           <Route path="/use-cases/personal-assistant-memory" element={<PersonalAssistantMemoryPage />} />
           <Route path="/use-cases/multi-agent-shared-context" element={<MultiAgentSharedContextPage />} />
           <Route path="/use-cases/grounded-shop-assistant" element={<GroundedShopAssistantPage />} />
+          <Route path="/use-cases/support-agents" element={<SupportAgentsPage />} />
           <Route path="/vs/mem0" element={<StatewaveVsMem0Page />} />
           <Route path="/vs/letta" element={<StatewaveVsLettaPage />} />
           <Route path="/vs/zep" element={<StatewaveVsZepPage />} />
           <Route path="/vs/supermemory" element={<StatewaveVsSupermemoryPage />} />
           <Route path="/vs" element={<AlternativesPage />} />
-          <Route path="/connectors" element={<ConnectorsPage />} />
+          <Route path="/connectors" element={<ConnectorsIndexPage />} />
+          <Route path="/connectors/:slug" element={<ConnectorDetailPage />} />
           <Route path="/developers" element={<DevelopersPage />} />
+          <Route path="/guide" element={<GuidePage />} />
           <Route path="/openrouter" element={<OpenRouterPage />} />
           <Route path="/launch" element={<LaunchPage />} />
           <Route path="/benchmarks" element={<BenchmarksPage />} />
@@ -65,6 +77,7 @@ export default function App() {
           <Route path="/impressum" element={<ImpressumPage />} />
           <Route path="/cookies" element={<CookiesPage />} />
           <Route path="/about" element={<AboutPage />} />
+          <Route path="/contact" element={<ContactPage />} />
           <Route path="/blog" element={<BlogIndexPage />} />
           {/* Static series index — declared before /blog/:slug so the
               Journey Index owns the URL rather than falling through to
@@ -72,6 +85,7 @@ export default function App() {
           <Route path="/blog/statewave-guide" element={<GuideJourneyPage />} />
           <Route path="/blog/:slug" element={<BlogPostPage />} />
           <Route path="/faq" element={<FaqPage />} />
+          <Route path="/changelog" element={<ChangelogPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Routes>

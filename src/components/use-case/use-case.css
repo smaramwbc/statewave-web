@@ -1,0 +1,204 @@
+/* The use case pages (/use-cases and /use-cases/<slug>) in the v8 style. Same tokens, type and chrome
+ * as the homepage; the hero uses the home's own classes (sw-hero) and ends on a straight edge and the
+ * home's cross divider, never the arc, which is the home's alone. The section rhythm follows the coding
+ * agents page. Everything sits under .uc (always inside .sw-home); parts.tsx holds the shared markup. */
+
+.uc { --uc-pad: clamp(96px, 11vw, 168px); --uc-ease: cubic-bezier(0.2, 0.8, 0.2, 1); }
+.uc .sw-h2 { white-space: normal; }
+.uc-wrap { position: relative; z-index: 2; max-width: calc(var(--sw-max) + 2 * (var(--sw-pad) - var(--sw-gutter))); margin: 0 auto; padding: 0 var(--sw-pad); }
+.uc-section { position: relative; z-index: 2; padding: var(--uc-pad) 0; }
+/* full-width bands, like the home's sw-section--tint */
+.uc-section--tint { background: var(--sw-bg-2); }
+.uc-section--navy { background: var(--sw-navy); color: #fff; }
+.uc-section--navy .sw-h2 { color: #fff; }
+.uc .uc-section--navy .sw-lede { color: #b4bcd3; }
+.uc-head { max-width: 780px; }
+.uc-head--center { margin: 0 auto; display: flex; flex-direction: column; align-items: center; text-align: center; }
+.uc-head--center .sw-lede { margin-left: auto; margin-right: auto; }
+.uc .sw-lede code { font-size: 0.94em; color: var(--sw-navy); }
+
+/* ── hero: the home's hero, with a breadcrumb in place of its eyebrow ── */
+.uc .uc-crumbs { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; font-size: 14px; line-height: 20px; color: #8f99b5; }
+.uc .uc-crumbs a { color: #b4bcd3; }
+.uc .uc-crumbs a:hover { color: #fff; }
+.uc .uc-crumbs [aria-current] { color: #fff; }
+.uc .uc-title { margin-top: 36px; }
+.uc .uc-tools { margin: 32px 0 0; padding: 0; list-style: none; display: flex; justify-content: center; gap: clamp(12px, 3vw, 28px); }
+.uc .uc-tools li { width: 88px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.uc .uc-tools__box { width: 56px; height: 56px; border-radius: 16px; display: grid; place-items: center; background: #fff; box-shadow: inset 0 1.5px 0 #fff, 0 18px 36px -16px rgba(47, 91, 240, 0.7), 0 0 0 5px rgba(255, 255, 255, 0.06); }
+.uc .uc-tools__box img { width: 26px; height: 26px; object-fit: contain; }
+.uc .uc-tools__name { font-size: 13px; line-height: 16px; font-weight: 500; color: #c9d0e2; text-align: center; }
+@media (max-width: 480px) { .uc .uc-tools li { width: 68px; } .uc .uc-tools__box { width: 48px; height: 48px; border-radius: 14px; } .uc .uc-tools__name { font-size: 12px; } }
+.uc .uc-hero__note { margin: 20px auto 0; max-width: 520px; font-size: 15px; line-height: 22px; color: #8f99b5; text-wrap: balance; }
+.uc button.sw-btn { font: inherit; cursor: pointer; }
+
+/* ── how it works: steps that light up beside a support console (or any other stage) ── */
+.uc-how__grid { margin-top: 56px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 40px; align-items: start; }
+@media (min-width: 1000px) { .uc-how__grid { grid-template-columns: minmax(0, 4fr) minmax(0, 7fr); gap: 56px; } }
+.uc-how__steps { margin: 0; padding: 0; list-style: none; border-bottom: 1px solid rgba(255, 255, 255, 0.12); }
+.uc-how__steps li { display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 16px; padding: 18px 0; border-top: 1px solid rgba(255, 255, 255, 0.12); opacity: 0.4; transition: opacity 0.5s; }
+.uc-how__steps li[data-on] { opacity: 1; }
+.uc-how__n { padding-top: 6px; font-size: 14px; color: var(--sw-sky); }
+.uc-how__t { display: block; font-family: var(--sw-display); font-weight: 700; font-size: 22px; line-height: 28px; letter-spacing: -0.02em; color: #fff; }
+.uc-how__ep { display: block; margin-top: 2px; font-size: 13px; color: #8fb8ff; }
+.uc .uc-how__d { margin-top: 6px; font-size: 15px; line-height: 22px; color: #c9d0e2; }
+
+.uc-console { min-width: 0; border-radius: 16px; overflow: hidden; background: var(--sw-navy-deep); border: 1px solid rgba(143, 184, 255, 0.22); box-shadow: 0 40px 80px -36px rgba(3, 8, 30, 0.9); }
+.uc-console__bar { display: flex; align-items: center; gap: 8px; padding: 12px 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); font-size: 13px; color: #8f99b5; }
+.uc-console__bar i { width: 10px; height: 10px; border-radius: 50%; background: rgba(255, 255, 255, 0.14); }
+.uc-console__bar span { margin-left: 8px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.uc-console__bar em { margin-left: auto; flex: 0 0 auto; font-style: normal; color: #8fb8ff; }
+.uc-console__body { padding: 20px; display: grid; gap: 16px; }
+.uc-msg { display: grid; grid-template-columns: 36px minmax(0, 1fr); gap: 12px; }
+.uc-msg__avatar { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; background: linear-gradient(135deg, #5b7fff, #a78bfa); color: #fff; font-size: 13px; font-weight: 600; }
+.uc-msg__who { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; font-size: 14px; line-height: 20px; color: #fff; }
+.uc-msg__who b { font-weight: 600; }
+.uc-msg__who span { color: #8f99b5; }
+.uc-msg__who em { font-style: normal; padding: 0 8px; border-radius: 999px; background: rgba(248, 113, 113, 0.14); color: #fca5a5; font-size: 12px; }
+.uc .uc-msg__text { margin-top: 6px; padding: 12px 14px; border-radius: 4px 14px 14px 14px; background: rgba(255, 255, 255, 0.06); font-size: 15px; line-height: 22px; color: #e4e9f5; }
+.uc .uc-mems__label { font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #6b7799; }
+.uc-mems { margin: 8px 0 0; padding: 0; list-style: none; display: grid; }
+/* each memory opens into place as its step lights up, pushing the rest apart */
+.uc-mem { display: grid; grid-template-rows: 0fr; opacity: 0; transition: grid-template-rows 0.55s var(--uc-ease), opacity 0.45s; }
+.uc-mem[data-on] { grid-template-rows: 1fr; opacity: 1; }
+.uc-mem > div { min-height: 0; overflow: hidden; }
+.uc-mem__in { margin-top: 8px; padding: 10px 12px; border-radius: 10px; border: 1px solid rgba(143, 184, 255, 0.28); background: rgba(74, 140, 255, 0.07); font-size: 14px; line-height: 20px; color: #dce3f2; }
+.uc-mem__src { display: flex; align-items: center; gap: 8px; margin-bottom: 2px; font-size: 12px; color: #8fb8ff; }
+.uc-mem__src b { font-weight: 600; color: #fff; }
+.uc-reply { padding-top: 16px; border-top: 1px solid rgba(255, 255, 255, 0.08); opacity: 0.25; transition: opacity 0.5s; }
+.uc-reply[data-on] { opacity: 1; }
+.uc .uc-reply__label { font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #6ee7b7; }
+.uc .uc-reply p:not(.uc-reply__label) { margin-top: 6px; font-size: 15px; line-height: 23px; color: #fff; text-wrap: pretty; }
+.uc-cites { margin-top: 12px; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.uc-cites span { margin-right: 2px; font-size: 10px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #8f99b5; }
+.uc-cites em { font-style: normal; font-size: 12px; padding: 3px 9px; border-radius: 999px; background: rgba(74, 140, 255, 0.14); border: 1px solid rgba(143, 184, 255, 0.35); color: #dce3f2; }
+
+/* ── features: a card per capability, each with a small scene that settles in when the grid is seen ── */
+.uc-feats { margin-top: var(--sw-gap-body); display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
+@media (min-width: 900px) { .uc-feats { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; } }
+.uc-feat { min-width: 0; display: flex; flex-direction: column; padding: 16px 16px 28px; border-radius: 16px; background: #fff; box-shadow: inset 0 0 0 1px var(--sw-line); color: var(--sw-navy); }
+.uc-feat__stage { display: flex; align-items: center; justify-content: center; height: 220px; padding: 16px; border-radius: 10px; overflow: hidden; background: radial-gradient(rgba(47, 91, 240, 0.16) 1px, transparent 1.5px) 0 0 / 14px 14px, #f4f7fd; }
+.uc-feat__ep { align-self: flex-start; margin: 24px 12px 0; padding: 2px 10px; border-radius: 999px; background: rgba(47, 91, 240, 0.1); color: var(--sw-blue); font-size: 12.5px; line-height: 20px; overflow-wrap: anywhere; }
+.uc .uc-feat h3 { margin-top: 12px; padding: 0 12px; font-family: var(--sw-display); font-size: 24px; line-height: 30px; font-weight: 700; letter-spacing: -0.02em; color: var(--sw-navy); }
+.uc .uc-feat p { margin-top: 10px; padding: 0 12px; font-size: 15px; line-height: 23px; color: var(--sw-ink-2); text-wrap: pretty; }
+
+.uc-scene { position: relative; width: min(320px, 100%); margin: 0; padding: 14px 16px; list-style: none; border-radius: 10px; background: #fff; text-align: left; font-size: 12.5px; line-height: 18px; color: var(--sw-ink-2); box-shadow: 0 1px 2px rgba(10, 18, 51, 0.08), 0 24px 48px -16px rgba(10, 18, 51, 0.35); }
+.uc-scene > * { transition: opacity 0.45s var(--uc-ease), transform 0.45s var(--uc-ease); transition-delay: calc(var(--d, 0) * 200ms + 200ms); }
+@media (prefers-reduced-motion: no-preference) {
+  .uc[data-armed] .uc-feats:not([data-seen]) .uc-scene > * { opacity: 0; transform: translateY(8px); }
+}
+.uc .uc-scene p { margin: 0; }
+/* the context bundle: markdown headings and bullets, as the SDK hands it to the prompt */
+.uc-scene--bundle { display: grid; gap: 2px; font-family: var(--sw-font-label); font-size: 12px; }
+.uc .uc-scene--bundle .uc-scene__h { margin-top: 6px; color: var(--sw-blue); font-weight: 600; }
+.uc .uc-scene--bundle .uc-scene__h:first-child { margin-top: 0; }
+/* repeat issues: the old ticket, the new one, and the fix carried across */
+.uc-scene--tickets { display: grid; gap: 8px; }
+.uc-ticket { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 8px; box-shadow: inset 0 0 0 1px var(--sw-line); }
+.uc-ticket b { color: var(--sw-navy); font-weight: 600; }
+.uc-ticket span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.uc-ticket em { font-style: normal; padding: 1px 8px; border-radius: 999px; font-size: 11px; font-weight: 500; background: rgba(16, 185, 129, 0.12); color: #047857; }
+.uc-ticket[data-open] em { background: rgba(245, 158, 11, 0.14); color: #b45309; }
+.uc .uc-scene__link { display: flex; align-items: center; gap: 6px; padding-left: 10px; font-size: 12px; font-weight: 600; color: var(--sw-blue); }
+/* handoff: the brief's first lines */
+.uc-scene--brief { display: grid; gap: 4px; width: min(340px, 100%); font-family: var(--sw-font-label); font-size: 12px; }
+.uc .uc-scene--brief p:first-child { margin-bottom: 4px; font-weight: 600; color: var(--sw-navy); }
+.uc .uc-scene--brief b { font-weight: 600; color: var(--sw-blue); }
+/* health: the score on its scale, and the factors behind it */
+.uc-scene--health { display: grid; gap: 10px; }
+.uc .uc-health__top { display: flex; align-items: baseline; gap: 10px; }
+.uc-health__score { font-family: var(--sw-display); font-size: 40px; line-height: 40px; font-weight: 700; letter-spacing: -0.03em; color: var(--sw-navy); }
+.uc-health__state { padding: 1px 9px; border-radius: 999px; background: rgba(245, 158, 11, 0.14); color: #b45309; font-size: 12px; font-weight: 600; }
+.uc-health__scale { position: relative; height: 6px; border-radius: 3px; background: linear-gradient(90deg, #f87171 0 40%, #fbbf24 40% 70%, #34d399 70% 100%); }
+.uc-health__scale i { position: absolute; top: -4px; left: 55%; width: 14px; height: 14px; margin-left: -7px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 3px var(--sw-navy); }
+.uc-health__factors { margin: 0; padding: 0; list-style: none; display: grid; gap: 4px; }
+.uc-health__factors li { display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 6px; }
+.uc-health__factors b { font-weight: 600; color: #b91c1c; }
+
+/* ── code: tabs over a dark panel ── */
+.uc-code { min-width: 0; border-radius: 20px; overflow: hidden; background: var(--sw-navy-deep); color: #c9d0e2; box-shadow: 0 40px 80px -40px rgba(7, 13, 38, 0.7); }
+.uc-code__bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 10px 10px 14px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
+.uc-code__tabs { display: flex; gap: 4px; min-width: 0; overflow-x: auto; scrollbar-width: none; }
+.uc-code__tabs button { flex: 0 0 auto; height: 34px; padding: 0 14px; border: 0; border-radius: 999px; background: transparent; color: #8f99b5; font: inherit; font-size: 13px; font-weight: 500; cursor: pointer; transition: background-color 0.25s, color 0.25s; }
+.uc-code__tabs button:hover { color: #fff; }
+.uc-code__tabs button[aria-selected='true'] { background: rgba(74, 140, 255, 0.16); color: #fff; box-shadow: inset 0 0 0 1px rgba(74, 140, 255, 0.5); }
+.uc-code__copy { flex: 0 0 auto; display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px; border-radius: 999px; border: 1px solid rgba(255, 255, 255, 0.16); background: transparent; color: #c9d0e2; font: inherit; font-size: 13px; cursor: pointer; }
+.uc-code__copy:hover { border-color: var(--sw-sky); color: #fff; }
+.uc-code__panel { animation: uc-in 0.35s var(--uc-ease) both; }
+.uc .uc-code__file { padding: 16px 24px 0; font-size: 12px; color: #6b7799; }
+/* no ligatures: Geist would draw `->` and `!=` as arrows and symbols */
+/* code keeps its lines and scrolls sideways inside the panel rather than wrapping mid-statement */
+.uc .uc-code pre { margin: 0; font-family: var(--sw-font-label); font-variant-ligatures: none; white-space: pre; overflow-x: auto; scrollbar-width: thin; scrollbar-color: rgba(255, 255, 255, 0.2) transparent; }
+.uc .uc-code__body { padding: 10px 24px 24px; font-size: 13.5px; line-height: 1.7; color: #e4e9f5; }
+@media (max-width: 640px) {
+  .uc .uc-code__file { padding: 14px 16px 0; }
+  .uc .uc-code__body { padding: 8px 16px 20px; font-size: 12.5px; }
+}
+.uc-code__out { margin: 0 16px 16px; border-radius: 12px; background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08); }
+.uc .uc-code__out p { padding: 10px 14px 0; font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #6b7799; }
+.uc .uc-code__out pre { padding: 8px 14px 14px; font-size: 12.5px; line-height: 1.6; color: #b4bcd3; }
+
+.uc-wire { margin-top: 56px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 40px; align-items: start; }
+@media (min-width: 1000px) { .uc-wire { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 72px; } }
+
+/* ── numbered steps (beside the code) ── */
+.uc-steps { margin: 0; padding: 0; list-style: none; }
+.uc-steps li { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 16px; padding: 18px 0; border-top: 1px solid rgba(10, 18, 51, 0.08); }
+.uc-steps li > span { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: #f4f5f9; color: var(--sw-blue); font-size: 13px; font-weight: 600; }
+.uc-steps b { font-size: 17px; line-height: 26px; font-weight: 600; color: var(--sw-navy); }
+.uc .uc-steps p { margin-top: 2px; font-size: 15px; line-height: 22px; color: var(--sw-ink-2); }
+.uc .uc-steps code { font-size: 0.92em; color: var(--sw-navy); }
+
+/* ── sources: the connectors that feed this use case ── */
+.uc-sources { margin: var(--sw-gap-body) 0 0; padding: 0; list-style: none; display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
+@media (min-width: 1000px) { .uc-sources { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; } }
+.uc-source { min-width: 0; display: flex; flex-direction: column; padding: 28px; border-radius: 16px; background: #fff; box-shadow: inset 0 0 0 1px var(--sw-line); }
+.uc-source__logo { width: 48px; height: 48px; display: grid; place-items: center; border-radius: 14px; background: #fff; box-shadow: inset 0 0 0 1px var(--sw-line); }
+.uc-source__logo img { width: 26px; height: 26px; object-fit: contain; }
+.uc .uc-source h3 { margin-top: 20px; font-family: var(--sw-display); font-size: 22px; line-height: 28px; font-weight: 700; letter-spacing: -0.015em; color: var(--sw-navy); }
+.uc .uc-source p { margin-top: 8px; font-size: 15px; line-height: 23px; color: var(--sw-ink-2); text-wrap: pretty; }
+.uc-source dl { margin: auto 0 0; padding-top: 20px; display: grid; gap: 10px; }
+.uc-source dl div { padding-top: 10px; border-top: 1px solid var(--sw-line); }
+.uc-source dt { font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--sw-ink-4); }
+.uc-source dd { margin: 2px 0 0; font-size: 14px; line-height: 20px; color: var(--sw-navy); overflow-wrap: anywhere; }
+.uc-sources__foot { margin-top: 32px; display: flex; flex-wrap: wrap; align-items: center; gap: 16px 28px; }
+.uc-sources__cmd { display: inline-flex; max-width: 100%; padding: 10px 16px; border-radius: 12px; background: var(--sw-navy-deep); color: #e4e9f5; font-size: 13.5px; overflow-wrap: anywhere; }
+.uc-sources__cmd span { margin-right: 8px; color: var(--sw-sky); }
+.uc .uc-links { display: flex; flex-wrap: wrap; gap: 8px 24px; font-size: 15px; font-weight: 500; }
+.uc .uc-links a { color: var(--sw-blue); }
+.uc .uc-links a:hover { color: var(--sw-navy); }
+
+/* ── good to know ── */
+.uc-limits { margin-top: 64px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
+@media (min-width: 900px) { .uc-limits { grid-template-columns: 200px minmax(0, 1fr); gap: 32px; } }
+.uc-limits b { font-size: 13px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--sw-ink-4); }
+.uc-limits ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+.uc-limits li { position: relative; padding-left: 18px; font-size: 15px; line-height: 22px; color: var(--sw-ink-2); }
+.uc-limits li::before { content: ''; position: absolute; left: 0; top: 8px; width: 6px; height: 6px; border-radius: 50%; background: var(--sw-ink-4); }
+.uc .uc-limits code { font-size: 0.92em; color: var(--sw-navy); }
+
+/* ── close ── */
+.uc-close { position: relative; z-index: 2; overflow: hidden; padding: clamp(96px, 10vw, 144px) 0; text-align: center; color: #fff; background: radial-gradient(ellipse at 50% 0%, rgba(47, 91, 240, 0.38), transparent 60%), var(--sw-navy); }
+.uc-close__in { display: flex; flex-direction: column; align-items: center; }
+.uc-close__logo { width: 64px; height: 64px; display: grid; place-items: center; border-radius: 18px; background: #fff; box-shadow: 0 24px 48px -18px rgba(47, 91, 240, 0.8); }
+.uc .uc-close__title { margin: 28px 0 0; font-family: var(--sw-display); font-weight: 700; font-size: clamp(34px, 4.4vw, 62px); line-height: 1.08; letter-spacing: -0.03em; color: #fff; text-wrap: balance; }
+.uc-close .sw-hero__ctas { margin-top: 40px; }
+.uc .uc-close__links { margin-top: 32px; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 28px; font-size: 15px; font-weight: 500; }
+.uc .uc-close__links a { color: #8fb8ff; }
+.uc .uc-close__links a:hover { color: #fff; }
+
+/* ── motion ── */
+@keyframes uc-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+/* blocks rise as they scroll into view, with the home's sw-rise (home.css). Pure CSS, so server HTML is
+ * never hidden; browsers without scroll-driven animations just show everything. */
+@supports (animation-timeline: view()) {
+  .uc-feat, .uc-source, .uc-code, .uc-steps li {
+    animation: sw-rise linear both; animation-timeline: view(); animation-range: entry 0% entry 35%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .uc *, .uc *::before, .uc *::after { animation: none !important; }
+  .uc-scene > *, .uc-mem, .uc-reply, .uc-how__steps li { transition: none; }
+}
