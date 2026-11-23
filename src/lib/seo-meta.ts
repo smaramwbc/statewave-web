@@ -48,6 +48,7 @@ export type RouteKey =
   | '/product'
   | '/why'
   | '/benchmarks'
+  | '/whitepaper'
   | '/use-cases'
   | '/use-cases/multi-agent-memory'
   | '/use-cases/personal-assistant-memory'
@@ -75,6 +76,7 @@ export const PUBLIC_ROUTES: readonly RouteKey[] = [
   '/product',
   '/why',
   '/benchmarks',
+  '/whitepaper',
   '/use-cases',
   '/use-cases/multi-agent-memory',
   '/use-cases/personal-assistant-memory',
@@ -158,6 +160,15 @@ export const PAGE_META: Record<RouteKey, PageMeta> = {
     // engines to treat it as the writeup it is.
     ogType: 'article',
     priority: 0.9,
+    changefreq: 'monthly',
+  },
+  '/whitepaper': {
+    title: 'Compiled Memory — the Statewave White Paper on Agent Memory',
+    description:
+      'Compiled Memory, the Statewave white paper: why agent memory should be a compiled, governed runtime rather than a retrieval index, the record, compile, context and govern model, and a head-to-head evaluation on mem0’s own harness. Free 18-page PDF.',
+    breadcrumbLabel: 'White Paper',
+    ogType: 'article',
+    priority: 0.6,
     changefreq: 'monthly',
   },
   '/use-cases': {
@@ -421,6 +432,28 @@ export function openrouterProxyJsonLd(): JsonLd {
     dateModified: OPENROUTER_LAST_UPDATED,
     softwareHelp: REPOS.openrouter,
     offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+    publisher: { '@id': ORGANIZATION_ID },
+  }
+}
+
+/** ScholarlyArticle node for /whitepaper: the paper itself, served as a PDF. */
+export function whitepaperJsonLd(): JsonLd {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'ScholarlyArticle',
+    headline: 'Compiled Memory',
+    alternativeHeadline: 'A Deterministic, Provenance-Traced Runtime for Long-Horizon AI Agent Context',
+    description:
+      'A technical white paper arguing that agent memory should be a compiled, governed runtime rather than a retrieval index, with the Statewave model and a head-to-head evaluation on LoCoMo and LongMemEval.',
+    url: `${BASE_URL}/whitepaper`,
+    inLanguage: DEFAULT_LANG,
+    isAccessibleForFree: true,
+    encoding: {
+      '@type': 'MediaObject',
+      contentUrl: `${BASE_URL}/whitepaper/compiled-memory.pdf`,
+      encodingFormat: 'application/pdf',
+    },
+    about: ['AI agent memory', 'Context assembly', 'Data provenance'],
     publisher: { '@id': ORGANIZATION_ID },
   }
 }
