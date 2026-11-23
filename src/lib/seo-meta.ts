@@ -46,6 +46,7 @@ export const OPENROUTER_LAST_UPDATED = '2026-09-28'
 export type RouteKey =
   | '/'
   | '/product'
+  | '/governance'
   | '/why'
   | '/benchmarks'
   | '/use-cases'
@@ -73,6 +74,7 @@ export type RouteKey =
 export const PUBLIC_ROUTES: readonly RouteKey[] = [
   '/',
   '/product',
+  '/governance',
   '/why',
   '/benchmarks',
   '/use-cases',
@@ -137,6 +139,15 @@ export const PAGE_META: Record<RouteKey, PageMeta> = {
     breadcrumbLabel: 'How It Works',
     ogType: 'article',
     priority: 0.9,
+    changefreq: 'monthly',
+  },
+  '/governance': {
+    title: 'AI Memory Governance — Labels, Policy and Signed Receipts',
+    description:
+      'Audit every memory your AI agent uses: sensitivity labels, first-match YAML policy, log_only then enforce rollout, and SHA-256 hashed, HMAC-signed receipts you can replay. Self-hosted on your Postgres.',
+    breadcrumbLabel: 'Governance',
+    ogType: 'article',
+    priority: 0.8,
     changefreq: 'monthly',
   },
   '/why': {
