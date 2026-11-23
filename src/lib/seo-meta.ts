@@ -43,28 +43,165 @@ export const OPENROUTER_LAST_UPDATED = '2026-09-28'
 
 /* ─── Route table ────────────────────────────────────────────────────────── */
 
+/** One /connectors/<slug> page per file in src/content/connectors, in the
+ *  index's group order. Titles and descriptions live here rather than being
+ *  read from that content so this module stays small: it ships on every
+ *  route, the connector content only with the connector pages. The
+ *  descriptions are each connector's hero line. tests/connector-routes.test.ts
+ *  fails if this list and the content folder drift apart. */
+const CONNECTOR_PAGES = {
+  github: {
+    name: 'GitHub',
+    title: 'GitHub Connector — Repo Memory for AI Agents | Statewave',
+    description:
+      'Issues, pull requests, reviews and releases become one memory per repository, so your coding agent knows the bugs and decisions behind the code.',
+  },
+  gitlab: {
+    name: 'GitLab',
+    title: 'GitLab Connector — Repo Memory for AI Agents | Statewave',
+    description:
+      'Issues, merge requests, comments, approvals and releases from GitLab become one memory per project, so your coding agent can recall why a change was made and who signed off.',
+  },
+  bitbucket: {
+    name: 'Bitbucket',
+    title: 'Bitbucket Connector — Repo Memory for AI Agents | Statewave',
+    description:
+      'Pull requests, comments and issues from Bitbucket Cloud become one memory per repository, so your coding agent can recall what a review decided.',
+  },
+  gitea: {
+    name: 'Gitea & Forgejo',
+    title: 'Gitea & Forgejo Connector — Repo Memory for AI Agents | Statewave',
+    description:
+      'Point the connector at your instance. Issues, pull requests, reviews and releases become one memory per repository that your coding agent can recall.',
+  },
+  'azure-devops': {
+    name: 'Azure DevOps',
+    title: 'Azure DevOps Connector — Repo Memory for AI Agents | Statewave',
+    description:
+      'Pull requests, thread comments, reviewer votes and work items from Azure DevOps become one memory per repository, so your coding agent can see what was decided and who approved it.',
+  },
+  slack: {
+    name: 'Slack',
+    title: 'Slack Connector — Team Memory for AI Agents | Statewave',
+    description:
+      'Messages and thread replies from the channels you pick become one memory for the workspace, so your agents know what the team already worked out.',
+  },
+  discord: {
+    name: 'Discord',
+    title: 'Discord Connector — Community Memory for AI Agents | Statewave',
+    description:
+      'Messages and thread replies from the channels you pick become one memory per server, so your bot can answer the questions your community already solved.',
+  },
+  gmail: {
+    name: 'Gmail',
+    title: 'Gmail Connector — Relationship Memory for AI Agents | Statewave',
+    description:
+      'Messages that match your Gmail search become one memory per relationship, so your agent knows where things stand with each person.',
+  },
+  zendesk: {
+    name: 'Zendesk',
+    title: 'Zendesk Connector — Customer Memory for AI Agents | Statewave',
+    description:
+      'Tickets, replies and internal notes become one memory per customer, so your support agent starts every conversation knowing the history.',
+  },
+  intercom: {
+    name: 'Intercom',
+    title: 'Intercom Connector — Customer Memory for AI Agents | Statewave',
+    description:
+      'Conversations, replies and admin notes land in one memory per company, so your agent knows what this customer asked before and what fixed it.',
+  },
+  freshdesk: {
+    name: 'Freshdesk',
+    title: 'Freshdesk Connector — Customer Memory for AI Agents | Statewave',
+    description:
+      'Tickets, public replies and private notes become one memory per company, so your agent knows a customer’s past tickets before it answers.',
+  },
+  markdown: {
+    name: 'Markdown & docs',
+    title: 'Markdown & Docs Connector — Decision Memory for AI Agents | Statewave',
+    description:
+      'Markdown files become decision memory, sorted into ADRs, RFCs, decisions and pages. It runs on your machine and needs no credentials.',
+  },
+  notion: {
+    name: 'Notion',
+    title: 'Notion Connector — Decision Memory for AI Agents | Statewave',
+    description:
+      'Pages shared with your integration become decision memory. Add their content and comments, and file them under the repo, project or team they govern.',
+  },
+  jira: {
+    name: 'Jira',
+    title: 'Jira Connector — Project Memory for AI Agents | Statewave',
+    description:
+      'Issues, comments and status changes land under their project, so an agent can tell you what broke, who fixed it and when.',
+  },
+  n8n: {
+    name: 'n8n',
+    title: 'n8n Connector — Workflow Memory for AI Agents | Statewave',
+    description:
+      'Runs, failures and the nodes that broke become memory for each workflow, so an agent can say what failed last night and whether it happened before.',
+  },
+  zapier: {
+    name: 'Zapier',
+    title: 'Zapier Connector — Workflow Memory for AI Agents | Statewave',
+    description:
+      'Add a Webhooks by Zapier step to the end of a zap, and each run becomes an episode under the subject you choose.',
+  },
+  'mcp-server': {
+    name: 'MCP server',
+    title: 'Statewave MCP Server — Memory for Claude Code, Cursor and Copilot',
+    description:
+      'One MCP server gives Claude Code, Cursor, Copilot and Codex your team’s decisions and history, with a source for every answer.',
+  },
+  database: {
+    name: 'Databases',
+    title: 'SQL Database Connector — Records Memory for AI Agents | Statewave',
+    description:
+      'Bring selected rows from Postgres, MySQL, MariaDB or SQL Server into memory. Read-only, allowlisted and capped on every run.',
+  },
+} as const satisfies Record<string, { name: string; title: string; description: string }>
+
+export type ConnectorSlug = keyof typeof CONNECTOR_PAGES
+export type ConnectorRoute = `/connectors/${ConnectorSlug}`
+
+export const CONNECTOR_ROUTES: readonly ConnectorRoute[] = (
+  Object.keys(CONNECTOR_PAGES) as ConnectorSlug[]
+).map((slug) => `/connectors/${slug}` as const)
+
 export type RouteKey =
   | '/'
   | '/product'
+  | '/governance'
   | '/why'
   | '/benchmarks'
+  | '/whitepaper'
   | '/use-cases'
+  | '/use-cases/coding-agents'
   | '/use-cases/multi-agent-memory'
   | '/use-cases/personal-assistant-memory'
   | '/use-cases/multi-agent-shared-context'
   | '/use-cases/grounded-shop-assistant'
+  | '/use-cases/support-agents'
   | '/vs'
   | '/vs/mem0'
   | '/vs/letta'
   | '/vs/zep'
   | '/vs/supermemory'
+  | '/guide'
   | '/connectors'
   | '/developers'
+  | '/privacy'
+  | '/terms'
+  | '/cookies'
+  | '/impressum'
   | '/openrouter'
+  | '/changelog'
   | '/about'
+  | '/contact'
   | '/blog'
   | '/blog/statewave-guide'
+  | '/press'
   | '/faq'
+  | ConnectorRoute
 
 /** Canonical, indexable public routes. Order matters — used to render the
  *  sitemap and the llms.txt index. /blog/<slug> entries are appended to
@@ -73,24 +210,37 @@ export type RouteKey =
 export const PUBLIC_ROUTES: readonly RouteKey[] = [
   '/',
   '/product',
+  '/governance',
   '/why',
   '/benchmarks',
+  '/whitepaper',
   '/use-cases',
+  '/use-cases/coding-agents',
   '/use-cases/multi-agent-memory',
   '/use-cases/personal-assistant-memory',
   '/use-cases/multi-agent-shared-context',
   '/use-cases/grounded-shop-assistant',
+  '/use-cases/support-agents',
   '/vs',
   '/vs/mem0',
   '/vs/letta',
   '/vs/zep',
   '/vs/supermemory',
+  '/guide',
   '/connectors',
+  ...CONNECTOR_ROUTES,
   '/developers',
+  '/privacy',
+  '/terms',
+  '/cookies',
+  '/impressum',
   '/openrouter',
+  '/changelog',
   '/about',
+  '/contact',
   '/blog',
   '/blog/statewave-guide',
+  '/press',
   '/faq',
 ] as const
 
@@ -121,6 +271,23 @@ export interface PageMeta {
     | 'never'
 }
 
+function connectorPageMeta(): Record<ConnectorRoute, PageMeta> {
+  return Object.fromEntries(
+    (Object.keys(CONNECTOR_PAGES) as ConnectorSlug[]).map((slug) => {
+      const page = CONNECTOR_PAGES[slug]
+      const meta: PageMeta = {
+        title: page.title,
+        description: page.description,
+        breadcrumbLabel: page.name,
+        ogType: 'article',
+        priority: 0.6,
+        changefreq: 'monthly',
+      }
+      return [`/connectors/${slug}`, meta]
+    }),
+  ) as Record<ConnectorRoute, PageMeta>
+}
+
 export const PAGE_META: Record<RouteKey, PageMeta> = {
   '/': {
     title: 'Statewave — Open-source memory runtime for AI agents',
@@ -137,6 +304,15 @@ export const PAGE_META: Record<RouteKey, PageMeta> = {
     breadcrumbLabel: 'How It Works',
     ogType: 'article',
     priority: 0.9,
+    changefreq: 'monthly',
+  },
+  '/governance': {
+    title: 'AI Memory Governance — Labels, Policy and Signed Receipts',
+    description:
+      'Audit every memory your AI agent uses: sensitivity labels, first-match YAML policy, log_only then enforce rollout, and SHA-256 hashed, HMAC-signed receipts you can replay. Self-hosted on your Postgres.',
+    breadcrumbLabel: 'Governance',
+    ogType: 'article',
+    priority: 0.8,
     changefreq: 'monthly',
   },
   '/why': {
@@ -160,13 +336,31 @@ export const PAGE_META: Record<RouteKey, PageMeta> = {
     priority: 0.9,
     changefreq: 'monthly',
   },
+  '/whitepaper': {
+    title: 'Compiled Memory — the Statewave White Paper on Agent Memory',
+    description:
+      'Compiled Memory, the Statewave white paper: why agent memory should be a compiled, governed runtime rather than a retrieval index, the record, compile, context and govern model, and a head-to-head evaluation on mem0’s own harness. Free 18-page PDF.',
+    breadcrumbLabel: 'White Paper',
+    ogType: 'article',
+    priority: 0.6,
+    changefreq: 'monthly',
+  },
   '/use-cases': {
     title: 'Use Cases — Memory for Support Agents, Copilots, and AI Apps',
     description:
-      'What you can build with Statewave: support agents with durable customer memory, coding copilots with repo memory, account intelligence, voice continuity, multi-agent infrastructure, and connector patterns.',
+      'What you can build with Statewave, each with a demo you can run: support agents that remember every customer, coding agents with repo memory, multi-agent systems on one shared memory, personal assistants and grounded shop assistants.',
     breadcrumbLabel: 'Use Cases',
     ogType: 'article',
     priority: 0.8,
+    changefreq: 'monthly',
+  },
+  '/use-cases/coding-agents': {
+    title: 'Coding Agent Memory — Repo Memory for Claude Code, Cursor and Codex',
+    description:
+      'Give Claude Code, Cursor, Copilot and Codex a memory of your repository: issues, pull requests, reviews, ADRs and commits under one subject, read over MCP with a source for every answer. One command to set up.',
+    breadcrumbLabel: 'Coding Agents',
+    ogType: 'article',
+    priority: 0.7,
     changefreq: 'monthly',
   },
   '/use-cases/multi-agent-memory': {
@@ -205,6 +399,15 @@ export const PAGE_META: Record<RouteKey, PageMeta> = {
     priority: 0.7,
     changefreq: 'monthly',
   },
+  '/use-cases/support-agents': {
+    title: 'Support Agent Memory — Every Customer, Every Ticket Remembered',
+    description:
+      'Give AI support agents memory of every customer: past tickets, plan and what fixed it last time, ranked into each reply with sources. Handoff packs, repeat-issue detection, health scores and SLA tracking, plus Zendesk, Intercom and Freshdesk imports.',
+    breadcrumbLabel: 'Support Agents',
+    ogType: 'article',
+    priority: 0.8,
+    changefreq: 'monthly',
+  },
   '/vs/mem0': {
     title: 'Statewave vs. Mem0 — Deterministic Context vs. Ranked Retrieval',
     description:
@@ -241,6 +444,15 @@ export const PAGE_META: Record<RouteKey, PageMeta> = {
     priority: 0.7,
     changefreq: 'monthly',
   },
+  '/guide': {
+    title: 'Statewave Guide — In-App Guidance Backed by Source-Code Evidence',
+    description:
+      'Statewave Guide is an open-source, in-app guidance framework. It indexes your React + Node source into an evidence-backed graph, points users at the real control, and refuses when there is no evidence. Apache-2.0.',
+    breadcrumbLabel: 'Guide',
+    ogType: 'article',
+    priority: 0.7,
+    changefreq: 'monthly',
+  },
   '/vs': {
     title: 'Statewave vs. Mem0, Letta, Zep & Supermemory',
     description:
@@ -259,6 +471,7 @@ export const PAGE_META: Record<RouteKey, PageMeta> = {
     priority: 0.8,
     changefreq: 'monthly',
   },
+  ...connectorPageMeta(),
   '/developers': {
     title: 'Developers — SDKs, API, and Self-Hosted Deployment',
     description:
@@ -267,6 +480,42 @@ export const PAGE_META: Record<RouteKey, PageMeta> = {
     ogType: 'article',
     priority: 0.8,
     changefreq: 'monthly',
+  },
+  '/privacy': {
+    title: 'Privacy Policy — Statewave',
+    description:
+      'How statewave.ai handles personal data: what we collect on the site, the demo and the newsletter, the lawful basis for each, our third-party processors, how long we keep data, and your rights under the GDPR.',
+    breadcrumbLabel: 'Privacy Policy',
+    ogType: 'website',
+    priority: 0.2,
+    changefreq: 'yearly',
+  },
+  '/terms': {
+    title: 'Terms of Service — Statewave',
+    description:
+      'The terms for using statewave.ai, the hosted live demo and the newsletter: acceptable use, intellectual property, warranty, liability and governing law. Self-hosted Statewave is covered by Apache-2.0 instead.',
+    breadcrumbLabel: 'Terms of Service',
+    ogType: 'website',
+    priority: 0.2,
+    changefreq: 'yearly',
+  },
+  '/cookies': {
+    title: 'Cookie Policy — Statewave',
+    description:
+      'What cookies and browser storage statewave.ai uses, why, and how long they live. Statewave uses only cookieless, privacy-friendly analytics (Plausible) and sets no advertising or tracking cookies.',
+    breadcrumbLabel: 'Cookie Policy',
+    ogType: 'website',
+    priority: 0.2,
+    changefreq: 'yearly',
+  },
+  '/impressum': {
+    title: 'Impressum / Legal Disclosure — Statewave',
+    description:
+      'The legal disclosure for statewave.ai under § 5 TMG and the Spanish LSSI-CE: the operator, WebConnect World SL in Madrid, with its registered address, tax IDs and contact addresses.',
+    breadcrumbLabel: 'Impressum',
+    ogType: 'website',
+    priority: 0.2,
+    changefreq: 'yearly',
   },
   '/openrouter': {
     ogImage: '/openrouter/og.png',
@@ -280,6 +529,15 @@ export const PAGE_META: Record<RouteKey, PageMeta> = {
     priority: 0.8,
     changefreq: 'monthly',
   },
+  '/changelog': {
+    title: 'Changelog — Statewave Server, SDK and Connector Release Notes',
+    description:
+      'Every Statewave release in one place: the server, the Python and TypeScript SDKs and the connectors, with the new features, fixes and npm package versions from each GitHub release.',
+    breadcrumbLabel: 'Changelog',
+    ogType: 'website',
+    priority: 0.5,
+    changefreq: 'weekly',
+  },
   '/about': {
     title: 'About Statewave — Open-Source Memory Runtime for AI Agents',
     description:
@@ -288,6 +546,15 @@ export const PAGE_META: Record<RouteKey, PageMeta> = {
     ogType: 'website',
     priority: 0.6,
     changefreq: 'monthly',
+  },
+  '/contact': {
+    title: 'Contact Statewave — Issues, Questions, Security, Licensing and Press',
+    description:
+      'Where to reach the Statewave team: bugs and feature requests on GitHub Issues, questions in GitHub Discussions, security reports to security@statewave.ai, enterprise support and licensing to licensing@statewave.ai, and press through the press kit.',
+    breadcrumbLabel: 'Contact',
+    ogType: 'website',
+    priority: 0.5,
+    changefreq: 'yearly',
   },
   '/blog': {
     title: 'Blog — Notes from the Statewave project',
@@ -308,13 +575,22 @@ export const PAGE_META: Record<RouteKey, PageMeta> = {
     changefreq: 'weekly',
   },
   '/faq': {
-    title: 'FAQ — Statewave',
+    title: 'Statewave FAQ — Agent Memory, Self-Hosting and Licensing',
     description:
-      'Answers to common questions about Statewave: what it is, how memory compilation and retrieval work, self-hosting, governance, pricing, and how it compares to RAG.',
+      'Answers to common questions about Statewave: what it is, how it gives AI agents persistent memory, how it differs from a vector database, self-hosting, Apache-2.0 licensing, and the LLMs and frameworks it works with.',
     breadcrumbLabel: 'FAQ',
     ogType: 'website',
     priority: 0.6,
     changefreq: 'monthly',
+  },
+  '/press': {
+    title: 'Statewave Press Kit — Logos, Screenshots, Boilerplate and Fast Facts',
+    description:
+      'The Statewave press kit: logos for light and dark backgrounds, brand colors, admin console screenshots in light and dark, a ready-to-use boilerplate, fast facts and the open benchmark data. Press contact: press@statewave.ai.',
+    breadcrumbLabel: 'Press Kit',
+    ogType: 'website',
+    priority: 0.4,
+    changefreq: 'yearly',
   },
 }
 
@@ -421,6 +697,28 @@ export function openrouterProxyJsonLd(): JsonLd {
     dateModified: OPENROUTER_LAST_UPDATED,
     softwareHelp: REPOS.openrouter,
     offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+    publisher: { '@id': ORGANIZATION_ID },
+  }
+}
+
+/** ScholarlyArticle node for /whitepaper: the paper itself, served as a PDF. */
+export function whitepaperJsonLd(): JsonLd {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'ScholarlyArticle',
+    headline: 'Compiled Memory',
+    alternativeHeadline: 'A Deterministic, Provenance-Traced Runtime for Long-Horizon AI Agent Context',
+    description:
+      'A technical white paper arguing that agent memory should be a compiled, governed runtime rather than a retrieval index, with the Statewave model and a head-to-head evaluation on LoCoMo and LongMemEval.',
+    url: `${BASE_URL}/whitepaper`,
+    inLanguage: DEFAULT_LANG,
+    isAccessibleForFree: true,
+    encoding: {
+      '@type': 'MediaObject',
+      contentUrl: `${BASE_URL}/whitepaper/compiled-memory.pdf`,
+      encodingFormat: 'application/pdf',
+    },
+    about: ['AI agent memory', 'Context assembly', 'Data provenance'],
     publisher: { '@id': ORGANIZATION_ID },
   }
 }

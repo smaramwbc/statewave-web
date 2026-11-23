@@ -109,6 +109,32 @@ export const PAGE_FAQS: Partial<Record<RouteKey, readonly FaqEntry[]>> = {
     },
   ],
 
+  // Governance page. Answers checked against the statewave server source (policy.py, receipts.py, subjects.py) on 2026-10-26.
+  '/governance': [
+    {
+      question: 'What does Statewave check on every context call?',
+      answer:
+        'Five things: the caller identity (caller_id and caller_type), the sensitivity labels on each memory (a detector’s suggestion counts only once promoted), the active policy bundle where the first matching rule wins, the tenant policy_mode (log_only or enforce), and, when you ask for one, a receipt that hashes the exact context the agent received.',
+      links: [{ label: 'Sensitivity labels and policy', href: `${DOCS}/sensitivity-labels.md` }],
+    },
+    {
+      question: 'What is the difference between log_only and enforce?',
+      answer:
+        'log_only is the default. Every memory is still delivered, and the receipt lists in policy.filters_applied what each rule would deny or redact. In enforce, denied memories are removed before scoring so they never reach ranking, and redacted ones reach the agent as [REDACTED by policy]. Rules read memory labels, so raw episodes are not filtered. policy_mode is set per tenant.',
+    },
+    {
+      question: 'Are receipts signed, and can I replay them?',
+      answer:
+        'Receipts are opt-in per call with emit_receipt, or always on through tenant config. Each one carries a SHA-256 hash of the delivered context and is signed with HMAC-SHA256 when an operator signing key is configured. Replay re-runs retrieval with the stored policy snapshot against today’s memories and returns a structural diff, not a byte-for-byte replay.',
+      links: [{ label: 'State-assembly receipts', href: 'https://github.com/smaramwbc/statewave/blob/main/docs/state-assembly-receipts.md' }],
+    },
+    {
+      question: 'Does deleting a subject delete its receipts?',
+      answer:
+        'No. DELETE /v1/subjects/{subject_id} removes the subject’s episodes, memories and derived records in one call. Receipts are append-only: receipt_retention_days tombstones them once they age out, and 0 or no value keeps them.',
+    },
+  ],
+
   // Mirrors the Figma product page FAQ (node 256:139), condensed from the source-checked answers.
   '/product': [
     {
@@ -193,6 +219,47 @@ export const PAGE_FAQS: Partial<Record<RouteKey, readonly FaqEntry[]>> = {
     },
   ],
 
+  // Rendered by ContactPage in the v8 FAQ markup. Every address and link is
+  // one the site already publishes (About, Impressum, Press, the footer);
+  // the security answer follows SECURITY.md and the repository answer
+  // follows SUPPORT.md. No response times: none is promised site-wide.
+  '/contact': [
+    {
+      question: 'How do I report a security vulnerability in Statewave?',
+      answer:
+        'Email security@statewave.ai rather than opening a public GitHub issue or discussion, and keep the details private until a fix ships. Include a description of the vulnerability, the steps to reproduce it, the affected repository and version, and your assessment of the impact. The same address covers every Statewave repository: the server, the Python and TypeScript SDKs, the docs, the examples, the admin dashboard and this website.',
+      links: [
+        { label: 'security@statewave.ai', href: 'mailto:security@statewave.ai' },
+        { label: 'Security policy', href: 'https://github.com/smaramwbc/statewave/security/policy' },
+      ],
+    },
+    {
+      question: 'Where do I ask a question about using Statewave?',
+      answer:
+        'In GitHub Discussions on the statewave repository, where the answer stays public and searchable for the next person who has the same question. The FAQ and the docs already cover self-hosting, memory compilation, retrieval and governance, so they are worth a look first. If what you found is a bug rather than a question, open an issue with the bug report form instead.',
+      links: [
+        { label: 'GitHub Discussions', href: 'https://github.com/smaramwbc/statewave/discussions' },
+        { label: 'FAQ', href: '/faq' },
+        { label: 'Docs', href: 'https://github.com/smaramwbc/statewave-docs' },
+      ],
+    },
+    {
+      question: 'Which repository should I open an issue in?',
+      answer:
+        'The one that ships the code: statewave for the server and the REST API, statewave-py and statewave-ts for the Python and TypeScript SDKs, statewave-connectors for the connectors, statewave-docs for the documentation, statewave-examples for the examples, statewave-admin for the admin dashboard and statewave-web for this website. If you are not sure, open it in the main statewave repository and it will be routed from there.',
+      links: [{ label: 'statewave issues', href: 'https://github.com/smaramwbc/statewave/issues' }],
+    },
+    {
+      question: 'Who do I contact about enterprise support or managed hosting?',
+      answer:
+        'Write to licensing@statewave.ai. Statewave is open source under Apache-2.0, so running it in production or inside a commercial product needs no agreement with us. Enterprise support is optional and offered as a services contract: an SLA, indemnity, help with procurement, managed hosting and architecture review.',
+      links: [
+        { label: 'licensing@statewave.ai', href: 'mailto:licensing@statewave.ai' },
+        { label: 'Licensing overview', href: 'https://github.com/smaramwbc/statewave/blob/main/LICENSING.md' },
+      ],
+    },
+  ],
+
   '/developers': [
     {
       question: 'How long does it take to get Statewave running locally?',
@@ -235,11 +302,79 @@ export const PAGE_FAQS: Partial<Record<RouteKey, readonly FaqEntry[]>> = {
     },
   ],
 
+  // Rendered by WhitepaperPage in the v8 FAQ markup. Every answer follows the
+  // paper itself (public/whitepaper/compiled-memory.pdf): the thesis and
+  // section 4, the setup in section 6.1, the comparison in section 5 and the
+  // limitations in section 7. Scores stay on the page body and /benchmarks.
+  '/whitepaper': [
+    {
+      question: 'What is the Compiled Memory white paper about?',
+      answer: 'It argues that agent memory should be a compiled, governed runtime rather than a retrieval index, because determinism, provenance and governability are hard to get from vector-first and graph-first designs. It formalises the long-horizon context-assembly problem, specifies Statewave’s four stages (record, compile, context, govern) down to the scoring signals and the token-bounded packing, compares the main memory architectures, and reports a head-to-head evaluation.',
+      links: [{ label: 'How Statewave works', href: '/product' }],
+    },
+    {
+      question: 'How was the evaluation in the paper run?',
+      answer: 'On a fork of mem0’s own memory-benchmarks suite, with mem0’s judge and scoring code unchanged: LoCoMo (1,540 questions) and a 30-question LongMemEval matched set. Statewave, mem0 cloud and mem0 OSS share the same gpt-4o answerer and judge and a top-200 retrieval cap, so only the memory backend differs. It is one run per system, BEAM is still pending, and every harness fix that helped the mem0 backends is disclosed.',
+      links: [
+        { label: 'Benchmarks and methodology', href: '/benchmarks' },
+        { label: 'statewave-memory-benchmarks', href: 'https://github.com/smaramwbc/statewave-memory-benchmarks' },
+      ],
+    },
+    {
+      question: 'Which memory architectures does the paper compare?',
+      answer: 'Stateless prompting, prompt stuffing, RAG over raw messages, vector plus LLM extraction (Mem0), memory the model reads without embeddings (memU), temporal knowledge graphs (Zep and Graphiti) and agent-managed memory (Letta and MemGPT). For each it asks which of determinism, provenance and governability is a documented contract. Only mem0 is measured head-to-head; the rest is qualitative, from public documentation.',
+      links: [{ label: 'All comparisons', href: '/vs' }],
+    },
+    {
+      question: 'What does the paper say Statewave can’t do yet?',
+      answer: 'Section 7 lists it plainly. The benchmarks are single runs. Statewave runs on a single Postgres: multi-replica API, but no cross-region clustering. Multi-tenant isolation is app-layer query scoping, not row-level security. It hasn’t been load-tested beyond modest scale, it has no graph reasoning, it is self-hosted only with no managed plane, and its scoring weights aren’t configurable.',
+      links: [{ label: 'Self-hosting and deployment', href: '/developers' }],
+    },
+  ],
+
   '/vs': [
     { question: 'How does Statewave compare to Mem0, Letta, Zep, and Supermemory?', answer: 'All four rank or retrieve memory at query time in their own way — Mem0 by relevance score, Letta through agent-managed tool calls, Zep via knowledge-graph traversal, Supermemory with hybrid search plus reranking. Statewave instead compiles episodes into typed memories ahead of time and assembles a deterministic, token-bounded bundle with policy enforcement and an optional integrity-hashed receipt of what was delivered.' },
     { question: 'Is Statewave self-hosted like these alternatives?', answer: 'Yes — Apache-2.0, self-hosted on PostgreSQL and pgvector, with no cloud dependency. That is not universal among the alternatives: Zep discontinued its self-hosted Community Edition in 2025 and now runs memory only through Zep Cloud, BYOK, or Bring-Your-Own-Cloud.' },
     { question: 'Are Mem0, Letta, Zep, and Supermemory open source?', answer: 'Partially, and the gate lands in different places. Mem0’s core is Apache 2.0 but its hosted platform is paid. Letta is Apache 2.0 with a managed Letta Cloud. Supermemory’s repo is MIT, but its v0.0.7 release notes first stated a 10,000-document cap for the local build and supported self-hosted deployment starts on its $399/month Scale plan. Zep dropped its self-hosted Community Edition in 2025. Statewave is Apache-2.0 across the server and SDKs with no paid tier gating self-hosting.' },
     { question: 'Which comparison should I read first?', answer: 'Match it to what you already have: read vs Mem0 if you’re replacing an existing Mem0 integration, vs Letta if your agent framework already manages its own memory with tool calls, vs Zep if you need a knowledge-graph model or are affected by its Community Edition sunset, and vs Supermemory if you need the multimodal or local-binary surface it covers.' },
+  ],
+
+  '/guide': [
+    {
+      question: 'What is Statewave Guide?',
+      answer:
+        'An open-source, in-app guidance framework. It statically analyzes your React + Node source into an application graph, builds a verified Product Model from it, and answers user questions by pointing at the real control, or refusing when there is no evidence.',
+      links: [{ label: 'README', href: 'https://github.com/smaramwbc/statewave-guide' }],
+    },
+    {
+      question: "Is it the same as Statewave's memory runtime?",
+      answer:
+        'No. Guide is a separate framework. It can optionally use Statewave as its durable-memory backend through the server-side @statewavedev/guide-statewave adapter.',
+      links: [{ label: 'How the memory runtime works', href: '/product' }],
+    },
+    {
+      question: 'Is it on npm?',
+      answer:
+        'Not yet. None of the eight packages is published; the install path is cloning the repository.',
+      links: [{ label: 'Quick start in the README', href: 'https://github.com/smaramwbc/statewave-guide#quick-start-10-minutes-no-ai-keys-no-statewave' }],
+    },
+    {
+      question: 'How does it avoid hallucinating features?',
+      answer:
+        'The graph enumerates provably true claim opportunities before a model sees anything. The model only selects and phrases from that menu, or declines, and a verifier re-checks the selected claim before it reaches the Product Model.',
+      links: [{ label: 'Provider reality check, round 2', href: 'https://github.com/smaramwbc/statewave-guide/blob/main/docs/provider-reality-check-round-2.md' }],
+    },
+    {
+      question: 'Which frameworks does it support?',
+      answer:
+        'React + Node today. The core is framework-free so other adapters can follow; Vue, Svelte and Tauri adapters are not built yet.',
+    },
+    {
+      question: 'Is it production-ready?',
+      answer:
+        'It is a working research prototype: 139 green gates and 1,500+ unit tests. No human usefulness review has been run yet, and an independent review scored current output below its own bar.',
+      links: [{ label: 'Trust, verifiable in an hour', href: 'https://github.com/smaramwbc/statewave-guide/blob/main/docs/trust.md' }],
+    },
   ],
 
   '/connectors': [
@@ -335,17 +470,55 @@ export const PAGE_FAQS: Partial<Record<RouteKey, readonly FaqEntry[]>> = {
     },
   ],
 
+  // Rendered by ChangelogPage in the v8 FAQ markup. The page itself is built
+  // from the GitHub releases (scripts/refresh-changelog.mjs); these answers
+  // name no versions or dates, so they can't go stale as releases ship.
+  '/changelog': [
+    {
+      question: 'Where do these release notes come from?',
+      answer:
+        'From the GitHub releases of four repositories: statewave (the server), statewave-py and statewave-ts (the Python and TypeScript SDKs) and statewave-connectors. Each entry keeps the new features, fixes and npm package versions its release names. Dependency, CI and docs updates are counted rather than listed, and every entry links to the full notes on GitHub.',
+      links: [
+        { label: 'Server releases', href: 'https://github.com/smaramwbc/statewave/releases' },
+        { label: 'Python SDK releases', href: 'https://github.com/smaramwbc/statewave-py/releases' },
+        { label: 'TypeScript SDK releases', href: 'https://github.com/smaramwbc/statewave-ts/releases' },
+        { label: 'Connector releases', href: 'https://github.com/smaramwbc/statewave-connectors/releases' },
+      ],
+    },
+    {
+      question: 'How often is the changelog updated?',
+      answer:
+        'The page is built from a snapshot of those GitHub releases that is refreshed and published with the site, so a new release reaches GitHub first. The date on each entry is the day GitHub published the release, in UTC.',
+    },
+    {
+      question: 'How do I get notified about new Statewave releases?',
+      answer:
+        'On GitHub, open a repository’s Watch menu, choose Custom and tick Releases. To follow releases in a feed reader instead, add /releases.atom to the repository’s address, for example github.com/smaramwbc/statewave/releases.atom. New SDK versions are also listed on PyPI and npm as they are published.',
+      links: [
+        { label: 'Server release feed', href: 'https://github.com/smaramwbc/statewave/releases.atom' },
+        { label: 'Python SDK on PyPI', href: 'https://pypi.org/project/statewave/' },
+        { label: 'TypeScript SDK on npm', href: 'https://www.npmjs.com/package/@statewavedev/sdk' },
+      ],
+    },
+    {
+      question: 'Why do connector releases and connector packages have different version numbers?',
+      answer:
+        'statewave-connectors is one repository that publishes many npm packages. A GitHub release versions the repository as a whole, while each @statewavedev package keeps its own version number, so every connectors entry names the packages it moved and the version each one moved to.',
+      links: [{ label: 'All connectors', href: '/connectors' }],
+    },
+  ],
+
   '/use-cases': [
     {
       question: 'What is Statewave strongest at today?',
       answer:
         'Support agents with returning customers. That workflow has the most machinery behind it: session-aware ranking, escalation handoff packs, repeat-issue detection, first-response and resolution SLA tracking, and deterministic 0–100 health scores with explainable factors (healthy ≥70, watch 40–69, at_risk below 40). It is the shape with the most evidence today, not the limit of the runtime — the same primitives carry every other use case on this page.',
-      links: [{ label: 'Support-native features', href: '/product' }],
+      links: [{ label: 'Support agents', href: '/use-cases/support-agents' }],
     },
     {
       question: 'Can I use Statewave outside customer support?',
       answer:
-        'Yes. The explorer on this page catalogs 54 use-case ideas across coding copilots, workspace and account assistants, voice continuity, and multi-agent infrastructure, four of them written up as full deep-dives. They differ only in which subjects you write and which task you retrieve for; record, compile, retrieve, and govern is the same loop underneath all of them.',
+        'Yes. Coding agents, multi-agent pipelines, personal assistants and grounded shop assistants each have a runnable demo and a page of their own. They differ only in which subjects you write and which task you retrieve for; record, compile, retrieve, and govern is the same loop underneath all of them.',
       links: [{ label: 'Multi-agent memory', href: '/use-cases/multi-agent-memory' }],
     },
     {
@@ -359,6 +532,53 @@ export const PAGE_FAQS: Partial<Record<RouteKey, readonly FaqEntry[]>> = {
       answer:
         'Pick one subject type and one workflow — a customer, a repo, or a pipeline run — and wrap the two-call pattern around the agent you already have: retrieve a context bundle before the model call, write an episode after it. That is enough to see ranked memory in production. Widen to more subjects and more connectors once the first loop is boring, rather than modelling every subject up front.',
       links: [{ label: 'Start building', href: '/developers' }],
+    },
+  ],
+
+  // Rendered by CodingAgentsPage in the v8 FAQ markup. Facts follow the
+  // statewave-connectors READMEs, docs/connectors/mcp.md and the published
+  // CLI (`mcp init`, `quickstart`, the subject charset).
+  '/use-cases/coding-agents': [
+    {
+      question: 'How does a coding agent get memory of a repository?',
+      answer:
+        'Through the Statewave MCP server. The GitHub connector turns issues, pull requests, reviews and releases into episodes, and the Markdown connector does the same for ADRs, RFCs and docs, all under one subject per repository. Claude Code, Cursor, Copilot or Codex then call statewave_get_context before answering and get back a compact, ranked context bundle for that subject.',
+      links: [
+        { label: 'GitHub connector', href: '/connectors/github' },
+        { label: 'Markdown connector', href: '/connectors/markdown' },
+        { label: 'MCP server', href: '/connectors/mcp-server' },
+      ],
+    },
+    {
+      question: 'What does the one-command setup do?',
+      answer:
+        'npx @statewavedev/connectors-cli quickstart reuses a Statewave server that is already running, or starts one with Docker Compose. It writes the MCP config and memory instructions for the assistants you pick, seeds the repositories you choose with their recent commits and README, and checks that the episodes landed. It is safe to re-run, and quickstart --down stops the stack.',
+      links: [{ label: 'MCP setup docs', href: `${DOCS}/connectors/mcp.md` }],
+    },
+    {
+      question: 'Which coding assistants does it work with?',
+      answer:
+        'mcp init configures Claude Code, Claude Desktop, Cursor, VS Code with GitHub Copilot and Codex CLI, each over local stdio, so nothing listens on a port. Any other MCP client can launch the same server, and remote clients such as Claude.ai custom connectors or ChatGPT can reach it over its HTTP transport.',
+      links: [{ label: 'MCP server', href: '/connectors/mcp-server' }],
+    },
+    {
+      question: 'Which subject should a repository use?',
+      answer:
+        'One per repository, and the same one everywhere: the GitHub sync, the Markdown sync and the assistant should all name it. Subject ids can’t contain a slash, so the CLI turns the git remote acme/widgets into repo:acme.widgets. Pass that value as --subject when you sync.',
+    },
+    {
+      question: 'Does Statewave read my conversations with the assistant?',
+      answer:
+        'No. The MCP server only sees the tool calls the assistant makes. The instructions mcp init writes tell the assistant to save durable facts and decisions you state by calling statewave_ingest_episode and then statewave_compile_subject, so every write is a visible tool call, not a transcript capture.',
+    },
+    {
+      question: 'Can I see what the agent was given?',
+      answer:
+        'Yes, with receipts. A receipt belongs to one context assembly: it lists the memories and episodes that shaped the bundle and a hash of the exact bytes delivered. For assistants reading over MCP, set receipts to always in the tenant config. Sensitivity-label policies are recorded on the receipt; they run in log_only mode by default and drop or redact memories only in enforce mode.',
+      links: [
+        { label: 'Receipts', href: `${DOCS}/receipts.md` },
+        { label: 'Sensitivity labels', href: `${DOCS}/sensitivity-labels.md` },
+      ],
     },
   ],
 
@@ -475,6 +695,33 @@ export const PAGE_FAQS: Partial<Record<RouteKey, readonly FaqEntry[]>> = {
     },
   ],
 
+  '/use-cases/support-agents': [
+    {
+      question: 'How does a support agent recognise a returning customer?',
+      answer:
+        'Every ticket, chat and note is written as an episode under the customer’s subject, and the compiler turns them into typed memories: who they are, their plan, their preferences and their past issues. Before each reply the agent calls POST /v1/context with the customer’s message and gets back the memories that matter for it, ranked and packed to the max_tokens you set, each traced to the episode it came from.',
+      links: [{ label: 'Support agent example', href: 'https://github.com/smaramwbc/statewave-examples/tree/main/support-agent-python' }],
+    },
+    {
+      question: 'What goes into a handoff pack?',
+      answer:
+        'POST /v1/handoff returns the customer summary, the active issue, the steps already tried, key facts, the resolution history and recent context, plus handoff_notes: a pre-rendered markdown brief a person or a model can read. It also reports a token estimate and the IDs of the facts, episodes and resolutions it was built from, so whoever picks the ticket up can check any line of it.',
+      links: [{ label: 'API v1 contract', href: `${DOCS}/api/v1-contract.md` }],
+    },
+    {
+      question: 'How is the customer health score calculated?',
+      answer:
+        'GET /v1/subjects/{id}/health returns a 0–100 score with the factors behind it, such as open sessions or a resolution that missed its SLA, and a state: healthy at 70 and above, watch from 40 to 69, at_risk below 40. SLA metrics come from GET /v1/subjects/{id}/sla, with a 5-minute first response and a 24-hour resolution as defaults you can override per call. A webhook fires when an account’s health worsens or recovers.',
+      links: [{ label: 'API v1 contract', href: `${DOCS}/api/v1-contract.md` }],
+    },
+    {
+      question: 'Can I import our Zendesk, Intercom or Freshdesk history?',
+      answer:
+        'Yes. Each has a connector that backfills tickets or conversations, replies and internal notes, and a webhook receiver for live updates. Every item lands under the customer it belongs to, such as customer:<org_or_requester_id> for Zendesk, and every sync has a --dry-run that prints the episodes instead of sending them.',
+      links: [{ label: 'Connectors', href: '/connectors' }],
+    },
+  ],
+
   '/vs/mem0': [
     { question: 'How is Statewave different from Mem0?', answer: 'Mem0 ranks memories by relevance for an id you pass. Statewave compiles raw episodes into typed memories, ranks them with a fixed scoring model to a token budget, applies policy on the read path, and can return an integrity-hashed receipt of exactly what was delivered.' },
     { question: 'What makes retrieval deterministic?', answer: 'A fixed scoring model: kind priority (3–10), recency (0–5), task relevance (0–8), and temporal validity (−4 to +3). The same subject, task, and budget produce the same bundle every time.' },
@@ -510,5 +757,43 @@ export const PAGE_FAQS: Partial<Record<RouteKey, readonly FaqEntry[]>> = {
     { question: 'What makes Statewave retrieval deterministic?', answer: 'Four ranking signals, kind priority, recency, task relevance, and temporal validity, combine to a fixed token budget. The same subject, task, and point in time always produce the same bytes.' },
     { question: 'Does it work with Claude, Cursor, or Codex?', answer: 'Yes. One command boots the runtime, and its shipped MCP server connects any MCP-compatible client. Supermemory’s hosted platform also ships MCP and connectors; Statewave is self-hosted, so you operate Postgres and a container.' },
     { question: 'Can I run it fully offline?', answer: 'Yes. Statewave’s storage is Postgres plus pgvector, self-hosted with no cloud dependency. Supermemory’s local binary also runs standalone, but its managed platform is a Cloudflare-edge service.' },
+  ],
+
+  // Rendered by PressPage in the v8 FAQ markup. The logo answer follows
+  // TRADEMARKS.md in the statewave repo; the company details match the
+  // Impressum; the benchmark answer matches the boilerplate on the page.
+  '/press': [
+    {
+      question: 'Can I use the Statewave logo in my article?',
+      answer:
+        'Yes. The logos, icon and screenshots on this page are there for coverage of the project: articles, newsletters, podcasts, talks, reviews and comparisons. Use them unmodified, without changing their proportions, colors or composition, and not in a way that suggests endorsement, partnership or sponsorship. Anything beyond that, such as branded hosting or merchandise, needs written permission from licensing@statewave.ai.',
+      links: [
+        { label: 'Trademark policy', href: 'https://github.com/smaramwbc/statewave/blob/main/TRADEMARKS.md' },
+        { label: 'licensing@statewave.ai', href: 'mailto:licensing@statewave.ai' },
+      ],
+    },
+    {
+      question: 'How should I describe Statewave in one line?',
+      answer:
+        'As an open-source memory runtime for AI agents: it compiles raw events into provenance-tagged context bundles, it is Apache-2.0 across the server and SDKs, and it is self-hosted on Postgres with pgvector. The boilerplate on this page has a full paragraph and a version of 120 characters or fewer, both free to copy as written.',
+    },
+    {
+      question: 'Who develops Statewave?',
+      answer:
+        'WebConnect World SL, a company based in Madrid, Spain. The code is open source on GitHub under Apache-2.0, and the company’s legal details are on the Impressum. For interviews, quotes or background, write to press@statewave.ai and the request goes to the right person.',
+      links: [
+        { label: 'press@statewave.ai', href: 'mailto:press@statewave.ai' },
+        { label: 'Impressum', href: '/impressum' },
+      ],
+    },
+    {
+      question: 'Can I reproduce Statewave’s benchmark results?',
+      answer:
+        'Yes. The benchmark suite is open source under Apache-2.0, uses LoCoMo-based datasets and writes row-level JSONL output, so any published number can be rerun with your own API keys in roughly 20 minutes. There are no embargoes, hidden datasets or private evaluation steps.',
+      links: [
+        { label: 'Benchmark suite', href: 'https://github.com/smaramwbc/statewave-memory-benchmarks' },
+        { label: 'Benchmarks', href: '/benchmarks' },
+      ],
+    },
   ],
 }

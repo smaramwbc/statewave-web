@@ -1,7 +1,9 @@
 import { useState } from 'react'
+import type { ReactNode } from 'react'
 import { Cloud, Cpu, Database, Package, Server, SquareTerminal } from 'lucide-react'
 import { formatCompactCount, useGithubStars } from '../../lib/credibility-stats'
 import { PAGE_FAQS } from '../../lib/page-faqs'
+import type { RouteKey } from '../../lib/seo-meta'
 import { Code, CopyBtn } from '../home/code'
 import { DOCS, GITHUB } from '../home/links'
 import { H2, Icon, Ln } from '../home/ui'
@@ -124,9 +126,9 @@ export function RunIt() {
   )
 }
 
-/** Same entries as the FAQPage JSON-LD for /product (routeJsonLd reads PAGE_FAQS), so they can't drift. */
-export function ProductFaq() {
-  const entries = PAGE_FAQS['/product'] ?? []
+/** Same entries as the route's FAQPage JSON-LD (routeJsonLd reads PAGE_FAQS), so they can't drift. */
+export function ProductFaq({ route = '/product' }: { route?: RouteKey }) {
+  const entries = PAGE_FAQS[route] ?? []
   return (
     <section id="faq" className="pd-sec pd-sec--panel" aria-label="Frequently asked questions">
       <div className="sw-wrap">
@@ -166,7 +168,20 @@ const RECEIPT = [
   ['Policy', 'support-standard'],
 ] as const
 
-export function ProductCta() {
+const PRODUCT_CARD = (
+  <div className="pd-card pd-receipt">
+    <div className="pd-row"><b>Receipt</b><code className="pd-muted pd-grow">01J9ZK4T7M3QX8R2…</code><Pill tone="ok">✓ Signed</Pill></div>
+    <dl>{RECEIPT.map(([k, v]) => <div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}</dl>
+  </div>
+)
+
+/** Closing navy card. /governance reuses it with its own copy and side card. */
+export function ProductCta({
+  title = 'Run it on your own data',
+  text = 'Inspect every bundle your agent receives. Start with one command on your own infrastructure, with storage and retrieval in your own Postgres.',
+  docs = { to: DOCS, label: 'Read the docs' },
+  card = PRODUCT_CARD,
+}: { title?: string; text?: string; docs?: { to: string; label: string }; card?: ReactNode }) {
   const [tab, setTab] = useState<(typeof CMDS)[number]['id']>('npx')
   const cmd = CMDS.find((c) => c.id === tab)!.cmd
   const stars = formatCompactCount(useGithubStars())
@@ -176,10 +191,10 @@ export function ProductCta() {
         <div className="pd-navy pd-cta">
           <img src="/images/product/v8/cta-glow.svg" alt="" aria-hidden="true" className="pd-cta__glow" />
           <div className="pd-cta__copy">
-            <H2 a="Run it on your own data" />
-            <p>Inspect every bundle your agent receives. Start with one command on your own infrastructure, with storage and retrieval in your own Postgres.</p>
+            <H2 a={title} />
+            <p>{text}</p>
             <div className="pd-hero__ctas">
-              <Ln to={DOCS} className="sw-btn sw-btn--solid pd-btn">Read the docs</Ln>
+              <Ln to={docs.to} className="sw-btn sw-btn--solid pd-btn">{docs.label}</Ln>
               <Ln to={GITHUB} className="sw-btn sw-btn--ghost pd-btn"><Icon name="github" size={16} />Star on GitHub{stars ? ` · ${stars}` : ''}</Ln>
             </div>
             <Ln to="mailto:licensing@statewave.ai" className="pd-cta__mail">Need an SLA or an architecture review? Talk to us →</Ln>
@@ -189,10 +204,7 @@ export function ProductCta() {
             <div className="pd-cta__cmd">
               <span aria-hidden="true">$</span><code className="pd-grow">{cmd}</code><CopyBtn text={cmd} className="pd-copy" label={`Copy ${cmd}`} />
             </div>
-            <div className="pd-card pd-receipt">
-              <div className="pd-row"><b>Receipt</b><code className="pd-muted pd-grow">01J9ZK4T7M3QX8R2…</code><Pill tone="ok">✓ Signed</Pill></div>
-              <dl>{RECEIPT.map(([k, v]) => <div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}</dl>
-            </div>
+            {card}
           </div>
         </div>
       </div>
